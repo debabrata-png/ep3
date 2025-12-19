@@ -1,0 +1,30 @@
+// AI Workflow Bot - Add these imports
+import WorkflowConfigds from './pages/WorkflowConfigds';
+import WorkflowChatbotds from './pages/WorkflowChatbotds';
+
+{/* AI Workflow Bot Routes */}
+<Route path="/workflowconfigds" element={<WorkflowConfigds />} />
+<Route path="/workflowchatbotds" element={<WorkflowChatbotds />} />
+
+<ListItem button component={RouterLink} to="/workflowchatbotds">
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      {open && (
+        <ListItemText
+          primaryTypographyProps={{ fontSize: '14px' }}
+          primary="Work Flow Chatbot"
+        />
+      )}
+    </ListItem>
+    <ListItem button component={RouterLink} to="/workflowconfigds">
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      {open && (
+        <ListItemText
+          primaryTypographyProps={{ fontSize: '14px' }}
+          primary="Work Flow Config"
+        />
+      )}
+    </ListItem>
