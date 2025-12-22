@@ -136,489 +136,497 @@ function MarksheetGenerationPageds() {
   const generateMarksheetPDF = async (pdfData) => {
     const doc = new jsPDF({
       orientation: "portrait",
-      unit: "mm",
+      unit: "pt",  // Changed to points for better precision (1pt = 1/72 inch)
       format: "a4",
     });
 
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 10;
-
-    // Border color based on class type
-    const borderColor = pdfData.classtype === "IX-X" ? [0, 128, 0] : [255, 153, 26];
+    const pageWidth = 595;  // A4 width in points
+    const pageHeight = 842; // A4 height in points
 
     // Helper functions
-    const drawBorder = () => {
-      doc.setDrawColor(...borderColor);
-      doc.setLineWidth(1);
-      doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+    const drawText = (text, x, y, size = 12, bold = false, color = [0, 0, 0]) => {
+      doc.setFontSize(size);
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setTextColor(...color);
+      doc.text(String(text), x, y);
     };
 
-    const drawLine = (x1, y1, x2, y2, width = 0.5) => {
+    const drawLine = (x1, y1, x2, y2, width = 1, color = [0, 0, 0]) => {
+      doc.setDrawColor(...color);
       doc.setLineWidth(width);
-      doc.setDrawColor(0, 0, 0);
       doc.line(x1, y1, x2, y2);
     };
 
-    const drawRect = (x, y, w, h, fill = false) => {
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.3);
-      if (fill) {
-        doc.setFillColor(240, 240, 240);
-        doc.rect(x, y, w, h, "FD");
+    const drawRect = (x, y, w, h, options = {}) => {
+      const { lineWidth = 1, strokeColor = [0, 0, 0], fillColor = null } = options;
+      doc.setDrawColor(...strokeColor);
+      doc.setLineWidth(lineWidth);
+      
+      if (fillColor) {
+        doc.setFillColor(...fillColor);
+        doc.rect(x, y, w, h, 'FD');
       } else {
         doc.rect(x, y, w, h);
       }
     };
 
-    const centerText = (text, y, fontSize = 12, bold = false) => {
-      doc.setFontSize(fontSize);
-      doc.setFont("helvetica", bold ? "bold" : "normal");
-      const textWidth = doc.getTextWidth(text);
-      doc.text(text, (pageWidth - textWidth) / 2, y);
-    };
-
     // ==================== PAGE 1: PROFILE PAGE ====================
-    drawBorder();
+    
+    // GREEN outer border
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: [0, 128, 0] });
+    
+    // Inner black border
+    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
 
-    // School Code
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text("School Code", 15, 15);
-    doc.setFont("helvetica", "normal");
-    doc.text("15040", 15, 19);
+    // School Code & UDISE Code (top corners)
+    drawText("School Code", 30, 35, 10, true);
+    drawText("15040", 30, 50, 12);
+    drawText("UDISE Code", 470, 35, 10, true);
+    drawText("22051023902", 470, 50, 12);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("UDISE Code", 170, 15);
-    doc.setFont("helvetica", "normal");
-    doc.text("22051023902", 170, 19);
+    // School name and details
+    drawText("CAREER PUBLIC SCHOOL", 120, 90, 22, true);
+    drawText("CBSE-Affiliation No.-3330196", 185, 110, 12, true);
+    drawText("Behind Ambedkar Bhawan, Mudapar Bazar ,Korba(C.G.)-495677", 95, 125, 10);
+    drawText("careerpublicschool.korba@gmail.com", 170, 140, 10);
+    drawText("07759-249351     62689-21464", 200, 155, 10);
 
-    // School Name
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    centerText("CAREER PUBLIC SCHOOL", 30);
-
-    doc.setFontSize(10);
-    centerText("CBSE-Affiliation No.-3330196", 37);
-
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    centerText("Behind Ambedkar Bhawan, Mudapar Bazar ,Korba(C.G.)-495677", 42);
-    centerText("careerpublicschool.korba@gmail.com", 47);
-    centerText("07759-249351     62689-21464", 52);
-
-    // Performance Profile
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    centerText("PERFORMANCE  PROFILE", 62);
-    drawLine(80, 63, 130, 63, 0.8);
+    // PERFORMANCE PROFILE heading
+    drawText("PERFORMANCE  PROFILE", 180, 185, 18, true);
+    drawLine(180, 190, 415, 190, 2);
 
     // Session
-    doc.setFontSize(12);
-    doc.text("Session :", 85, 72);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.session, 105, 72);
+    drawText("Session :", 210, 210, 14, true);
+    drawText(pdfData.session, 275, 210, 14);
 
     // Photo box
-    drawRect(170, 65, 25, 30);
+    drawRect(485, 175, 80, 100, { lineWidth: 2 });
 
-    // Student Profile Section
-    drawLine(15, 100, 195, 100, 0.8);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Student's  Profile", 15, 108);
-    drawLine(15, 109, 195, 109, 0.5);
+    // Horizontal separator
+    drawLine(30, 260, 565, 260, 1.5);
 
-    let yPos = 118;
-    const lineGap = 10;
+    // Student's Profile heading
+    drawText("Student's  Profile", 30, 280, 14, true);
+    drawLine(30, 285, 565, 285, 1);
 
     // Profile fields
-    const profileFields = [
-      { label: "Name", value: pdfData.profile.name },
-      { label: "Father's Name", value: pdfData.profile.father },
-      { label: "Mother's Name", value: pdfData.profile.mother },
-      { label: "Residential Address", value: pdfData.profile.address },
-    ];
+    let currentY = 310;
+    const lineGap = 35;
 
-    profileFields.forEach((field) => {
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text(field.label, 20, yPos);
-      drawLine(60, yPos + 1, 195, yPos + 1, 0.3);
-      doc.setFont("helvetica", "normal");
-      doc.text(field.value, 62, yPos);
-      yPos += lineGap;
-    });
+    // Name
+    drawText("Name", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.name, 185, currentY, 12);
+    currentY += lineGap;
+
+    // Father's Name
+    drawText("Father's Name", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.father, 185, currentY, 12);
+    currentY += lineGap;
+
+    // Mother's Name
+    drawText("Mother's Name", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.mother, 185, currentY, 12);
+    currentY += lineGap;
+
+    // Residential Address
+    drawText("Residential Address", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.address, 185, currentY, 12);
+    currentY += lineGap;
 
     // Class & Section with Roll No
-    doc.setFont("helvetica", "bold");
-    doc.text("Class & Section", 20, yPos);
-    drawLine(60, yPos + 1, 115, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.classSection, 62, yPos);
-    doc.setFont("helvetica", "bold");
-    doc.text("Roll No.", 125, yPos);
-    drawLine(145, yPos + 1, 195, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.rollNo, 147, yPos);
-    yPos += lineGap;
+    drawText("Class & Section", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 340, currentY + 3, 1);
+    drawText(pdfData.profile.classSection, 185, currentY, 12);
+    drawText("Roll No.", 360, currentY, 12, true);
+    drawLine(420, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.rollNo, 425, currentY, 12);
+    currentY += lineGap;
 
-    // DOB with Admission No
-    doc.setFont("helvetica", "bold");
-    doc.text("Date of Birth", 20, yPos);
-    drawLine(60, yPos + 1, 115, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.dob, 62, yPos);
-    doc.setFont("helvetica", "bold");
-    doc.text("Admission No.", 125, yPos);
-    drawLine(155, yPos + 1, 195, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.admissionNo, 157, yPos);
-    yPos += lineGap;
+    // Date of Birth with Admission No.
+    drawText("Date of Birth", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 340, currentY + 3, 1);
+    drawText(pdfData.profile.dob, 185, currentY, 12);
+    drawText("Admission No.", 360, currentY, 12, true);
+    drawLine(450, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.admissionNo, 455, currentY, 12);
+    currentY += lineGap;
 
-    // Contact with CBSE Reg
-    doc.setFont("helvetica", "bold");
-    doc.text("Contact No.", 20, yPos);
-    drawLine(60, yPos + 1, 115, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.contact, 62, yPos);
-    doc.setFont("helvetica", "bold");
-    doc.text("CBSE Reg. No.", 125, yPos);
-    drawLine(160, yPos + 1, 195, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.profile.cbseRegNo, 162, yPos);
+    // Contact No. with CBSE Reg. No.
+    drawText("Contact No.", 40, currentY, 12, true);
+    drawLine(180, currentY + 3, 340, currentY + 3, 1);
+    drawText(pdfData.profile.contact, 185, currentY, 12);
+    drawText("CBSE Reg. No.", 360, currentY, 12, true);
+    drawLine(460, currentY + 3, 565, currentY + 3, 1);
+    drawText(pdfData.profile.cbseRegNo, 465, currentY, 12);
 
-    // Attendance Section
-    yPos = 200;
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    centerText("ATTENDANCE", yPos);
+    // ATTENDANCE Section
+    drawText("ATTENDANCE", 220, 655, 18, true);
 
-    yPos += 10;
-    doc.setFontSize(11);
-    doc.text("Term - I", 85, yPos);
-    doc.text("Term - II", 135, yPos);
+    // Term headers
+    drawText("Term - I", 300, 705, 14, true);
+    drawText("Term - II", 420, 705, 14, true);
 
-    yPos += 5;
-    const attTableX = 40;
-    const attTableY = yPos;
-    const col1W = 60;
-    const col2W = 40;
-    const col3W = 40;
-    const rowH = 10;
+    // Attendance table
+    const tableX = 120;
+    const tableY = 720;
+    const col1W = 180;
+    const col2W = 120;
+    const col3W = 120;
+    const rowH = 30;
 
-    drawRect(attTableX, attTableY, col1W + col2W + col3W, rowH * 2);
-    drawLine(attTableX + col1W, attTableY, attTableX + col1W, attTableY + rowH * 2, 0.5);
-    drawLine(attTableX + col1W + col2W, attTableY, attTableX + col1W + col2W, attTableY + rowH * 2, 0.5);
-    drawLine(attTableX, attTableY + rowH, attTableX + col1W + col2W + col3W, attTableY + rowH, 0.5);
+    // Table border
+    drawRect(tableX, tableY, col1W + col2W + col3W, rowH * 2, { lineWidth: 2 });
+    
+    // Vertical lines
+    drawLine(tableX + col1W, tableY, tableX + col1W, tableY + rowH * 2, 2);
+    drawLine(tableX + col1W + col2W, tableY, tableX + col1W + col2W, tableY + rowH * 2, 2);
+    
+    // Horizontal line
+    drawLine(tableX, tableY + rowH, tableX + col1W + col2W + col3W, tableY + rowH, 2);
 
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text("Total Working Days", attTableX + 2, attTableY + 7);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(pdfData.attendance.term1.working), attTableX + col1W + 15, attTableY + 7);
-    doc.text(String(pdfData.attendance.term2.working), attTableX + col1W + col2W + 15, attTableY + 7);
+    // Table data - FIXED: Now populating actual attendance data
+    drawText("Total Working Days", tableX + 10, tableY + 20, 11, true);
+    drawText(String(pdfData.attendance.term1.working || "0"), tableX + col1W + 45, tableY + 20, 11);
+    drawText(String(pdfData.attendance.term2.working || "0"), tableX + col1W + col2W + 45, tableY + 20, 11);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Total Attendance", attTableX + 2, attTableY + rowH + 7);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(pdfData.attendance.term1.present), attTableX + col1W + 15, attTableY + rowH + 7);
-    doc.text(String(pdfData.attendance.term2.present), attTableX + col1W + col2W + 15, attTableY + rowH + 7);
+    drawText("Total Attendance", tableX + 10, tableY + rowH + 20, 11, true);
+    drawText(String(pdfData.attendance.term1.present || "0"), tableX + col1W + 45, tableY + rowH + 20, 11);
+    drawText(String(pdfData.attendance.term2.present || "0"), tableX + col1W + col2W + 45, tableY + rowH + 20, 11);
 
-    // Signatures
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Class Teacher's Signature", 20, 280);
-    doc.text("Parent's Signature", 140, 280);
+    // Signature lines
+    drawText("Class Teacher's Signature", 40, 800, 12, true);
+    drawText("Parent's Signature", 400, 800, 12, true);
 
     // ==================== PAGE 2: INSTRUCTIONS ====================
     doc.addPage();
-    drawBorder();
 
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    centerText("Instructions", 20);
+    // GREEN outer border
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: [0, 128, 0] });
+    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
 
-    yPos = 30;
-    doc.setFontSize(10);
-    doc.text("Grading Scale for scholastic area : Grades are awarded on 8-point grading scale as follows :-", 15, yPos);
+    // Instructions title
+    drawText("Instructions", 250, 70, 18, true);
 
-    yPos += 8;
+    // First grading scale section
+    drawText("Grading Scale for scholastic area : Grades are awarded on 8-point grading scale as follows :-", 40, 110, 12, true);
+
+    // First table - Scholastic grading scale
+    let table1X = 80;
+    let table1Y = 140;
+    const table1W = 435;
+    const table1H = 240;
+    const table1Rows = 9;
+    const rowHeight = table1H / table1Rows;
+
+    // Table border
+    drawRect(table1X, table1Y, table1W, table1H, { lineWidth: 1.5 });
+    
+    // Vertical divider
+    drawLine(table1X + table1W / 2, table1Y, table1X + table1W / 2, table1Y + table1H, 1.5);
+
+    // Horizontal lines
+    for (let i = 1; i < table1Rows; i++) {
+      const y = table1Y + (i * rowHeight);
+      drawLine(table1X, y, table1X + table1W, y, 1);
+    }
+
+    // Headers
+    drawText("MARKS RANGE", table1X + 80, table1Y + 20, 12, true);
+    drawText("GRADE", table1X + table1W / 2 + 80, table1Y + 20, 12, true);
+
+    // Data
     const scholasticGrades = [
-      ["MARKS RANGE", "GRADE"],
-      ["91-100", "A1"],
-      ["81-90", "A2"],
-      ["71-80", "B1"],
-      ["61-70", "B2"],
-      ["51-60", "C1"],
-      ["41-50", "C2"],
-      ["33-40", "D"],
-      ["32 & Below", "E (Failed)"],
+      ['91-100', 'A1'],
+      ['81-90', 'A2'],
+      ['71-80', 'B1'],
+      ['61-70', 'B2'],
+      ['51-60', 'C1'],
+      ['41-50', 'C2'],
+      ['33-40', 'D'],
+      ['32 & Below', 'E (Failed)']
     ];
 
-    const tableStartX = 40;
-    const cellWidth = 65;
-    const cellHeight = 8;
-
-    scholasticGrades.forEach((row, index) => {
-      if (index === 0) {
-        doc.setFont("helvetica", "bold");
-        drawRect(tableStartX, yPos, cellWidth, cellHeight, true);
-        drawRect(tableStartX + cellWidth, yPos, cellWidth, cellHeight, true);
-      } else {
-        doc.setFont("helvetica", "normal");
-        drawRect(tableStartX, yPos, cellWidth, cellHeight);
-        drawRect(tableStartX + cellWidth, yPos, cellWidth, cellHeight);
-      }
-
-      doc.setFontSize(9);
-      doc.text(row[0], tableStartX + cellWidth / 2 - doc.getTextWidth(row[0]) / 2, yPos + 6);
-      doc.text(row[1], tableStartX + cellWidth + cellWidth / 2 - doc.getTextWidth(row[1]) / 2, yPos + 6);
-
-      yPos += cellHeight;
+    scholasticGrades.forEach((row, i) => {
+      const y = table1Y + ((i + 2) * rowHeight) - 10;
+      drawText(row[0], table1X + 80, y, 11);
+      drawText(row[1], table1X + table1W / 2 + 80, y, 11);
     });
 
-    // Co-scholastic grading
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    const coScholasticText = pdfData.classtype === "IX-X"
-      ? "Grading Scale for Co-Scholastic areas : Grades are awarded on 3-point grading scale as"
-      : "Grading Scale for Co-Scholastic areas : Grades are awarded on 5-point grading scale as";
-    doc.text(coScholasticText, 15, yPos);
-    yPos += 5;
-    doc.text("follows :-", 15, yPos);
-    yPos += 8;
+    // Second grading scale section - Co-Scholastic
+    drawText("Grading Scale for Co-Scholastic areas : Grades are awarded on 3-point grading scale as", 40, 415, 12, true);
+    drawText("follows :-", 40, 430, 12, true);
 
-    const coScholasticGrades = pdfData.classtype === "IX-X"
-      ? [
-          ["GRADE", "GRADE POINT"],
-          ["A", "5 (Outstanding)"],
-          ["B", "4 (Very Good)"],
-          ["C", "3 (Fair)"],
-        ]
-      : [
-          ["GRADE", "GRADE POINT"],
-          ["41-50", "A"],
-          ["31-40", "B"],
-          ["21-30", "C"],
-          ["11-20", "D"],
-          ["10 & Below", "E"],
-        ];
+    // Second table - Co-Scholastic grading scale (3-point)
+    let table2X = 80;
+    let table2Y = 455;
+    const table2W = 435;
+    const table2H = 120;
+    const table2Rows = 4;
+    const row2Height = table2H / table2Rows;
 
-    coScholasticGrades.forEach((row, index) => {
-      if (index === 0) {
-        doc.setFont("helvetica", "bold");
-        drawRect(tableStartX, yPos, cellWidth, cellHeight, true);
-        drawRect(tableStartX + cellWidth, yPos, cellWidth, cellHeight, true);
-      } else {
-        doc.setFont("helvetica", "normal");
-        drawRect(tableStartX, yPos, cellWidth, cellHeight);
-        drawRect(tableStartX + cellWidth, yPos, cellWidth, cellHeight);
-      }
+    // Table border
+    drawRect(table2X, table2Y, table2W, table2H, { lineWidth: 1.5 });
+    
+    // Vertical divider
+    drawLine(table2X + table2W / 2, table2Y, table2X + table2W / 2, table2Y + table2H, 1.5);
 
-      doc.setFontSize(9);
-      doc.text(row[0], tableStartX + cellWidth / 2 - doc.getTextWidth(row[0]) / 2, yPos + 6);
-      doc.text(row[1], tableStartX + cellWidth + cellWidth / 2 - doc.getTextWidth(row[1]) / 2, yPos + 6);
+    // Horizontal lines
+    for (let i = 1; i < table2Rows; i++) {
+      const y = table2Y + (i * row2Height);
+      drawLine(table2X, y, table2X + table2W, y, 1);
+    }
 
-      yPos += cellHeight;
+    // Headers
+    drawText("GRADE", table2X + 80, table2Y + 20, 12, true);
+    drawText("GRADE POINT", table2X + table2W / 2 + 80, table2Y + 20, 12, true);
+
+    // Data for Co-Scholastic 3-point scale
+    const coScholasticGrades = [
+      ['A', '5 (Outstanding)'],
+      ['B', '4 (Very Good)'],
+      ['C', '3 (Fair)']
+    ];
+
+    coScholasticGrades.forEach((row, i) => {
+      const y = table2Y + ((i + 2) * row2Height) - 8;
+      drawText(row[0], table2X + 80, y, 11);
+      drawText(row[1], table2X + table2W / 2 + 80, y, 11);
     });
 
     // ==================== PAGE 3: SCHOLASTIC AREAS ====================
     doc.addPage();
-    drawBorder();
 
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    centerText("PART I - SCHOLASTIC AREAS", 20);
+    // GREEN border
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: [0, 128, 0] });
 
-    yPos = 28;
+    // Title
+    drawText("PART I - SCHOLASTIC AREAS", 195, 60, 16, true);
 
-    // Table headers
-    const subTableX = 15;
-    const colWidths = [40, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12];
-    const headerHeight = 15;
+    // Main subjects table
+    const subTableX = 20;
+    let subTableY = 90;
+    const totalW = 555;
 
-    // Main headers
-    drawRect(subTableX, yPos, colWidths[0], headerHeight);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text("Scholastic", subTableX + 2, yPos + 6);
-    doc.text("Areas:", subTableX + 2, yPos + 10);
+    // Row 1: Scholastic Areas + Term headers
+    const scholasticAreasHeight = 60;
+    
+    // Subject name header
+    drawRect(subTableX, subTableY, 100, scholasticAreasHeight, { lineWidth: 1 });
+    drawText("Scholastic", subTableX + 10, subTableY + 15, 10, true);
+    drawText("Areas:", subTableX + 10, subTableY + 30, 10, true);
 
-    let currentX = subTableX + colWidths[0];
-    drawRect(currentX, yPos, colWidths.slice(1, 7).reduce((a, b) => a + b, 0), 7);
-    doc.text("Term - I (100 Marks)", currentX + 25, yPos + 5);
+    // Term I header
+    drawRect(subTableX + 100, subTableY, 227, 22, { lineWidth: 1 });
+    drawText("Term - I (100 Marks)", subTableX + 170, subTableY + 15, 11, true);
 
-    currentX += colWidths.slice(1, 7).reduce((a, b) => a + b, 0);
-    drawRect(currentX, yPos, colWidths.slice(7).reduce((a, b) => a + b, 0), 7);
-    doc.text("Term - II (100 Marks)", currentX + 25, yPos + 5);
+    // Term II header
+    drawRect(subTableX + 327, subTableY, 228, 22, { lineWidth: 1 });
+    drawText("Term - II (100 Marks)", subTableX + 390, subTableY + 15, 11, true);
 
-    // Sub-headers
-    yPos += 7;
-    currentX = subTableX + colWidths[0];
+    // Row 2: Sub Name + detailed column headers
+    const subNameHeight = 38;
+    
+    drawRect(subTableX, subTableY + 22, 100, subNameHeight, { lineWidth: 1 });
+    drawText("Sub Name", subTableX + 30, subTableY + 45, 9, true);
 
-    const headers = [
-      "P.Test\n(10)", "Note\n(5)", "Enr\n(5)", "Mid\n(80)", "Obt\n(100)", "Gr",
-      "P.Test\n(10)", "Note\n(5)", "Enr\n(5)", "Ann\n(80)", "Obt\n(100)", "Gr",
-    ];
-
-    headers.forEach((header, i) => {
-      drawRect(currentX, yPos, colWidths[i + 1], 8);
-      const lines = header.split("\n");
-      doc.setFontSize(6);
+    // Term I detailed headers
+    const term1ColWidths = [38, 38, 38, 38, 38, 37]; // Total: 227
+    const term1Headers = ["Periodic\n(10) I", "Note\n(5)", "Sub\n(5)", "Mid\n(80)", "Marks.\n(100)", "Grade"];
+    
+    let currentX = subTableX + 100;
+    term1Headers.forEach((header, i) => {
+      drawRect(currentX, subTableY + 22, term1ColWidths[i], subNameHeight, { lineWidth: 1 });
+      const lines = header.split('\n');
       lines.forEach((line, j) => {
-        doc.text(line, currentX + colWidths[i + 1] / 2 - doc.getTextWidth(line) / 2, yPos + 3 + j * 2);
+        drawText(line, currentX + 2, subTableY + 35 + (j * 8), 6, true);
       });
-      currentX += colWidths[i + 1];
+      currentX += term1ColWidths[i];
     });
 
-    // Subject rows
-    yPos += 8;
-    const subRowHeight = 8;
+    // Term II detailed headers
+    const term2ColWidths = [38, 38, 38, 38, 38, 38]; // Total: 228
+    const term2Headers = ["Periodic\n(10) II", "Note\n(5)", "Sub\n(5)", "Annual\n(80)", "Marks.\n(100)", "Grade"];
+    
+    term2Headers.forEach((header, i) => {
+      drawRect(currentX, subTableY + 22, term2ColWidths[i], subNameHeight, { lineWidth: 1 });
+      const lines = header.split('\n');
+      lines.forEach((line, j) => {
+        drawText(line, currentX + 2, subTableY + 35 + (j * 8), 6, true);
+      });
+      currentX += term2ColWidths[i];
+    });
+
+    // Subject data rows
+    let rowY = subTableY + scholasticAreasHeight;
+    const subRowHeight = 25;
 
     pdfData.subjects.forEach((subject) => {
-      drawRect(subTableX, yPos, colWidths[0], subRowHeight);
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "normal");
-      doc.text(subject.subjectname.substring(0, 25), subTableX + 2, yPos + 5);
+      // Subject name cell
+      drawRect(subTableX, rowY, 100, subRowHeight, { lineWidth: 1 });
+      drawText(subject.subjectname.substring(0, 25), subTableX + 3, rowY + 17, 8);
 
-      currentX = subTableX + colWidths[0];
-      const values = [
-        subject.term1PeriodicTest, subject.term1Notebook, subject.term1Enrichment,
-        subject.term1MidExam, subject.term1Total, subject.term1Grade,
-        subject.term2PeriodicTest, subject.term2Notebook, subject.term2Enrichment,
-        subject.term2AnnualExam, subject.term2Total, subject.term2Grade,
+      currentX = subTableX + 100;
+
+      // Term I data cells
+      const term1Values = [
+        subject.term1PeriodicTest || "-",
+        subject.term1Notebook || "-",
+        subject.term1Enrichment || "-",
+        subject.term1MidExam || "-",
+        subject.term1Total || "-",
+        subject.term1Grade || "-"
       ];
 
-      values.forEach((value, i) => {
-        drawRect(currentX, yPos, colWidths[i + 1], subRowHeight);
-        doc.text(String(value), currentX + colWidths[i + 1] / 2 - doc.getTextWidth(String(value)) / 2, yPos + 5);
-        currentX += colWidths[i + 1];
+      term1ColWidths.forEach((width, i) => {
+        drawRect(currentX, rowY, width, subRowHeight, { lineWidth: 1 });
+        const text = String(term1Values[i]);
+        const textWidth = doc.getTextWidth(text);
+        drawText(text, currentX + (width - textWidth) / 2, rowY + 17, 9);
+        currentX += width;
       });
 
-      yPos += subRowHeight;
+      // Term II data cells
+      const term2Values = [
+        subject.term2PeriodicTest || "-",
+        subject.term2Notebook || "-",
+        subject.term2Enrichment || "-",
+        subject.term2AnnualExam || "-",
+        subject.term2Total || "-",
+        subject.term2Grade || "-"
+      ];
+
+      term2ColWidths.forEach((width, i) => {
+        drawRect(currentX, rowY, width, subRowHeight, { lineWidth: 1 });
+        const text = String(term2Values[i]);
+        const textWidth = doc.getTextWidth(text);
+        drawText(text, currentX + (width - textWidth) / 2, rowY + 17, 9);
+        currentX += width;
+      });
+
+      rowY += subRowHeight;
     });
 
     // Total row
-    drawRect(subTableX, yPos, colWidths[0], subRowHeight);
-    doc.setFont("helvetica", "bold");
-    doc.text("Total", subTableX + 15, yPos + 5);
+    drawRect(subTableX, rowY, 100, subRowHeight, { lineWidth: 1 });
+    drawText("Total", subTableX + 40, rowY + 17, 9, true);
 
-    currentX = subTableX + colWidths[0];
-    for (let i = 0; i < 12; i++) {
-      drawRect(currentX, yPos, colWidths[i + 1], subRowHeight);
-      currentX += colWidths[i + 1];
-    }
+    currentX = subTableX + 100;
+    [...term1ColWidths, ...term2ColWidths].forEach(width => {
+      drawRect(currentX, rowY, width, subRowHeight, { lineWidth: 1 });
+      currentX += width;
+    });
 
-    // Final assessment
-    yPos += 18;
-    const finalHeaders = ["Term - I\n(50%)", "Term - II\n(50%)", "Grand\nTotal", "Percent", "Grade", "Rank"];
-    const finalWidths = [32, 32, 32, 32, 32, 32];
+    // FINAL ASSESSMENT section
+    rowY += 60;
+    drawText("FINAL ASSESSMENT", subTableX + 220, rowY, 14, true);
+
+    // Final assessment table
+    rowY += 35;
+    const finalHeaders = ["Term - I\n(50%)", "Term - II\n(50%)", "Grand\nTotal", "Percentage", "Overall\nGrade", "Rank"];
+    const finalWidths = [92, 92, 93, 92, 93, 93]; // Total: 555
 
     currentX = subTableX;
     finalHeaders.forEach((header, i) => {
-      drawRect(currentX, yPos, finalWidths[i], 10, true);
-      const lines = header.split("\n");
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
+      drawRect(currentX, rowY, finalWidths[i], 40, { lineWidth: 1, fillColor: [240, 240, 240] });
+      const lines = header.split('\n');
       lines.forEach((line, j) => {
-        doc.text(line, currentX + finalWidths[i] / 2 - doc.getTextWidth(line) / 2, yPos + 4 + j * 3);
+        const textWidth = doc.getTextWidth(line);
+        drawText(line, currentX + (finalWidths[i] - textWidth) / 2, rowY + 18 + (j * 10), 10, true);
       });
       currentX += finalWidths[i];
     });
 
-    yPos += 10;
+    // Final assessment data row
+    rowY += 40;
     currentX = subTableX;
     const finalValues = [
-      pdfData.term1TotalMarks,
-      pdfData.term2TotalMarks,
-      pdfData.grandTotal,
-      `${pdfData.percentage}%`,
-      pdfData.overallGrade,
-      pdfData.rank || "-",
+      pdfData.term1TotalMarks || "0",
+      pdfData.term2TotalMarks || "0",
+      pdfData.grandTotal || "0",
+      `${pdfData.percentage || "0"}%`,
+      pdfData.overallGrade || "-",
+      pdfData.rank || "-"
     ];
 
     finalValues.forEach((value, i) => {
-      drawRect(currentX, yPos, finalWidths[i], 8);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text(String(value), currentX + finalWidths[i] / 2 - doc.getTextWidth(String(value)) / 2, yPos + 5);
+      drawRect(currentX, rowY, finalWidths[i], 30, { lineWidth: 1 });
+      const text = String(value);
+      const textWidth = doc.getTextWidth(text);
+      drawText(text, currentX + (finalWidths[i] - textWidth) / 2, rowY + 20, 11);
       currentX += finalWidths[i];
     });
 
-    // Remarks
-    yPos += 15;
-    drawRect(subTableX, yPos, 180, 12);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("Class Teacher's", subTableX + 2, yPos + 5);
-    doc.text("Remark", subTableX + 2, yPos + 10);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.remarks || "-", subTableX + 50, yPos + 7);
+    // Class Teacher's Remark
+    rowY += 50;
+    drawRect(subTableX, rowY, totalW, 40, { lineWidth: 1 });
+    drawText("Class Teacher's", subTableX + 10, rowY + 18, 12, true);
+    drawText("Remark", subTableX + 10, rowY + 32, 12, true);
+    drawText(pdfData.remarks || "-", subTableX + 150, rowY + 25, 11);
 
-    // ==================== PAGE 4: CO-SCHOLASTIC ====================
+    // ==================== PAGE 4: CO-SCHOLASTIC AREAS ====================
     doc.addPage();
-    drawBorder();
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("PART II - CO-SCHOLASTIC AREAS : [ON 3-POINT (A-C) GRADING SCALE]", 15, 20);
+    // GREEN border
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: [0, 128, 0] });
 
-    yPos = 28;
-    const coTableX = 15;
-    const coColWidths = [120, 35, 35];
+    // PART II heading
+    drawText("PART II - CO-SCHOLASTIC AREAS : [ON 3-POINT (A-C) GRADING SCALE]", 30, 60, 12, true);
+
+    // Co-scholastic table
+    const coTableX = 30;
+    let coTableY = 90;
+    const coTableW = 535;
+    const coTableH = 130;
+
+    // Main table border
+    drawRect(coTableX, coTableY, coTableW, coTableH, { lineWidth: 1.5 });
+
+    // Column headers
+    drawRect(coTableX, coTableY, coTableW, 25, { lineWidth: 1, fillColor: [242, 242, 242] });
+    
+    // Vertical lines for columns
+    drawLine(coTableX + 280, coTableY, coTableX + 280, coTableY + coTableH, 1);
+    drawLine(coTableX + 380, coTableY, coTableX + 380, coTableY + coTableH, 1);
 
     // Headers
-    drawRect(coTableX, yPos, coColWidths[0] + coColWidths[1] + coColWidths[2], 8, true);
-    doc.text("Grade", coTableX + coColWidths[0] + 10, yPos + 5);
-    doc.text("Grade", coTableX + coColWidths[0] + coColWidths[1] + 10, yPos + 5);
-    yPos += 8;
+    drawText("Grade", coTableX + 320, coTableY + 13, 11, true);
+    drawText("Grade", coTableX + 420, coTableY + 13, 11, true);
+    drawText("(Term I)", coTableX + 310, coTableY + 22, 9);
+    drawText("(Term II)", coTableX + 410, coTableY + 22, 9);
 
-    drawRect(coTableX, yPos - 8, coColWidths[0], 8);
-    drawRect(coTableX + coColWidths[0], yPos - 8, coColWidths[1], 8, true);
-    drawRect(coTableX + coColWidths[0] + coColWidths[1], yPos - 8, coColWidths[2], 8, true);
+    // Co-scholastic data rows
+    pdfData.coScholastic.forEach((item, idx) => {
+      const rowY = coTableY + 40 + (idx * 25);
+      
+      // Horizontal line
+      drawLine(coTableX, rowY - 15, coTableX + coTableW, rowY - 15, 0.5);
 
-    doc.setFontSize(8);
-    doc.text("(Term I)", coTableX + coColWidths[0] + 10, yPos - 3);
-    doc.text("(Term II)", coTableX + coColWidths[0] + coColWidths[1] + 10, yPos - 3);
+      // Area name
+      drawText(item.area, coTableX + 5, rowY - 3, 9);
 
-    // Co-scholastic rows
-    pdfData.coScholastic.forEach((item) => {
-      drawRect(coTableX, yPos, coColWidths[0], 8);
-      drawRect(coTableX + coColWidths[0], yPos, coColWidths[1], 8);
-      drawRect(coTableX + coColWidths[0] + coColWidths[1], yPos, coColWidths[2], 8);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(item.area, coTableX + 2, yPos + 5);
-      doc.text(item.term1Grade, coTableX + coColWidths[0] + 15, yPos + 5);
-      doc.text(item.term2Grade, coTableX + coColWidths[0] + coColWidths[1] + 15, yPos + 5);
-
-      yPos += 8;
+      // Grades
+      drawText(item.term1Grade || "-", coTableX + 320, rowY - 3, 10);
+      drawText(item.term2Grade || "-", coTableX + 420, rowY - 3, 10);
     });
 
     // Promotion section
-    yPos = 200;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Congratulations Promoted to Class :", 15, yPos);
-    drawLine(88, yPos + 1, 195, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.promotedToClass || "", 90, yPos);
+    let promotionY = 480;
+    drawText("Congratulations Promoted to Class :", 30, promotionY, 12, true);
+    drawLine(250, promotionY + 3, 550, promotionY + 3, 1);
+    drawText(pdfData.promotedToClass || "", 260, promotionY, 12);
 
-    yPos += 10;
-    doc.setFont("helvetica", "bold");
-    doc.text("New Session begins on :", 15, yPos);
-    drawLine(70, yPos + 1, 195, yPos + 1, 0.3);
-    doc.setFont("helvetica", "normal");
-    doc.text(pdfData.newSessionDate || "", 72, yPos);
+    promotionY += 30;
+    drawText("New Session begins on :", 30, promotionY, 12, true);
+    drawLine(180, promotionY + 3, 550, promotionY + 3, 1);
+    drawText(pdfData.newSessionDate || "", 190, promotionY, 12);
 
-    // Signatures
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Exam I/C Signature", 20, 280);
-    doc.text("Principal's Signature", 140, 280);
+    // Signature section
+    drawText("Exam I/C Signature", 50, 800, 12, true);
+    drawText("Principal's Signature", 400, 800, 12, true);
 
     return doc;
   };
@@ -836,7 +844,7 @@ function MarksheetGenerationPageds() {
               </TableHead>
               <TableBody>
                 {students.map((student, index) => (
-                  <TableRow key={student._id} hover>
+                  <TableRow key={student.id} hover>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <Chip label={student.regno} color="primary" size="small" />
@@ -845,7 +853,11 @@ function MarksheetGenerationPageds() {
                     <TableCell>{student.semester}</TableCell>
                     <TableCell>{student.classtype}</TableCell>
                     <TableCell>
-                      <Chip label={student.subjects?.length || 0} color="success" size="small" />
+                      <Chip 
+                        label={student.subjects?.length || 0} 
+                        color="success" 
+                        size="small" 
+                      />
                     </TableCell>
                     <TableCell>
                       <Button
@@ -853,7 +865,11 @@ function MarksheetGenerationPageds() {
                         color="primary"
                         size="small"
                         startIcon={
-                          generating ? <CircularProgress size={16} color="inherit" /> : <PictureAsPdfIcon />
+                          generating ? (
+                            <CircularProgress size={16} color="inherit" />
+                          ) : (
+                            <PictureAsPdfIcon />
+                          )
                         }
                         onClick={() => handleGeneratePDF(student.regno)}
                         disabled={generating}

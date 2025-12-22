@@ -233,6 +233,28 @@ export function menuitemsall() {
         />
       )}
     </ListItem>
+    <ListItem button component={RouterLink} to="/workflowchatbotds1">
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      {open && (
+        <ListItemText
+          primaryTypographyProps={{ fontSize: '14px' }}
+          primary="New Work Flow Chatbot"
+        />
+      )}
+    </ListItem>
+    <ListItem button component={RouterLink} to="/workflowconfigds1">
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      {open && (
+        <ListItemText
+          primaryTypographyProps={{ fontSize: '14px' }}
+          primary="New Work Flow Config"
+        />
+      )}
+    </ListItem>
   </AccordionDetails>
 </Accordion>
 

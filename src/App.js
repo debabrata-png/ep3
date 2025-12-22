@@ -1221,6 +1221,9 @@ import StudentListds from './pages/StudentListds.jsx';
 // AI Workflow Bot - Add these imports
 import WorkflowConfigds from './pages/WorkflowConfigds';
 import WorkflowChatbotds from './pages/WorkflowChatbotds';
+// AI Workflow Bot - Add these imports
+import WorkflowConfigds1 from './pages/WorkflowConfigds1';
+import WorkflowChatbotds1 from './pages/WorkflowChatbotds1';
 
 // Add imports
 import MarksheetDataEntryPageds from "./pages/MarksheetDataEntryPageds";
@@ -1280,6 +1283,9 @@ function App() {
            {/* AI Workflow Bot Routes */}
 <Route path="/workflowconfigds" element={<WorkflowConfigds />} />
 <Route path="/workflowchatbotds" element={<WorkflowChatbotds />} />
+           {/* AI Workflow Bot 1 Routes */}
+<Route path="/workflowconfigds1" element={<WorkflowConfigds1 />} />
+<Route path="/workflowchatbotds1" element={<WorkflowChatbotds1 />} />
 
 
           {/* AI API upload ROUTES */}
