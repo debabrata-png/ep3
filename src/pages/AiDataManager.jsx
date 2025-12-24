@@ -52,6 +52,7 @@ export default function AiDataManager() {
   const [lastUploadedData, setLastUploadedData] = useState(null);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [isName, setIsName] = useState(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,6 +61,24 @@ export default function AiDataManager() {
   useEffect(() => {
     fetchGeminiApiKey();
   }, []);
+
+ const checkisname = async () =>{
+  try {
+    selectedApi.requiredFields.split(",").map((field) => {
+      if(field.trim().toLowerCase() === "name"){
+        setIsName(true);
+      }
+    });
+
+    selectedApi.optionalFields.split(",").map((field) => {
+      if(field.trim().toLowerCase() === "name"){
+        setIsName(true);
+      }
+    });
+  } catch (error) {
+    
+  }
+ }
 
   // Fetch Gemini API Key
   const fetchGeminiApiKey = async () => {
@@ -666,6 +685,7 @@ Return ONLY JSON, no markdown, no explanations.`;
                     ]);
 
                     try {
+                      checkisname();
                       const endpoint =
                         selectedApi.singleEntryEndpoint || selectedApi.api;
                       const payload = { ...extractedData };
@@ -673,6 +693,8 @@ Return ONLY JSON, no markdown, no explanations.`;
                       if (selectedApi.useColid) payload.colid = global1.colid;
                       if (selectedApi.useUser) {
                         payload.user = global1.user;
+                      }
+                      if(selectedApi.useUser && isName === false) {
                         payload.name = global1.name;
                       }
                       if (selectedApi.useToken && global1.token)
@@ -880,14 +902,17 @@ Return ONLY JSON, no markdown, no explanations.`;
     ]);
 
     try {
+      checkisname();
       const endpoint = selectedApi.singleEntryEndpoint || selectedApi.api;
       const payload = { ...manualEntryData };
 
       if (selectedApi.useColid) payload.colid = global1.colid;
       if (selectedApi.useUser) {
-        payload.name = global1.name;
         payload.user = global1.user;
       }
+      if(selectedApi.useUser && isName === false) {
+                        payload.name = global1.name;
+                      }
       if (selectedApi.useToken && global1.token) payload.token = global1.token;
 
       console.log("📤 Payload:", payload);
@@ -1053,14 +1078,17 @@ Return ONLY JSON, no markdown, no explanations.`;
     ]);
 
     try {
+      checkisname();
       const enrichedData = data.map((record) => {
         const enriched = { ...record };
 
         if (selectedApi.useColid) enriched.colid = global1.colid;
         if (selectedApi.useUser) {
-          enriched.name = global1.name;
           enriched.user = global1.user;
         }
+        if(selectedApi.useUser && isName === false) {
+                        enriched.name = global1.name;
+                      }
         if (selectedApi.useToken && global1.token)
           enriched.token = global1.token;
 

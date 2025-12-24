@@ -92,9 +92,13 @@ const Dashboardds = () => {
   ];
 
   const handleLogout = () => {
-    navigate("/dashdashfacnew");
-  };
-
+      if(global1.role === "Admin") {
+        navigate("/dashmncas11admin")
+      }else {
+        navigate("/dashdashfacnew");
+      }
+      
+    };
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f4f6f8" }}>
       <AppBar position="static" sx={{ background: "linear-gradient(90deg, #1565c0 0%, #0d47a1 100%)", boxShadow: "0 4px 20px 0 rgba(0,0,0,0.1)" }}>

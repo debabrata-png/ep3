@@ -171,9 +171,8 @@ const Categoryds = () => {
     try {
       await ep1.post("/api/v2/addcounsellortocategoryds", {
         counsellor_name: selectedUser.name,
-        counsellor_email: selectedUser.email
-      }, {
-        params: { id: currentCategory._id },
+        counsellor_email: selectedUser.email,
+        id: currentCategory._id
       });
       showSnackbar("Counsellor added successfully", "success");
       fetchCategories();

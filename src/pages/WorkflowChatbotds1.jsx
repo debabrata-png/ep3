@@ -356,7 +356,7 @@ export default function WorkflowChatbotds() {
         } else { // both
           const { user, colid, token, name, ...bodyData } = payload;
           response = await ep1[step.method.toLowerCase()](step.endpoint, bodyData, {
-            params: { user, colid, token, name }
+            params: { user, colid, token, name, ...bodyData }
           });
         }
       } else {
