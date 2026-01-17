@@ -45,7 +45,8 @@ export default function WorkflowConfigds1() {
     dependsOnStep: null,
     requiredFields: [],
     authType: 'none',
-    authToken: ''
+    authToken: '',
+    isSelectionOnly: false,
   });
 
   // Field form
@@ -113,7 +114,7 @@ export default function WorkflowConfigds1() {
     try {
       // console.log('💾 Saving workflow:', workflowData);
       // console.log('📋 Total steps:', workflowData.steps.length);
-      
+
       // Validate workflow has required data
       if (!workflowData.name) {
         alert('Please enter workflow name');
@@ -134,19 +135,22 @@ export default function WorkflowConfigds1() {
           // console.log(`  Fields:`, step.requiredFields.map(f => f.fieldName));
         }
       }
-      
+
       if (editMode && currentWorkflow) {
         // FIXED: Update - Send complete data in body
         // console.log('🔄 Updating workflow ID:', currentWorkflow._id);
-        
+        const updatePayload = {
+          name: workflowData.name,
+          description: workflowData.description,
+          status: workflowData.status,
+          // Create copy before sorting
+          steps: [...workflowData.steps].sort((a, b) => a.serialNo - b.serialNo)
+        };
+        console.log('📤 SENDING UPDATE PAYLOAD:', JSON.stringify(updatePayload, null, 2));
+
         const response = await ep1.post(
-          '/api/v2/updateworkflowds1', 
-          {
-            name: workflowData.name,
-            description: workflowData.description,
-            status: workflowData.status,
-            steps: workflowData.steps
-          },
+          '/api/v2/updateworkflowds1',
+          updatePayload,
           {
             params: {
               id: currentWorkflow._id,
@@ -155,25 +159,27 @@ export default function WorkflowConfigds1() {
             }
           }
         );
-        
-        // console.log('✅ Update response:', response.data);
-        
+
+        console.log('✅ Update response:', response.data);
+
         if (response.data.success) {
           alert('Workflow updated successfully!');
           setDialogOpen(false);
           loadWorkflows();
         } else {
+          console.error('❌ Update failed:', response.data);
           alert('Error: ' + response.data.message);
         }
       } else {
         // FIXED: Create - Send steps in body, metadata in params
-        // console.log('➕ Creating new workflow');
-        
+        const createPayload = {
+          steps: [...workflowData.steps].sort((a, b) => a.serialNo - b.serialNo)
+        };
+        // console.log('➕ Creating new workflow', createPayload);
+
         const response = await ep1.post(
           '/api/v2/createworkflowds1',
-          {
-            steps: workflowData.steps
-          },
+          createPayload,
           {
             params: {
               name: workflowData.name,
@@ -184,9 +190,9 @@ export default function WorkflowConfigds1() {
             }
           }
         );
-        
+
         // console.log('✅ Create response:', response.data);
-        
+
         if (response.data.success) {
           alert('Workflow created successfully!');
           setDialogOpen(false);
@@ -204,7 +210,7 @@ export default function WorkflowConfigds1() {
 
   const deleteWorkflow = async (id) => {
     if (!window.confirm('Are you sure you want to delete this workflow?')) return;
-    
+
     try {
       await ep1.get('/api/v2/deleteworkflowds1', {
         params: {
@@ -227,12 +233,13 @@ export default function WorkflowConfigds1() {
       setStepForm({
         ...step,
         excludeFields: step.excludeFields || '__v,password,token',
-        requiredFields: step.requiredFields || []
+        requiredFields: step.requiredFields || [],
+        isSelectionOnly: step.isSelectionOnly || false
       });
     } else {
       setEditingStepIndex(null);
-      const nextSerial = workflowData.steps.length > 0 
-        ? Math.max(...workflowData.steps.map(s => s.serialNo)) + 1 
+      const nextSerial = workflowData.steps.length > 0
+        ? Math.max(...workflowData.steps.map(s => s.serialNo)) + 1
         : 1;
       setStepForm({
         serialNo: nextSerial,
@@ -249,7 +256,8 @@ export default function WorkflowConfigds1() {
         dependsOnStep: null,
         requiredFields: [],
         authType: 'none',
-        authToken: ''
+        authToken: '',
+        isSelectionOnly: false,
       });
     }
     setStepDialogOpen(true);
@@ -326,10 +334,23 @@ export default function WorkflowConfigds1() {
 
   // FIXED: This saves the step with all fields
   const saveStep = () => {
-    if (!stepForm.stepName || !stepForm.endpoint) {
-      alert('Please fill step name and endpoint');
+    if (!stepForm.stepName) {
+      alert('Please fill step name');
       return;
     }
+
+    if (!stepForm.isSelectionOnly && !stepForm.endpoint) {
+      alert('Please fill endpoint');
+      return;
+    }
+
+    // Prepare step data
+    const stepData = {
+      ...stepForm,
+      endpoint: stepForm.isSelectionOnly ? 'LOCAL_MEMORY' : stepForm.endpoint,
+      method: stepForm.isSelectionOnly ? 'LOCAL' : stepForm.method,
+      isInternalApi: stepForm.isSelectionOnly ? false : stepForm.isInternalApi
+    };
 
     // console.log('💾 Saving step:', stepForm);
     // console.log('📋 Required fields in step:', stepForm.requiredFields);
@@ -337,7 +358,7 @@ export default function WorkflowConfigds1() {
     if (editingStepIndex !== null) {
       // Update existing step
       const updatedSteps = [...workflowData.steps];
-      updatedSteps[editingStepIndex] = { ...stepForm };
+      updatedSteps[editingStepIndex] = { ...stepData };
       setWorkflowData(prev => ({
         ...prev,
         steps: updatedSteps
@@ -347,7 +368,7 @@ export default function WorkflowConfigds1() {
       // Add new step
       setWorkflowData(prev => ({
         ...prev,
-        steps: [...prev.steps, { ...stepForm }]
+        steps: [...prev.steps, { ...stepData }]
       }));
       // console.log('✅ New step added. Total steps:', workflowData.steps.length + 1);
     }
@@ -357,7 +378,7 @@ export default function WorkflowConfigds1() {
 
   const removeStepFromWorkflow = (index) => {
     if (!window.confirm('Are you sure you want to delete this step?')) return;
-    
+
     setWorkflowData(prev => ({
       ...prev,
       steps: prev.steps.filter((_, i) => i !== index)
@@ -413,16 +434,16 @@ export default function WorkflowConfigds1() {
                 <TableCell>{workflow.name}</TableCell>
                 <TableCell>{workflow.description}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={`${workflow.steps?.length || 0} APIs`} 
-                    size="small" 
+                  <Chip
+                    label={`${workflow.steps?.length || 0} APIs`}
+                    size="small"
                     color="primary"
                     variant="outlined"
                   />
                 </TableCell>
                 <TableCell>
-                  <Chip 
-                    label={workflow.status} 
+                  <Chip
+                    label={workflow.status}
                     color={workflow.status === 'Active' ? 'success' : 'default'}
                     size="small"
                   />
@@ -526,13 +547,13 @@ export default function WorkflowConfigds1() {
                         </Typography>
                         <Typography variant="caption" display="block">
                           📋 Fields: {step.requiredFields && step.requiredFields.length > 0
-                            ? step.requiredFields.map(f => 
-                                f.isDynamicDropdown || f.fieldType === 'dynamicDropdown'
-                                  ? `${f.fieldLabel} (🔗 Dynamic from Step ${f.dropdownSourceStep})` 
-                                  : f.useFromPreviousStep
-                                    ? `${f.fieldLabel} (🔒 Hidden from Step ${f.previousStepSerialNo})`
-                                    : f.fieldLabel
-                              ).join(', ')
+                            ? step.requiredFields.map(f =>
+                              f.isDynamicDropdown || f.fieldType === 'dynamicDropdown'
+                                ? `${f.fieldLabel} (🔗 Dynamic from Step ${f.dropdownSourceStep})`
+                                : f.useFromPreviousStep
+                                  ? `${f.fieldLabel} (🔒 Hidden from Step ${f.previousStepSerialNo})`
+                                  : f.fieldLabel
+                            ).join(', ')
                             : 'None'}
                         </Typography>
                       </Box>
@@ -553,8 +574,8 @@ export default function WorkflowConfigds1() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={saveWorkflow}
             startIcon={<SaveIcon />}
             sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -622,6 +643,17 @@ export default function WorkflowConfigds1() {
                 label="Conditional Execution"
               />
             </Grid>
+            <Grid item xs={12} md={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={stepForm.isSelectionOnly}
+                    onChange={(e) => setStepForm({ ...stepForm, isSelectionOnly: e.target.checked })}
+                  />
+                }
+                label="Data Collection Only (No API)"
+              />
+            </Grid>
 
             {stepForm.isConditional && (
               <Grid item xs={12} md={4}>
@@ -636,73 +668,79 @@ export default function WorkflowConfigds1() {
               </Grid>
             )}
 
+
+
             {/* API Configuration */}
-            <Grid item xs={12}>
-              <Divider sx={{ my: 1 }}>
-                <Chip label="API Configuration" size="small" />
-              </Divider>
-            </Grid>
+            {!stepForm.isSelectionOnly && (
+              <>
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 1 }}>
+                    <Chip label="API Configuration" size="small" />
+                  </Divider>
+                </Grid>
 
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={stepForm.isInternalApi}
-                    onChange={(e) => setStepForm({ ...stepForm, isInternalApi: e.target.checked })}
+                <Grid item xs={12} md={6}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={stepForm.isInternalApi}
+                        onChange={(e) => setStepForm({ ...stepForm, isInternalApi: e.target.checked })}
+                      />
+                    }
+                    label="Internal API (use ep1 with token)"
                   />
-                }
-                label="Internal API (use ep1 with token)"
-              />
-            </Grid>
+                </Grid>
 
-            {!stepForm.isInternalApi && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Domain"
-                  placeholder="https://api.example.com"
-                  value={stepForm.domain}
-                  onChange={(e) => setStepForm({ ...stepForm, domain: e.target.value })}
-                />
-              </Grid>
+                {!stepForm.isInternalApi && (
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Domain"
+                      placeholder="https://api.example.com"
+                      value={stepForm.domain}
+                      onChange={(e) => setStepForm({ ...stepForm, domain: e.target.value })}
+                    />
+                  </Grid>
+                )}
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Endpoint"
+                    placeholder="/api/v2/getstudents"
+                    value={stepForm.endpoint}
+                    onChange={(e) => setStepForm({ ...stepForm, endpoint: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Method"
+                    value={stepForm.method}
+                    onChange={(e) => setStepForm({ ...stepForm, method: e.target.value })}
+                  >
+                    <MenuItem value="GET">GET</MenuItem>
+                    <MenuItem value="POST">POST</MenuItem>
+                    <MenuItem value="PUT">PUT</MenuItem>
+                    <MenuItem value="DELETE">DELETE</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Param Location"
+                    value={stepForm.paramLocation}
+                    onChange={(e) => setStepForm({ ...stepForm, paramLocation: e.target.value })}
+                  >
+                    <MenuItem value="query">Query String</MenuItem>
+                    <MenuItem value="body">Body</MenuItem>
+                    <MenuItem value="both">Both</MenuItem>
+                  </TextField>
+                </Grid>
+              </>
             )}
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Endpoint"
-                placeholder="/api/v2/getstudents"
-                value={stepForm.endpoint}
-                onChange={(e) => setStepForm({ ...stepForm, endpoint: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                select
-                label="Method"
-                value={stepForm.method}
-                onChange={(e) => setStepForm({ ...stepForm, method: e.target.value })}
-              >
-                <MenuItem value="GET">GET</MenuItem>
-                <MenuItem value="POST">POST</MenuItem>
-                <MenuItem value="PUT">PUT</MenuItem>
-                <MenuItem value="DELETE">DELETE</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                select
-                label="Param Location"
-                value={stepForm.paramLocation}
-                onChange={(e) => setStepForm({ ...stepForm, paramLocation: e.target.value })}
-              >
-                <MenuItem value="query">Query String</MenuItem>
-                <MenuItem value="body">Body</MenuItem>
-                <MenuItem value="both">Both</MenuItem>
-              </TextField>
-            </Grid>
 
             {/* Excel Export Configuration */}
             <Grid item xs={12}>
@@ -787,8 +825,8 @@ export default function WorkflowConfigds1() {
                 control={
                   <Switch
                     checked={fieldForm.isDynamicDropdown || fieldForm.fieldType === 'dynamicDropdown'}
-                    onChange={(e) => setFieldForm({ 
-                      ...fieldForm, 
+                    onChange={(e) => setFieldForm({
+                      ...fieldForm,
                       isDynamicDropdown: e.target.checked,
                       fieldType: e.target.checked ? 'dynamicDropdown' : 'text'
                     })}
@@ -913,17 +951,17 @@ export default function WorkflowConfigds1() {
                       label={
                         field.isDynamicDropdown || field.fieldType === 'dynamicDropdown'
                           ? `${field.fieldLabel} (🔗 Dynamic from Step ${field.dropdownSourceStep})`
-                          : field.useFromPreviousStep 
+                          : field.useFromPreviousStep
                             ? `${field.fieldLabel} (🔒 Hidden - from Step ${field.previousStepSerialNo})`
                             : `${field.fieldLabel} (${field.fieldName})`
                       }
                       onDelete={() => removeFieldFromStep(index)}
                       sx={{ m: 0.5 }}
                       color={
-                        field.isDynamicDropdown || field.fieldType === 'dynamicDropdown' 
-                          ? 'secondary' 
-                          : field.useFromPreviousStep 
-                            ? 'primary' 
+                        field.isDynamicDropdown || field.fieldType === 'dynamicDropdown'
+                          ? 'secondary'
+                          : field.useFromPreviousStep
+                            ? 'primary'
                             : 'default'
                       }
                     />
@@ -935,8 +973,8 @@ export default function WorkflowConfigds1() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setStepDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={saveStep}
             startIcon={<SaveIcon />}
             sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -945,6 +983,6 @@ export default function WorkflowConfigds1() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Box >
   );
 }

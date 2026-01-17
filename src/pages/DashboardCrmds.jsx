@@ -42,6 +42,12 @@ const Dashboardds = () => {
       route: "/leadsds",
     },
     {
+      title: "Leads Management Admin",
+      description: "View and manage all leads",
+      icon: <LeadsIcon sx={{ fontSize: 48, color: "#016306" }} />,
+      route: "/leadsdsadmin",
+    },
+    {
       title: "Program Master",
       description: "Manage courses and programs",
       icon: <ProgramIcon sx={{ fontSize: 48, color: "#ed6c02" }} />,
@@ -92,13 +98,14 @@ const Dashboardds = () => {
   ];
 
   const handleLogout = () => {
-      if(global1.role === "Admin") {
-        navigate("/dashmncas11admin")
-      }else {
-        navigate("/dashdashfacnew");
-      }
-      
-    };
+    if(global1.role === "Admin") {
+      navigate("/dashmncas11admin")
+    }else {
+      navigate("/dashdashfacnew");
+    }
+    
+  };
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f4f6f8" }}>
       <AppBar position="static" sx={{ background: "linear-gradient(90deg, #1565c0 0%, #0d47a1 100%)", boxShadow: "0 4px 20px 0 rgba(0,0,0,0.1)" }}>
@@ -118,7 +125,7 @@ const Dashboardds = () => {
               "&:hover": { bgcolor: "rgba(255,255,255,0.1)" }
             }}
           >
-            Back
+            Home
           </Button>
         </Toolbar>
       </AppBar>

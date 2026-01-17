@@ -41,6 +41,8 @@ import { menuitemshostel } from './menuhostel';
 import { menuitemsexam } from './menuexam';
 import { menuitemsall } from './menuall';
 import { menuitemspurchase } from './menupurchase';
+import { menuitemscounselor } from './menucounselor';
+import { menuitemscrm } from './menucrm';
 
 const getlink=()=>{
   return '/eventlistwithcolid/' + global1.colid;
@@ -136,6 +138,21 @@ export function mainListItems({ open }) {
       </div>
     )
 
+  }else if(role1=='CRM') {
+    return (
+      <div>
+        {menuitemscrm()}
+        {/* <menuitems /> */}
+      </div>
+    )
+    
+  } else if(role1=='Counselor') {
+    return (
+      <div>
+        {menuitemscounselor()}
+        {/* <menuitems /> */}
+      </div>
+    )
   }
 
 }

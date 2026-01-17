@@ -824,10 +824,10 @@ export function menuitemsall() {
       <Accordion>
         <AccordionSummary aria-controls="panel2-content" id="panel2-header">
           <SettingsIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Exam New</Typography>}
+          {open && <Typography sx={{ fontSize: 14 }}>Exam School</Typography>}
         </AccordionSummary>
         <AccordionDetails>
-          <ListItem button component={RouterLink} to="/marksheetdataentryds">
+          {/* <ListItem button component={RouterLink} to="/marksheetdataentryds">
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
@@ -838,6 +838,27 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Generate Marksheet" />}
+          </ListItem> */}
+
+          <ListItem button component={RouterLink} to="/subjectcomponentconfigpageds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subject Component" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/bulkmarksentrypageds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Bulk Marks Entry" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpageds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Marks View" />}
           </ListItem>
         </AccordionDetails>
       </Accordion>
@@ -3290,6 +3311,38 @@ export function menuitemsall() {
           </ListItem>
         </AccordionDetails>
       </Accordion>
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>HDFC Gateway</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/hdfcgatewayconfigds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Payment Gateway Configuration" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/hdfcpaymentinitiationds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Payment Initiation" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/hdfcpaymentcallbackds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Payment Callback" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/hdfcpaymenthistoryds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Payment History" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
 
 
       <Accordion>
@@ -3407,6 +3460,29 @@ export function menuitemsall() {
         </AccordionDetails>
       </Accordion>
 
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+          <SettingsIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Donation Form</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/donationreceiptformds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Donation form" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/donationreceiptsviewds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Donation report" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
+      
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />

@@ -166,7 +166,7 @@ const Leaddetailds = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton onClick={() => navigate("/dashboardcrmds")} sx={{ mr: 2 }}>
+          <IconButton onClick={() => navigate("/leadsds")} sx={{ mr: 2 }}>
             <BackIcon />
           </IconButton>
           <Typography variant="h4">Lead Details: {lead.name}</Typography>
@@ -236,6 +236,26 @@ const Leaddetailds = () => {
                 Send Email
               </Button>
             </Box>
+          </Paper>
+
+          {/* Notes Section - Editable if 'comments' were separate but here we might need a dedicated dialog or reuse update */}
+          <Paper sx={{ p: 3, mt: 3 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Lead Notes
+              </Typography>
+              <Button startIcon={<EditIcon />} size="small" onClick={() => {
+                setUpdateData({ comments: lead.comments || "" });
+                setOpenUpdateDialog(true);
+                // Note: reusing update dialog but might prefer a specific one. 
+                // For now, let's create a specific Notes Dialog for clarity in this view
+              }}>
+                Edit
+              </Button>
+            </Box>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', color: lead.comments ? 'text.primary' : 'text.secondary' }}>
+              {lead.comments || "No notes added yet."}
+            </Typography>
           </Paper>
         </Grid>
 
@@ -400,24 +420,60 @@ const Leaddetailds = () => {
         <DialogTitle>Update Lead</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <TextField
-              select
-              fullWidth
-              label="Pipeline Stage"
-              value={updateData.pipeline_stage}
-              onChange={(e) => setUpdateData({ ...updateData, pipeline_stage: e.target.value })}
-            >
-              <MenuItem value="New Lead">New Lead</MenuItem>
-              <MenuItem value="Contacted">Contacted</MenuItem>
-              <MenuItem value="Qualified">Qualified</MenuItem>
-              <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
-              <MenuItem value="Campus Visited">Campus Visited</MenuItem>
-              <MenuItem value="Application Sent">Application Sent</MenuItem>
-              <MenuItem value="Application Submitted">Application Submitted</MenuItem>
-              <MenuItem value="Fee Paid">Fee Paid</MenuItem>
-              <MenuItem value="Admitted">Admitted</MenuItem>
-              <MenuItem value="Lost">Lost</MenuItem>
-            </TextField>
+            {updateData.pipeline_stage !== undefined && updateData.pipeline_stage !== null && (
+              <>
+                <TextField
+                  select
+                  fullWidth
+                  label="Pipeline Stage"
+                  value={["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(updateData.pipeline_stage) ? updateData.pipeline_stage : "Other"}
+                  onChange={(e) => {
+                    if (e.target.value === "Other") {
+                      setUpdateData({ ...updateData, pipeline_stage: "" });
+                    } else {
+                      setUpdateData({ ...updateData, pipeline_stage: e.target.value });
+                    }
+                  }}
+                >
+                  <MenuItem value="New Lead">New Lead</MenuItem>
+                  <MenuItem value="Contacted">Contacted</MenuItem>
+                  <MenuItem value="Qualified">Qualified</MenuItem>
+                  <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
+                  <MenuItem value="Campus Visited">Campus Visited</MenuItem>
+                  <MenuItem value="Application Sent">Application Sent</MenuItem>
+                  <MenuItem value="Application Submitted">Application Submitted</MenuItem>
+                  <MenuItem value="Fee Paid">Fee Paid</MenuItem>
+                  <MenuItem value="Admitted">Admitted</MenuItem>
+                  <MenuItem value="Lost">Lost</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </TextField>
+
+                {!["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(updateData.pipeline_stage) && (
+                  <TextField
+                    fullWidth
+                    label="Custom Stage Name"
+                    value={updateData.pipeline_stage === "Other" ? "" : updateData.pipeline_stage}
+                    onChange={(e) => setUpdateData({ ...updateData, pipeline_stage: e.target.value })}
+                    sx={{ mt: 2 }}
+                    placeholder="Enter custom stage..."
+                  />
+                )}
+              </>
+            )}
+
+            {updateData.comments !== undefined && (
+              <TextField
+                fullWidth
+                label="Lead Notes"
+                value={updateData.comments}
+                onChange={(e) => setUpdateData({ ...updateData, comments: e.target.value })}
+                multiline
+                rows={4}
+                placeholder="Enter lead notes here..."
+              />
+            )}
+
+
           </Box>
         </DialogContent>
         <DialogActions>
@@ -435,7 +491,7 @@ const Leaddetailds = () => {
       >
         <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
-    </Container>
+    </Container >
   );
 };
 

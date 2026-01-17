@@ -25,7 +25,7 @@ const LoginPage = () => {
     try {
       const res = await axios.post("http://localhost:8080/api/v2/login", formData);
       const { colid, name, email, regno, role } = res.data;
-      
+
       // Store credentials in global1
       global1.name = name;
       global1.colid = colid;

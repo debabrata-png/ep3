@@ -11,6 +11,45 @@ import ep1 from '../api/ep1';
 import global1 from './global1';
 import * as XLSX from 'xlsx';
 
+// FIXED: Helper function to get nested value from object using path
+const getNestedValue = (obj, path) => {
+  // If no path or path is "." or empty, return the object itself
+  if (!path || path === '.' || path.trim() === '' || path === 'data') {
+    // Special handling: if obj has a 'data' property, return it
+    if (obj && typeof obj === 'object' && 'data' in obj) {
+      return obj.data;
+    }
+    return obj;
+  }
+
+  // If obj is not an object, return it
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  const parts = path.split('.');
+  let value = obj;
+
+  for (const part of parts) {
+    if (!part) continue; // Skip empty parts
+
+    // Handle array notation like data.students[0]
+    const arrayMatch = part.match(/(\w+)\[(\d+)\]/);
+    if (arrayMatch) {
+      value = value?.[arrayMatch[1]]?.[parseInt(arrayMatch[2])];
+    } else {
+      value = value?.[part];
+    }
+
+    if (value === undefined || value === null) {
+      // console.warn(`Path "${path}" not found in object, returning original`, obj);
+      return undefined; // Return undefined to allow fallback logic to work
+    }
+  }
+
+  return value;
+};
+
 export default function WorkflowChatbotds() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -52,75 +91,33 @@ export default function WorkflowChatbotds() {
     }]);
   };
 
-  // FIXED: Helper function to get nested value from object using path
-  const getNestedValue = (obj, path) => {
-    // If no path or path is "." or empty, return the object itself
-    if (!path || path === '.' || path.trim() === '' || path === 'data') {
-      // Special handling: if obj has a 'data' property, return it
-      if (obj && typeof obj === 'object' && 'data' in obj) {
-        return obj.data;
-      }
-      return obj;
-    }
-    
-    // If obj is not an object, return it
-    if (typeof obj !== 'object' || obj === null) {
-      return obj;
-    }
-    
-    const parts = path.split('.');
-    let value = obj;
-    
-    for (const part of parts) {
-      if (!part) continue; // Skip empty parts
-      
-      // Handle array notation like data.students[0]
-      const arrayMatch = part.match(/(\w+)\[(\d+)\]/);
-      if (arrayMatch) {
-        value = value?.[arrayMatch[1]]?.[parseInt(arrayMatch[2])];
-      } else {
-        value = value?.[part];
-      }
-      
-      if (value === undefined || value === null) {
-        // console.warn(`Path "${path}" not found in object, returning original`, obj);
-        return obj; // Return original object instead of null
-      }
-    }
-    
-    return value;
-  };
-
   const searchWorkflows = async (query) => {
     try {
       setLoading(true);
-      const response = await ep1.get('/api/v2/getworkflowsds1', {
+      // FIXED: Use the new Global Search API
+      const response = await ep1.get('/api/v2/searchworkflowsds1', {
         params: {
-          user: global1.user,
-          colid: global1.colid
+          search: query // Pass the search term directly
         }
       });
 
       if (response.data.success) {
-        const workflows = response.data.data.filter(w => w.status === 'Active');
-        
-        const filtered = workflows.filter(w => 
-          w.name.toLowerCase().includes(query.toLowerCase()) ||
-          w.description.toLowerCase().includes(query.toLowerCase())
-        );
+        // The API now returns the filtered list directly
+        const workflows = response.data.data;
 
-        if (filtered.length > 0) {
-          setSearchResults(filtered);
+        if (workflows.length > 0) {
+          setSearchResults(workflows);
           addBotMessage(
-            `I found ${filtered.length} workflow(s) matching "${query}". Please select one to execute:`,
-            { type: 'workflow-list', workflows: filtered }
+            `I found ${workflows.length} workflow(s) matching "${query}". Please select one to execute:`,
+            { type: 'workflow-list', workflows: workflows }
           );
         } else {
-          addBotMessage(`Sorry, I couldn't find any active workflows matching "${query}". Try a different search term.`);
+          addBotMessage(`Sorry, I couldn't find any workflows matching "${query}". Try a different search term or enter a valid Workflow ID.`);
         }
       }
     } catch (error) {
-      addBotMessage('Error searching workflows: ' + error.message);
+      // console.error('Search error', error);
+      addBotMessage('Error searching workflows: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -129,7 +126,7 @@ export default function WorkflowChatbotds() {
   const selectWorkflow = async (workflow) => {
     // FIXED: Deep clone the workflow to prevent reference issues
     const workflowCopy = JSON.parse(JSON.stringify(workflow));
-    
+
     setSelectedWorkflow(workflowCopy);
     setCurrentStepIndex(0);
     setExecutionResults([]);
@@ -150,10 +147,10 @@ export default function WorkflowChatbotds() {
   const processStep = async (step, stepIndex, workflow = null, previousResults = null) => {
     // FIXED: Use provided workflow or state
     const currentWorkflow = workflow || selectedWorkflow;
-    
+
     // FIXED: Use provided results or state for dependency checking
     const currentResults = previousResults !== null ? previousResults : executionResults;
-    
+
     if (!currentWorkflow || !currentWorkflow.steps) {
       // console.error('❌ No workflow available');
       addBotMessage('⚠️ Workflow data is missing. Please start over.');
@@ -162,12 +159,12 @@ export default function WorkflowChatbotds() {
 
     // console.log(`🔄 Processing Step ${step.serialNo}: ${step.stepName}`);
     // console.log('📦 Current execution results:', currentResults);
-    
+
     // Check if step is conditional and dependency is met
     if (step.isConditional && step.dependsOnStep) {
       const dependencyMet = currentResults.some(r => r.serialNo === step.dependsOnStep);
       // console.log(`🔍 Step ${step.serialNo} is conditional. Depends on Step ${step.dependsOnStep}. Met: ${dependencyMet}`);
-      
+
       if (!dependencyMet) {
         // console.log(`⏸️ Step ${step.serialNo} depends on Step ${step.dependsOnStep} - dependency NOT met`);
         // console.log('Available steps in results:', currentResults.map(r => r.serialNo));
@@ -178,11 +175,11 @@ export default function WorkflowChatbotds() {
     }
 
     // Check if step needs user input
-    const fieldsNeedingInput = step.requiredFields.filter(f => 
+    const fieldsNeedingInput = step.requiredFields.filter(f =>
       !f.useFromPreviousStep && (!f.isDynamicDropdown && f.fieldType !== 'dynamicDropdown')
     );
-    
-    const dynamicDropdowns = step.requiredFields.filter(f => 
+
+    const dynamicDropdowns = step.requiredFields.filter(f =>
       f.isDynamicDropdown || f.fieldType === 'dynamicDropdown'
     );
 
@@ -214,30 +211,30 @@ export default function WorkflowChatbotds() {
 
     // Prepare dynamic dropdowns with data from previous steps
     const dynamicDropdownData = {};
-    
+
     step.requiredFields.forEach(field => {
       if (field.isDynamicDropdown || field.fieldType === 'dynamicDropdown') {
         const sourceStep = currentResults.find(r => r.serialNo === field.dropdownSourceStep);
-        
+
         if (sourceStep) {
           let options = getNestedValue(sourceStep.response, field.dropdownDataPath || '');
-          
+
           // FIXED: If getNestedValue returns the response itself (array)
           if (!options && Array.isArray(sourceStep.response)) {
             options = sourceStep.response;
           }
-          
+
           // Ensure it's an array
           if (!Array.isArray(options)) {
             options = options ? [options] : [];
           }
-          
+
           dynamicDropdownData[field.fieldName] = {
             options,
             labelField: field.dropdownLabelField,
             valueField: field.dropdownValueField
           };
-          
+
           // console.log(`📊 Dynamic dropdown for ${field.fieldName}:`, options.length, 'options');
         } else {
           // console.warn(`⚠️ Source step ${field.dropdownSourceStep} not found for field ${field.fieldName}`);
@@ -246,7 +243,7 @@ export default function WorkflowChatbotds() {
     });
 
     const fieldsToShow = step.requiredFields.filter(f => !f.useFromPreviousStep);
-    
+
     if (fieldsToShow.length > 0) {
       addBotMessage(
         `Step ${step.serialNo}: ${step.stepName}`,
@@ -278,20 +275,47 @@ export default function WorkflowChatbotds() {
       [stepIndex]: fieldValues
     }));
 
+    // Capture full objects for dynamic dropdowns
+    const selectionData = {};
+
+    step.requiredFields.forEach(field => {
+      if ((field.isDynamicDropdown || field.fieldType === 'dynamicDropdown') && fieldValues[field.fieldName]) {
+        // Find source step
+        const sourceResult = executionResults.find(r => r.serialNo === field.dropdownSourceStep);
+        if (sourceResult) {
+          // Get options array again
+          let options = getNestedValue(sourceResult.response, field.dropdownDataPath || '');
+          if (!options && Array.isArray(sourceResult.response)) options = sourceResult.response;
+          if (!Array.isArray(options)) options = [];
+
+          // Find the selected object
+          const selectedObject = options.find(opt => {
+            const optValue = getNestedValue(opt, field.dropdownValueField);
+            // Compare loosely in case of string/number mismatch
+            return optValue == fieldValues[field.fieldName];
+          });
+
+          if (selectedObject) {
+            selectionData[field.fieldName] = selectedObject;
+          }
+        }
+      }
+    });
+
     // Show what user selected
     const selectionSummary = Object.entries(fieldValues)
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
-    
+
     addUserMessage(`Submitted: ${selectionSummary}`);
     addBotMessage(`Executing Step ${step.serialNo}: ${step.stepName}...`);
 
-    // Execute the step
-    await executeStep(step, stepIndex, fieldValues);
+    // Execute the step with selection data
+    await executeStep(step, stepIndex, fieldValues, null, null, selectionData);
   };
 
-  // FIXED: Added previousResults parameter
-  const executeStep = async (step, stepIndex, fieldValues, workflow = null, previousResults = null) => {
+  // FIXED: Added previousResults and selectionData parameters
+  const executeStep = async (step, stepIndex, fieldValues, workflow = null, previousResults = null, selectionData = {}) => {
     try {
       setLoading(true);
 
@@ -308,14 +332,21 @@ export default function WorkflowChatbotds() {
 
       // Build payload
       const payload = {};
-      
+
       // Process all fields
       for (const field of step.requiredFields) {
         if (field.useFromPreviousStep && field.previousStepSerialNo) {
           // Auto-fill from previous step response
           const prevStep = currentResults.find(r => r.serialNo === field.previousStepSerialNo);
           if (prevStep && prevStep.response) {
-            const value = getNestedValue(prevStep.response, field.previousStepFieldPath);
+            // First try to get value from response
+            let value = getNestedValue(prevStep.response, field.previousStepFieldPath);
+
+            // If not found, try getting from selectionData (persisted full objects from dropdowns)
+            if ((value === undefined || value === null) && prevStep.selectionData) {
+              value = getNestedValue(prevStep.selectionData, field.previousStepFieldPath);
+            }
+
             payload[field.fieldName] = value;
             // console.log(`📝 Auto-filled ${field.fieldName} = ${value} from Step ${field.previousStepSerialNo}`);
           }
@@ -339,48 +370,62 @@ export default function WorkflowChatbotds() {
 
       // Make API call
       let response;
-      const url = step.isInternalApi 
-        ? step.endpoint 
-        : `${step.domain}${step.endpoint}`;
 
-      // console.log('🚀 Executing:', step.method, url, payload);
-
-      if (step.isInternalApi) {
-        // Use ep1 for internal APIs
-        if (step.paramLocation === 'query') {
-          response = await ep1[step.method.toLowerCase()](step.endpoint, {
-            params: payload
-          });
-        } else if (step.paramLocation === 'body') {
-          response = await ep1[step.method.toLowerCase()](step.endpoint, payload);
-        } else { // both
-          const { user, colid, token, name, ...bodyData } = payload;
-          response = await ep1[step.method.toLowerCase()](step.endpoint, bodyData, {
-            params: { user, colid, token, name, ...bodyData }
-          });
-        }
-      } else {
-        // External API
-        const axios = require('axios');
-        const config = {
-          method: step.method,
-          url,
-          headers: {}
+      if (step.isSelectionOnly || step.endpoint === 'LOCAL_MEMORY') {
+        // Mock success response for local selection steps
+        response = {
+          data: {
+            success: true,
+            message: "Local selection saved",
+            data: fieldValues
+          }
         };
+        // console.log('💾 Local selection step executed (no API call)');
 
-        if (step.authType === 'bearer' && step.authToken) {
-          config.headers['Authorization'] = `Bearer ${step.authToken}`;
-        } else if (step.authType === 'apikey' && step.authToken) {
-          config.headers['X-API-Key'] = step.authToken;
-        }
+      } else {
+        const url = step.isInternalApi
+          ? step.endpoint
+          : `${step.domain}${step.endpoint}`;
 
-        if (step.paramLocation === 'query') {
-          config.params = payload;
+        // console.log('🚀 Executing:', step.method, url, payload);
+
+        if (step.isInternalApi) {
+          // Use ep1 for internal APIs
+          if (step.paramLocation === 'query') {
+            response = await ep1[step.method.toLowerCase()](step.endpoint, {
+              params: payload
+            });
+          } else if (step.paramLocation === 'body') {
+            response = await ep1[step.method.toLowerCase()](step.endpoint, payload);
+          } else { // both
+            const { user, colid, token, name, ...bodyData } = payload;
+            response = await ep1[step.method.toLowerCase()](step.endpoint, bodyData, {
+              params: { user, colid, token, name, ...bodyData }
+            });
+          }
         } else {
-          config.data = payload;
-        }
+          // External API
+          const axios = require('axios');
+          const config = {
+            method: step.method,
+            url,
+            headers: {}
+          };
 
-        response = await axios(config);
+          if (step.authType === 'bearer' && step.authToken) {
+            config.headers['Authorization'] = `Bearer ${step.authToken}`;
+          } else if (step.authType === 'apikey' && step.authToken) {
+            config.headers['X-API-Key'] = step.authToken;
+          }
+
+          if (step.paramLocation === 'query') {
+            config.params = payload;
+          } else {
+            config.data = payload;
+          }
+
+          response = await axios(config);
+        }
       }
 
       // Store result with user selections
@@ -389,12 +434,13 @@ export default function WorkflowChatbotds() {
         stepName: step.stepName,
         response: response.data,
         userSelection: fieldValues,
+        selectionData: selectionData, // Store full objects
         success: true,
         dataPath: step.dataPath,
         excludeFields: step.excludeFields,
         timestamp: new Date()
       };
-      
+
       // FIXED: Create updated results immediately
       const updatedResults = [...currentResults, result];
       setExecutionResults(updatedResults);
@@ -405,12 +451,12 @@ export default function WorkflowChatbotds() {
       let dataPreview = '';
       try {
         let extractedData = getNestedValue(response.data, step.dataPath);
-        
+
         // Handle when response is directly an array
         if (!extractedData && Array.isArray(response.data)) {
           extractedData = response.data;
         }
-        
+
         if (Array.isArray(extractedData)) {
           dataPreview = ` (${extractedData.length} records)`;
         } else if (extractedData) {
@@ -427,17 +473,17 @@ export default function WorkflowChatbotds() {
 
       // FIXED: Check if there are more steps with proper validation
       const nextIndex = stepIndex + 1;
-      
+
       if (!currentWorkflow || !currentWorkflow.steps) {
         // console.error('❌ currentWorkflow is null or has no steps');
         addBotMessage('⚠️ Workflow data lost. Please start over.');
         setSelectedWorkflow(null);
         return;
       }
-      
+
       if (nextIndex < currentWorkflow.steps.length) {
         setCurrentStepIndex(nextIndex);
-        
+
         // FIXED: Pass updatedResults so dependency check works immediately
         setTimeout(() => {
           processStep(currentWorkflow.steps[nextIndex], nextIndex, currentWorkflow, updatedResults);
@@ -448,7 +494,7 @@ export default function WorkflowChatbotds() {
           `🎉 Workflow "${currentWorkflow.name}" completed successfully! All ${currentWorkflow.steps.length} steps executed.`,
           { type: 'workflow-complete', results: updatedResults }
         );
-        
+
         // Reset for next workflow
         setTimeout(() => {
           setSelectedWorkflow(null);
@@ -460,21 +506,21 @@ export default function WorkflowChatbotds() {
 
     } catch (error) {
       // console.error('❌ Error executing step:', error);
-      
-      const errorMessage = error.response?.data?.message 
-        || error.message 
+
+      const errorMessage = error.response?.data?.message
+        || error.message
         || 'Unknown error occurred';
-      
+
       addBotMessage(
         `❌ Error in Step ${step.serialNo}: ${errorMessage}`,
-        { 
-          type: 'error', 
+        {
+          type: 'error',
           error: error.response?.data || error.message,
           step,
           stepIndex
         }
       );
-      
+
       // Offer to retry
       addBotMessage(
         'Would you like to retry this step?',
@@ -504,7 +550,7 @@ export default function WorkflowChatbotds() {
   const downloadExcel = (result) => {
     try {
       // console.log('📥 Downloading Excel for:', result);
-      
+
       // Extract data using dataPath
       let dataToExport = getNestedValue(result.response, result.dataPath);
 
@@ -528,10 +574,10 @@ export default function WorkflowChatbotds() {
       }
 
       // Exclude fields
-      const excludeList = result.excludeFields 
-        ? result.excludeFields.split(',').map(f => f.trim()) 
+      const excludeList = result.excludeFields
+        ? result.excludeFields.split(',').map(f => f.trim())
         : [];
-      
+
       const cleanedData = dataToExport.map(item => {
         const cleaned = { ...item };
         excludeList.forEach(field => {
@@ -550,11 +596,11 @@ export default function WorkflowChatbotds() {
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `${result.stepName.replace(/\s+/g, '_')}_${timestamp}.xlsx`;
-      
+
       // Download
       XLSX.writeFile(wb, filename);
       addBotMessage(`✅ Excel file "${filename}" downloaded successfully with ${cleanedData.length} records!`);
-      
+
     } catch (error) {
       // console.error('Error downloading Excel:', error);
       addBotMessage('❌ Error downloading Excel: ' + error.message);
@@ -580,15 +626,15 @@ export default function WorkflowChatbotds() {
   };
 
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      display: 'flex', 
+    <Box sx={{
+      height: '100vh',
+      display: 'flex',
       flexDirection: 'column',
       bgcolor: '#f5f5f5'
     }}>
       {/* Header */}
-      <Paper sx={{ 
-        p: 2, 
+      <Paper sx={{
+        p: 2,
         borderRadius: 0,
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
       }}>
@@ -602,8 +648,8 @@ export default function WorkflowChatbotds() {
             </Typography>
           </Box>
           {selectedWorkflow && (
-            <Chip 
-              label={`Running: ${selectedWorkflow.name}`} 
+            <Chip
+              label={`Running: ${selectedWorkflow.name}`}
               color="warning"
               sx={{ color: 'white' }}
             />
@@ -612,20 +658,20 @@ export default function WorkflowChatbotds() {
       </Paper>
 
       {/* Messages Area */}
-      <Box sx={{ 
-        flex: 1, 
-        overflowY: 'auto', 
+      <Box sx={{
+        flex: 1,
+        overflowY: 'auto',
         p: 2,
         '&::-webkit-scrollbar': { width: '8px' },
-        '&::-webkit-scrollbar-thumb': { 
-          backgroundColor: '#888', 
-          borderRadius: '4px' 
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: '#888',
+          borderRadius: '4px'
         }
       }}>
         {messages.map((msg, index) => (
-          <MessageBubble 
-            key={index} 
-            message={msg} 
+          <MessageBubble
+            key={index}
+            message={msg}
             onSelectWorkflow={selectWorkflow}
             onFormSubmit={handleFormSubmit}
             onDownloadExcel={downloadExcel}
@@ -648,8 +694,8 @@ export default function WorkflowChatbotds() {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={
-                selectedWorkflow 
-                  ? "Workflow in progress..." 
+                selectedWorkflow
+                  ? "Workflow in progress..."
                   : "Type workflow name to search..."
               }
               disabled={loading || selectedWorkflow !== null}
@@ -662,7 +708,7 @@ export default function WorkflowChatbotds() {
               variant="contained"
               onClick={handleSend}
               disabled={loading || !input.trim() || selectedWorkflow !== null}
-              sx={{ 
+              sx={{
                 minWidth: '50px',
                 height: '40px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -691,13 +737,13 @@ function MessageBubble({ message, onSelectWorkflow, onFormSubmit, onDownloadExce
   const isBot = message.type === 'bot';
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
+    <Box sx={{
+      display: 'flex',
       justifyContent: isBot ? 'flex-start' : 'flex-end',
       mb: 2
     }}>
-      <Paper sx={{ 
-        p: 2, 
+      <Paper sx={{
+        p: 2,
         maxWidth: '80%',
         bgcolor: isBot ? 'white' : '#667eea',
         color: isBot ? 'text.primary' : 'white',
@@ -716,8 +762,8 @@ function MessageBubble({ message, onSelectWorkflow, onFormSubmit, onDownloadExce
                 key={workflow._id}
                 fullWidth
                 variant="outlined"
-                sx={{ 
-                  mb: 1, 
+                sx={{
+                  mb: 1,
                   justifyContent: 'flex-start',
                   textAlign: 'left',
                   textTransform: 'none',
@@ -755,10 +801,10 @@ function MessageBubble({ message, onSelectWorkflow, onFormSubmit, onDownloadExce
 
         {/* Step Result Preview */}
         {message.data?.type === 'step-result' && (
-          <Box sx={{ 
-            mt: 2, 
-            p: 2, 
-            bgcolor: '#e8f5e9', 
+          <Box sx={{
+            mt: 2,
+            p: 2,
+            bgcolor: '#e8f5e9',
             borderRadius: 1,
             maxHeight: '150px',
             overflow: 'auto'
@@ -793,10 +839,10 @@ function MessageBubble({ message, onSelectWorkflow, onFormSubmit, onDownloadExce
 
         {/* Error with Retry Option */}
         {message.data?.type === 'error' && (
-          <Box sx={{ 
-            mt: 2, 
-            p: 2, 
-            bgcolor: '#ffebee', 
+          <Box sx={{
+            mt: 2,
+            p: 2,
+            bgcolor: '#ffebee',
             borderRadius: 1,
             maxHeight: '150px',
             overflow: 'auto'
@@ -830,10 +876,10 @@ function MessageBubble({ message, onSelectWorkflow, onFormSubmit, onDownloadExce
           </Box>
         )}
 
-        <Typography variant="caption" sx={{ 
-          display: 'block', 
-          mt: 1, 
-          opacity: 0.7 
+        <Typography variant="caption" sx={{
+          display: 'block',
+          mt: 1,
+          opacity: 0.7
         }}>
           {new Date(message.timestamp).toLocaleTimeString()}
         </Typography>
@@ -855,7 +901,7 @@ function StepForm({ step, stepIndex, fields, dynamicDropdownData, onSubmit }) {
 
   const handleSubmit = () => {
     // Validate required fields
-    const missingFields = fields.filter(f => 
+    const missingFields = fields.filter(f =>
       !formValues[f.fieldName] && !f.defaultValue
     );
 
@@ -900,14 +946,14 @@ function StepForm({ step, stepIndex, fields, dynamicDropdownData, onSubmit }) {
                     <MenuItem disabled>No options available</MenuItem>
                   )}
                   {options.map((option, i) => (
-                    <MenuItem 
-                      key={i} 
-                      value={option[dropdownConfig.valueField]}
+                    <MenuItem
+                      key={i}
+                      value={getNestedValue(option, dropdownConfig.valueField)}
                     >
-                      {option[dropdownConfig.labelField]} 
+                      {getNestedValue(option, dropdownConfig.labelField)}
                       {dropdownConfig.valueField !== dropdownConfig.labelField && (
                         <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                          ({option[dropdownConfig.valueField]})
+                          ({getNestedValue(option, dropdownConfig.valueField)})
                         </Typography>
                       )}
                     </MenuItem>
@@ -973,14 +1019,14 @@ function StepForm({ step, stepIndex, fields, dynamicDropdownData, onSubmit }) {
             </Grid>
           );
         })}
-        
+
         <Grid item xs={12}>
           <Button
             fullWidth
             variant="contained"
             startIcon={<PlayArrowIcon />}
             onClick={handleSubmit}
-            sx={{ 
+            sx={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
             }}
           >

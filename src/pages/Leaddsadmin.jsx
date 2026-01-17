@@ -64,7 +64,7 @@ const CustomToolbar = () => {
   );
 };
 
-const Leadsds = () => {
+const Leadsdsadmin = () => {
   const navigate = useNavigate();
   const [leads, setLeads] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -104,7 +104,7 @@ const Leadsds = () => {
   const navetodashboard = () => {
     if (global1.role === "Admin" || global1.role === "All" || global1.role === "CRM") {
       navigate("/dashboardcrmds");
-    } else {
+    }else {
       navigate("/dashdashfacnew");
     }
   }
@@ -180,7 +180,7 @@ const Leadsds = () => {
         role: global1.role,
         ...filters,
       };
-      const res = await ep1.get("/api/v2/getallleadsds", { params });
+      const res = await ep1.get("/api/v2/getallleadsadmin", { params });
       setLeads(res.data.data);
     } catch (err) {
       console.error("Error fetching leads:", err);
@@ -504,17 +504,7 @@ const Leadsds = () => {
       width: 180,
       editable: false,
       renderCell: (params) => (
-        <Box
-          onClick={() => navigate(`/leaddetailds/${params.row._id}`)}
-          sx={{
-            fontWeight: 600,
-            color: "#1e293b",
-            cursor: "pointer",
-            "&:hover": { color: "#1565c0", textDecoration: "underline" },
-          }}
-        >
-          {params.value}
-        </Box>
+        <Box sx={{ fontWeight: 600, color: "#1e293b" }}>{params.value}</Box>
       ),
     },
     { field: "phone", headerName: "Phone", width: 130, editable: false },
@@ -584,34 +574,6 @@ const Leadsds = () => {
         const val = params?.value !== undefined ? params.value : params;
         return val ? dayjs(val).format("DD MMM YYYY") : "-";
       },
-    },
-    {
-      field: "createdAt",
-      headerName: "Created At",
-      width: 150,
-      editable: false,
-      type: 'date',
-      valueGetter: (params) => {
-        const v6Params = (params && (params.field || params.row)) ? true : false;
-        const val = v6Params ? params.value : params;
-        return val && typeof val === 'string' ? new Date(val) : val;
-      },
-      valueFormatter: (params) => {
-        const val = params?.value !== undefined ? params.value : params;
-        return val ? dayjs(val).format("DD MMM YYYY") : "-";
-      },
-    },
-    {
-      field: "lead_age",
-      headerName: "Lead Age",
-      width: 120,
-      editable: false,
-      renderCell: (params) => {
-        const created = params.row.createdAt;
-        if (!created) return "-";
-        const days = dayjs().diff(dayjs(created), 'day');
-        return `${days} Day${days !== 1 ? 's' : ''}`;
-      }
     },
     {
       field: "updatedAt",
@@ -1526,4 +1488,4 @@ const Leadsds = () => {
   );
 };
 
-export default Leadsds;
+export default Leadsdsadmin;
