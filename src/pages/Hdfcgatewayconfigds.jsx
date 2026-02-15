@@ -79,7 +79,9 @@ const Hdfcgatewayconfigds = () => {
       setloading(true);
       seterror("");
 
-      const response = await ep1.post("/api/v2/hdfcgatewayds/getall");
+      const response = await ep1.post("/api/v2/hdfcgatewayds/getall", {
+        colid: global1.colid
+      });
 
       if (response.data.success) {
         setconfigs(response.data.data);

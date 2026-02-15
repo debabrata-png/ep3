@@ -146,120 +146,120 @@ export function menuitemsall() {
         </AccordionDetails>
       </Accordion>
 
-         {/* API Data Extractor */}
-<Accordion>
-  <AccordionSummary
-    aria-controls="panel-api-content"
-    id="panel-api-header"
-  >
-    <SettingsIcon sx={{ marginRight: 1 }} />
-    {open && <Typography sx={{ fontSize: 14 }}>API Data Extractor</Typography>}
-  </AccordionSummary>
-  <AccordionDetails>
-    <ListItem button component={RouterLink} to="/apichatbot">
-      <ListItemIcon>
-        <PersonIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="API Chatbot"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/apichatbot1">
-      <ListItemIcon>
-        <PersonIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="AI API Report"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/apiconfig">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="Configure API"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/aidatamanager">
-      <ListItemIcon>
-        <PersonIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="AI Data Upload API"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/dataconfig">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="Configure API Data"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/workflowchatbotds">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="Work Flow Chatbot"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/workflowconfigds">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="Work Flow Config"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/workflowchatbotds1">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="New Work Flow Chatbot"
-        />
-      )}
-    </ListItem>
-    <ListItem button component={RouterLink} to="/workflowconfigds1">
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      {open && (
-        <ListItemText
-          primaryTypographyProps={{ fontSize: '14px' }}
-          primary="New Work Flow Config"
-        />
-      )}
-    </ListItem>
-  </AccordionDetails>
-</Accordion>
+      {/* API Data Extractor */}
+      <Accordion>
+        <AccordionSummary
+          aria-controls="panel-api-content"
+          id="panel-api-header"
+        >
+          <SettingsIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>API Data Extractor</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/apichatbot">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="API Chatbot"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/apichatbot1">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="AI API Report"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/apiconfig">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="Configure API"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/aidatamanager">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="AI Data Upload API"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/dataconfig">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="Configure API Data"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/workflowchatbotds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="Work Flow Chatbot"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/workflowconfigds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="Work Flow Config"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/workflowchatbotds1">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="New Work Flow Chatbot"
+              />
+            )}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/workflowconfigds1">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primaryTypographyProps={{ fontSize: '14px' }}
+                primary="New Work Flow Config"
+              />
+            )}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
 
 
-   
+
       <Accordion>
         <AccordionSummary aria-controls="panel2-content" id="panel2-header">
           <SettingsIcon sx={{ marginRight: 1 }} />
@@ -272,6 +272,18 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: '14px' }} primary="Reports" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/admissionreport">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: '14px' }} primary="University Admission Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/admissioncoursewisereport">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: '14px' }} primary="Course-wise Admission Report" />}
           </ListItem>
 
         </AccordionDetails>
@@ -840,11 +852,18 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Generate Marksheet" />}
           </ListItem> */}
 
-          <ListItem button component={RouterLink} to="/subjectcomponentconfigpageds">
+          <ListItem button component={RouterLink} to="/schoolconfigds">
             <ListItemIcon>
-              <PersonIcon />
+              <SettingsIcon />
             </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subject Component" />}
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="School Report Config" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/subjectcomponentconfig9ds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subject Component Config" />}
           </ListItem>
 
           <ListItem button component={RouterLink} to="/bulkmarksentrypageds">
@@ -859,6 +878,47 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Marks View" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpagekgds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Marks View KG" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/coscholasticactivityconfigds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Co-Scholastic Config" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/coscholasticgradeentryds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Co-Scholastic Grades" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/subjectcomponentconfig11ds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subject Component Config 11" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpage11ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Marks View 11" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/studentmarksentry11ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Bulk Marks Entry 11" />}
           </ListItem>
         </AccordionDetails>
       </Accordion>
@@ -886,6 +946,23 @@ export function menuitemsall() {
         </AccordionDetails>
       </Accordion>
 
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Purchase New</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/dashboard-purchasing">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Dashboard" />}
+          </ListItem>
+
+        </AccordionDetails>
+      </Accordion>
 
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
@@ -3482,7 +3559,7 @@ export function menuitemsall() {
           </ListItem>
         </AccordionDetails>
       </Accordion>
-      
+
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />
@@ -4344,6 +4421,23 @@ export function menuitemsall() {
 
 
 
+
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+          <SettingsIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>New registration</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/generateinstitutecode">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Generate code" />}
+          </ListItem>
 
         </AccordionDetails>
       </Accordion>

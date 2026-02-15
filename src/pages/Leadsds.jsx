@@ -101,6 +101,18 @@ const Leadsds = () => {
   const [counselorOptions, setCounselorOptions] = useState([]);
   const [counselorLoading, setCounselorLoading] = useState(false);
 
+  // State for cascading dropdowns
+  const [institutions, setInstitutions] = useState([]);
+  const [programTypes, setProgramTypes] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(false);
+  const [loadingProgramTypes, setLoadingProgramTypes] = useState(false);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
+
+  // Dynamic Configuration State
+  const [pipelineStages, setPipelineStages] = useState([]);
+  const [outcomes, setOutcomes] = useState([]);
+
   const navetodashboard = () => {
     if (global1.role === "Admin" || global1.role === "All" || global1.role === "CRM") {
       navigate("/dashboardcrmds");
@@ -127,6 +139,37 @@ const Leadsds = () => {
       console.error("Error searching counselors:", err);
     }
     setCounselorLoading(false);
+  };
+
+  const checkDuplicate = async (field, value) => {
+    if (!value) return;
+    try {
+      const res = await ep1.get("/api/v2/checkduplicateds", {
+        params: { colid: global1.colid, [field]: value },
+      });
+      if (res.data.exists) {
+        const lead = res.data.lead;
+        alert(`Lead already exists!\nName: ${lead.name}\nAssigned To: ${lead.assignedto || "Unassigned"}\nPhone: ${lead.phone}\nEmail: ${lead.email}`);
+
+        setOpenDialog(false);
+        setFilters(prev => ({ ...prev, search: value }));
+
+        // Manually fetch with new search param
+        setLoading(true);
+        const params = {
+          colid: global1.colid,
+          user: global1.user,
+          role: global1.role,
+          ...filters,
+          search: value
+        };
+        const resStats = await ep1.get("/api/v2/getallleadsds", { params });
+        setLeads(resStats.data.data);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Error checking duplicate:", err);
+    }
   };
 
   const [editFormData, setEditFormData] = useState({
@@ -169,7 +212,37 @@ const Leadsds = () => {
     fetchLeads();
     fetchSources();
     fetchCategories();
+    fetchInstitutions();
+    fetchInstitutions();
+    fetchPipelineStages();
+    fetchOutcomes();
   }, []);
+
+  const fetchPipelineStages = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallpipelinestageag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setPipelineStages(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching pipeline stages:", err);
+    }
+  };
+
+  const fetchOutcomes = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getalloutcomeag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setOutcomes(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching outcomes:", err);
+    }
+  };
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -181,7 +254,37 @@ const Leadsds = () => {
         ...filters,
       };
       const res = await ep1.get("/api/v2/getallleadsds", { params });
-      setLeads(res.data.data);
+      let allLeads = res.data.data;
+
+      // Logic: If searching, alert if lead is assigned to someone else.
+      // Table shows: Assigned to Me OR Unassigned.
+      if (filters.search) {
+        const visibleLeads = [];
+        const otherLeads = [];
+
+        allLeads.forEach(lead => {
+          // Visible if assigned to me OR unassigned
+          if (lead.assignedto === global1.user || !lead.assignedto) {
+            visibleLeads.push(lead);
+          } else {
+            otherLeads.push(lead);
+          }
+        });
+
+        if (otherLeads.length > 0) {
+          // Show popup for the first conflicting lead
+          const lead = otherLeads[0];
+          alert(`Lead exists but is assigned to another counselor!\nName: ${lead.name}\nAssigned To: ${lead.assignedto}\nPhone: ${lead.phone}`);
+        }
+
+        setLeads(visibleLeads);
+      } else {
+        // Not searching, or Admin: Show what backend returned
+        // Note: Backend returns Unassigned + Assigned to User. 
+        // If we want to hide "Assigned to Other" that might sneak in via backend loose check, we can filter, but backend usually filters.
+        setLeads(allLeads);
+      }
+
     } catch (err) {
       console.error("Error fetching leads:", err);
       showSnackbar("Failed to fetch leads", "error");
@@ -211,6 +314,59 @@ const Leadsds = () => {
     }
   };
 
+  const fetchInstitutions = async () => {
+    setLoadingInstitutions(true);
+    try {
+      const res = await ep1.get("/api/v2/getinstitutionsds", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.success) {
+        setInstitutions(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching institutions:", err);
+    }
+    setLoadingInstitutions(false);
+  };
+
+  const fetchProgramTypes = async (institution) => {
+    if (!institution) {
+      setProgramTypes([]);
+      return;
+    }
+    setLoadingProgramTypes(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramtypesds", {
+        params: { colid: global1.colid, institution }
+      });
+      if (res.data.success) {
+        setProgramTypes(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching program types:", err);
+    }
+    setLoadingProgramTypes(false);
+  };
+
+  const fetchPrograms = async (institution, programType) => {
+    if (!institution || !programType) {
+      setPrograms([]);
+      return;
+    }
+    setLoadingPrograms(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramsbyfiltersds", {
+        params: { colid: global1.colid, institution, program_type: programType }
+      });
+      if (res.data.success) {
+        setPrograms(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    }
+    setLoadingPrograms(false);
+  };
+
   const handleOpenDialog = () => {
     setFormData({
       name: "",
@@ -219,13 +375,18 @@ const Leadsds = () => {
       category: "",
       course_interested: "",
       source: "",
-      source: "",
       city: "",
       state: "",
       assignedto: "",
+      institution: "",
+      program_type: "",
+      program: "",
       custom_fields: [],
     });
     setCounselorOptions([]); // Reset options
+    setProgramTypes([]);
+    setPrograms([]);
+    fetchInstitutions(); // Fetch institutions when dialog opens
     setOpenDialog(true);
   };
 
@@ -283,12 +444,25 @@ const Leadsds = () => {
       source: lead.source || "",
       city: lead.city || "",
       state: lead.state || "",
-      pipeline_stage: lead.pipeline_stage || "New Lead",
+      pipeline_stage: lead.pipeline_stage || "",
+      leadstatus: lead.leadstatus || "", // Outcome
       next_followup_date: lead.next_followup_date
         ? dayjs(lead.next_followup_date).format("YYYY-MM-DD")
         : "",
-      custom_fields: lead.custom_fields ? lead.custom_fields.map(f => ({ ...f })) : []
+      custom_fields: lead.custom_fields ? lead.custom_fields.map(f => ({ ...f })) : [],
+      institution: lead.institution || "",
+      program_type: lead.program_type || "",
+      program: lead.program || ""
     });
+
+    // Pre-fetch keys to populate dropdowns if values exist
+    fetchInstitutions();
+    if (lead.institution) {
+      fetchProgramTypes(lead.institution);
+      if (lead.program_type) {
+        fetchPrograms(lead.institution, lead.program_type);
+      }
+    }
     setOpenEditDialog(true);
   };
 
@@ -517,6 +691,7 @@ const Leadsds = () => {
         </Box>
       ),
     },
+    { field: "user", headerName: "Created By", width: 150, editable: false },
     { field: "phone", headerName: "Phone", width: 130, editable: false },
     { field: "email", headerName: "Email", width: 200, editable: false },
     { field: "category", headerName: "Category", width: 130, editable: false },
@@ -542,18 +717,7 @@ const Leadsds = () => {
       width: 160,
       editable: false,
       type: 'singleSelect',
-      valueOptions: [
-        'New Lead',
-        'Contacted',
-        'Qualified',
-        'Counselling Scheduled',
-        'Campus Visited',
-        'Application Sent',
-        'Application Submitted',
-        'Fee Paid',
-        'Admitted',
-        'Lost'
-      ],
+      valueOptions: pipelineStages.map(s => s.stagename),
       renderCell: (params) => (
         <Chip
           label={params.value}
@@ -563,10 +727,29 @@ const Leadsds = () => {
         />
       ),
     },
+    {
+      field: "leadstatus",
+      headerName: "Outcome",
+      width: 150,
+      editable: false,
+      type: 'singleSelect',
+      valueOptions: outcomes.map(o => o.outcomename),
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={params.value === 'Converted' ? 'success' : params.value === 'Lost' ? 'error' : 'default'}
+          size="small"
+          variant="outlined"
+        />
+      ),
+    },
     { field: "assignedto", headerName: "Assigned To", width: 180 },
     { field: "source", headerName: "Source", width: 120, editable: false },
     { field: "city", headerName: "City", width: 120, editable: false },
     { field: "state", headerName: "State", width: 120, editable: false },
+    { field: "institution", headerName: "Institution", width: 150, editable: false },
+    { field: "program_type", headerName: "Program Type", width: 130, editable: false },
+    { field: "program", headerName: "Program", width: 180, editable: false },
     {
       field: "next_followup_date",
       headerName: "Next Follow-up",
@@ -828,16 +1011,11 @@ const Leadsds = () => {
               sx={{ minWidth: 180, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
             >
               <MenuItem value="All">All Stages</MenuItem>
-              <MenuItem value="New Lead">New Lead</MenuItem>
-              <MenuItem value="Contacted">Contacted</MenuItem>
-              <MenuItem value="Qualified">Qualified</MenuItem>
-              <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
-              <MenuItem value="Campus Visited">Campus Visited</MenuItem>
-              <MenuItem value="Application Sent">Application Sent</MenuItem>
-              <MenuItem value="Application Submitted">Application Submitted</MenuItem>
-              <MenuItem value="Fee Paid">Fee Paid</MenuItem>
-              <MenuItem value="Admitted">Admitted</MenuItem>
-              <MenuItem value="Lost">Lost</MenuItem>
+              {pipelineStages.map((option) => (
+                <MenuItem key={option._id} value={option.stagename || option.name}>
+                  {option.stagename || option.name}
+                </MenuItem>
+              ))}
             </TextField>
 
             <TextField
@@ -952,6 +1130,7 @@ const Leadsds = () => {
                 label="Phone Number"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onBlur={() => checkDuplicate('phone', formData.phone)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -960,6 +1139,7 @@ const Leadsds = () => {
                 label="Email Address"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onBlur={() => checkDuplicate('email', formData.email)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -978,14 +1158,7 @@ const Leadsds = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Course Interested"
-                value={formData.course_interested}
-                onChange={(e) => setFormData({ ...formData, course_interested: e.target.value })}
-              />
-            </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -997,6 +1170,60 @@ const Leadsds = () => {
                 {sources.map((src) => (
                   <MenuItem key={src._id} value={src.source_name}>
                     {src.source_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Institution"
+                value={formData.institution || ""}
+                onChange={(e) => {
+                  setFormData({ ...formData, institution: e.target.value, program_type: "", program: "" });
+                  fetchProgramTypes(e.target.value);
+                }}
+                disabled={loadingInstitutions}
+              >
+                {institutions.map((inst, index) => (
+                  <MenuItem key={index} value={inst}>
+                    {inst}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program Type"
+                value={formData.program_type || ""}
+                onChange={(e) => {
+                  setFormData({ ...formData, program_type: e.target.value, program: "" });
+                  fetchPrograms(formData.institution, e.target.value);
+                }}
+                disabled={!formData.institution || loadingProgramTypes}
+              >
+                {programTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program"
+                value={formData.program || ""}
+                onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                disabled={!formData.program_type || loadingPrograms}
+              >
+                {programs.map((prog) => (
+                  <MenuItem key={prog._id} value={prog.course_name}>
+                    {prog.course_name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -1235,6 +1462,37 @@ const Leadsds = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 select
+                label="Pipeline Stage"
+                fullWidth
+                value={editFormData.pipeline_stage}
+                onChange={(e) => setEditFormData({ ...editFormData, pipeline_stage: e.target.value })}
+              >
+                {pipelineStages.map((option) => (
+                  <MenuItem key={option._id} value={option.stagename}>
+                    {option.stagename}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label="Outcome"
+                fullWidth
+                value={editFormData.leadstatus}
+                onChange={(e) => setEditFormData({ ...editFormData, leadstatus: e.target.value })}
+              >
+                {outcomes.map((option) => (
+                  <MenuItem key={option._id} value={option.outcomename}>
+                    {option.outcomename}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
                 fullWidth
                 label="Category"
                 value={editFormData.category}
@@ -1249,11 +1507,56 @@ const Leadsds = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
+                select
                 fullWidth
-                label="Course Interested"
-                value={editFormData.course_interested}
-                onChange={(e) => setEditFormData({ ...editFormData, course_interested: e.target.value })}
-              />
+                label="Institution"
+                value={editFormData.institution || ""}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, institution: e.target.value, program_type: "", program: "" });
+                  fetchProgramTypes(e.target.value);
+                }}
+              >
+                {institutions.map((inst, index) => (
+                  <MenuItem key={index} value={inst}>
+                    {inst}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program Type"
+                value={editFormData.program_type || ""}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, program_type: e.target.value, program: "" });
+                  fetchPrograms(editFormData.institution, e.target.value);
+                }}
+                disabled={!editFormData.institution}
+              >
+                {programTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program"
+                value={editFormData.program || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, program: e.target.value })}
+                disabled={!editFormData.program_type}
+              >
+                {programs.map((prog) => (
+                  <MenuItem key={prog._id} value={prog.course_name}>
+                    {prog.course_name}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -1288,45 +1591,7 @@ const Leadsds = () => {
             </Grid>
 
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Pipeline Stage"
-                value={["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(editFormData.pipeline_stage) ? editFormData.pipeline_stage : "Other"}
-                onChange={(e) => {
-                  if (e.target.value === "Other") {
-                    setEditFormData({ ...editFormData, pipeline_stage: "" });
-                  } else {
-                    setEditFormData({ ...editFormData, pipeline_stage: e.target.value });
-                  }
-                }}
-              >
-                <MenuItem value="New Lead">New Lead</MenuItem>
-                <MenuItem value="Contacted">Contacted</MenuItem>
-                <MenuItem value="Qualified">Qualified</MenuItem>
-                <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
-                <MenuItem value="Campus Visited">Campus Visited</MenuItem>
-                <MenuItem value="Application Sent">Application Sent</MenuItem>
-                <MenuItem value="Application Submitted">Application Submitted</MenuItem>
-                <MenuItem value="Fee Paid">Fee Paid</MenuItem>
-                <MenuItem value="Admitted">Admitted</MenuItem>
-                <MenuItem value="Lost">Lost</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </TextField>
-            </Grid>
 
-            {!["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(editFormData.pipeline_stage) && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Custom Stage Name"
-                  value={editFormData.pipeline_stage === "Other" ? "" : editFormData.pipeline_stage}
-                  onChange={(e) => setEditFormData({ ...editFormData, pipeline_stage: e.target.value })}
-                  placeholder="Enter custom stage..."
-                />
-              </Grid>
-            )}
 
             <Grid item xs={12} sm={6}>
               <TextField
@@ -1522,7 +1787,7 @@ const Leadsds = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Container >
   );
 };
 

@@ -113,15 +113,22 @@ const BuildingStaffConfigPage = () => {
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...form,
+        user: global1.user,
+        username: global1.name,
+        colid: global1.colid,
+      };
+
       if (editId) {
-        await ep1.post("/api/v2/updatebuildingstaffds", { ...form, id: editId });
+        await ep1.post("/api/v2/updatebuildingstaffds", { ...payload, id: editId });
         setSnackbar({
           open: true,
           message: "Configuration updated successfully",
           severity: "success",
         });
       } else {
-        await ep1.post("/api/v2/addbuildingstaffds", form);
+        await ep1.post("/api/v2/addbuildingstaffds", payload);
         setSnackbar({
           open: true,
           message: "Configuration added successfully",

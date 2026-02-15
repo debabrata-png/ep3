@@ -12,7 +12,8 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ArrowBack, Download } from "@mui/icons-material";
+import * as XLSX from "xlsx";
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
@@ -111,6 +112,31 @@ const StudentListds = () => {
     });
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await ep1.get('/api/v2/getfilteredstudentsds', {
+        params: {
+          colid: global1.colid,
+          // Fetch all for export
+          limit: 10000,
+          ...filters
+        }
+      });
+
+      if (response.data.status === 'Success' && response.data.data.length > 0) {
+        const ws = XLSX.utils.json_to_sheet(response.data.data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Students");
+        XLSX.writeFile(wb, "students_export.xlsx");
+      } else {
+        alert("No data to export");
+      }
+    } catch (error) {
+      console.error('Error exporting students:', error);
+      alert("Error exporting data");
+    }
+  };
+
   // Define columns for all fields except password, comments, colid, lastlogin
   const columns = [
     { field: 'regno', headerName: 'Reg No', width: 130 },
@@ -160,7 +186,7 @@ const StudentListds = () => {
         <Box sx={{ mb: 2 }}>
           <Button
             variant="contained"
-            startIcon={<ArrowBackIcon />}
+            startIcon={<ArrowBack />}
             onClick={() => navigate('/dashmncas11admin')}
             sx={{
               backgroundColor: '#1976d2',
@@ -170,6 +196,15 @@ const StudentListds = () => {
             }}
           >
             Back to Dashboard
+          </Button>
+          <Button
+            variant="outlined"
+            color="success"
+            startIcon={<Download />}
+            onClick={handleExport}
+            sx={{ ml: 2 }}
+          >
+            Export
           </Button>
         </Box>
         <Typography variant="h4" gutterBottom>

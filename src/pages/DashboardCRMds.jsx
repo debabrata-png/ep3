@@ -48,6 +48,12 @@ const Dashboardds = () => {
       route: "/leadsdsadmin",
     },
     {
+      title: "Leads Bulk Action",
+      description: "View and manage all leads",
+      icon: <LeadsIcon sx={{ fontSize: 48, color: "#0a2b8dff" }} />,
+      route: "/bulkleadsds",
+    },
+    {
       title: "Program Master",
       description: "Manage courses and programs",
       icon: <ProgramIcon sx={{ fontSize: 48, color: "#ed6c02" }} />,
@@ -58,6 +64,12 @@ const Dashboardds = () => {
       description: "Create and manage landing pages with QR codes",
       icon: <LandingPageIcon sx={{ fontSize: 48, color: "#9c27b0" }} />,
       route: "/landingpageds",
+    },
+    {
+      title: "Unified Landing Page",
+      description: "Create and manage unified landing pages",
+      icon: <LandingPageIcon sx={{ fontSize: 48, color: "#7b1fa2" }} />,
+      route: "/unifiedlandingpageds",
     },
     {
       title: "Drip Campaigns",
@@ -93,17 +105,30 @@ const Dashboardds = () => {
       title: "Source Management",
       description: "Manage lead sources for tracking",
       icon: <SourceIcon sx={{ fontSize: 48, color: "#00897b" }} />,
+      icon: <SourceIcon sx={{ fontSize: 48, color: "#00897b" }} />,
       route: "/sourceds",
+    },
+    {
+      title: "Pipeline Stage Config",
+      description: "Manage CRM pipeline stages",
+      icon: <SettingsIcon sx={{ fontSize: 48, color: "#4f46e5" }} />,
+      route: "/pipelinestageag",
+    },
+    {
+      title: "Outcome Config",
+      description: "Manage CRM outcomes",
+      icon: <SettingsIcon sx={{ fontSize: 48, color: "#F59E0B" }} />,
+      route: "/outcomeag",
     },
   ];
 
   const handleLogout = () => {
-    if(global1.role === "Admin") {
+    if (global1.role === "Admin") {
       navigate("/dashmncas11admin")
-    }else {
+    } else {
       navigate("/dashdashfacnew");
     }
-    
+
   };
 
   return (

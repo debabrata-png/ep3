@@ -1,6 +1,69 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Dashboard from './Dashboard';
+import global1 from './pages/global1';
+import NewDashmuser from './pages/NewDashmuser';
+import NewDashmcompany from './pages/NewDashmcompany';
+import NewDashmroles from './pages/NewDashmroles';
+import NewRoleListds from './pages/NewRoleListds';
+import NewPurchaseUserAddds from './pages/NewPurchaseUserAddds';
+import VendorComparisonSheetds from './pages/VendorComparisonSheetds';
+import NewDashmadmission from './pages/NewDashmadmission';
+import NewDashmappmodel2 from './pages/NewDashmappmodel2';
+import NewDashmappmodel2cat from './pages/NewDashmappmodel2cat';
+import NewApplicationReviewPage from './pages/NewApplicationReviewPage';
+import NewDashmfeesadmin from './pages/NewDashmfeesadmin';
+import NewDashmledgerstudadmin from './pages/NewDashmledgerstudadmin';
+import NewDashmmfeescoladmin from './pages/NewDashmmfeescoladmin';
+import NewInstitutionsds from './pages/NewInstitutionsds';
+import NewDashmmprogramsadmin from './pages/NewDashmmprogramsadmin';
+import NewDashmmcourseslistadmin from './pages/NewDashmmcourseslistadmin';
+import NewDashmmstudents1admin from './pages/NewDashmmstudents1admin';
+import NewDashmexamscheduleadmin from './pages/NewDashmexamscheduleadmin';
+import NewDashmexamtimetableadmin from './pages/NewDashmexamtimetableadmin';
+import NewDashmexamroomadmin from './pages/NewDashmexamroomadmin';
+import NewDashmexamadmitadmin from './pages/NewDashmexamadmitadmin';
+import NewDashmexammarksalladmin from './pages/NewDashmexammarksalladmin';
+import NewDashmstudalloc1admin from './pages/NewDashmstudalloc1admin';
+import NewDashmmguidesadmin from './pages/NewDashmmguidesadmin';
+import NewDashmmctalentregadmin from './pages/NewDashmmctalentregadmin';
+import NewDashmlmsvideosadmin from './pages/NewDashmlmsvideosadmin';
+import NewDashboardPageHostel from './pages/NewDashboardPageHostel';
+import NewHostelBuildingPage from './pages/NewHostelBuildingPage';
+import NewHostelRoomPage from './pages/NewHostelRoomPage';
+import NewLeadsds from './pages/NewLeadsds';
+import NewDashboardCrmds from './pages/NewDashboardCrmds';
+import NewDashboardPurchaseds from './pages/NewDashboardPurchaseds';
+import NewPurchaseCellInventoryds from './pages/NewPurchaseCellInventoryds';
+import NewPurchaseRequestAssignmentds from './pages/NewPurchaseRequestAssignmentds';
+import NewOEDashboardds from './pages/NewOEDashboardds';
+import NewVendormanagementds from './pages/NewVendormanagementds';
+import NewPurchaseOrderDashboardds from './pages/NewPurchaseOrderDashboardds';
+import NewDeliveryDashboardds from './pages/NewDeliveryDashboardds';
+import NewAttendanceDashboard from './pages/NewAttendanceDashboard';
+import NewJobApplicationPage from './pages/NewJobApplicationPage';
+import NewSalaryManagement from './pages/NewSalaryManagement';
+import NewLeavesPage from './pages/NewLeavesPage';
+import NewDashmUseradmin from './pages/NewDashmUseradmin';
+import NewDashmmacadcaladmin from './pages/NewDashmmacadcaladmin';
+import NewDashmmassignmentsadmin from './pages/NewDashmmassignmentsadmin';
+import NewDashmmanouncementsadmin from './pages/NewDashmmanouncementsadmin';
+import NewDashmmcoursecoadmin from './pages/NewDashmmcoursecoadmin';
+import NewDashmmcoursematerialadmin from './pages/NewDashmmcoursematerialadmin';
+import NewDashmclassnewadmin from './pages/NewDashmclassnewadmin';
+import NewDashmattendancenewadmin from './pages/NewDashmattendancenewadmin';
+import NewDashmattyearadmin from './pages/NewDashmattyearadmin';
+import NewDashmmindmaplistadmin from './pages/NewDashmmindmaplistadmin';
+import NewDashmmindmapnodesadmin from './pages/NewDashmmindmapnodesadmin';
+import NewDashmmindmapedgesadmin from './pages/NewDashmmindmapedgesadmin';
+import NewDashmtimeslotsn1admin from './pages/NewDashmtimeslotsn1admin';
+import NewDashmworkloadn1admin from './pages/NewDashmworkloadn1admin';
+import NewDashmfacwcaladmin from './pages/NewDashmfacwcaladmin';
+import NewDashmmfaccoursesadmin from './pages/NewDashmmfaccoursesadmin';
+import NewDashmmfaccoursesattadmin from './pages/NewDashmmfaccoursesattadmin';
+import NewDashmmattcalcadmin from './pages/NewDashmmattcalcadmin';
+import NewDashmmcolevelsadmin from './pages/NewDashmmcolevelsadmin';
+import AdminNavbar from './components/AdminNavbar';
+import AdminLayout from './components/AdminLayout';
 import Profile from './Profile';
 import LearningManagementSystem from './LearningManagementSystem';
 import NAAC from './NAAC';
@@ -15,6 +78,10 @@ import Viewcourse1 from './pages/Viewcourse1';
 import Login from './pages/Login';
 import Dashmcas11 from './pages/Dashmcas11';
 import Institutionsds from './pages/Institutionsds';
+import StudentMarksheetViewPageKGds from './pages/StudentMarksheetViewPageKGds';
+import BulkLeadActionsds from './pages/BulkLeadActionsds';
+import FacultyRequestApprovalds from './pages/FacultyRequestApprovalds';
+import DashMainAdmin from './pages/DashMainAdmin';
 
 import Dashmncas11 from './pages/Dashmncas11';
 import Dashmncas11admin from './pages/Dashmncas11admin';
@@ -78,9 +145,14 @@ import Dashmmfaccourses from './pages/Dashmmfaccourses';
 import Dashmmfaccoursesadmin from './pages/Dashmmfaccoursesadmin';
 import Dashmmfaccoursesatt from './pages/Dashmmfaccoursesatt';
 import Dashmmfaccoursesattadmin from './pages/Dashmmfaccoursesattadmin';
+import AdmissionInstitutionWiseReportds from './pages/AdmissionInstitutionWiseReportds';
 
 import Dashmmattcalc from './pages/Dashmmattcalc';
+import UnifiedLandingPageds from './pages/UnifiedLandingPageds';
+import PublicUnifiedLandingPageds from './pages/PublicUnifiedLandingPageds';
 import Dashmmattcalcadmin from './pages/Dashmmattcalcadmin';
+import Leadsag from './pages/Leadsag';
+
 
 import Dashmmcolevels from './pages/Dashmmcolevels';
 import Dashmmcolevelsadmin from './pages/Dashmmcolevelsadmin';
@@ -138,6 +210,7 @@ import Dashmclassnew from './pages/Dashmclassnew';
 import Dashmclassnewadmin from './pages/Dashmclassnewadmin';
 import Dashmattendancenew from './pages/Dashmattendancenew';
 import Dashmattendancenewadmin from './pages/Dashmattendancenewadmin';
+import NewAttendanceReportds from './pages/NewAttendanceReportds';
 
 import SubHalfAdder1 from './pages/SubHalfAdder1';
 import BasicLogicGateExpFirst from './pages/BasicLogicGateExpFirst';
@@ -147,7 +220,32 @@ import FullSubtractor from './pages/FullSubtractor';
 import TwoBitAdder from './pages/TwoBitAdder';
 
 import Dashmattccode from './pages/Dashmattccode';
+
 import Dashmattpcode from './pages/Dashmattpcode';
+
+// Purchasing Module Imports - NEW
+import FacultyCreateRequestds from './pages/FacultyCreateRequestds';
+import FacultyRequestStatusds from './pages/FacultyRequestStatusds';
+import StoreManagerDashboardds from './pages/StoreManagerDashboardds';
+import PurchaseOrderDashboardds from './pages/PurchaseOrderDashboardds';
+import DeliveryDashboardds from './pages/DeliveryDashboardds';
+import ApprovalConfigurationds from './pages/ApprovalConfigurationds';
+import PurchaseCellInventoryds from './pages/PurchaseCellInventoryds';
+
+import DashboardPurchaseds from './pages/DashboardPurchaseds';
+import PurchasingMasterDatads from './pages/PurchasingMasterDatads';
+import ItemCategoryds from './pages/ItemCategoryds';
+import ItemTypeds from './pages/ItemTypeds';
+import ItemUnitds from './pages/ItemUnitds';
+import CashApprovalds from './pages/CashApprovalds';
+import ApproveCashApprovalds from './pages/ApproveCashApprovalds';
+import StaffProfileds from './pages/StaffProfileds'; // Added
+
+import Pipelinestageag from './pages/pipelinestageag';
+import Outcomeag from './pages/outcomeag';
+
+
+
 import Dashmclassnewc from './pages/Dashmclassnewc';
 
 import Dashmclassnewstud from './pages/Dashmclassnewstud';
@@ -620,13 +718,19 @@ import Dashapplyadmitstud from './pages/Dashapplyadmitstud';
 
 import Dashmexamadmit from './pages/Dashmexamadmit';
 import Dashmexamadmitadmin from './pages/Dashmexamadmitadmin';
+import ReleaseAdmitCardds from "./pages/ReleaseAdmitCardds";
+import DownloadAdmitCardds from "./pages/DownloadAdmitCardds";
+
 import Dashmfees from './pages/Dashmfees';
+import Dashfeefineds from './pages/Dashfeefineds';
 import Dashmfeesadmin from './pages/Dashmfeesadmin';
 import Dashmledgerstud from './pages/Dashmledgerstud';
 import Dashmledgerstudadmin from './pages/Dashmledgerstudadmin';
 
 import Dashmexamadmitstud from './pages/Dashmexamadmitstud';
 import Dashmledgerstudstud from './pages/Dashmledgerstudstud';
+import DashmledgerstudstudHDFC from './pages/DashmledgerstudstudHDFC';
+import DashmledgerstudstudMultipayment from './pages/DashmledgerstudstudMultipayment';
 
 
 import DashmUser from './pages/DashmUser';
@@ -908,6 +1012,7 @@ import Dashmchatentry from "./pages/Dashmchatentry";
 
 import SubjectGroupds from './pages/SubjectGroupds';
 import StudentSubjectds from './pages/StudentSubjectds';
+import StudentListds from './pages/StudentListds';
 import SubjectApprovalds from './pages/SubjectApprovalds';
 
 import SubjectLimitConfig from './pages/SubjectLimitConfig';
@@ -999,6 +1104,11 @@ import Dashmwardadmin from './pages/Dashmwardadmin';
 import Dashmemergency from './pages/Dashmemergency';
 import Dashmemergencyadmin from './pages/Dashmemergencyadmin';
 import Dashmnemergency from './pages/Dashmnemergency';
+
+// Class 11-12 Report Card
+import SubjectComponentConfig11ds from './pages/SubjectComponentConfig11ds';
+import StudentMarksEntry11ds from './pages/StudentMarksEntry11ds';
+import StudentMarksheetViewPage11ds from './pages/StudentMarksheetViewPage11ds';
 import Dashmnemergencyadmin from './pages/Dashmnemergencyadmin';
 import Dashmpadmission from './pages/Dashmpadmission';
 import Dashmpadmissionadmin from './pages/Dashmpadmissionadmin';
@@ -1195,7 +1305,7 @@ import Paymentstatusds from "./pages/Paymentstatusds";
 import Paymentcallbackds from "./pages/Paymentcallbackds";
 
 
-import DashboardCrmds from "./pages/DashboardCrmds";
+import DashboardCrmds from "./pages/DashboardCRMds";
 import Categoryds from "./pages/Categoryds";
 import Leadsds from "./pages/Leadsds";
 import Leaddetailds from "./pages/Leaddetailds";
@@ -1218,7 +1328,7 @@ import AiDataManager from './pages/AiDataManager';
 
 // Student Routes
 
-import StudentListds from './pages/StudentListds.jsx';
+// Student Routes
 // AI Workflow Bot - Add these imports
 import WorkflowConfigds from './pages/WorkflowConfigds';
 import WorkflowChatbotds from './pages/WorkflowChatbotds';
@@ -1234,6 +1344,9 @@ import MarksheetGenerationPageds from "./pages/MarksheetGenerationPageds";
 import SubjectComponentConfigPageds from "./pages/SubjectComponentConfigPageds";
 import BulkMarksEntryPageds from "./pages/BulkMarksEntryPageds";
 import StudentMarksheetViewPageds from "./pages/StudentMarksheetViewPageds";
+import SchoolConfigPageds from './pages/SchoolConfigPageds';
+import CoScholasticActivityConfigds from "./pages/CoScholasticActivityConfigds";
+import CoScholasticGradeEntryds from "./pages/CoScholasticGradeEntryds";
 
 
 // HDFC Payment Pages
@@ -1247,15 +1360,25 @@ import Hdfcgatewayconfigds from "./pages/Hdfcgatewayconfigds";
 import DonationReceiptFormds from "./pages/DonationReceiptFormds";
 import DonationReceiptsViewds from "./pages/DonationReceiptsViewds";
 import Leadsdsadmin from './pages/Leaddsadmin';
+import NewComunicationds from './pages/NewComunicationds';
+import NewFileMasterds from './pages/newfilemasterds';
+import NewFileMovementds from './pages/newfilemovementds';
+import Dashstudprofileallds from './pages/Dashstudprofileallds';
+import StudentProfile1ds from './pages/StudentProfile1ds';
+import NewAttendanceTimeReportds from './pages/NewAttendanceTimeReportds';
+import AdmissionReportPageds from './pages/AdmissionReportPageds';
+import AdmissionCourseWiseReportPageds from './pages/AdmissionCourseWiseReportPageds';
 
+// NEW IMPORTS REORGANIZED
+import RoleLayout from './components/RoleLayout';
+import OEDashboardds from './pages/OEDashboardds';
+import DataConfig from './pages/DataApiConfigds';
 
+import NewAdminRoles from './pages/NewAdminroles';
 
-
-
-
-
-
-
+import Admissiontemplateann1 from "./pages/Admissiontemplateann1";
+import Admissiontemplateann2 from "./pages/Admissiontemplateann2";
+import Admissiontemplateann3 from "./pages/Admissiontemplateann3";
 
 
 
@@ -1263,443 +1386,596 @@ import Leadsdsadmin from './pages/Leaddsadmin';
 function App() {
         return (
                 <Router>
-                        <Routes>
-                                {/* <Route path="/" element={<Login />} /> */}
-                                <Route path="/" element={<CampusWebsite />} />
-                                <Route path="/viewcourse1" element={<Viewcourse1 />} />
-                                <Route path="/profile" element={<Profile />} />
-                                <Route path="/learning-management-system" element={<LearningManagementSystem />} />
-                                <Route path="/naac" element={<NAAC />} />
-                                <Route path="/reports" element={<Reports />} />
-                                <Route path="/Parct1" element={<Parct1 />} />
-                                <Route path="/add" element={<AddUser />} />
-                                <Route path="/edit/:id" element={<EditUser />} />
-                                <Route path="/delete/:id" element={<DeleteUser />} />
-                                {/* <Route path="/users" element={<Users />} /> */}
-                                <Route path="/export" element={<ExportUsers />} />
-                                <Route path="/dashmcas11" element={<Dashmcas11 />} />
-                                <Route path="/dashmncas11" element={<Dashmncas11 />} />
-                                <Route path="/dashmncas11admin" element={<Dashmncas11admin />} />
-                                <Route path="/Login3" element={<Login />} />
-                                <Route path="/dashmncas12" element={<Dashmncas12 />} />
-                                <Route path="/dashmncas12admin" element={<Dashmncas12admin />} />
+                        <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+                                <Routes>
+                                        {/* ----------------------------------------------------------------------- */}
+                                        {/* NEW ROLE-BASED ROUTES (Sticky Sidebar) */}
+                                        {/* ----------------------------------------------------------------------- */}
+
+                                        {/* Purchase / Store / OE Shared */}
+                                        <Route path="/role/purchase-order-dashboard" element={<RoleLayout><PurchaseOrderDashboardds /></RoleLayout>} />
+                                        <Route path="/role/PurchaseCellInventoryds" element={<RoleLayout><PurchaseCellInventoryds /></RoleLayout>} />
+                                        <Route path="/role/purchasing-master-data" element={<RoleLayout><PurchasingMasterDatads /></RoleLayout>} />
+                                        <Route path="/role/ApprovalConfigurationds" element={<RoleLayout><ApprovalConfigurationds /></RoleLayout>} />
+                                        <Route path="/role/vendor-comparison" element={<RoleLayout><VendorComparisonSheetds /></RoleLayout>} />
+                                        <Route path="/role/ItemCategoryds" element={<RoleLayout><ItemCategoryds /></RoleLayout>} />
+                                        <Route path="/role/ItemTypeds" element={<RoleLayout><ItemTypeds /></RoleLayout>} />
+                                        <Route path="/role/ItemUnitds" element={<RoleLayout><ItemUnitds /></RoleLayout>} />
+                                        <Route path="/role/purchase-user-add" element={<RoleLayout><NewPurchaseUserAddds /></RoleLayout>} />
+                                        <Route path="/role/cash-approval" element={<RoleLayout><CashApprovalds /></RoleLayout>} />
+                                        <Route exact path="/approvecashapprovalds/:id" element={<RoleLayout><ApproveCashApprovalds /></RoleLayout>} />
+
+                                        <Route path="/pipelinestageag" element={<Pipelinestageag />} />
+                                        <Route path="/outcomeag" element={<Outcomeag />} />
+
+                                        <Route path="/admissiontemplateann1/:colId" element={<Admissiontemplateann1 />} />
+                                        <Route path="/admissiontemplateann2/:colId" element={<Admissiontemplateann2 />} />
+                                        <Route path="/admissiontemplateann3/:colId" element={<Admissiontemplateann3 />} />
+
+                                        {/* OE Specific */}
+                                        <Route path="/role/oe-dashboard" element={<RoleLayout><OEDashboardds /></RoleLayout>} />
+
+                                        {/* Store Specific */}
+                                        <Route path="/role/store-manager-dashboard" element={<RoleLayout><StoreManagerDashboardds /></RoleLayout>} />
+                                        <Route path="/role/delivery-dashboard" element={<RoleLayout><DeliveryDashboardds /></RoleLayout>} />
+
+                                        {/* AO Specific - Skipped StoreRequisationds due to missing component */}
+
+                                        {/* AI Chatbot & Config (Shared) */}
+                                        <Route path="/role/dashchattest4d" element={<RoleLayout><Dashchattest4d /></RoleLayout>} />
+                                        <Route path="/role/dashmtall" element={<RoleLayout><Dashmtall /></RoleLayout>} />
+                                        <Route path="/role/dashmtfields" element={<RoleLayout><Dashmtfields /></RoleLayout>} />
+                                        <Route path="/role/dashmtbcolumnsall" element={<RoleLayout><Dashmtbcolumnsall /></RoleLayout>} />
+                                        <Route path="/dashmmattcalcadmin" element={<RoleLayout><NewDashmmattcalcadmin /></RoleLayout>} />
+
+                                        <Route path="/schoolconfigds" element={<SchoolConfigPageds />} />
+
+                                        <Route path="/role/apichatbot" element={<RoleLayout><ApiChatbot /></RoleLayout>} />
+                                        <Route path="/role/apichatbot1" element={<RoleLayout><ApiChatbot1 /></RoleLayout>} />
+                                        <Route path="/role/apiconfig" element={<RoleLayout><ApiConfig /></RoleLayout>} />
+                                        <Route path="/role/aidatamanager" element={<RoleLayout><AiDataManager /></RoleLayout>} />
+                                        <Route path="/role/dataconfig" element={<RoleLayout><DataConfig /></RoleLayout>} />
+
+                                        <Route path="/role/workflowchatbotds" element={<RoleLayout><WorkflowChatbotds /></RoleLayout>} />
+                                        <Route path="/role/workflowconfigds" element={<RoleLayout><WorkflowConfigds /></RoleLayout>} />
+                                        <Route path="/role/workflowchatbotds1" element={<RoleLayout><WorkflowChatbotds1 /></RoleLayout>} />
+                                        <Route path="/role/workflowconfigds1" element={<RoleLayout><WorkflowConfigds1 /></RoleLayout>} />
+
+                                        {/* <Route path="/" element={<Login />} /> */}
+                                        <Route path="/" element={<CampusWebsite />} />
+                                        <Route path="/viewcourse1" element={<Viewcourse1 />} />
+                                        <Route path="/profile" element={<Profile />} />
+                                        <Route path="/learning-management-system" element={<LearningManagementSystem />} />
+                                        <Route path="/naac" element={<NAAC />} />
+                                        <Route path="/reports" element={<Reports />} />
+                                        <Route path="/Parct1" element={<Parct1 />} />
+                                        <Route path="/add" element={<AddUser />} />
+                                        <Route path="/edit/:id" element={<EditUser />} />
+                                        <Route path="/delete/:id" element={<DeleteUser />} />
+                                        {/* <Route path="/users" element={<Users />} /> */}
+                                        <Route path="/export" element={<ExportUsers />} />
+                                        <Route path="/dashmcas11" element={<Dashmcas11 />} />
+                                        <Route path="/dashmncas11" element={<Dashmncas11 />} />
+                                        <Route path="/dashmncas11admin" element={<Dashmncas11admin />} />
+                                        <Route path="/Login3" element={<Login />} />
+                                        <Route path="/dashmncas12" element={<Dashmncas12 />} />
+                                        <Route path="/dashmncas12admin" element={<Dashmncas12admin />} />
 
 
-                                {/* HDFC Payment Routes */}
-                                <Route path="/hdfcpaymentinitiationds" element={<Hdfcpaymentinitiationds />} />
-                                <Route path="/hdfcpaymentcallbackds" element={<Hdfcpaymentcallbackds />} />
-                                <Route path="/hdfcpaymenthistoryds" element={<Hdfcpaymenthistoryds />} />
-                                <Route path="/hdfcgatewayconfigds" element={<Hdfcgatewayconfigds />} />
+                                        {/* HDFC Payment Routes */}
+                                        <Route path="/hdfcpaymentinitiationds" element={<Hdfcpaymentinitiationds />} />
+                                        <Route path="/hdfcpaymentcallbackds" element={<Hdfcpaymentcallbackds />} />
+                                        <Route path="/hdfcpaymenthistoryds" element={<Hdfcpaymenthistoryds />} />
+                                        <Route path="/hdfcgatewayconfigds" element={<Hdfcgatewayconfigds />} />
 
-                                <Route path="/marksheetdataentryds" element={<MarksheetDataEntryPageds />} />
-                                <Route path="/marksheetgenerationds" element={<MarksheetGenerationPageds />} />
+                                        <Route path="/marksheetdataentryds" element={<MarksheetDataEntryPageds />} />
+                                        <Route path="/marksheetgenerationds" element={<MarksheetGenerationPageds />} />
 
-                                {/* Student EventList */}
-                                <Route path="/studentlistds" element={<StudentListds />} />
+                                        {/* Student EventList */}
+                                        <Route path="/studentlistds" element={<StudentListds />} />
 
-                                <Route path="/donationreceiptformds" element={<DonationReceiptFormds />} />
-                                <Route path="/donationreceiptsviewds" element={<DonationReceiptsViewds />} />
+                                        <Route path="/donationreceiptformds" element={<DonationReceiptFormds />} />
+                                        <Route path="/donationreceiptsviewds" element={<DonationReceiptsViewds />} />
 
-                                {/* AI Workflow Bot Routes */}
-                                <Route path="/workflowconfigds" element={<WorkflowConfigds />} />
-                                <Route path="/workflowchatbotds" element={<WorkflowChatbotds />} />
-                                {/* AI Workflow Bot 1 Routes */}
-                                <Route path="/workflowconfigds1" element={<WorkflowConfigds1 />} />
-                                <Route path="/workflowchatbotds1" element={<WorkflowChatbotds1 />} />
+                                        {/* AI Workflow Bot Routes */}
+                                        <Route path="/workflowconfigds" element={<WorkflowConfigds />} />
+                                        <Route path="/workflowchatbotds" element={<WorkflowChatbotds />} />
+                                        {/* AI Workflow Bot 1 Routes */}
+                                        <Route path="/workflowconfigds1" element={<WorkflowConfigds1 />} />
+                                        <Route path="/workflowchatbotds1" element={<WorkflowChatbotds1 />} />
 
-                                {/* CLASS 9-10 MARKSHEET MODULE ROUTES */}
-                                <Route path="/subjectcomponentconfigpageds" element={<SubjectComponentConfigPageds />} />
+                                        {/* CLASS 9-10 MARKSHEET MODULE ROUTES */}
+                                        <Route path="/subjectcomponentconfig9ds" element={<SubjectComponentConfigPageds />} />
 
-                                <Route path="/bulkmarksentrypageds" element={<BulkMarksEntryPageds />} />
+                                        <Route path="/bulkmarksentrypageds" element={<BulkMarksEntryPageds />} />
 
-                                <Route path="/studentmarksheetviewpageds" element={<StudentMarksheetViewPageds />} />
-
-
-                                {/* AI API upload ROUTES */}
-                                <Route path="/dataconfig" element={<DataApiConfig />} />
-                                <Route path="/aidatamanager" element={<AiDataManager />} />
-                                {/* NEW ROUTES */}
-                                <Route path="/AnswerSheetEvaluationListPageds" element={<AnswerSheetEvaluationListPageds />} />
-                                <Route path="/AnswerSheetEvaluationPageds" element={<AnswerSheetEvaluationPageds />} />
-                                <Route path="/ReevaluationQuestionWiseViewPageds" element={<ReevaluationQuestionWiseViewPageds />} />
-                                <Route path="/ReevaluationQuestionWiseEditPageds" element={<ReevaluationQuestionWiseEditPageds />} />
+                                        <Route path="/studentmarksheetviewpageds" element={<StudentMarksheetViewPageds />} />
+                                        <Route path="/coscholasticactivityconfigds" element={<CoScholasticActivityConfigds />} />
+                                        <Route path="/coscholasticgradeentryds" element={<CoScholasticGradeEntryds />} />
+                                        <Route path="/studentmarksheetviewpagekgds" element={<StudentMarksheetViewPageKGds />} />
 
 
-                                <Route path="/supplementaryattendanceds" element={<SupplementaryAttendanceds />} />
-                                <Route path="/studentattendanceds" element={<StudentAttendanceViewds />} />
-                                <Route path="/requestedattendanceds" element={<RequestedAttendanceds />} />
+                                        {/* AI API upload ROUTES */}
+                                        <Route path="/dataconfig" element={<DataApiConfig />} />
+                                        <Route path="/aidatamanager" element={<AiDataManager />} />
+                                        {/* NEW ROUTES */}
+                                        <Route path="/AnswerSheetEvaluationListPageds" element={<AnswerSheetEvaluationListPageds />} />
+                                        <Route path="/AnswerSheetEvaluationPageds" element={<AnswerSheetEvaluationPageds />} />
+                                        <Route path="/ReevaluationQuestionWiseViewPageds" element={<ReevaluationQuestionWiseViewPageds />} />
+                                        <Route path="/ReevaluationQuestionWiseEditPageds" element={<ReevaluationQuestionWiseEditPageds />} />
 
-                                {/* <Route path="/requestedattendanceds" element={<RequestedAttendanceds />} />
+
+                                        <Route path="/supplementaryattendanceds" element={<SupplementaryAttendanceds />} />
+                                        <Route path="/studentattendanceds" element={<StudentAttendanceViewds />} />
+                                        <Route path="/requestedattendanceds" element={<RequestedAttendanceds />} />
+
+                                        {/* <Route path="/requestedattendanceds" element={<RequestedAttendanceds />} />
         <Route path="/studentattendanceviewds" element={<StudentAttendanceViewds />} />
         <Route path="/studentattendanceviewds" element={<StudentAttendanceViewds />} /> */}
 
-                                <Route path="/dashmwreport2" element={<Dashmwreport2 />} />
-                                <Route path="/dashreports" element={<Dashreports />} />
-                                <Route path="/dashmwreport1" element={<Dashmwreport1 />} />
+                                        <Route path='/subjectcomponentconfig11ds' element={<SubjectComponentConfig11ds />} />
+                                        <Route path='/studentmarksheetviewpage11ds' element={<StudentMarksheetViewPage11ds />} />
+                                        <Route path='/studentmarksentry11ds' element={<StudentMarksEntry11ds />} />
 
-                                <Route path="/dashmtblapi" element={<Dashmtblapi />} />
-                                <Route path="/dashmtblapiadmin" element={<Dashmtblapiadmin />} />
+                                        <Route path="/dashmwreport2" element={<Dashmwreport2 />} />
+                                        <Route path="/dashreports" element={<Dashreports />} />
+                                        <Route path="/dashmwreport1" element={<Dashmwreport1 />} />
 
+                                        <Route path="/dashmtblapi" element={<Dashmtblapi />} />
+                                        <Route path="/dashmtblapiadmin" element={<Dashmtblapiadmin />} />
 
-                                <Route path="/dashboardreevalds" element={<Dashboardreevalds />} />
-                                <Route path="/reevaluation-application-new" element={<ReevaluationApplicationNewPageds />} />
-                                <Route path="/admin-reevaluation-management" element={<AdminReevaluationManagementPageds />} />
-                                <Route path="/examiner-reevaluation-evaluation" element={<ExaminerReevaluationEvaluationPageds />} />
-                                <Route path="/admin-examiner3-allocation" element={<AdminExaminer3AllocationPageds />} />
 
-                                <Route path="/dashmtbcolumnsall" element={<Dashmtbcolumnsall />} />
-                                <Route path="/dashmtbcolumnsalladmin" element={<Dashmtbcolumnsalladmin />} />
-
-
-                                <Route path="/chattest44" element={<chattest44 />} />
-
-                                <Route path="/dashmtall" element={<Dashmtall />} />
-                                <Route path="/dashmtalladmin" element={<Dashmtalladmin />} />
-                                <Route path="/dashmtfields" element={<Dashmtfields />} />
-                                <Route path="/dashmtfieldsadmin" element={<Dashmtfieldsadmin />} />
-
-
-                                <Route path="/dashchattest4d" element={<Dashchattest4d />} />
-
-                                <Route path="/dashchattest4" element={<Dashchattest4 />} />
-
-                                <Route path="/dashmexamupload" element={<Dashmexamupload />} />
-
-                                <Route path="/returnmanagementds" element={<Returnmanagementds />} />
-
-                                <Route path="/dashmexaminerallocate" element={<Dashmexaminerallocate />} />
-
-                                <Route path="/reevaluationapplicationds" element={<ReevaluationApplicationPageds />} />
-                                <Route path="/examinerconfigds" element={<ExaminerConfigPageds />} />
-                                <Route path="/examinerevaluationds" element={<ExaminerEvaluationPageds />} />
-
-                                <Route path="/dashmcrmh1" element={<Dashmcrmh1 />} />
-                                <Route path="/dashmcrmh1admin" element={<Dashmcrmh1admin />} />
-
-
-                                <Route path="/dashboardsummary" element={<DashboardSummaryReportds />} />
-                                <Route path="/coursefacultyassigned" element={<CourseFacultyAssignedReportds />} />
-                                <Route path="/facultycoursesummary" element={<FacultyCourseSummaryReportds />} />
-                                <Route path="/facultyoverallsummary" element={<FacultyOverallSummaryReportds />} />
-                                <Route path="/coursecompletionstatus" element={<CourseCompletionStatusReportds />} />
-                                <Route path="/facultycoursestudentdetails" element={<FacultyCourseStudentDetailsReportds />} />
-
-                                <Route path="/managecategoryassigneeds" element={<ManageCategoryAssigneeds />} />
-
-                                <Route path="/managecategoryassigneeds1" element={<ManageCategoryAssigneeds1 />} />
-
-                                <Route path="/questionbanklistds" element={<QuestionBankListds />} />
-                                <Route path="/managesectionsds/:questionbankcode" element={<ManageSectionsds />} />
-                                <Route path="/managequestionsds/:questionbankcode" element={<ManageQuestionsds />} />
-                                <Route path="/vieweditlogsds/:questionbankcode" element={<ViewEditLogsds />} />
-                                <Route path="/generatepdfds/:questionbankcode" element={<GeneratePDFds />} />
-
-                                <Route path="/transcriptpageds" element={<TranscriptPageds />} />
-
-
-                                <Route path="/creategrievanceds1" element={<CreateGrievanceFormds1 />} />
-                                <Route path="/admingrievancedashboardds1" element={<AdminGrievanceDashboardds1 />} />
-                                <Route path="/assigneegrievancepageds1" element={<AssigneeGrievancePageds1 />} />
-                                <Route path="/managegrievancecategoriesds1" element={<ManageGrievanceCategoriesds1 />} />
-                                <Route path="/manageapikeyds" element={<ManageApiKeyds />} />
-                                <Route path="/geminichatds" element={<GeminiChatds />} />
-
-                                <Route path="/creategrievanceds" element={<CreateGrievanceFormds />} />
-                                <Route path="/admingrievancedashboardds" element={<AdminGrievanceDashboardds />} />
-                                <Route path="/assigneegrievancepageds" element={<AssigneeGrievancePageds />} />
-                                <Route path="/managegrievancecategoriesds" element={<ManageGrievanceCategoriesds />} />
-
-                                <Route path="/facultyregistrationform" element={<FacultyRegistrationFormPage />} />
-
-                                <Route
-                                        path="/facultyregistrationmanagement"
-                                        element={<FacultyRegistrationManagementPage />}
-                                />
-                                <Route path="/facultybankdetails" element={<FacultyBankDetailsPage />} />
-
-                                <Route path="/ledgerstudpageds" element={<LedgerStudPageds />} />
-                                <Route path="/ledgerinstallmentpageds" element={<LedgerInstallmentPageds />} />
-
-                                <Route path="/studentledgerreportds" element={<StudentLedgerReportPageds />} />
-                                <Route path="/collegerepledgerreportds" element={<CollegeStudentLedgerReportPageds />} />
-
-                                <Route path="/bulktabulationregisterpageds" element={<BulkTabulationRegisterPage />} />
-
-                                <Route path="/dashmstudalloc1exam" element={<Dashmstudalloc1exam />} />
-
-                                <Route path="/dashmpcounselnew" element={<Dashmpcounselnew />} />
-                                <Route path="/dashmpcounselnewadmin" element={<Dashmpcounselnewadmin />} />
-                                <Route path="/dashmpcounselc" element={<Dashmpcounselc />} />
-                                <Route path="/dashmpcounselcadmin" element={<Dashmpcounselcadmin />} />
-                                <Route path="/dashmpmealplan" element={<Dashmpmealplan />} />
-                                <Route path="/dashmpmealplanadmin" element={<Dashmpmealplanadmin />} />
-                                <Route path="/dashmpfood" element={<Dashmpfood />} />
-                                <Route path="/dashmpfoodadmin" element={<Dashmpfoodadmin />} />
-
-
-                                <Route path="/dashmstudallocf" element={<Dashmstudallocf />} />
-
-                                <Route path="/examstructurepageds" element={<ExamMarksStructurePageds />} />
-                                <Route path="/marksentrypageds" element={<MarksEntryPageds />} />
-                                <Route path="/tabulationregisterpageds" element={<TabulationRegisterPage />} />
-
-                                <Route path="/dashmwbin" element={<Dashmwbin />} />
-                                <Route path="/dashmwbinadmin" element={<Dashmwbinadmin />} />
-                                <Route path="/dashmwcolschedule1" element={<Dashmwcolschedule1 />} />
-                                <Route path="/dashmwcolschedule1admin" element={<Dashmwcolschedule1admin />} />
-                                <Route path="/dashmwdisposal1" element={<Dashmwdisposal1 />} />
-                                <Route path="/dashmwdisposal1admin" element={<Dashmwdisposal1admin />} />
-                                <Route path="/dashmwspill1" element={<Dashmwspill1 />} />
-                                <Route path="/dashmwspill1admin" element={<Dashmwspill1admin />} />
-
-
-                                <Route path="/dashmwcollection" element={<Dashmwcollection />} />
-                                <Route path="/dashmwcollectionadmin" element={<Dashmwcollectionadmin />} />
-                                <Route path="/dashmwcolschedule" element={<Dashmwcolschedule />} />
-                                <Route path="/dashmwcolscheduleadmin" element={<Dashmwcolscheduleadmin />} />
-                                <Route path="/dashmwdisposal" element={<Dashmwdisposal />} />
-                                <Route path="/dashmwdisposaladmin" element={<Dashmwdisposaladmin />} />
-                                <Route path="/dashmwspill" element={<Dashmwspill />} />
-                                <Route path="/dashmwspilladmin" element={<Dashmwspilladmin />} />
-
-
-                                <Route path="/viewmmcevmeddis" element={<Viewmmcevmeddis />} />
-                                <Route path="/viewmmcevmed" element={<Viewmmcevmed />} />
-
-                                <Route path="/dashmpconsent" element={<Dashmpconsent />} />
-                                <Route path="/dashmpconsentadmin" element={<Dashmpconsentadmin />} />
-                                <Route path="/dashmptreatment" element={<Dashmptreatment />} />
-                                <Route path="/dashmptreatmentadmin" element={<Dashmptreatmentadmin />} />
-                                <Route path="/dashmplab" element={<Dashmplab />} />
-                                <Route path="/dashmplabadmin" element={<Dashmplabadmin />} />
-                                <Route path="/dashmpimaging" element={<Dashmpimaging />} />
-                                <Route path="/dashmpimagingadmin" element={<Dashmpimagingadmin />} />
-                                <Route path="/dashmpdischarge" element={<Dashmpdischarge />} />
-                                <Route path="/dashmpdischargeadmin" element={<Dashmpdischargeadmin />} />
-
-
-                                <Route path="/dashmpillness" element={<Dashmpillness />} />
-                                <Route path="/dashmpillnessadmin" element={<Dashmpillnessadmin />} />
-                                <Route path="/dashmpsurgery" element={<Dashmpsurgery />} />
-                                <Route path="/dashmpsurgeryadmin" element={<Dashmpsurgeryadmin />} />
-                                <Route path="/dashmpfamily" element={<Dashmpfamily />} />
-                                <Route path="/dashmpfamilyadmin" element={<Dashmpfamilyadmin />} />
-                                <Route path="/dashmpallergies" element={<Dashmpallergies />} />
-                                <Route path="/dashmpallergiesadmin" element={<Dashmpallergiesadmin />} />
-
-
-                                <Route path="/dashmPatient" element={<DashmPatient />} />
-                                <Route path="/dashmPatientadmin" element={<DashmPatientadmin />} />
-                                <Route path="/dashmicu" element={<Dashmicu />} />
-                                <Route path="/dashmicuadmin" element={<Dashmicuadmin />} />
-                                <Route path="/dashmmicu" element={<Dashmmicu />} />
-                                <Route path="/dashmmicuadmin" element={<Dashmmicuadmin />} />
-                                <Route path="/dashmnicu" element={<Dashmnicu />} />
-                                <Route path="/dashmnicuadmin" element={<Dashmnicuadmin />} />
-                                <Route path="/dashmhdu" element={<Dashmhdu />} />
-                                <Route path="/dashmhduadmin" element={<Dashmhduadmin />} />
-                                <Route path="/dashmward" element={<Dashmward />} />
-                                <Route path="/dashmwardadmin" element={<Dashmwardadmin />} />
-                                <Route path="/dashmemergency" element={<Dashmemergency />} />
-                                <Route path="/dashmemergencyadmin" element={<Dashmemergencyadmin />} />
-                                <Route path="/dashmnemergency" element={<Dashmnemergency />} />
-                                <Route path="/dashmnemergencyadmin" element={<Dashmnemergencyadmin />} />
-                                <Route path="/dashmpadmission" element={<Dashmpadmission />} />
-                                <Route path="/dashmpadmissionadmin" element={<Dashmpadmissionadmin />} />
-                                <Route path="/dashmicubed" element={<Dashmicubed />} />
-                                <Route path="/dashmicubedadmin" element={<Dashmicubedadmin />} />
-                                <Route path="/dashmmicubed" element={<Dashmmicubed />} />
-                                <Route path="/dashmmicubedadmin" element={<Dashmmicubedadmin />} />
-                                <Route path="/dashmnicubed" element={<Dashmnicubed />} />
-                                <Route path="/dashmnicubedadmin" element={<Dashmnicubedadmin />} />
-                                <Route path="/dashmhdubed" element={<Dashmhdubed />} />
-                                <Route path="/dashmhdubedadmin" element={<Dashmhdubedadmin />} />
-                                <Route path="/dashmwardbed" element={<Dashmwardbed />} />
-                                <Route path="/dashmwardbedadmin" element={<Dashmwardbedadmin />} />
-                                <Route path="/dashmerbed" element={<Dashmerbed />} />
-                                <Route path="/dashmerbedadmin" element={<Dashmerbedadmin />} />
-                                <Route path="/dashmnerbed" element={<Dashmnerbed />} />
-                                <Route path="/dashmnerbedadmin" element={<Dashmnerbedadmin />} />
-                                <Route path="/dashmpadmhistory" element={<Dashmpadmhistory />} />
-                                <Route path="/dashmpadmhistoryadmin" element={<Dashmpadmhistoryadmin />} />
-                                <Route path="/dashmpbilling" element={<Dashmpbilling />} />
-                                <Route path="/dashmpbillingadmin" element={<Dashmpbillingadmin />} />
-
-
-                                <Route path='/dashboardpagehostel' element={<DashboardPageHostel />} />
-                                <Route path='/dashboardhostelpagestud' element={<Dashboardhostelpagestud />} />
-                                <Route path='/hostelreport' element={<HostelReport />} />
-                                {/* Warden Routes - NEW */}
-                                <Route path='/parent-details' element={<ParentDetailsPage />} />
-                                <Route path='/gateway-pass-approval' element={<GatewayPassApprovalPage />} />
-                                <Route path='/building-staff-config' element={<BuildingStaffConfigPage />} />
-                                <Route path='/mess-polls' element={<MessPollsPage />} />
-                                <Route path='/mess-applications' element={<MessApplicationPage />} />
-
-                                {/* Student Routes - NEW */}
-                                <Route path='/student-gateway-pass' element={<StudentGatewayPassPage />} />
-                                <Route path='/student-gateway-status' element={<StudentGatewayStatusPage />} />
-                                <Route path='/student-meal-vote' element={<StudentMealVotePage />} />
-                                <Route path='/student-mess-application' element={<StudentMessApplicationPage />} />
-
-                                {/* Parent Routes - NEW */}
-                                <Route path='/parent-approval/:token' element={<ParentApprovalPage />} />
-
-                                <Route path="/viewmmcevents" element={<Viewmmcevents />} />
-                                <Route path="/allocatefaculties" element={<Allocatefaculties />} />
-
-                                <Route path="/dashmstudalloc1" element={<Dashmstudalloc1 />} />
-                                <Route path="/dashmstudalloc1admin" element={<Dashmstudalloc1admin />} />
-
-
-                                <Route path='/CreateScholarshipDS' element={<CreateScholarshipDS />} />
-                                <Route path='/ApplyScholarshipDS' element={<ApplyScholarshipDS />} />
-                                <Route path='/ScholarshipAdminDS' element={<ScholarshipAdminDS />} />
-
-                                <Route path="/purchasedsearchds" element={<Purchasedsearchds />} />
-
-                                <Route path="/transactionrefds" element={<TransactionrefdsPage />} />
-                                <Route path="/journalsbygroupds" element={<JournalsByGroupdsPage />} />
-
-                                <Route path="/vendormanagementds" element={<Vendormanagementds />} />
-                                <Route path="/productmanagementds" element={<Productmanagementds />} />
-                                <Route path="/vendorproductmanagementds" element={<Vendorproductmanagementds />} />
-                                <Route path="/productrequestds" element={<Productrequestds />} />
-                                <Route path="/productrequestadminds" element={<Productrequestadminds />} />
-                                <Route path="/purchasemanagementds" element={<Purchasemanagementds />} />
-                                <Route path="/paymentmanagementds" element={<Paymentmanagementds />} />
-
-                                <Route path="/usermanagementdsoct18" element={<UserManagementdsoct18 />} />
-                                <Route path="/createuserdsoct18" element={<CreateUserdsoct18 />} />
-                                <Route path="/edituserdsoct18/:id" element={<EditUserdsoct18 />} />
-                                <Route path="/bulkuploadusersdsoct18" element={<BulkUploadUsersdsoct18 />} />
-                                <Route path="/studentprofiledsoct18" element={<StudentProfiledsoct18 />} />
-                                <Route path="/profileeditconfigds" element={<ProfileEditConfigds />} />
-                                <Route path="/profileeditlogsds" element={<ProfileEditLogsds />} />
-                                <Route path="/dataqualityreportds" element={<DataQualityReportds />} />
-
-                                <Route path="/usermanagementdsnov17" element={<UserManagementdsnov17 />} />
-                                <Route path="/createuserdsnov17" element={<CreateUserdsnov17 />} />
-                                <Route path="/edituserdsnov17/:id" element={<EditUserdsnov17 />} />
-
-                                <Route path="/seatallocatormds4" element={<Seatallocatormds4 />} />
-
-                                <Route path="/seatallocator" element={<Seatallocator />} />
-                                <Route path="/seatallocator1" element={<Seatallocator1 />} />
-                                <Route path="/seatallocatorm1" element={<Seatallocatorm1 />} />
-                                <Route path="/seatallocatorm2" element={<Seatallocatorm2 />} />
-                                <Route path="/seatallocatorm3" element={<Seatallocatorm3 />} />
-                                <Route path="/seatallocatorm4" element={<Seatallocatorm4 />} />
-                                <Route path="/seatallocatorm5" element={<Seatallocatorm5 />} />
-
-                                {/* Faculty Routes */}
-
-                                <Route path="/subjectlimitconfig" element={<SubjectLimitConfig />} />
-                                <Route path="/subjectgroupds" element={<SubjectGroupds />} />
-                                <Route path='/subjectApprovalds' element={<SubjectApprovalds />} />
-                                <Route path="/subjectreportds" element={<SubjectReportds />} />
-
-                                {/* Student Route */}
-                                <Route path='/studentSubjectds' element={<StudentSubjectds />} />
-
-                                <Route path="/dashmchatentry" element={<Dashmchatentry />} />
-
-                                <Route path="/admin/users" element={<UserManagement />} />
-                                <Route path="/admin/create-user" element={<CreateUser />} />
-                                <Route path="/admin/edit-user/:id" element={<EditUserds />} />
-                                <Route path="/admin/bulk-upload-users" element={<BulkUploadUsers />} />
-                                <Route path="/student/profile" element={<StudentProfileds1 />} />
-
-                                <Route path="/dashmattstud" element={<Dashmattstud />} />
-
-                                <Route path="/addrubric1bulkedit" element={<Addrubric1bulkedit />} />
-                                <Route path="/addrubric1bulk" element={<Addrubric1bulk />} />
-
-                                <Route path="/setuppageds1" element={<SetupPageds1 />} />
-                                <Route path="/leavespageds1" element={<LeavesPageds1 />} />
-
-                                <Route path="/attendance-navigation" element={<AttendanceNavigation />} />
-                                <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
-                                <Route path="/attendance-records" element={<AttendanceRecords />} />
-                                <Route path="/salary-management" element={<SalaryManagement />} />
-                                <Route path="/salary-slips" element={<SalarySlips />} />
-                                <Route path="/ip-management" element={<IPManagement />} />
-                                <Route path="/attendance-settings" element={<AttendanceSettings />} />
-                                <Route path="/admin-attendance" element={<AdminAttendanceView />} />
-
-                                <Route path="/dashmmtradinggenerate" element={<Dashmmtradinggenerate />} />
-
-                                <Route path="/dashmmtradingaccount" element={<Dashmmtradingaccount />} />
-                                <Route path="/dashmmtradingaccountadmin" element={<Dashmmtradingaccountadmin />} />
-                                <Route path="/dashmmplaccount" element={<Dashmmplaccount />} />
-                                <Route path="/dashmmplaccountadmin" element={<Dashmmplaccountadmin />} />
-                                <Route path="/dashmmbalancesheet" element={<Dashmmbalancesheet />} />
-                                <Route path="/dashmmbalancesheetadmin" element={<Dashmmbalancesheetadmin />} />
-
-
-                                <Route path="/dashmmjournal2" element={<Dashmmjournal2 />} />
-                                <Route path="/dashmmjournal2admin" element={<Dashmmjournal2admin />} />
-                                <Route path="/dashmmtrialbalance2" element={<Dashmmtrialbalance2 />} />
-                                <Route path="/dashmmtrialbalance2admin" element={<Dashmmtrialbalance2admin />} />
-
-                                <Route path="/accountgroup" element={<AccountGroupPage />} />
-                                <Route path="/accountds" element={<AccountdsPage />} />
-                                <Route path="/mjournal2" element={<Mjournal2Page />} />
-                                <Route path="/bulkuploadpageds" element={<BulkUploadPage />} />
-                                <Route path="/mjournal2reportpage" element={<Mjournal2ReportPage />} />
-                                <Route path="/trialbalancepage" element={<TrialBalancePage />} />
-                                <Route path="/balancesheetpage" element={<BalanceSheetPage />} />
-
-
-                                {/* <Route path="/accountgroup" element={<AccountGroupPage />} />
+                                        <Route path="/dashboardreevalds" element={<Dashboardreevalds />} />
+                                        <Route path="/reevaluation-application-new" element={<ReevaluationApplicationNewPageds />} />
+                                        <Route path="/admin-reevaluation-management" element={<AdminReevaluationManagementPageds />} />
+                                        <Route path="/examiner-reevaluation-evaluation" element={<ExaminerReevaluationEvaluationPageds />} />
+                                        <Route path="/admin-examiner3-allocation" element={<AdminExaminer3AllocationPageds />} />
+
+                                        <Route path="/dashmtbcolumnsall" element={<Dashmtbcolumnsall />} />
+                                        <Route path="/dashmtbcolumnsalladmin" element={<Dashmtbcolumnsalladmin />} />
+
+
+                                        <Route path="/chattest44" element={<chattest44 />} />
+
+                                        <Route path="/dashmtall" element={<Dashmtall />} />
+                                        <Route path="/dashmtalladmin" element={<Dashmtalladmin />} />
+                                        <Route path="/dashmtfields" element={<Dashmtfields />} />
+                                        <Route path="/dashmtfieldsadmin" element={<Dashmtfieldsadmin />} />
+
+
+                                        <Route path="/dashchattest4d" element={<Dashchattest4d />} />
+
+                                        <Route path="/dashchattest4" element={<Dashchattest4 />} />
+
+                                        <Route path="/dashmexamupload" element={<Dashmexamupload />} />
+
+                                        <Route path="/returnmanagementds" element={<Returnmanagementds />} />
+
+                                        <Route path="/dashmexaminerallocate" element={<Dashmexaminerallocate />} />
+
+                                        <Route path="/reevaluationapplicationds" element={<ReevaluationApplicationPageds />} />
+                                        <Route path="/examinerconfigds" element={<ExaminerConfigPageds />} />
+                                        <Route path="/examinerevaluationds" element={<ExaminerEvaluationPageds />} />
+
+                                        <Route path="/dashmcrmh1" element={<Dashmcrmh1 />} />
+                                        <Route path="/dashmcrmh1admin" element={<Dashmcrmh1admin />} />
+
+
+                                        <Route path="/dashboardsummary" element={<DashboardSummaryReportds />} />
+                                        <Route path="/coursefacultyassigned" element={<CourseFacultyAssignedReportds />} />
+                                        <Route path="/facultycoursesummary" element={<FacultyCourseSummaryReportds />} />
+                                        <Route path="/facultyoverallsummary" element={<FacultyOverallSummaryReportds />} />
+                                        <Route path="/coursecompletionstatus" element={<CourseCompletionStatusReportds />} />
+                                        <Route path="/facultycoursestudentdetails" element={<FacultyCourseStudentDetailsReportds />} />
+
+
+                                        {/* NEW ADMIN ROUTES (Sticky Navbar Layout) */}
+                                        <Route path="/admin/user-list" element={<NewDashmuser />} />
+                                        <Route path="/admin/company-list" element={<NewDashmcompany />} />
+
+                                        <Route path="/admin/role-list" element={<NewRoleListds />} />
+                                        <Route path="/admin/viewmroles" element={<NewAdminRoles />} />
+                                        <Route path="/admin/admission-institution-wise-report" element={<AdmissionInstitutionWiseReportds />} />
+                                        <Route path="/admin/purchase-user-add" element={<NewPurchaseUserAddds />} />
+                                        <Route path="/admin/vendor-comparison" element={<VendorComparisonSheetds />} />
+
+                                        {/* Admission Routes */}
+                                        <Route path="/admin/admission-form" element={<NewDashmadmission />} />
+                                        <Route path="/admin/merit-list-all" element={<NewDashmappmodel2 />} />
+                                        <Route path="/admin/merit-list-cat" element={<NewDashmappmodel2cat />} />
+                                        <Route path="/admin/confirm-admission" element={<NewApplicationReviewPage />} />
+
+                                        {/* Fees Routes */}
+                                        <Route path="/admin/fee-config" element={<NewDashmfeesadmin />} />
+                                        <Route path="/admin/student-ledger" element={<NewDashmledgerstudadmin />} />
+                                        <Route path="/admin/fees-collection" element={<NewDashmmfeescoladmin />} />
+
+
+                                        {/* Institutions Route */}
+                                        <Route path="/admin/institutions" element={<NewInstitutionsds />} />
+                                        <Route path="/admissionreport" element={<AdmissionReportPageds />} />
+                                        <Route path="/admissioncoursewisereport" element={<AdmissionCourseWiseReportPageds />} />
+
+                                        {/* Examination Routes */}
+                                        <Route path="/admin/program-list" element={<NewDashmmprogramsadmin />} />
+                                        <Route path="/admin/course-list" element={<NewDashmmcourseslistadmin />} />
+                                        <Route path="/admin/student-list" element={<NewDashmmstudents1admin />} />
+                                        <Route path="/admin/exam-schedule" element={<NewDashmexamscheduleadmin />} />
+                                        <Route path="/admin/exam-timetable" element={<NewDashmexamtimetableadmin />} />
+                                        <Route path="/admin/exam-room-allotment" element={<NewDashmexamroomadmin />} />
+                                        <Route path="/admin/exam-registration" element={<NewDashmexamadmitadmin />} />
+                                        <Route path="/admin/exam-marks" element={<NewDashmexammarksalladmin />} />
+                                        <Route path="/admin/student-alloc-eval" element={<NewDashmstudalloc1admin />} />
+                                        <Route path="/admin/solved-questions" element={<NewDashmmguidesadmin />} />
+
+                                        <Route path="/admin/talent-exam-reg" element={<NewDashmmctalentregadmin />} />
+
+                                        {/* LMS Routes */}
+                                        <Route path="/admin/lms-academic-calendar" element={<NewDashmmacadcaladmin />} />
+                                        <Route path="/admin/lms-assignments" element={<NewDashmmassignmentsadmin />} />
+                                        <Route path="/admin/lms-announcements" element={<NewDashmmanouncementsadmin />} />
+                                        <Route path="/admin/lms-course-outcome" element={<NewDashmmcoursecoadmin />} />
+                                        <Route path="/admin/lms-course-materials" element={<NewDashmmcoursematerialadmin />} />
+                                        <Route path="/admin/lms-class-schedule" element={<NewDashmclassnewadmin />} />
+                                        <Route path="/admin/lms-videos" element={<NewDashmlmsvideosadmin />} />
+                                        <Route path="/admin/lms-attendance" element={<NewDashmattendancenewadmin />} />
+                                        <Route path="/admin/lms-attainment-method-1" element={<NewDashmattyearadmin />} />
+                                        <Route path="/admin/lms-mindmap-list" element={<NewDashmmindmaplistadmin />} />
+                                        <Route path="/admin/lms-mindmap-nodes" element={<NewDashmmindmapnodesadmin />} />
+                                        <Route path="/admin/lms-mindmap-edges" element={<NewDashmmindmapedgesadmin />} />
+                                        <Route path="/admin/lms-time-slot" element={<NewDashmtimeslotsn1admin />} />
+                                        <Route path="/admin/lms-workload" element={<NewDashmworkloadn1admin />} />
+                                        <Route path="/admin/lms-faculty-workload-calendar" element={<NewDashmfacwcaladmin />} />
+                                        <Route path="/admin/lms-courselist-co" element={<NewDashmmfaccoursesadmin />} />
+                                        <Route path="/admin/lms-co-attainment" element={<NewDashmmfaccoursesattadmin />} />
+                                        <Route path="/admin/lms-co-attainment-calc" element={<NewDashmmattcalcadmin />} />
+                                        <Route path="/admin/lms-threshold-attainment" element={<NewDashmmcolevelsadmin />} />
+
+                                        {/* Hostel Routes */}
+                                        <Route path="/admin/hostel-dashboard" element={<NewDashboardPageHostel />} />
+                                        <Route path="/admin/hostel-buildings" element={<NewHostelBuildingPage />} />
+                                        <Route path="/admin/hostel-rooms" element={<NewHostelRoomPage />} />
+
+                                        {/* CRM Routes */}
+                                        <Route path="/admin/crm-leads" element={<NewLeadsds />} />
+                                        <Route path="/admin/crm-dashboard" element={<NewDashboardCrmds />} />
+
+                                        {/* Purchase Routes */}
+                                        <Route path="/admin/purchase-dashboard" element={<NewDashboardPurchaseds />} />
+                                        <Route path="/admin/purchase-inventory" element={<NewPurchaseCellInventoryds />} />
+                                        <Route path="/admin/purchase-vendors" element={<NewVendormanagementds />} />
+                                        <Route path="/admin/purchase-orders" element={<NewPurchaseOrderDashboardds />} />
+                                        <Route path="/admin/pr-assignment" element={<NewPurchaseRequestAssignmentds />} />
+                                        <Route path="/admin/oe-dashboard" element={<NewOEDashboardds />} />
+                                        <Route path="/admin/purchase-delivery" element={<NewDeliveryDashboardds />} />
+
+                                        {/* HR Routes */}
+                                        <Route path="/admin/hr-employee-list" element={<NewDashmUseradmin />} />
+                                        <Route path="/admin/hr-attendance" element={<NewAttendanceDashboard />} />
+                                        <Route path="/admin/hr-job-applications" element={<NewJobApplicationPage />} />
+                                        <Route path="/admin/hr-payroll" element={<NewSalaryManagement />} />
+                                        <Route path="/admin/hr-leaves" element={<NewLeavesPage />} />
+
+                                        <Route path="/managecategoryassigneeds" element={<ManageCategoryAssigneeds />} />
+
+                                        <Route path="/managecategoryassigneeds1" element={<ManageCategoryAssigneeds1 />} />
+
+                                        <Route path="/questionbanklistds" element={<QuestionBankListds />} />
+                                        <Route path="/managesectionsds/:questionbankcode" element={<ManageSectionsds />} />
+                                        <Route path="/managequestionsds/:questionbankcode" element={<ManageQuestionsds />} />
+                                        <Route path="/vieweditlogsds/:questionbankcode" element={<ViewEditLogsds />} />
+                                        <Route path="/generatepdfds/:questionbankcode" element={<GeneratePDFds />} />
+
+                                        <Route path="/transcriptpageds" element={<TranscriptPageds />} />
+
+
+                                        <Route path="/creategrievanceds1" element={<CreateGrievanceFormds1 />} />
+                                        <Route path="/admingrievancedashboardds1" element={<AdminGrievanceDashboardds1 />} />
+                                        <Route path="/assigneegrievancepageds1" element={<AssigneeGrievancePageds1 />} />
+                                        <Route path="/managegrievancecategoriesds1" element={<ManageGrievanceCategoriesds1 />} />
+                                        <Route path="/manageapikeyds" element={<ManageApiKeyds />} />
+                                        <Route path="/geminichatds" element={<GeminiChatds />} />
+
+                                        <Route path="/creategrievanceds" element={<CreateGrievanceFormds />} />
+                                        <Route path="/admingrievancedashboardds" element={<AdminGrievanceDashboardds />} />
+                                        <Route path="/assigneegrievancepageds" element={<AssigneeGrievancePageds />} />
+                                        <Route path="/managegrievancecategoriesds" element={<ManageGrievanceCategoriesds />} />
+
+                                        <Route path="/facultyregistrationform" element={<FacultyRegistrationFormPage />} />
+
+                                        <Route
+                                                path="/facultyregistrationmanagement"
+                                                element={<FacultyRegistrationManagementPage />}
+                                        />
+                                        <Route path="/facultybankdetails" element={<FacultyBankDetailsPage />} />
+
+                                        <Route path="/ledgerstudpageds" element={<LedgerStudPageds />} />
+                                        <Route path="/ledgerinstallmentpageds" element={<LedgerInstallmentPageds />} />
+
+                                        <Route path="/studentledgerreportds" element={<StudentLedgerReportPageds />} />
+                                        <Route path="/collegerepledgerreportds" element={<CollegeStudentLedgerReportPageds />} />
+
+                                        <Route path="/bulktabulationregisterpageds" element={<BulkTabulationRegisterPage />} />
+
+                                        <Route path="/dashmstudalloc1exam" element={<Dashmstudalloc1exam />} />
+
+                                        <Route path="/dashmpcounselnew" element={<Dashmpcounselnew />} />
+                                        <Route path="/dashmpcounselnewadmin" element={<Dashmpcounselnewadmin />} />
+                                        <Route path="/dashmpcounselc" element={<Dashmpcounselc />} />
+                                        <Route path="/dashmpcounselcadmin" element={<Dashmpcounselcadmin />} />
+                                        <Route path="/dashmpmealplan" element={<Dashmpmealplan />} />
+                                        <Route path="/dashmpmealplanadmin" element={<Dashmpmealplanadmin />} />
+                                        <Route path="/dashmpfood" element={<Dashmpfood />} />
+                                        <Route path="/dashmpfoodadmin" element={<Dashmpfoodadmin />} />
+
+
+                                        <Route path="/dashmstudallocf" element={<Dashmstudallocf />} />
+
+                                        <Route path="/examstructurepageds" element={<ExamMarksStructurePageds />} />
+                                        <Route path="/marksentrypageds" element={<MarksEntryPageds />} />
+                                        <Route path="/tabulationregisterpageds" element={<TabulationRegisterPage />} />
+
+                                        <Route path="/dashmwbin" element={<Dashmwbin />} />
+                                        <Route path="/dashmwbinadmin" element={<Dashmwbinadmin />} />
+                                        <Route path="/dashmwcolschedule1" element={<Dashmwcolschedule1 />} />
+                                        <Route path="/dashmwcolschedule1admin" element={<Dashmwcolschedule1admin />} />
+                                        <Route path="/dashmwdisposal1" element={<Dashmwdisposal1 />} />
+                                        <Route path="/dashmwdisposal1admin" element={<Dashmwdisposal1admin />} />
+                                        <Route path="/dashmwspill1" element={<Dashmwspill1 />} />
+                                        <Route path="/dashmwspill1admin" element={<Dashmwspill1admin />} />
+
+
+                                        <Route path="/dashmwcollection" element={<Dashmwcollection />} />
+                                        <Route path="/dashmwcollectionadmin" element={<Dashmwcollectionadmin />} />
+                                        <Route path="/dashmwcolschedule" element={<Dashmwcolschedule />} />
+                                        <Route path="/dashmwcolscheduleadmin" element={<Dashmwcolscheduleadmin />} />
+                                        <Route path="/dashmwdisposal" element={<Dashmwdisposal />} />
+                                        <Route path="/dashmwdisposaladmin" element={<Dashmwdisposaladmin />} />
+                                        <Route path="/dashmwspill" element={<Dashmwspill />} />
+                                        <Route path="/dashmwspilladmin" element={<Dashmwspilladmin />} />
+
+
+                                        <Route path="/viewmmcevmeddis" element={<Viewmmcevmeddis />} />
+                                        <Route path="/viewmmcevmed" element={<Viewmmcevmed />} />
+
+                                        <Route path="/dashmpconsent" element={<Dashmpconsent />} />
+                                        <Route path="/dashmpconsentadmin" element={<Dashmpconsentadmin />} />
+                                        <Route path="/dashmptreatment" element={<Dashmptreatment />} />
+                                        <Route path="/dashmptreatmentadmin" element={<Dashmptreatmentadmin />} />
+                                        <Route path="/dashmplab" element={<Dashmplab />} />
+                                        <Route path="/dashmplabadmin" element={<Dashmplabadmin />} />
+                                        <Route path="/dashmpimaging" element={<Dashmpimaging />} />
+                                        <Route path="/dashmpimagingadmin" element={<Dashmpimagingadmin />} />
+                                        <Route path="/dashmpdischarge" element={<Dashmpdischarge />} />
+                                        <Route path="/dashmpdischargeadmin" element={<Dashmpdischargeadmin />} />
+
+
+                                        <Route path="/dashmpillness" element={<Dashmpillness />} />
+                                        <Route path="/dashmpillnessadmin" element={<Dashmpillnessadmin />} />
+                                        <Route path="/dashmpsurgery" element={<Dashmpsurgery />} />
+                                        <Route path="/dashmpsurgeryadmin" element={<Dashmpsurgeryadmin />} />
+                                        <Route path="/dashmpfamily" element={<Dashmpfamily />} />
+                                        <Route path="/dashmpfamilyadmin" element={<Dashmpfamilyadmin />} />
+                                        <Route path="/dashmpallergies" element={<Dashmpallergies />} />
+                                        <Route path="/dashmpallergiesadmin" element={<Dashmpallergiesadmin />} />
+
+
+                                        <Route path="/dashmPatient" element={<DashmPatient />} />
+                                        <Route path="/dashmPatientadmin" element={<DashmPatientadmin />} />
+                                        <Route path="/dashmicu" element={<Dashmicu />} />
+                                        <Route path="/dashmicuadmin" element={<Dashmicuadmin />} />
+                                        <Route path="/dashmmicu" element={<Dashmmicu />} />
+                                        <Route path="/dashmmicuadmin" element={<Dashmmicuadmin />} />
+                                        <Route path="/dashmnicu" element={<Dashmnicu />} />
+                                        <Route path="/dashmnicuadmin" element={<Dashmnicuadmin />} />
+                                        <Route path="/dashmhdu" element={<Dashmhdu />} />
+                                        <Route path="/dashmhduadmin" element={<Dashmhduadmin />} />
+                                        <Route path="/dashmward" element={<Dashmward />} />
+                                        <Route path="/dashmwardadmin" element={<Dashmwardadmin />} />
+                                        <Route path="/dashmemergency" element={<Dashmemergency />} />
+                                        <Route path="/dashmemergencyadmin" element={<Dashmemergencyadmin />} />
+                                        <Route path="/dashmnemergency" element={<Dashmnemergency />} />
+                                        <Route path="/dashmnemergencyadmin" element={<Dashmnemergencyadmin />} />
+                                        <Route path="/dashmpadmission" element={<Dashmpadmission />} />
+                                        <Route path="/dashmpadmissionadmin" element={<Dashmpadmissionadmin />} />
+                                        <Route path="/dashmicubed" element={<Dashmicubed />} />
+                                        <Route path="/dashmicubedadmin" element={<Dashmicubedadmin />} />
+                                        <Route path="/dashmmicubed" element={<Dashmmicubed />} />
+                                        <Route path="/dashmmicubedadmin" element={<Dashmmicubedadmin />} />
+                                        <Route path="/dashmnicubed" element={<Dashmnicubed />} />
+                                        <Route path="/dashmnicubedadmin" element={<Dashmnicubedadmin />} />
+                                        <Route path="/dashmhdubed" element={<Dashmhdubed />} />
+                                        <Route path="/dashmhdubedadmin" element={<Dashmhdubedadmin />} />
+                                        <Route path="/dashmwardbed" element={<Dashmwardbed />} />
+                                        <Route path="/dashmwardbedadmin" element={<Dashmwardbedadmin />} />
+                                        <Route path="/dashmerbed" element={<Dashmerbed />} />
+                                        <Route path="/dashmerbedadmin" element={<Dashmerbedadmin />} />
+                                        <Route path="/dashmnerbed" element={<Dashmnerbed />} />
+                                        <Route path="/dashmnerbedadmin" element={<Dashmnerbedadmin />} />
+                                        <Route path="/dashmpadmhistory" element={<Dashmpadmhistory />} />
+                                        <Route path="/dashmpadmhistoryadmin" element={<Dashmpadmhistoryadmin />} />
+                                        <Route path="/dashmpbilling" element={<Dashmpbilling />} />
+                                        <Route path="/dashmpbillingadmin" element={<Dashmpbillingadmin />} />
+
+
+                                        <Route path='/dashboardpagehostel' element={<DashboardPageHostel />} />
+                                        <Route path='/dashboardhostelpagestud' element={<Dashboardhostelpagestud />} />
+                                        <Route path='/hostelreport' element={<HostelReport />} />
+                                        {/* Warden Routes - NEW */}
+                                        <Route path='/parent-details' element={<ParentDetailsPage />} />
+                                        <Route path='/gateway-pass-approval' element={<GatewayPassApprovalPage />} />
+                                        <Route path='/building-staff-config' element={<BuildingStaffConfigPage />} />
+                                        <Route path='/mess-polls' element={<MessPollsPage />} />
+                                        <Route path='/mess-applications' element={<MessApplicationPage />} />
+
+                                        {/* Student Routes - NEW */}
+                                        <Route path='/student-gateway-pass' element={<StudentGatewayPassPage />} />
+                                        <Route path='/student-gateway-status' element={<StudentGatewayStatusPage />} />
+                                        <Route path='/student-meal-vote' element={<StudentMealVotePage />} />
+                                        <Route path='/student-mess-application' element={<StudentMessApplicationPage />} />
+
+                                        {/* Parent Routes - NEW */}
+                                        <Route path='/parent-approval/:token' element={<ParentApprovalPage />} />
+
+                                        <Route path="/viewmmcevents" element={<Viewmmcevents />} />
+                                        <Route path="/allocatefaculties" element={<Allocatefaculties />} />
+
+                                        <Route path="/dashmstudalloc1" element={<Dashmstudalloc1 />} />
+                                        <Route path="/dashmstudalloc1admin" element={<Dashmstudalloc1admin />} />
+
+
+                                        <Route path='/CreateScholarshipDS' element={<CreateScholarshipDS />} />
+                                        <Route path='/ApplyScholarshipDS' element={<ApplyScholarshipDS />} />
+                                        <Route path='/ScholarshipAdminDS' element={<ScholarshipAdminDS />} />
+
+                                        <Route path="/purchasedsearchds" element={<Purchasedsearchds />} />
+
+                                        <Route path="/transactionrefds" element={<TransactionrefdsPage />} />
+                                        <Route path="/journalsbygroupds" element={<JournalsByGroupdsPage />} />
+
+                                        <Route path="/vendormanagementds" element={<Vendormanagementds />} />
+                                        <Route path="/productmanagementds" element={<Productmanagementds />} />
+                                        <Route path="/vendorproductmanagementds" element={<Vendorproductmanagementds />} />
+                                        <Route path="/productrequestds" element={<Productrequestds />} />
+                                        <Route path="/productrequestadminds" element={<Productrequestadminds />} />
+                                        <Route path="/purchasemanagementds" element={<Purchasemanagementds />} />
+                                        <Route path="/paymentmanagementds" element={<Paymentmanagementds />} />
+
+                                        <Route path="/usermanagementdsoct18" element={<UserManagementdsoct18 />} />
+                                        <Route path="/createuserdsoct18" element={<CreateUserdsoct18 />} />
+                                        <Route path="/edituserdsoct18/:id" element={<EditUserdsoct18 />} />
+                                        <Route path="/bulkuploadusersdsoct18" element={<BulkUploadUsersdsoct18 />} />
+                                        <Route path="/studentprofiledsoct18" element={<StudentProfiledsoct18 />} />
+                                        <Route path="/profileeditconfigds" element={<ProfileEditConfigds />} />
+                                        <Route path="/profileeditlogsds" element={<ProfileEditLogsds />} />
+                                        <Route path="/dataqualityreportds" element={<DataQualityReportds />} />
+
+                                        <Route path="/usermanagementdsnov17" element={<UserManagementdsnov17 />} />
+                                        <Route path="/createuserdsnov17" element={<CreateUserdsnov17 />} />
+                                        <Route path="/edituserdsnov17/:id" element={<EditUserdsnov17 />} />
+
+                                        <Route path="/seatallocatormds4" element={<Seatallocatormds4 />} />
+
+                                        <Route path="/seatallocator" element={<Seatallocator />} />
+                                        <Route path="/seatallocator1" element={<Seatallocator1 />} />
+                                        <Route path="/seatallocatorm1" element={<Seatallocatorm1 />} />
+                                        <Route path="/seatallocatorm2" element={<Seatallocatorm2 />} />
+                                        <Route path="/seatallocatorm3" element={<Seatallocatorm3 />} />
+                                        <Route path="/seatallocatorm4" element={<Seatallocatorm4 />} />
+                                        <Route path="/seatallocatorm5" element={<Seatallocatorm5 />} />
+
+                                        {/* Faculty Routes */}
+
+                                        <Route path="/subjectlimitconfig" element={<SubjectLimitConfig />} />
+                                        <Route path="/subjectgroupds" element={<SubjectGroupds />} />
+                                        <Route path='/subjectApprovalds' element={<SubjectApprovalds />} />
+                                        <Route path="/subjectreportds" element={<SubjectReportds />} />
+
+                                        {/* Student Route */}
+                                        <Route path='/studentSubjectds' element={<StudentSubjectds />} />
+
+                                        <Route path="/dashmchatentry" element={<Dashmchatentry />} />
+
+                                        {/* User Management Updated Route */}
+                                        <Route path="/admin/users" element={<UserManagementdsnov17 />} />
+                                        <Route path="/usermanagementdsnov17" element={<UserManagementdsnov17 />} />
+                                        <Route path="/bulkuploadusersdsoct18" element={<BulkUploadUsersdsoct18 />} />
+                                        <Route path="/studentlistds" element={<StudentListds />} />
+                                        <Route path="/admin/create-user" element={<CreateUser />} />
+                                        <Route path="/admin/edit-user/:id" element={<EditUserds />} />
+                                        <Route path="/admin/bulk-upload-users" element={<BulkUploadUsers />} />
+                                        <Route path="/student/profile" element={<StudentProfileds1 />} />
+
+                                        <Route path="/dashmattstud" element={<Dashmattstud />} />
+
+                                        <Route path="/addrubric1bulkedit" element={<Addrubric1bulkedit />} />
+                                        <Route path="/addrubric1bulk" element={<Addrubric1bulk />} />
+
+                                        <Route path="/setuppageds1" element={<SetupPageds1 />} />
+                                        <Route path="/leavespageds1" element={<LeavesPageds1 />} />
+
+                                        <Route path="/attendance-navigation" element={<AttendanceNavigation />} />
+                                        <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
+                                        <Route path="/attendance-records" element={<AttendanceRecords />} />
+                                        <Route path="/salary-management" element={<SalaryManagement />} />
+                                        <Route path="/salary-slips" element={<SalarySlips />} />
+                                        <Route path="/ip-management" element={<IPManagement />} />
+                                        <Route path="/attendance-settings" element={<AttendanceSettings />} />
+                                        <Route path="/admin-attendance" element={<AdminAttendanceView />} />
+
+                                        <Route path="/dashmmtradinggenerate" element={<Dashmmtradinggenerate />} />
+
+                                        <Route path="/dashmmtradingaccount" element={<Dashmmtradingaccount />} />
+                                        <Route path="/dashmmtradingaccountadmin" element={<Dashmmtradingaccountadmin />} />
+                                        <Route path="/dashmmplaccount" element={<Dashmmplaccount />} />
+                                        <Route path="/dashmmplaccountadmin" element={<Dashmmplaccountadmin />} />
+                                        <Route path="/dashmmbalancesheet" element={<Dashmmbalancesheet />} />
+                                        <Route path="/dashmmbalancesheetadmin" element={<Dashmmbalancesheetadmin />} />
+
+
+                                        <Route path="/dashmmjournal2" element={<Dashmmjournal2 />} />
+                                        <Route path="/dashmmjournal2admin" element={<Dashmmjournal2admin />} />
+                                        <Route path="/dashmmtrialbalance2" element={<Dashmmtrialbalance2 />} />
+                                        <Route path="/dashmmtrialbalance2admin" element={<Dashmmtrialbalance2admin />} />
+
+                                        <Route path="/accountgroup" element={<AccountGroupPage />} />
+                                        <Route path="/accountds" element={<AccountdsPage />} />
+                                        <Route path="/mjournal2" element={<Mjournal2Page />} />
+                                        <Route path="/bulkuploadpageds" element={<BulkUploadPage />} />
+                                        <Route path="/mjournal2reportpage" element={<Mjournal2ReportPage />} />
+                                        <Route path="/trialbalancepage" element={<TrialBalancePage />} />
+                                        <Route path="/balancesheetpage" element={<BalanceSheetPage />} />
+
+
+                                        {/* <Route path="/accountgroup" element={<AccountGroupPage />} />
         <Route path="/accountds" element={<AccountdsPage />} /> */}
-                                <Route path="/mjournal1" element={<Mjournal1Page />} />
-                                {/* <Route path="/bulk-upload" element={<BulkUploadPage />} /> */}
-                                <Route path="/reports" element={<Mjournal1ReportPage />} />
+                                        <Route path="/mjournal1" element={<Mjournal1Page />} />
+                                        {/* <Route path="/bulk-upload" element={<BulkUploadPage />} /> */}
+                                        <Route path="/reports" element={<Mjournal1ReportPage />} />
 
-                                <Route path="/dashmmjournal1" element={<Dashmmjournal1 />} />
-                                <Route path="/dashmmjournal1admin" element={<Dashmmjournal1admin />} />
-                                <Route path="/dashmmtrialbalance1" element={<Dashmmtrialbalance1 />} />
-                                <Route path="/dashmmtrialbalance1admin" element={<Dashmmtrialbalance1admin />} />
-
-
-                                <Route path="/generateinstitutecode" element={<GenerateInstituteCode />} />
-                                <Route path="/dashchattest" element={<Dashchattest />} />
-
-                                <Route path="/paymentreceipt" element={<PaymentReceipt />} />
-                                <Route path="/dashmfeespay" element={<Dashmfeespay />} />
+                                        <Route path="/dashmmjournal1" element={<Dashmmjournal1 />} />
+                                        <Route path="/dashmmjournal1admin" element={<Dashmmjournal1admin />} />
+                                        <Route path="/dashmmtrialbalance1" element={<Dashmmtrialbalance1 />} />
+                                        <Route path="/dashmmtrialbalance1admin" element={<Dashmmtrialbalance1admin />} />
 
 
-                                <Route path="/dashmmfeescolbydate" element={<Dashmmfeescolbydate />} />
-                                <Route path="/dashfeescolaggr" element={<Dashfeescolaggr />} />
+                                        <Route path="/generateinstitutecode" element={<GenerateInstituteCode />} />
+                                        <Route path="/dashchattest" element={<Dashchattest />} />
+
+                                        <Route path="/paymentreceipt" element={<PaymentReceipt />} />
+                                        <Route path="/dashmfeespay" element={<Dashmfeespay />} />
 
 
-                                <Route path="/dashmmacadcal" element={<Dashmmacadcal />} />
-                                <Route path="/dashmmacadcaladmin" element={<Dashmmacadcaladmin />} />
-                                <Route path="/dashmmfeescol" element={<Dashmmfeescol />} />
-                                <Route path="/dashmmfeescoladmin" element={<Dashmmfeescoladmin />} />
+                                        <Route path="/dashmmfeescolbydate" element={<Dashmmfeescolbydate />} />
+                                        <Route path="/dashfeescolaggr" element={<Dashfeescolaggr />} />
 
 
-                                <Route path="/dashboardj" element={<Dashboardj />} />
-                                <Route path="/allattendancej" element={<AttendanceCalendarj />} />
-                                <Route path="/attendancebyemailj" element={<AttendanceByEmailj />} />
-                                <Route path="/attendancej" element={<AttendancePagej />} />
-                                <Route path="/ipaddressj" element={<IpManagementPagej />} />
-                                <Route path="/salaryj" element={<SalaryPagej />} />
-                                <Route path="/salarybysearchj" element={<SalarySearchj />} />
-
-                                <Route path="/salaryslipj" element={<SalarySlipj />} />
-                                <Route path="/deductionj" element={<Deductionj />} />
-
-                                <Route path="/attendance/*" element={<AttendanceApp />} />
-                                <Route path="/classesn" element={<ClassManagementn />} />
+                                        <Route path="/dashmmacadcal" element={<Dashmmacadcal />} />
+                                        <Route path="/dashmmacadcaladmin" element={<Dashmmacadcaladmin />} />
+                                        <Route path="/dashmmfeescol" element={<Dashmmfeescol />} />
+                                        <Route path="/dashmmfeescoladmin" element={<Dashmmfeescoladmin />} />
 
 
-                                <Route path="/facultytopicpage1ds/:categoryName" element={<FacultyTopicPage1ds />} />
-                                <Route path="/studenttopicpage1ds" element={<StudentTopicPage1ds />} />
-                                <Route path="/discussionpostspage1ds/:topicId" element={<DiscussionPostsPage1ds />} />
+                                        <Route path="/dashboardj" element={<Dashboardj />} />
+                                        <Route path="/allattendancej" element={<AttendanceCalendarj />} />
+                                        <Route path="/attendancebyemailj" element={<AttendanceByEmailj />} />
+                                        <Route path="/attendancej" element={<AttendancePagej />} />
+                                        <Route path="/ipaddressj" element={<IpManagementPagej />} />
+                                        <Route path="/salaryj" element={<SalaryPagej />} />
+                                        <Route path="/salarybysearchj" element={<SalarySearchj />} />
 
-                                {/* <Route path="/dashboardj" element={<Dashboardj />} /> 
+                                        <Route path="/salaryslipj" element={<SalarySlipj />} />
+                                        <Route path="/deductionj" element={<Deductionj />} />
+
+                                        <Route path="/attendance/*" element={<AttendanceApp />} />
+                                        <Route path="/classesn" element={<ClassManagementn />} />
+
+
+                                        <Route path="/facultytopicpage1ds/:categoryName" element={<FacultyTopicPage1ds />} />
+                                        <Route path="/studenttopicpage1ds" element={<StudentTopicPage1ds />} />
+                                        <Route path="/discussionpostspage1ds/:topicId" element={<DiscussionPostsPage1ds />} />
+
+                                        {/* <Route path="/dashboardj" element={<Dashboardj />} /> 
         <Route path="/allattendancej" element={<AttendanceCalendar />} />
         <Route path="/attendancebyemailj" element={<AttendanceByEmail />} />
         <Route path="/attendancej" element={<AttendancePage />} />
@@ -1709,820 +1985,852 @@ function App() {
         <Route path="/salaryslipj" element={<SalarySlip />} />
         <Route path="/deductionj" element={<Deduction/>} /> */}
 
-                                <Route path="/topiccategorypage1ds" element={<TopicCategoryPage1ds />} />
+                                        <Route path="/topiccategorypage1ds" element={<TopicCategoryPage1ds />} />
 
-                                <Route path="/facultytopicpageds" element={<FacultyTopicPageds />} />
-                                <Route path="/studenttopicpageds" element={<StudentTopicPageds />} />
-                                <Route path="/discussionpostspageds/:topicId" element={<DiscussionPostsPageds />} />
+                                        <Route path="/facultytopicpageds" element={<FacultyTopicPageds />} />
+                                        <Route path="/studenttopicpageds" element={<StudentTopicPageds />} />
+                                        <Route path="/discussionpostspageds/:topicId" element={<DiscussionPostsPageds />} />
 
-                                <Route path="/dashdashfacnew" element={<Dashdashfacnew />} />
-                                <Route path="/facultydashboardds" element={<FacultyDashboardds />} />
+                                        <Route path="/dashdashfacnew" element={<Dashdashfacnew />} />
+                                        <Route path="/facultydashboardds" element={<FacultyDashboardds />} />
 
-                                <Route path="/classes1" element={<ClassManagement1 />} />
-                                <Route path="/breakout-rooms" element={<BreakoutRoomManagement />} />
-                                <Route path="/student-breakout-room/:roomid" element={<StudentBreakoutRoom />} />
-                                <Route path="/studentclassview" element={<StudentClassView />} />
+                                        <Route path="/classes1" element={<ClassManagement1 />} />
+                                        <Route path="/breakout-rooms" element={<BreakoutRoomManagement />} />
+                                        <Route path="/student-breakout-room/:roomid" element={<StudentBreakoutRoom />} />
+                                        <Route path="/studentclassview" element={<StudentClassView />} />
 
-                                <Route path="/dashmmcoatt" element={<Dashmmcoatt />} />
+                                        <Route path="/dashmmcoatt" element={<Dashmmcoatt />} />
 
-                                <Route path="/rubricexampage1" element={<RubricExamPage1 />} />
-                                <Route path="/detailedview1/:id" element={<DetailedView1 />} />
-                                <Route path="/finalizedata1" element={<FinalizeData1 />} />
+                                        <Route path="/rubricexampage1" element={<RubricExamPage1 />} />
+                                        <Route path="/detailedview1/:id" element={<DetailedView1 />} />
+                                        <Route path="/finalizedata1" element={<FinalizeData1 />} />
 
-                                <Route path="/feedbackinternalmanagement1" element={<FeedbackInternalManagement1 />} />
-                                <Route path="/createfeedbackinternal1" element={<CreateFeedbackInternal1 />} />
-                                {/* ✅ Same component handles editing when feedbackId is provided */}
-                                <Route path="/editfeedbackinternal1/:feedbackId" element={<CreateFeedbackInternal1 />} />
-                                <Route path="/feedbackinternalresponse1/:feedbackId" element={<FeedbackInternalResponse1 />} />
-                                <Route path="/feedbackinternalresponses1/:feedbackId" element={<FeedbackInternalResponses1 />} />
-                                <Route path="/feedbackinternalanalytics1/:feedbackId" element={<FeedbackInternalAnalytics1 />} />
+                                        <Route path="/feedbackinternalmanagement1" element={<FeedbackInternalManagement1 />} />
+                                        <Route path="/createfeedbackinternal1" element={<CreateFeedbackInternal1 />} />
+                                        {/* ✅ Same component handles editing when feedbackId is provided */}
+                                        <Route path="/editfeedbackinternal1/:feedbackId" element={<CreateFeedbackInternal1 />} />
+                                        <Route path="/feedbackinternalresponse1/:feedbackId" element={<FeedbackInternalResponse1 />} />
+                                        <Route path="/feedbackinternalresponses1/:feedbackId" element={<FeedbackInternalResponses1 />} />
+                                        <Route path="/feedbackinternalanalytics1/:feedbackId" element={<FeedbackInternalAnalytics1 />} />
 
-                                <Route path="/feedbackinternalmanagement" element={<FeedbackInternalManagement />} />
-                                <Route path="/createfeedbackinternal" element={<CreateFeedbackInternal />} />
-                                {/* ✅ Same component handles editing when feedbackId is provided */}
-                                <Route path="/editfeedbackinternal/:feedbackId" element={<CreateFeedbackInternal />} />
-                                <Route path="/feedbackinternalresponse/:feedbackId" element={<FeedbackInternalResponse />} />
-                                <Route path="/feedbackinternalresponses/:feedbackId" element={<FeedbackInternalResponses />} />
-                                <Route path="/feedbackinternalanalytics/:feedbackId" element={<FeedbackInternalAnalytics />} />
+                                        <Route path="/feedbackinternalmanagement" element={<FeedbackInternalManagement />} />
+                                        <Route path="/createfeedbackinternal" element={<CreateFeedbackInternal />} />
+                                        {/* ✅ Same component handles editing when feedbackId is provided */}
+                                        <Route path="/editfeedbackinternal/:feedbackId" element={<CreateFeedbackInternal />} />
+                                        <Route path="/feedbackinternalresponse/:feedbackId" element={<FeedbackInternalResponse />} />
+                                        <Route path="/feedbackinternalresponses/:feedbackId" element={<FeedbackInternalResponses />} />
+                                        <Route path="/feedbackinternalanalytics/:feedbackId" element={<FeedbackInternalAnalytics />} />
 
-                                <Route path="/feedbackmanagement" element={<FeedbackManagement />} />
-                                <Route path="/createfeedback" element={<CreateFeedback />} />
-                                <Route path="/createfeedback/edit/:feedbackId" element={<CreateFeedback />} />
-                                <Route path="/feedbackfillresponse/:feedbackId" element={<FeedbackFillResponse />} />
-                                <Route path="/feedbackresponses/:feedbackId" element={<FeedbackResponses />} />
-                                <Route path="/feedbackanalytic/:feedbackId" element={<FeedbackAnalytics />} />
+                                        <Route path="/feedbackmanagement" element={<FeedbackManagement />} />
+                                        <Route path="/createfeedback" element={<CreateFeedback />} />
+                                        <Route path="/createfeedback/edit/:feedbackId" element={<CreateFeedback />} />
+                                        <Route path="/feedbackfillresponse/:feedbackId" element={<FeedbackFillResponse />} />
+                                        <Route path="/feedbackresponses/:feedbackId" element={<FeedbackResponses />} />
+                                        <Route path="/feedbackanalytic/:feedbackId" element={<FeedbackAnalytics />} />
 
-                                <Route path="/dashmserb" element={<Dashmserb />} />
+                                        <Route path="/dashmserb" element={<Dashmserb />} />
 
-                                <Route path="/dashmserbplan" element={<Dashmserbplan />} />
-                                <Route path="/dashmserbplanadmin" element={<Dashmserbplanadmin />} />
-
-
-                                <Route path="/dashmlessonplannew" element={<Dashmlessonplannew />} />
-                                <Route path="/dashmlessonplannewadmin" element={<Dashmlessonplannewadmin />} />
+                                        <Route path="/dashmserbplan" element={<Dashmserbplan />} />
+                                        <Route path="/dashmserbplanadmin" element={<Dashmserbplanadmin />} />
 
 
-                                <Route path="/classes" element={<ClassManagement />} />
-                                <Route path="/enrollment" element={<EnrollmentManagement />} />
-                                <Route path="/attendance" element={<AttendanceManagement />} />
-                                {/* <Route path="/attendance/*" element={<AttendanceApp />} />
+                                        <Route path="/dashmlessonplannew" element={<Dashmlessonplannew />} />
+                                        <Route path="/dashmlessonplannewadmin" element={<Dashmlessonplannewadmin />} />
+
+
+                                        <Route path="/classes" element={<ClassManagement />} />
+                                        <Route path="/enrollment" element={<EnrollmentManagement />} />
+                                        <Route path="/attendance" element={<AttendanceManagement />} />
+                                        {/* <Route path="/attendance/*" element={<AttendanceApp />} />
         <Route path="/classesn" element={<ClassManagementn />} /> */}
 
-                                <Route path="/dashmroles" element={<Dashmroles />} />
+                                        <Route path="/dashmroles" element={<Dashmroles />} />
 
-                                <Route path="/dashstudprofileall" element={<Dashstudprofileall />} />
-                                <Route path="/studentprofile1" element={<StudentProfile1 />} />
-                                <Route path="/studentprofile" element={<StudentProfile />} />
+                                        <Route path="/dashstudprofileall" element={<Dashstudprofileall />} />
+                                        <Route path="/studentprofile1" element={<StudentProfile1 />} />
+                                        <Route path="/studentprofile" element={<StudentProfile />} />
 
-                                <Route path="/mainrubric" element={<RubricExamPage />} />
-                                <Route path="/detail/:id" element={<DetailedView />} />
-                                <Route path="/finalize" element={<FinalizeData />} />
+                                        <Route path="/mainrubric" element={<RubricExamPage />} />
+                                        <Route path="/detail/:id" element={<DetailedView />} />
+                                        <Route path="/finalize" element={<FinalizeData />} />
 
-                                <Route path='/route' element={<RoutePage />} />
-                                <Route path='/busesbyroute/:routeId' element={<BusPage />} />
-                                <Route path='/bus-detail/:busId' element={<BusDetailPage />} />
+                                        <Route path='/route' element={<RoutePage />} />
+                                        <Route path='/busesbyroute/:routeId' element={<BusPage />} />
+                                        <Route path='/bus-detail/:busId' element={<BusDetailPage />} />
 
 
-                                <Route path="/allcvpage" element={<AllCVPage />} />
+                                        <Route path="/allcvpage" element={<AllCVPage />} />
 
-                                <Route path="/internal/jobmanager" element={<JobManagerInternalPage />} />
-                                <Route path="/internal/jobapplication/:colid" element={<JobApplicationInternalPage />} />
-                                <Route path="/internal/jobapplicationstatus/:jobid" element={<InternalApplicationStatusPage />} />
-                                <Route path="/internal/applicationdetail/:id" element={<JobApplicationInternalDetailsPage />} />
+                                        <Route path="/internal/jobmanager" element={<JobManagerInternalPage />} />
+                                        <Route path="/internal/jobapplication/:colid" element={<JobApplicationInternalPage />} />
+                                        <Route path="/internal/jobapplicationstatus/:jobid" element={<InternalApplicationStatusPage />} />
+                                        <Route path="/internal/applicationdetail/:id" element={<JobApplicationInternalDetailsPage />} />
 
-                                <Route path="/dashmplaced" element={<Dashmplaced />} />
+                                        <Route path="/dashmplaced" element={<Dashmplaced />} />
 
-                                <Route path="/dashpappplaced" element={<Dashpappplaced />} />
-                                <Route path="/dashpsectorreport" element={<Dashpsectorreport />} />
+                                        <Route path="/dashpappplaced" element={<Dashpappplaced />} />
+                                        <Route path="/dashpsectorreport" element={<Dashpsectorreport />} />
 
-                                <Route path="/dashmjobds" element={<Dashmjobds />} />
-                                <Route path="/dashmjobdsadmin" element={<Dashmjobdsadmin />} />
-                                <Route path="/dashmjobapplicationds" element={<Dashmjobapplicationds />} />
-                                <Route path="/dashmjobapplicationdsadmin" element={<Dashmjobapplicationdsadmin />} />
+                                        <Route path="/dashmjobds" element={<Dashmjobds />} />
+                                        <Route path="/dashmjobdsadmin" element={<Dashmjobdsadmin />} />
+                                        <Route path="/dashmjobapplicationds" element={<Dashmjobapplicationds />} />
+                                        <Route path="/dashmjobapplicationdsadmin" element={<Dashmjobapplicationdsadmin />} />
 
 
-                                <Route path="/dashmcompany" element={<Dashmcompany />} />
-                                <Route path="/logincompany" element={<Signinpagecompany />} />
+                                        <Route path="/dashmcompany" element={<Dashmcompany />} />
+                                        <Route path="/logincompany" element={<Signinpagecompany />} />
 
-                                <Route path="/jobmanager" element={<JobManagerPage />} />
-                                <Route path="/jobs-apply" element={<JobApplicationPage />} />
-                                <Route path="/applications-status/:jobid" element={<ApplicationStatusPage />} />
-                                <Route path="/studentcv" element={<StudentCVPage />} />
-                                <Route path="/application-detail/:id" element={<JobApplicationDetailsPage />} />
+                                        <Route path="/jobmanager" element={<JobManagerPage />} />
+                                        <Route path="/jobs-apply" element={<JobApplicationPage />} />
+                                        <Route path="/applications-status/:jobid" element={<ApplicationStatusPage />} />
+                                        <Route path="/studentcv" element={<StudentCVPage />} />
+                                        <Route path="/application-detail/:id" element={<JobApplicationDetailsPage />} />
 
-                                <Route path='/dasheventlistpage' element={<Dasheventlistpage />} />
-                                <Route path='/dashapprovespeakers' element={<Dashapprovespeakers />} />
+                                        <Route path='/dasheventlistpage' element={<Dasheventlistpage />} />
+                                        <Route path='/dashapprovespeakers' element={<Dashapprovespeakers />} />
 
-                                <Route path='/eventslist' element={<EventsListPage />} />
-                                <Route path="/event/:id/register" element={<EventRegisterPage />} />
-                                <Route path="/event/:id/:colid" element={<EventDetailPage />} />
-                                <Route path="/event/:id/approvespeakers" element={<ApproveSpeakersPage />} />
-                                <Route path="/eventregistrationcolid/:id/:colid" element={<EventRegisterPage1 />} />
-                                <Route path='/eventlistwithcolid/:colid' element={<EventsListPage1 />} />
+                                        <Route path='/eventslist' element={<EventsListPage />} />
+                                        <Route path="/event/:id/register" element={<EventRegisterPage />} />
+                                        <Route path="/event/:id/:colid" element={<EventDetailPage />} />
+                                        <Route path="/event/:id/approvespeakers" element={<ApproveSpeakersPage />} />
+                                        <Route path="/eventregistrationcolid/:id/:colid" element={<EventRegisterPage1 />} />
+                                        <Route path='/eventlistwithcolid/:colid' element={<EventsListPage1 />} />
 
-                                <Route path="/forms" element={<FormPage />} />
-                                <Route path="/responses/:formId" element={<ResponsePage />} />
-                                <Route path="/fill/:formId" element={<FillForm />} />
+                                        <Route path="/forms" element={<FormPage />} />
+                                        <Route path="/responses/:formId" element={<ResponsePage />} />
+                                        <Route path="/fill/:formId" element={<FillForm />} />
 
-                                <Route path="/taskcreatorpage" element={<TaskCreatorPage />} />
-                                <Route path='/assigneetaskpage' element={<TaskAssignToMePage />} />
-                                <Route path='/approvertaskpage' element={<ApproverTasksPage />} />
+                                        <Route path="/taskcreatorpage" element={<TaskCreatorPage />} />
+                                        <Route path='/assigneetaskpage' element={<TaskAssignToMePage />} />
+                                        <Route path='/approvertaskpage' element={<ApproverTasksPage />} />
 
-                                <Route path='/dashleavesetup' element={<Dashleavesetup />} />
-                                <Route path='/navigatetopage' element={<NavigatetoPages />} />
-                                <Route path='/setuppage' element={<SetupPage />} />
-                                <Route path='/leavespage' element={<LeavesPage />} />
+                                        <Route path='/dashleavesetup' element={<Dashleavesetup />} />
+                                        <Route path='/navigatetopage' element={<NavigatetoPages />} />
+                                        <Route path='/setuppage' element={<SetupPage />} />
+                                        <Route path='/leavespage' element={<LeavesPage />} />
 
 
-                                <Route path='/dashalerts' element={<Dashalerts />} />
+                                        <Route path='/dashalerts' element={<Dashalerts />} />
 
-                                <Route path='/report2' element={<Report2 />} />
-                                <Route path="/eventreport" element={<EventReport />} />
+                                        <Route path='/report2' element={<Report2 />} />
+                                        <Route path="/eventreport" element={<EventReport />} />
 
-                                <Route path="/studadmission" element={<Studadmission />} />
-                                <Route path="/studbonafide" element={<Studbonafide />} />
-                                <Route path="/studmarksheet" element={<Studmarksheet />} />
-                                <Route path="/dashmarksheet" element={<Dashmarksheet />} />
+                                        <Route path="/studadmission" element={<Studadmission />} />
+                                        <Route path="/studbonafide" element={<Studbonafide />} />
+                                        <Route path="/studmarksheet" element={<Studmarksheet />} />
+                                        <Route path="/dashmarksheet" element={<Dashmarksheet />} />
 
-                                <Route path="/dashmexammarksall" element={<Dashmexammarksall />} />
-                                <Route path="/dashmexammarksalladmin" element={<Dashmexammarksalladmin />} />
+                                        <Route path="/dashmexammarksall" element={<Dashmexammarksall />} />
+                                        <Route path="/dashmexammarksalladmin" element={<Dashmexammarksalladmin />} />
 
 
-                                <Route path='/dashworkloadn1faculty' element={<Dashworkloadn1faculty />} />
+                                        <Route path='/dashworkloadn1faculty' element={<Dashworkloadn1faculty />} />
 
-                                <Route path='/dashinterncomplete' element={<Dashinterncomplete />} />
-                                <Route path='/taskmanager' element={<TaskManagerPage />} />
+                                        <Route path='/dashinterncomplete' element={<Dashinterncomplete />} />
+                                        <Route path='/taskmanager' element={<TaskManagerPage />} />
 
-                                <Route path='/dashnirfplacement' element={<Dashnirfplacement />} />
+                                        <Route path='/dashnirfplacement' element={<Dashnirfplacement />} />
 
-                                <Route path='/applicationreviewpage' element={<ApplicationReviewPage />} />
-                                <Route path='/application/:id' element={<DetailedApplicationPage />} />
+                                        <Route path='/applicationreviewpage' element={<ApplicationReviewPage />} />
+                                        <Route path='/application/:id' element={<DetailedApplicationPage />} />
 
-                                <Route path='/hostelbuldingmanager' element={< HostelBuildingPage />} />
-                                <Route path='/rooms/:buildingname' element={<HostelRoomPage />} />
+                                        <Route path='/hostelbuldingmanager' element={< HostelBuildingPage />} />
+                                        <Route path='/rooms/:buildingname' element={<HostelRoomPage />} />
 
-                                <Route path='/studadmitcard' element={<Studadmitcard />} />
-                                <Route path='/dashadmitdownload' element={<Dashadmitdownload />} />
-                                <Route path='/dashlibraryform' element={<Dashlibraryform />} />
+                                        <Route path='/studadmitcard' element={<Studadmitcard />} />
+                                        <Route path='/dashadmitdownload' element={<Dashadmitdownload />} />
+                                        <Route path='/dashlibraryform' element={<Dashlibraryform />} />
 
-                                {/* <Route path='/login' element = {<LoginPage />}/> */}
-                                <Route path='/createlibraryform' element={<CreateLibraryForm />} />
-                                <Route path='/admin/libraries' element={<AdminLibrariesPage />} />
-                                <Route path="/library/:id" element={<LibraryBooksPage />} />
-                                <Route path="/library/:id/issuedbooks" element={<IssuedBooksPage />} />
-                                <Route path="/library/:id/report" element={<LibraryReportPage />} />
-
-                                <Route path="/dashmuser" element={<DashmUser />} />
-                                <Route path="/dashmuseradmin" element={<DashmUseradmin />} />
+                                        {/* <Route path='/login' element = {<LoginPage />}/> */}
+                                        <Route path='/createlibraryform' element={<CreateLibraryForm />} />
+                                        <Route path='/admin/libraries' element={<AdminLibrariesPage />} />
+                                        <Route path="/library/:id" element={<LibraryBooksPage />} />
+                                        <Route path="/library/:id/issuedbooks" element={<IssuedBooksPage />} />
+                                        <Route path="/library/:id/report" element={<LibraryReportPage />} />
+
+                                        <Route path="/dashmuser" element={<DashmUser />} />
+                                        <Route path="/dashmuseradmin" element={<DashmUseradmin />} />
+
+
+                                        <Route path="/dashmexamadmitstud" element={<Dashmexamadmitstud />} />
+                                        <Route path="/dashmledgerstudstud" element={<Dashmledgerstudstud />} />
+                                        <Route path="/dashmledgerstudstudhdfc" element={<DashmledgerstudstudHDFC />} />
+                                        <Route path="/dashmledgerstudstudmultipayment" element={<DashmledgerstudstudMultipayment />} />
 
+
+                                        <Route path="/dashmexamadmit" element={<Dashmexamadmit />} />
+                                        <Route path="/dashmexamadmitadmin" element={<Dashmexamadmitadmin />} />
+                                        <Route path="/releaseadmitcardds" element={<ReleaseAdmitCardds />} />
+                                        <Route path="/downloadadmitcardds" element={<DownloadAdmitCardds />} />
 
-                                <Route path="/dashmexamadmitstud" element={<Dashmexamadmitstud />} />
-                                <Route path="/dashmledgerstudstud" element={<Dashmledgerstudstud />} />
+                                        <Route path="/dashmfees" element={<Dashmfees />} />
+                                        <Route path="/dashfeefineds" element={<Dashfeefineds />} />
+                                        <Route path="/institutionsds" element={<Institutionsds />} />
+                                        <Route path="/bulkleadsds" element={<BulkLeadActionsds />} />
+                                        <Route path="/dashmfeesadmin" element={<Dashmfeesadmin />} />
+                                        <Route path="/dashmledgerstud" element={<Dashmledgerstud />} />
+                                        <Route path="/dashmledgerstudadmin" element={<Dashmledgerstudadmin />} />
 
 
-                                <Route path="/dashmexamadmit" element={<Dashmexamadmit />} />
-                                <Route path="/dashmexamadmitadmin" element={<Dashmexamadmitadmin />} />
-                                <Route path="/dashmfees" element={<Dashmfees />} />
-                                <Route path="/institutionsds" element={<Institutionsds />} />
-                                <Route path="/dashmfeesadmin" element={<Dashmfeesadmin />} />
-                                <Route path="/dashmledgerstud" element={<Dashmledgerstud />} />
-                                <Route path="/dashmledgerstudadmin" element={<Dashmledgerstudadmin />} />
+                                        <Route path='/dashapplyadmitstud' element={<Dashapplyadmitstud />} />
+                                        <Route path='/examapplicationform' element={<ExamApplication />} />
+                                        <Route path='/approvesubjects' element={<AdminDashboard />} />
+                                        <Route path='/admitcardtemplate' element={<AdmitCardTemplate />} />
+                                        <Route path='/releaseadmitcard' element={<ReleaseAdmitCard />} />
+                                        <Route path='/downloadadmitcard' element={<DownloadAdmitCard />} />
+
+                                        <Route path='/createcertificates' element={<CertificateGenerator />} />
+
+                                        <Route path='/idcardmanager' element={<IDCardManager />} />
+                                        <Route path="/dashmask1" element={<Dashmask1 />} />
+
+                                        <Route path="/dashmappmodel2cat" element={<Dashmappmodel2cat />} />
+                                        <Route path="/dashmappmodel2" element={<Dashmappmodel2 />} />
+                                        <Route path="/dashmadmission" element={<Dashmadmission />} />
 
-
-                                <Route path='/dashapplyadmitstud' element={<Dashapplyadmitstud />} />
-                                <Route path='/examapplicationform' element={<ExamApplication />} />
-                                <Route path='/approvesubjects' element={<AdminDashboard />} />
-                                <Route path='/admitcardtemplate' element={<AdmitCardTemplate />} />
-                                <Route path='/releaseadmitcard' element={<ReleaseAdmitCard />} />
-                                <Route path='/downloadadmitcard' element={<DownloadAdmitCard />} />
-
-                                <Route path='/createcertificates' element={<CertificateGenerator />} />
-
-                                <Route path='/idcardmanager' element={<IDCardManager />} />
-                                <Route path="/dashmask1" element={<Dashmask1 />} />
-
-                                <Route path="/dashmappmodel2cat" element={<Dashmappmodel2cat />} />
-                                <Route path="/dashmappmodel2" element={<Dashmappmodel2 />} />
-                                <Route path="/dashmadmission" element={<Dashmadmission />} />
-
-                                <Route path="/admissionform1/:colId" element={<AdmissionTemplate1 />} />
-                                <Route path="/admissionform2/:colId" element={<AdmissionTemplate2 />} />
-                                <Route path="/admissionform3/:colId" element={<AdmissionTemplate3 />} />
-                                <Route path="/admissionform4/:colId" element={<AdmissionTemplate4 />} />
-                                <Route path="/success" element={<Success />} />
-
-                                <Route path="/dashmfacwcal" element={<Dashmfacwcal />} />
-                                <Route path="/dashmfacwcaladmin" element={<Dashmfacwcaladmin />} />
-
-
-                                <Route path="/dashmtimeslotsn" element={<Dashmtimeslotsn />} />
-                                <Route path="/dashmtimeslotsnadmin" element={<Dashmtimeslotsnadmin />} />
-                                <Route path="/dashmworkloadn" element={<Dashmworkloadn />} />
-                                <Route path="/dashmworkloadnadmin" element={<Dashmworkloadnadmin />} />
-
-                                <Route path="/dashmtimeslotsn1" element={<Dashmtimeslotsn1 />} />
-                                <Route path="/dashmtimeslotsn1admin" element={<Dashmtimeslotsn1admin />} />
-                                <Route path="/dashmworkloadn1" element={<Dashmworkloadn1 />} />
-                                <Route path="/dashmworkloadn1admin" element={<Dashmworkloadn1admin />} />
-
-
-
-                                <Route path="/dashmmstudentprofile" element={<Dashmmstudentprofile />} />
-                                <Route path="/dashmnallaccrgroup" element={<Dashmnallaccrgroup />} />
-
-                                <Route path="/dashmngroup" element={<Dashmngroup />} />
-                                <Route path="/dashmngroupadmin" element={<Dashmngroupadmin />} />
-                                <Route path="/dashmngrouppages" element={<Dashmngrouppages />} />
-                                <Route path="/dashmngrouppagesadmin" element={<Dashmngrouppagesadmin />} />
-                                <Route path="/dashmngroupaccr" element={<Dashmngroupaccr />} />
-                                <Route path="/dashmngroupaccradmin" element={<Dashmngroupaccradmin />} />
-
-
-                                <Route path="/dashmattyear" element={<Dashmattyear />} />
-                                <Route path="/dashmattyearadmin" element={<Dashmattyearadmin />} />
-
-
-                                <Route path="/dashmmfaccoursesatto" element={<Dashmmfaccoursesatto />} />
-                                <Route path="/dashmnn76" element={<Dashmnn76 />} />
-                                <Route path="/dashmnn76admin" element={<Dashmnn76admin />} />
-                                <Route path="/dashmnn781" element={<Dashmnn781 />} />
-                                <Route path="/dashmnn781admin" element={<Dashmnn781admin />} />
-                                <Route path="/dashmnn82" element={<Dashmnn82 />} />
-                                <Route path="/dashmnn82admin" element={<Dashmnn82admin />} />
-                                <Route path="/dashmnn83" element={<Dashmnn83 />} />
-                                <Route path="/dashmnn83admin" element={<Dashmnn83admin />} />
-                                <Route path="/dashmnn84" element={<Dashmnn84 />} />
-                                <Route path="/dashmnn84admin" element={<Dashmnn84admin />} />
-                                <Route path="/dashmnn86" element={<Dashmnn86 />} />
-                                <Route path="/dashmnn86admin" element={<Dashmnn86admin />} />
-                                <Route path="/dashmnn87" element={<Dashmnn87 />} />
-                                <Route path="/dashmnn87admin" element={<Dashmnn87admin />} />
-                                <Route path="/dashmnn96" element={<Dashmnn96 />} />
-                                <Route path="/dashmnn96admin" element={<Dashmnn96admin />} />
-                                <Route path="/dashmnn97" element={<Dashmnn97 />} />
-                                <Route path="/dashmnn97admin" element={<Dashmnn97admin />} />
-                                <Route path="/dashmnn98" element={<Dashmnn98 />} />
-                                <Route path="/dashmnn98admin" element={<Dashmnn98admin />} />
-
-
-                                <Route path="/dashmnn61" element={<Dashmnn61 />} />
-                                <Route path="/dashmnn61admin" element={<Dashmnn61admin />} />
-                                <Route path="/dashmnn62" element={<Dashmnn62 />} />
-                                <Route path="/dashmnn62admin" element={<Dashmnn62admin />} />
-                                <Route path="/dashmnn6clubs" element={<Dashmnn6clubs />} />
-                                <Route path="/dashmnn6clubsadmin" element={<Dashmnn6clubsadmin />} />
-
-
-                                <Route path="/dashmnallaccrans" element={<Dashmnallaccrans />} />
-                                <Route path="/dashmnallaccransadmin" element={<Dashmnallaccransadmin />} />
-
-
-                                <Route path="/electricalmachinelab" element={<ElectricalMachineLab />} />
-
-                                <Route path="/dashmqualall" element={<Dashmqualall />} />
-
-                                <Route path="/dashmnn51" element={<Dashmnn51 />} />
-                                <Route path="/dashmnn51admin" element={<Dashmnn51admin />} />
-                                <Route path="/dashmnn52" element={<Dashmnn52 />} />
-                                <Route path="/dashmnn52admin" element={<Dashmnn52admin />} />
-                                <Route path="/dashmnn53passp" element={<Dashmnn53passp />} />
-                                <Route path="/dashmnn53passpadmin" element={<Dashmnn53passpadmin />} />
-                                <Route path="/dashmnn53obe" element={<Dashmnn53obe />} />
-                                <Route path="/dashmnn53obeadmin" element={<Dashmnn53obeadmin />} />
-                                <Route path="/dashmnn54" element={<Dashmnn54 />} />
-                                <Route path="/dashmnn54admin" element={<Dashmnn54admin />} />
-                                <Route path="/dashmnn53examdays" element={<Dashmnn53examdays />} />
-                                <Route path="/dashmnn53examdaysadmin" element={<Dashmnn53examdaysadmin />} />
-                                <Route path="/dashmnn55" element={<Dashmnn55 />} />
-                                <Route path="/dashmnn55admin" element={<Dashmnn55admin />} />
-                                <Route path="/dashmnn56" element={<Dashmnn56 />} />
-                                <Route path="/dashmnn56admin" element={<Dashmnn56admin />} />
-
-                                <Route path="/dashmnallaccr" element={<Dashmnallaccr />} />
-                                <Route path="/dashmnallaccradmin" element={<Dashmnallaccradmin />} />
-
-
-
-                                <Route path="/dashmnn33a" element={<Dashmnn33a />} />
-                                <Route path="/dashmnn33aadmin" element={<Dashmnn33aadmin />} />
-                                <Route path="/dashmnn33b" element={<Dashmnn33b />} />
-                                <Route path="/dashmnn33badmin" element={<Dashmnn33badmin />} />
-                                <Route path="/dashmnn36" element={<Dashmnn36 />} />
-                                <Route path="/dashmnn36admin" element={<Dashmnn36admin />} />
-                                <Route path="/dashmnn46" element={<Dashmnn46 />} />
-                                <Route path="/dashmnn46admin" element={<Dashmnn46admin />} />
-                                <Route path="/dashmnn35" element={<Dashmnn35 />} />
-                                <Route path="/dashmnn35admin" element={<Dashmnn35admin />} />
-
-
-                                <Route path="/dashmnn211a" element={<Dashmnn211a />} />
-                                <Route path="/dashmnn211aadmin" element={<Dashmnn211aadmin />} />
-                                <Route path="/dashmnn211b" element={<Dashmnn211b />} />
-                                <Route path="/dashmnn211badmin" element={<Dashmnn211badmin />} />
-                                <Route path="/dashmnn22" element={<Dashmnn22 />} />
-                                <Route path="/dashmnn22admin" element={<Dashmnn22admin />} />
-                                <Route path="/dashmnn23" element={<Dashmnn23 />} />
-                                <Route path="/dashmnn23admin" element={<Dashmnn23admin />} />
-                                <Route path="/dashmnn244" element={<Dashmnn244 />} />
-                                <Route path="/dashmnn244admin" element={<Dashmnn244admin />} />
-                                <Route path="/dashmnn26" element={<Dashmnn26 />} />
-                                <Route path="/dashmnn26admin" element={<Dashmnn26admin />} />
-                                <Route path="/dashmnn25" element={<Dashmnn25 />} />
-                                <Route path="/dashmnn25admin" element={<Dashmnn25admin />} />
-                                <Route path="/dashmnn31" element={<Dashmnn31 />} />
-                                <Route path="/dashmnn31admin" element={<Dashmnn31admin />} />
-                                <Route path="/dashmnn32" element={<Dashmnn32 />} />
-                                <Route path="/dashmnn32admin" element={<Dashmnn32admin />} />
-
-
-                                <Route path="/dashmnn11" element={<Dashmnn11 />} />
-                                <Route path="/dashmnn11admin" element={<Dashmnn11admin />} />
-                                <Route path="/dashmnn12" element={<Dashmnn12 />} />
-                                <Route path="/dashmnn12admin" element={<Dashmnn12admin />} />
-                                <Route path="/dashmnn14" element={<Dashmnn14 />} />
-                                <Route path="/dashmnn14admin" element={<Dashmnn14admin />} />
-                                <Route path="/dashmnn15" element={<Dashmnn15 />} />
-                                <Route path="/dashmnn15admin" element={<Dashmnn15admin />} />
-                                <Route path="/dashmnn17" element={<Dashmnn17 />} />
-                                <Route path="/dashmnn17admin" element={<Dashmnn17admin />} />
-                                <Route path="/dashmnn16" element={<Dashmnn16 />} />
-                                <Route path="/dashmnn16admin" element={<Dashmnn16admin />} />
-
-
-                                <Route path="/Dashtest1" element={<Dashtest1 />} />
-                                <Route path="/GreenAudit" element={<GreenAudit />} />
-                                <Route path="/AcademicAuditInfo" element={<AAaudit />} />
-                                <Route path="/SeedTest1" element={<SeedTest1 />} />
-                                <Route path="/Courseall" element={<Courseall />} />
-                                <Route path="/Internselect" element={<Internselect />} />
-                                <Route path="/Internall" element={<Internall />} />
-                                <Route path="/SignupAdmin" element={<SignupAdmin />} />
-                                <Route path="/campuspricing" element={<CampusPricing />} />
-                                <Route path="/viewmpricing" element={<Viewmpricing />} />
-                                <Route path="/dashmbtrialb" element={<Dashmbtrialb />} />
-                                <Route path="/dashmbtrialbadmin" element={<Dashmbtrialbadmin />} />
-                                <Route path="/dashmbfacyear" element={<Dashmbfacyear />} />
-                                <Route path="/dashmbfacyearadmin" element={<Dashmbfacyearadmin />} />
-                                <Route path="/dashmstudlist" element={<Dashmstudlist />} />
-                                <Route path="/dashmstudlistadmin" element={<Dashmstudlistadmin />} />
-
-
-                                <Route path="/dashmbmou" element={<Dashmbmou />} />
-                                <Route path="/dashmbmouadmin" element={<Dashmbmouadmin />} />
-
-
-                                <Route path="/viewminterns" element={<Viewminterns />} />
-                                <Route path="/viewmusers" element={<Viewmusers />} />
-                                <Route path="/viewmallclients" element={<Viewmallclients />} />
-                                <Route path="/dashmmiscorenew" element={<Dashmmiscorenew />} />
-                                <Route path="/dashmminewm" element={<Dashmminewm />} />
-                                <Route path="/dashmminewmadmin" element={<Dashmminewmadmin />} />
-                                <Route path="/dashmmisessions" element={<Dashmmisessions />} />
-                                <Route path="/dashmmisessionsadmin" element={<Dashmmisessionsadmin />} />
-                                <Route path="/dashmmiseenrol1" element={<Dashmmiseenrol1 />} />
-                                <Route path="/dashmmiseenrol1admin" element={<Dashmmiseenrol1admin />} />
-                                <Route path="/dashmmisections1" element={<Dashmmisections1 />} />
-                                <Route path="/dashmmisections1admin" element={<Dashmmisections1admin />} />
-                                <Route path="/dashmmiqnew" element={<Dashmmiqnew />} />
-                                <Route path="/dashmmiqnewadmin" element={<Dashmmiqnewadmin />} />
-
-
-
-                                <Route path="/viewmindmap" element={<Viewmindmap2 />} />
-                                <Route path="/dashmmindmaplist" element={<Dashmmindmaplist />} />
-                                <Route path="/dashmmindmaplistadmin" element={<Dashmmindmaplistadmin />} />
-                                <Route path="/dashmmindmapedges" element={<Dashmmindmapedges />} />
-                                <Route path="/dashmmindmapedgesadmin" element={<Dashmmindmapedgesadmin />} />
-                                <Route path="/dashmmindmapnodes" element={<Dashmmindmapnodes />} />
-                                <Route path="/dashmmindmapnodesadmin" element={<Dashmmindmapnodesadmin />} />
-
-
-                                <Route path="/dashmreactflow1" element={<Dashmreactflow1 />} />
-                                <Route path="/viewmreactflow1" element={<Viewmreactflow1 />} />
-                                <Route path="/deleteaccount" element={<Deleteaccount />} />
-                                <Route path="/dashmtestscoresnewall" element={<Dashmtestscoresnewall />} />
-
-                                <Route path="/forgotpassword" element={<Forgotpassword />} />
-                                <Route path="/signinpay" element={<Signinpay />} />
-
-                                <Route path="/campustalentregister1" element={<CampusTalentRegister1 />} />
-
-                                <Route path="/dashmonlinepay" element={<Dashmonlinepay />} />
-                                <Route path="/dashmonlinepayadmin" element={<Dashmonlinepayadmin />} />
-
-
-                                <Route path="/campustalentregister" element={<CampusTalentRegister />} />
-
-                                <Route path="/dashmmctalentreg" element={<Dashmmctalentreg />} />
-                                <Route path="/dashmmctalentregadmin" element={<Dashmmctalentregadmin />} />
-                                <Route path="/dashmmtestqnewcs" element={<Dashmmtestqnewcs />} />
-                                <Route path="/dashmmtestqnewcsadmin" element={<Dashmmtestqnewcsadmin />} />
-                                <Route path="/dashmmguides" element={<Dashmmguides />} />
-                                <Route path="/dashmmguidesadmin" element={<Dashmmguidesadmin />} />
-
-
-                                <Route path="/dashmtestscorenew" element={<Dashmtestscorenew />} />
-                                <Route path="/campustalent" element={<CampusTalent1 />} />
-                                <Route path="/dashmmtestsections1" element={<Dashmmtestsections1 />} />
-                                <Route path="/dashmmtestsections1admin" element={<Dashmmtestsections1admin />} />
-                                <Route path="/dashmmtestseenrol1" element={<Dashmmtestseenrol1 />} />
-                                <Route path="/dashmmtestseenrol1admin" element={<Dashmmtestseenrol1admin />} />
-
-
-
-                                <Route path="/dashmmtestnewm" element={<Dashmmtestnewm />} />
-                                <Route path="/dashmmtestnewmadmin" element={<Dashmmtestnewmadmin />} />
-                                <Route path="/dashmmtestsessions" element={<Dashmmtestsessions />} />
-                                <Route path="/dashmmtestsessionsadmin" element={<Dashmmtestsessionsadmin />} />
-                                <Route path="/dashmmtestseenrol" element={<Dashmmtestseenrol />} />
-                                <Route path="/dashmmtestseenroladmin" element={<Dashmmtestseenroladmin />} />
-                                <Route path="/dashmmtestqnew" element={<Dashmmtestqnew />} />
-                                <Route path="/dashmmtestqnewadmin" element={<Dashmmtestqnewadmin />} />
-                                <Route path="/dashmmtestsections" element={<Dashmmtestsections />} />
-                                <Route path="/dashmmtestsectionsadmin" element={<Dashmmtestsectionsadmin />} />
-
-
-                                {/* <Route path="/mazegen" element={<MazeGen />} /> */}
-                                <Route path="/ultimatebattlegame" element={<UltimateBattleGame />} />
-                                <Route path="/sudokugame" element={<SudokuGame />} />
-                                <Route path="/towerofhanoi" element={<TowerOfHanoi />} />
-                                {/* <Route path="/dicegame" element={<DiceGame />} /> */}
-                                <Route path="/tetrisgame" element={<TetrisGame />} />
-                                <Route path="/finddiff" element={<FindDiff />} />
-                                <Route path="/racegame" element={<RaceGame />} />
-                                <Route path="/wordguessing" element={<WordGuessing />} />
-                                <Route path="/imgpuzzle" element={<ImgPuzzle />} />
-                                <Route path="/pacmangame" element={<PacManGame />} />
-                                <Route path="/betteraimgame" element={<BetterAimGame2 />} />
-
-                                <Route path="/dashmstudquota" element={<Dashmstudquota />} />
-                                <Route path="/dashmstudcategory" element={<Dashmstudcategory />} />
-                                <Route path="/dashmstudgender" element={<Dashmstudgender />} />
-                                <Route path="/notgategame" element={<NOTGateGame />} />
-                                {/* <Route path="/opticalfibregame" element={<OpticalFibreGame />} /> */}
-                                <Route path="/orgategame" element={<ORGateGame />} />
-                                {/* <Route path="/resistorgame" element={<ResistorGame />} /> */}
-                                <Route path="/skeletonexpgame" element={<SkeletonExpGame />} />
-                                {/* <Route path="/skeletonexppart2game" element={<SkeletonExpPart2Game />} /> */}
-                                <Route path="/stefanslawgame" element={<StefansLawGame />} />
-                                <Route path="/subhalfadder1game" element={<SubHalfAdder1Game />} />
-                                <Route path="/xnorgategame" element={<XNORGateGame />} />
-                                <Route path="/xorgategame" element={<XORGateGame />} />
-
-                                <Route path="/norgategame" element={<NORGateGame />} />
-                                <Route path="/nandgategame" element={<NANDGateGame />} />
-                                <Route path="/andgategame" element={<ANDGateGame />} />
-                                <Route path="/bitserialgame" element={<BitSerialGame />} />
-                                <Route path="/fingerprintpatterngames" element={<FingerPrintPatternsGame />} />
-
-
-                                <Route path="/bcdtoexcessgames" element={<BCDToExcessConverterGame />} />
-                                <Route path="/halfsubcircuitverifygame" element={<HalfSubCircuitVerifyGame />} />
-                                {/* <Route path="/binarytograygames" element={<BinaryToGrayConverterGame />} />
+                                        <Route path="/admissionform1/:colId" element={<AdmissionTemplate1 />} />
+                                        <Route path="/admissionform2/:colId" element={<AdmissionTemplate2 />} />
+                                        <Route path="/admissionform3/:colId" element={<AdmissionTemplate3 />} />
+                                        <Route path="/admissionform4/:colId" element={<AdmissionTemplate4 />} />
+                                        <Route path="/success" element={<Success />} />
+
+                                        <Route path="/dashmfacwcal" element={<Dashmfacwcal />} />
+                                        <Route path="/dashmfacwcaladmin" element={<Dashmfacwcaladmin />} />
+
+
+                                        <Route path="/dashmtimeslotsn" element={<Dashmtimeslotsn />} />
+                                        <Route path="/dashmtimeslotsnadmin" element={<Dashmtimeslotsnadmin />} />
+                                        <Route path="/dashmworkloadn" element={<Dashmworkloadn />} />
+                                        <Route path="/dashmworkloadnadmin" element={<Dashmworkloadnadmin />} />
+
+                                        <Route path="/dashmtimeslotsn1" element={<Dashmtimeslotsn1 />} />
+                                        <Route path="/dashmtimeslotsn1admin" element={<Dashmtimeslotsn1admin />} />
+                                        <Route path="/dashmworkloadn1" element={<Dashmworkloadn1 />} />
+                                        <Route path="/dashmworkloadn1admin" element={<Dashmworkloadn1admin />} />
+
+
+
+                                        <Route path="/dashmmstudentprofile" element={<Dashmmstudentprofile />} />
+                                        <Route path="/dashmnallaccrgroup" element={<Dashmnallaccrgroup />} />
+
+                                        <Route path="/dashmngroup" element={<Dashmngroup />} />
+                                        <Route path="/dashmngroupadmin" element={<Dashmngroupadmin />} />
+                                        <Route path="/dashmngrouppages" element={<Dashmngrouppages />} />
+                                        <Route path="/dashmngrouppagesadmin" element={<Dashmngrouppagesadmin />} />
+                                        <Route path="/dashmngroupaccr" element={<Dashmngroupaccr />} />
+                                        <Route path="/dashmngroupaccradmin" element={<Dashmngroupaccradmin />} />
+
+
+                                        <Route path="/dashmattyear" element={<Dashmattyear />} />
+                                        <Route path="/dashmattyearadmin" element={<Dashmattyearadmin />} />
+
+
+                                        <Route path="/dashmmfaccoursesatto" element={<Dashmmfaccoursesatto />} />
+                                        <Route path="/dashmnn76" element={<Dashmnn76 />} />
+                                        <Route path="/dashmnn76admin" element={<Dashmnn76admin />} />
+                                        <Route path="/dashmnn781" element={<Dashmnn781 />} />
+                                        <Route path="/dashmnn781admin" element={<Dashmnn781admin />} />
+                                        <Route path="/dashmnn82" element={<Dashmnn82 />} />
+                                        <Route path="/dashmnn82admin" element={<Dashmnn82admin />} />
+                                        <Route path="/dashmnn83" element={<Dashmnn83 />} />
+                                        <Route path="/dashmnn83admin" element={<Dashmnn83admin />} />
+                                        <Route path="/dashmnn84" element={<Dashmnn84 />} />
+                                        <Route path="/dashmnn84admin" element={<Dashmnn84admin />} />
+                                        <Route path="/dashmnn86" element={<Dashmnn86 />} />
+                                        <Route path="/dashmnn86admin" element={<Dashmnn86admin />} />
+                                        <Route path="/dashmnn87" element={<Dashmnn87 />} />
+                                        <Route path="/dashmnn87admin" element={<Dashmnn87admin />} />
+                                        <Route path="/dashmnn96" element={<Dashmnn96 />} />
+                                        <Route path="/dashmnn96admin" element={<Dashmnn96admin />} />
+                                        <Route path="/dashmnn97" element={<Dashmnn97 />} />
+                                        <Route path="/dashmnn97admin" element={<Dashmnn97admin />} />
+                                        <Route path="/dashmnn98" element={<Dashmnn98 />} />
+                                        <Route path="/dashmnn98admin" element={<Dashmnn98admin />} />
+
+
+                                        <Route path="/dashmnn61" element={<Dashmnn61 />} />
+                                        <Route path="/dashmnn61admin" element={<Dashmnn61admin />} />
+                                        <Route path="/dashmnn62" element={<Dashmnn62 />} />
+                                        <Route path="/dashmnn62admin" element={<Dashmnn62admin />} />
+                                        <Route path="/dashmnn6clubs" element={<Dashmnn6clubs />} />
+                                        <Route path="/dashmnn6clubsadmin" element={<Dashmnn6clubsadmin />} />
+
+
+                                        <Route path="/dashmnallaccrans" element={<Dashmnallaccrans />} />
+                                        <Route path="/dashmnallaccransadmin" element={<Dashmnallaccransadmin />} />
+
+
+                                        <Route path="/electricalmachinelab" element={<ElectricalMachineLab />} />
+
+                                        <Route path="/dashmqualall" element={<Dashmqualall />} />
+
+                                        <Route path="/dashmnn51" element={<Dashmnn51 />} />
+                                        <Route path="/dashmnn51admin" element={<Dashmnn51admin />} />
+                                        <Route path="/dashmnn52" element={<Dashmnn52 />} />
+                                        <Route path="/dashmnn52admin" element={<Dashmnn52admin />} />
+                                        <Route path="/dashmnn53passp" element={<Dashmnn53passp />} />
+                                        <Route path="/dashmnn53passpadmin" element={<Dashmnn53passpadmin />} />
+                                        <Route path="/dashmnn53obe" element={<Dashmnn53obe />} />
+                                        <Route path="/dashmnn53obeadmin" element={<Dashmnn53obeadmin />} />
+                                        <Route path="/dashmnn54" element={<Dashmnn54 />} />
+                                        <Route path="/dashmnn54admin" element={<Dashmnn54admin />} />
+                                        <Route path="/dashmnn53examdays" element={<Dashmnn53examdays />} />
+                                        <Route path="/dashmnn53examdaysadmin" element={<Dashmnn53examdaysadmin />} />
+                                        <Route path="/dashmnn55" element={<Dashmnn55 />} />
+                                        <Route path="/dashmnn55admin" element={<Dashmnn55admin />} />
+                                        <Route path="/dashmnn56" element={<Dashmnn56 />} />
+                                        <Route path="/dashmnn56admin" element={<Dashmnn56admin />} />
+
+                                        <Route path="/dashmnallaccr" element={<Dashmnallaccr />} />
+                                        <Route path="/dashmnallaccradmin" element={<Dashmnallaccradmin />} />
+
+
+
+                                        <Route path="/dashmnn33a" element={<Dashmnn33a />} />
+                                        <Route path="/dashmnn33aadmin" element={<Dashmnn33aadmin />} />
+                                        <Route path="/dashmnn33b" element={<Dashmnn33b />} />
+                                        <Route path="/dashmnn33badmin" element={<Dashmnn33badmin />} />
+                                        <Route path="/dashmnn36" element={<Dashmnn36 />} />
+                                        <Route path="/dashmnn36admin" element={<Dashmnn36admin />} />
+                                        <Route path="/dashmnn46" element={<Dashmnn46 />} />
+                                        <Route path="/dashmnn46admin" element={<Dashmnn46admin />} />
+                                        <Route path="/dashmnn35" element={<Dashmnn35 />} />
+                                        <Route path="/dashmnn35admin" element={<Dashmnn35admin />} />
+
+
+                                        <Route path="/dashmnn211a" element={<Dashmnn211a />} />
+                                        <Route path="/dashmnn211aadmin" element={<Dashmnn211aadmin />} />
+                                        <Route path="/dashmnn211b" element={<Dashmnn211b />} />
+                                        <Route path="/dashmnn211badmin" element={<Dashmnn211badmin />} />
+                                        <Route path="/dashmnn22" element={<Dashmnn22 />} />
+                                        <Route path="/dashmnn22admin" element={<Dashmnn22admin />} />
+                                        <Route path="/dashmnn23" element={<Dashmnn23 />} />
+                                        <Route path="/dashmnn23admin" element={<Dashmnn23admin />} />
+                                        <Route path="/dashmnn244" element={<Dashmnn244 />} />
+                                        <Route path="/dashmnn244admin" element={<Dashmnn244admin />} />
+                                        <Route path="/dashmnn26" element={<Dashmnn26 />} />
+                                        <Route path="/dashmnn26admin" element={<Dashmnn26admin />} />
+                                        <Route path="/dashmnn25" element={<Dashmnn25 />} />
+                                        <Route path="/dashmnn25admin" element={<Dashmnn25admin />} />
+                                        <Route path="/dashmnn31" element={<Dashmnn31 />} />
+                                        <Route path="/dashmnn31admin" element={<Dashmnn31admin />} />
+                                        <Route path="/dashmnn32" element={<Dashmnn32 />} />
+                                        <Route path="/dashmnn32admin" element={<Dashmnn32admin />} />
+
+
+                                        <Route path="/dashmnn11" element={<Dashmnn11 />} />
+                                        <Route path="/dashmnn11admin" element={<Dashmnn11admin />} />
+                                        <Route path="/dashmnn12" element={<Dashmnn12 />} />
+                                        <Route path="/dashmnn12admin" element={<Dashmnn12admin />} />
+                                        <Route path="/dashmnn14" element={<Dashmnn14 />} />
+                                        <Route path="/dashmnn14admin" element={<Dashmnn14admin />} />
+                                        <Route path="/dashmnn15" element={<Dashmnn15 />} />
+                                        <Route path="/dashmnn15admin" element={<Dashmnn15admin />} />
+                                        <Route path="/dashmnn17" element={<Dashmnn17 />} />
+                                        <Route path="/dashmnn17admin" element={<Dashmnn17admin />} />
+                                        <Route path="/dashmnn16" element={<Dashmnn16 />} />
+                                        <Route path="/dashmnn16admin" element={<Dashmnn16admin />} />
+
+
+                                        <Route path="/Dashtest1" element={<Dashtest1 />} />
+                                        <Route path="/GreenAudit" element={<GreenAudit />} />
+                                        <Route path="/AcademicAuditInfo" element={<AAaudit />} />
+                                        <Route path="/SeedTest1" element={<SeedTest1 />} />
+                                        <Route path="/Courseall" element={<Courseall />} />
+                                        <Route path="/Internselect" element={<Internselect />} />
+                                        <Route path="/Internall" element={<Internall />} />
+                                        <Route path="/SignupAdmin" element={<SignupAdmin />} />
+                                        <Route path="/campuspricing" element={<CampusPricing />} />
+                                        <Route path="/viewmpricing" element={<Viewmpricing />} />
+                                        <Route path="/dashmbtrialb" element={<Dashmbtrialb />} />
+                                        <Route path="/dashmbtrialbadmin" element={<Dashmbtrialbadmin />} />
+                                        <Route path="/dashmbfacyear" element={<Dashmbfacyear />} />
+                                        <Route path="/dashmbfacyearadmin" element={<Dashmbfacyearadmin />} />
+                                        <Route path="/dashmstudlist" element={<Dashmstudlist />} />
+                                        <Route path="/dashmstudlistadmin" element={<Dashmstudlistadmin />} />
+
+
+                                        <Route path="/dashmbmou" element={<Dashmbmou />} />
+                                        <Route path="/dashmbmouadmin" element={<Dashmbmouadmin />} />
+
+
+                                        <Route path="/viewminterns" element={<Viewminterns />} />
+                                        <Route path="/viewmusers" element={<Viewmusers />} />
+                                        <Route path="/viewmallclients" element={<Viewmallclients />} />
+                                        <Route path="/dashmmiscorenew" element={<Dashmmiscorenew />} />
+                                        <Route path="/dashmminewm" element={<Dashmminewm />} />
+                                        <Route path="/dashmminewmadmin" element={<Dashmminewmadmin />} />
+                                        <Route path="/dashmmisessions" element={<Dashmmisessions />} />
+                                        <Route path="/dashmmisessionsadmin" element={<Dashmmisessionsadmin />} />
+                                        <Route path="/dashmmiseenrol1" element={<Dashmmiseenrol1 />} />
+                                        <Route path="/dashmmiseenrol1admin" element={<Dashmmiseenrol1admin />} />
+                                        <Route path="/dashmmisections1" element={<Dashmmisections1 />} />
+                                        <Route path="/dashmmisections1admin" element={<Dashmmisections1admin />} />
+                                        <Route path="/dashmmiqnew" element={<Dashmmiqnew />} />
+                                        <Route path="/dashmmiqnewadmin" element={<Dashmmiqnewadmin />} />
+
+
+
+                                        <Route path="/viewmindmap" element={<Viewmindmap2 />} />
+                                        <Route path="/dashmmindmaplist" element={<Dashmmindmaplist />} />
+                                        <Route path="/dashmmindmaplistadmin" element={<Dashmmindmaplistadmin />} />
+                                        <Route path="/dashmmindmapedges" element={<Dashmmindmapedges />} />
+                                        <Route path="/dashmmindmapedgesadmin" element={<Dashmmindmapedgesadmin />} />
+                                        <Route path="/dashmmindmapnodes" element={<Dashmmindmapnodes />} />
+                                        <Route path="/dashmmindmapnodesadmin" element={<Dashmmindmapnodesadmin />} />
+
+
+                                        <Route path="/dashmreactflow1" element={<Dashmreactflow1 />} />
+                                        <Route path="/viewmreactflow1" element={<Viewmreactflow1 />} />
+                                        <Route path="/deleteaccount" element={<Deleteaccount />} />
+                                        <Route path="/dashmtestscoresnewall" element={<Dashmtestscoresnewall />} />
+
+                                        <Route path="/forgotpassword" element={<Forgotpassword />} />
+                                        <Route path="/signinpay" element={<Signinpay />} />
+
+                                        <Route path="/campustalentregister1" element={<CampusTalentRegister1 />} />
+
+                                        <Route path="/dashmonlinepay" element={<Dashmonlinepay />} />
+                                        <Route path="/dashmonlinepayadmin" element={<Dashmonlinepayadmin />} />
+
+
+                                        <Route path="/campustalentregister" element={<CampusTalentRegister />} />
+
+                                        <Route path="/dashmmctalentreg" element={<Dashmmctalentreg />} />
+                                        <Route path="/dashmmctalentregadmin" element={<Dashmmctalentregadmin />} />
+                                        <Route path="/dashmmtestqnewcs" element={<Dashmmtestqnewcs />} />
+                                        <Route path="/dashmmtestqnewcsadmin" element={<Dashmmtestqnewcsadmin />} />
+                                        <Route path="/dashmmguides" element={<Dashmmguides />} />
+                                        <Route path="/dashmmguidesadmin" element={<Dashmmguidesadmin />} />
+
+
+                                        <Route path="/dashmtestscorenew" element={<Dashmtestscorenew />} />
+                                        <Route path="/campustalent" element={<CampusTalent1 />} />
+                                        <Route path="/dashmmtestsections1" element={<Dashmmtestsections1 />} />
+                                        <Route path="/dashmmtestsections1admin" element={<Dashmmtestsections1admin />} />
+                                        <Route path="/dashmmtestseenrol1" element={<Dashmmtestseenrol1 />} />
+                                        <Route path="/dashmmtestseenrol1admin" element={<Dashmmtestseenrol1admin />} />
+
+
+
+                                        <Route path="/dashmmtestnewm" element={<Dashmmtestnewm />} />
+                                        <Route path="/dashmmtestnewmadmin" element={<Dashmmtestnewmadmin />} />
+                                        <Route path="/dashmmtestsessions" element={<Dashmmtestsessions />} />
+                                        <Route path="/dashmmtestsessionsadmin" element={<Dashmmtestsessionsadmin />} />
+                                        <Route path="/dashmmtestseenrol" element={<Dashmmtestseenrol />} />
+                                        <Route path="/dashmmtestseenroladmin" element={<Dashmmtestseenroladmin />} />
+                                        <Route path="/dashmmtestqnew" element={<Dashmmtestqnew />} />
+                                        <Route path="/dashmmtestqnewadmin" element={<Dashmmtestqnewadmin />} />
+                                        <Route path="/dashmmtestsections" element={<Dashmmtestsections />} />
+                                        <Route path="/dashmmtestsectionsadmin" element={<Dashmmtestsectionsadmin />} />
+
+
+                                        {/* <Route path="/mazegen" element={<MazeGen />} /> */}
+                                        <Route path="/ultimatebattlegame" element={<UltimateBattleGame />} />
+                                        <Route path="/sudokugame" element={<SudokuGame />} />
+                                        <Route path="/towerofhanoi" element={<TowerOfHanoi />} />
+                                        {/* <Route path="/dicegame" element={<DiceGame />} /> */}
+                                        <Route path="/tetrisgame" element={<TetrisGame />} />
+                                        <Route path="/finddiff" element={<FindDiff />} />
+                                        <Route path="/racegame" element={<RaceGame />} />
+                                        <Route path="/wordguessing" element={<WordGuessing />} />
+                                        <Route path="/imgpuzzle" element={<ImgPuzzle />} />
+                                        <Route path="/pacmangame" element={<PacManGame />} />
+                                        <Route path="/betteraimgame" element={<BetterAimGame2 />} />
+
+                                        <Route path="/dashmstudquota" element={<Dashmstudquota />} />
+                                        <Route path="/dashmstudcategory" element={<Dashmstudcategory />} />
+                                        <Route path="/dashmstudgender" element={<Dashmstudgender />} />
+                                        <Route path="/notgategame" element={<NOTGateGame />} />
+                                        {/* <Route path="/opticalfibregame" element={<OpticalFibreGame />} /> */}
+                                        <Route path="/orgategame" element={<ORGateGame />} />
+                                        {/* <Route path="/resistorgame" element={<ResistorGame />} /> */}
+                                        <Route path="/skeletonexpgame" element={<SkeletonExpGame />} />
+                                        {/* <Route path="/skeletonexppart2game" element={<SkeletonExpPart2Game />} /> */}
+                                        <Route path="/stefanslawgame" element={<StefansLawGame />} />
+                                        <Route path="/subhalfadder1game" element={<SubHalfAdder1Game />} />
+                                        <Route path="/xnorgategame" element={<XNORGateGame />} />
+                                        <Route path="/xorgategame" element={<XORGateGame />} />
+
+                                        <Route path="/norgategame" element={<NORGateGame />} />
+                                        <Route path="/nandgategame" element={<NANDGateGame />} />
+                                        <Route path="/andgategame" element={<ANDGateGame />} />
+                                        <Route path="/bitserialgame" element={<BitSerialGame />} />
+                                        <Route path="/fingerprintpatterngames" element={<FingerPrintPatternsGame />} />
+
+
+                                        <Route path="/bcdtoexcessgames" element={<BCDToExcessConverterGame />} />
+                                        <Route path="/halfsubcircuitverifygame" element={<HalfSubCircuitVerifyGame />} />
+                                        {/* <Route path="/binarytograygames" element={<BinaryToGrayConverterGame />} />
         <Route path="/dcshuntgames" element={<DCShuntMotorSimulationGame />} /> */}
-                                <Route path="/fullsubcircuitverifygame" element={<FullSubCircuitVerifyGame />} />
-                                <Route path="/fullsubtractorcircuitgame" element={<FullSubtractorCircuitGame />} />
-                                <Route path="/graytobinaryconvertedgame" element={<GrayToBinaryConverterGame />} />
-                                <Route path="/halfsubtractorcircuitgame" element={<HalfSubtractorCircuitGame />} />
+                                        <Route path="/fullsubcircuitverifygame" element={<FullSubCircuitVerifyGame />} />
+                                        <Route path="/fullsubtractorcircuitgame" element={<FullSubtractorCircuitGame />} />
+                                        <Route path="/graytobinaryconvertedgame" element={<GrayToBinaryConverterGame />} />
+                                        <Route path="/halfsubtractorcircuitgame" element={<HalfSubtractorCircuitGame />} />
 
 
-                                <Route path="/paymentgatewayconfigds" element={<Paymentgatewayconfigds />} />
-                                <Route path="/platformchargesds" element={<Platformchargesds />} />
-                                <Route path="/couponmanagementds" element={<Couponmanagementds />} />
-                                <Route path="/paymentinitiationds" element={<Paymentinitiationds />} />
-                                <Route path="/paymenthistoryds" element={<Paymenthistoryds />} />
-                                <Route path="/paymentstatusds" element={<Paymentstatusds />} />
-                                <Route path="/paymentcallbackds" element={<Paymentcallbackds />} />
+                                        <Route path="/paymentgatewayconfigds" element={<Paymentgatewayconfigds />} />
+                                        <Route path="/platformchargesds" element={<Platformchargesds />} />
+                                        <Route path="/couponmanagementds" element={<Couponmanagementds />} />
+                                        <Route path="/paymentinitiationds" element={<Paymentinitiationds />} />
+                                        <Route path="/paymenthistoryds" element={<Paymenthistoryds />} />
+                                        <Route path="/paymentstatusds" element={<Paymentstatusds />} />
+                                        <Route path="/paymentcallbackds" element={<Paymentcallbackds />} />
 
-                                <Route path="/dashmmassets" element={<Dashmmassets />} />
-                                <Route path="/dashmmassetsadmin" element={<Dashmmassetsadmin />} />
-                                <Route path="/dashmmassetassign" element={<Dashmmassetassign />} />
-                                <Route path="/dashmmassetassignadmin" element={<Dashmmassetassignadmin />} />
-                                <Route path="/dashmmvendors" element={<Dashmmvendors />} />
-                                <Route path="/dashmmvendorsadmin" element={<Dashmmvendorsadmin />} />
-                                <Route path="/dashmmvendorbanks" element={<Dashmmvendorbanks />} />
-                                <Route path="/dashmmvendorbanksadmin" element={<Dashmmvendorbanksadmin />} />
-                                <Route path="/dashmmpurchase" element={<Dashmmpurchase />} />
-                                <Route path="/dashmmpurchaseadmin" element={<Dashmmpurchaseadmin />} />
-                                <Route path="/dashmmpurchaseitems" element={<Dashmmpurchaseitems />} />
-                                <Route path="/dashmmpurchaseitemsadmin" element={<Dashmmpurchaseitemsadmin />} />
-                                <Route path="/dashmmpopayments" element={<Dashmmpopayments />} />
-                                <Route path="/dashmmpopaymentsadmin" element={<Dashmmpopaymentsadmin />} />
-
-
-                                <Route path="/dashmmplacement" element={<Dashmmplacement />} />
-                                <Route path="/dashmmplacementadmin" element={<Dashmmplacementadmin />} />
-
-                                <Route path="/transformeroilgame" element={<TransformerOilStrengthGame />} />
-                                <Route path="/titrationgame" element={<TitrationGame />} />
-                                <Route path="/infraredgame" element={<InfraRedSpectrosGame />} />
-
-                                <Route path="/skeletonpart2game" element={<SkeletonExpPart2Game />} />
-                                <Route path="/getmoldgame" element={<GetMoldGame />} />
-                                <Route path="/opticalfibregame" element={<OpticalFibreGame />} />
-                                <Route path="/digitaltriradiigame" element={<DigitalTriradiiGame />} />
+                                        <Route path="/dashmmassets" element={<Dashmmassets />} />
+                                        <Route path="/dashmmassetsadmin" element={<Dashmmassetsadmin />} />
+                                        <Route path="/dashmmassetassign" element={<Dashmmassetassign />} />
+                                        <Route path="/dashmmassetassignadmin" element={<Dashmmassetassignadmin />} />
+                                        <Route path="/dashmmvendors" element={<Dashmmvendors />} />
+                                        <Route path="/dashmmvendorsadmin" element={<Dashmmvendorsadmin />} />
+                                        <Route path="/dashmmvendorbanks" element={<Dashmmvendorbanks />} />
+                                        <Route path="/dashmmvendorbanksadmin" element={<Dashmmvendorbanksadmin />} />
+                                        <Route path="/dashmmpurchase" element={<Dashmmpurchase />} />
+                                        <Route path="/dashmmpurchaseadmin" element={<Dashmmpurchaseadmin />} />
+                                        <Route path="/dashmmpurchaseitems" element={<Dashmmpurchaseitems />} />
+                                        <Route path="/dashmmpurchaseitemsadmin" element={<Dashmmpurchaseitemsadmin />} />
+                                        <Route path="/dashmmpopayments" element={<Dashmmpopayments />} />
+                                        <Route path="/dashmmpopaymentsadmin" element={<Dashmmpopaymentsadmin />} />
 
 
-                                <Route path="/infraredspectros" element={<InfraRedSpectros />} />
-                                <Route path="/skeletonpart2" element={<SkeletonExpPart2 />} />
-                                <Route path="/titration" element={<Titration />} />
-                                <Route path="/skeletonexp" element={<SkeletonExp />} />
-                                <Route path="/dcshuntmotor" element={<DCShuntMotorSimulation />} />
-                                <Route path="/fingerprintpatterns" element={<FingerPrintPatterns />} />
-                                <Route path="/digitaltriradii" element={<DigitalTriradii />} />
-                                <Route path="/dashmlpubeditionspublic" element={<Dashmlpubeditionspublic />} />
-                                <Route path="/dashmlpublicationspublic" element={<Dashmlpublicationspublic />} />
-                                <Route path="/dashmlpublications" element={<Dashmlpublications />} />
-                                <Route path="/dashmlpublicationsadmin" element={<Dashmlpublicationsadmin />} />
-                                <Route path="/dashmlpubeditions" element={<Dashmlpubeditions />} />
-                                <Route path="/dashmlpubeditionsadmin" element={<Dashmlpubeditionsadmin />} />
-                                <Route path="/dashmlpubreviews" element={<Dashmlpubreviews />} />
-                                <Route path="/dashmlpubreviewsadmin" element={<Dashmlpubreviewsadmin />} />
-                                <Route path="/dashmlpubarticles" element={<Dashmlpubarticles />} />
-                                <Route path="/dashmlpubarticlesadmin" element={<Dashmlpubarticlesadmin />} />
+                                        <Route path="/dashmmplacement" element={<Dashmmplacement />} />
+                                        <Route path="/dashmmplacementadmin" element={<Dashmmplacementadmin />} />
+
+                                        <Route path="/transformeroilgame" element={<TransformerOilStrengthGame />} />
+                                        <Route path="/titrationgame" element={<TitrationGame />} />
+                                        <Route path="/infraredgame" element={<InfraRedSpectrosGame />} />
+
+                                        <Route path="/skeletonpart2game" element={<SkeletonExpPart2Game />} />
+                                        <Route path="/getmoldgame" element={<GetMoldGame />} />
+                                        <Route path="/opticalfibregame" element={<OpticalFibreGame />} />
+                                        <Route path="/digitaltriradiigame" element={<DigitalTriradiiGame />} />
 
 
-                                <Route path="/dashmpasswordstud" element={<Dashmpasswordstud />} />
-                                <Route path="/dashmpassword" element={<Dashmpassword />} />
-                                <Route path="/transformeroilstrength" element={<TransformerOilStrength />} />
-                                <Route path="/opticalfibre" element={<OpticalFibre />} />
-                                <Route path="/stephanslaw" element={<StefansLaw />} />
-                                <Route path="/phasesequence" element={<PhaseSequenceSynchronous />} />
-
-                                <Route path="/dashmtestscoreall" element={<Dashmtestscoreall />} />
-                                <Route path="/dashawsconfig" element={<Dashawsconfig />} />
-
-                                <Route path="/dashmmvac" element={<Dashmmvac />} />
-                                <Route path="/dashmmvacadmin" element={<Dashmmvacadmin />} />
-
-
-                                <Route path="/Login" element={<Signinpage />} />
-                                <Route path="/signuppage" element={<SignupPage />} />
-                                <Route path="/campuswebsite" element={<CampusWebsite />} />
-                                <Route path="/circulareventsm" element={<Circulareventsm />} />
-                                <Route path="/dashmhtmleditor" element={<Dashmhtmleditor />} />
-                                <Route path="/videoshare/:videoid" element={<Videopagepreshare />} />
-                                <Route path="/videopage31" element={<Videopage32a />} />
-                                {/* <Route path="/videopage31" element={<Videopage31 />} /> */}
-                                <Route path="/videopage3" element={<Videopage3 />} />
-                                <Route path="/videopagepre" element={<Videopagepre />} />
-                                <Route path="/videopage2" element={<VideoPage2 />} />
-
-                                <Route path="/dashmlmsvideos" element={<Dashmlmsvideos />} />
-                                <Route path="/dashmlmsvideosadmin" element={<Dashmlmsvideosadmin />} />
-                                <Route path="/dashmlmsvideosc" element={<Dashmlmsvideosc />} />
-                                <Route path="/dashmlmsvideoscadmin" element={<Dashmlmsvideoscadmin />} />
+                                        <Route path="/infraredspectros" element={<InfraRedSpectros />} />
+                                        <Route path="/skeletonpart2" element={<SkeletonExpPart2 />} />
+                                        <Route path="/titration" element={<Titration />} />
+                                        <Route path="/skeletonexp" element={<SkeletonExp />} />
+                                        <Route path="/dcshuntmotor" element={<DCShuntMotorSimulation />} />
+                                        <Route path="/fingerprintpatterns" element={<FingerPrintPatterns />} />
+                                        <Route path="/digitaltriradii" element={<DigitalTriradii />} />
+                                        <Route path="/dashmlpubeditionspublic" element={<Dashmlpubeditionspublic />} />
+                                        <Route path="/dashmlpublicationspublic" element={<Dashmlpublicationspublic />} />
+                                        <Route path="/dashmlpublications" element={<Dashmlpublications />} />
+                                        <Route path="/dashmlpublicationsadmin" element={<Dashmlpublicationsadmin />} />
+                                        <Route path="/dashmlpubeditions" element={<Dashmlpubeditions />} />
+                                        <Route path="/dashmlpubeditionsadmin" element={<Dashmlpubeditionsadmin />} />
+                                        <Route path="/dashmlpubreviews" element={<Dashmlpubreviews />} />
+                                        <Route path="/dashmlpubreviewsadmin" element={<Dashmlpubreviewsadmin />} />
+                                        <Route path="/dashmlpubarticles" element={<Dashmlpubarticles />} />
+                                        <Route path="/dashmlpubarticlesadmin" element={<Dashmlpubarticlesadmin />} />
 
 
-                                <Route path="/graytobinaryconverter" element={<GrayToBinaryConverter />} />
-                                <Route path="/bitserial" element={<BitSerial />} />
-                                <Route path="/bcdtoexcessconverter" element={<BCDToExcessConverter />} />
-                                <Route path="/codeeditor" element={<CodeEditor />} />
-                                <Route path="/videopage" element={<VideoPage />} />
+                                        <Route path="/dashmpasswordstud" element={<Dashmpasswordstud />} />
+                                        <Route path="/dashmpassword" element={<Dashmpassword />} />
+                                        <Route path="/transformeroilstrength" element={<TransformerOilStrength />} />
+                                        <Route path="/opticalfibre" element={<OpticalFibre />} />
+                                        <Route path="/stephanslaw" element={<StefansLaw />} />
+                                        <Route path="/phasesequence" element={<PhaseSequenceSynchronous />} />
 
-                                <Route path="/fullsubcircuitverify" element={<FullSubCircuitVerify />} />
-                                <Route path="/fullsubtractorcircuit" element={<FullSubtractorCircuit />} />
-                                <Route path="/halfsubcircuitverify" element={<HalfSubCircuitVerify />} />
+                                        <Route path="/dashmtestscoreall" element={<Dashmtestscoreall />} />
+                                        <Route path="/dashawsconfig" element={<Dashawsconfig />} />
 
-                                <Route path="/xnorgate" element={<XNORGate />} />
-                                <Route path="/xnorgate2" element={<XNORGate2 />} />
-                                <Route path="/xorgate2" element={<XORGate2 />} />
-
-                                <Route path="/halfsubtractorcircuit" element={<HalfSubtractorCircuit />} />
-                                <Route path="/xorgate" element={<XORGate />} />
-                                <Route path="/dashmgeotagtest" element={<Dashmgeotagtest />} />
-
-                                <Route path="/nandgate" element={<NANDGate />} />
-                                <Route path="/nandgate2" element={<NANDGate2 />} />
-                                <Route path="/norgate" element={<NORGate />} />
-                                <Route path="/norgate2" element={<NORGate2 />} />
-
-                                <Route path="/dashmtestqstud" element={<Dashmtestqstud />} />
-
-                                <Route path="/andgate" element={<ANDGate />} />
-                                <Route path="/andgate2" element={<ANDGate2 />} />
-                                <Route path="/orgate" element={<ORGate />} />
-                                <Route path="/orgate2" element={<ORGate2 />} />
-                                <Route path="/notgate" element={<NOTGate />} />
-                                <Route path="/notgate2" element={<NOTGate2 />} />
+                                        <Route path="/dashmmvac" element={<Dashmmvac />} />
+                                        <Route path="/dashmmvacadmin" element={<Dashmmvacadmin />} />
 
 
-                                <Route path="/binaryarithmetics" element={<BinaryArithmeticS />} />
-                                <Route path="/queuevisual" element={<QueueVisualization />} />
-                                <Route path="/binarysearch" element={<BinarySearch />} />
+                                        <Route path="/Login" element={<Signinpage />} />
+                                        <Route path="/signuppage" element={<SignupPage />} />
+                                        <Route path="/campuswebsite" element={<CampusWebsite />} />
+                                        <Route path="/circulareventsm" element={<Circulareventsm />} />
+                                        <Route path="/dashmhtmleditor" element={<Dashmhtmleditor />} />
+                                        <Route path="/videoshare/:videoid" element={<Videopagepreshare />} />
+                                        <Route path="/videopage31" element={<Videopage32a />} />
+                                        {/* <Route path="/videopage31" element={<Videopage31 />} /> */}
+                                        <Route path="/videopage3" element={<Videopage3 />} />
+                                        <Route path="/videopagepre" element={<Videopagepre />} />
+                                        <Route path="/videopage2" element={<VideoPage2 />} />
 
-                                <Route path="/binaryarith" element={<BinaryArithmeticSimulation />} />
-                                <Route path="/stackvisualization" element={<StackVisualization />} />
-                                <Route path="/arrayvisualization" element={<ArrayVisualization />} />
-
-                                <Route path="/dashmtestnewstud" element={<Dashmtestnewstud />} />
-
-                                <Route path="/codl" element={<CharacterizationOfDigitalLogic />} />
-
-                                <Route path="/insertionsort" element={<InsertionSort />} />
-                                <Route path="/selectionsort" element={<SelectionSort />} />
-
-                                <Route path="/dashmtestnew" element={<Dashmtestnew />} />
-                                <Route path="/dashmtestnewadmin" element={<Dashmtestnewadmin />} />
-                                <Route path="/dashmtestq" element={<Dashmtestq />} />
-                                <Route path="/dashmtestqadmin" element={<Dashmtestqadmin />} />
-                                <Route path="/dashmtesto" element={<Dashmtesto />} />
-                                <Route path="/dashmtestoadmin" element={<Dashmtestoadmin />} />
+                                        <Route path="/dashmlmsvideos" element={<Dashmlmsvideos />} />
+                                        <Route path="/dashmlmsvideosadmin" element={<Dashmlmsvideosadmin />} />
+                                        <Route path="/dashmlmsvideosc" element={<Dashmlmsvideosc />} />
+                                        <Route path="/dashmlmsvideoscadmin" element={<Dashmlmsvideoscadmin />} />
 
 
-                                <Route path="/dashmqualitative" element={<Dashmqualitative />} />
-                                <Route path="/dashmpolicy" element={<Dashmpolicy />} />
-                                <Route path="/dashmeventsnew1" element={<Dashmeventsnew1 />} />
-                                <Route path="/dashmeventsnew1admin" element={<Dashmeventsnew1admin />} />
+                                        <Route path="/graytobinaryconverter" element={<GrayToBinaryConverter />} />
+                                        <Route path="/bitserial" element={<BitSerial />} />
+                                        <Route path="/bcdtoexcessconverter" element={<BCDToExcessConverter />} />
+                                        <Route path="/codeeditor" element={<CodeEditor />} />
+                                        <Route path="/videopage" element={<VideoPage />} />
+
+                                        <Route path="/fullsubcircuitverify" element={<FullSubCircuitVerify />} />
+                                        <Route path="/fullsubtractorcircuit" element={<FullSubtractorCircuit />} />
+                                        <Route path="/halfsubcircuitverify" element={<HalfSubCircuitVerify />} />
+
+                                        <Route path="/xnorgate" element={<XNORGate />} />
+                                        <Route path="/xnorgate2" element={<XNORGate2 />} />
+                                        <Route path="/xorgate2" element={<XORGate2 />} />
+
+                                        <Route path="/halfsubtractorcircuit" element={<HalfSubtractorCircuit />} />
+                                        <Route path="/xorgate" element={<XORGate />} />
+                                        <Route path="/dashmgeotagtest" element={<Dashmgeotagtest />} />
+
+                                        <Route path="/nandgate" element={<NANDGate />} />
+                                        <Route path="/nandgate2" element={<NANDGate2 />} />
+                                        <Route path="/norgate" element={<NORGate />} />
+                                        <Route path="/norgate2" element={<NORGate2 />} />
+
+                                        <Route path="/dashmtestqstud" element={<Dashmtestqstud />} />
+
+                                        <Route path="/andgate" element={<ANDGate />} />
+                                        <Route path="/andgate2" element={<ANDGate2 />} />
+                                        <Route path="/orgate" element={<ORGate />} />
+                                        <Route path="/orgate2" element={<ORGate2 />} />
+                                        <Route path="/notgate" element={<NOTGate />} />
+                                        <Route path="/notgate2" element={<NOTGate2 />} />
 
 
-                                <Route path="/dashmslideshow" element={<Dashmslideshow />} />
-                                <Route path="/dashmslideshowadmin" element={<Dashmslideshowadmin />} />
+                                        <Route path="/binaryarithmetics" element={<BinaryArithmeticS />} />
+                                        <Route path="/queuevisual" element={<QueueVisualization />} />
+                                        <Route path="/binarysearch" element={<BinarySearch />} />
+
+                                        <Route path="/binaryarith" element={<BinaryArithmeticSimulation />} />
+                                        <Route path="/stackvisualization" element={<StackVisualization />} />
+                                        <Route path="/arrayvisualization" element={<ArrayVisualization />} />
+
+                                        <Route path="/dashmtestnewstud" element={<Dashmtestnewstud />} />
+
+                                        <Route path="/codl" element={<CharacterizationOfDigitalLogic />} />
+
+                                        <Route path="/insertionsort" element={<InsertionSort />} />
+                                        <Route path="/selectionsort" element={<SelectionSort />} />
+
+                                        <Route path="/dashmtestnew" element={<Dashmtestnew />} />
+                                        <Route path="/dashmtestnewadmin" element={<Dashmtestnewadmin />} />
+                                        <Route path="/dashmtestq" element={<Dashmtestq />} />
+                                        <Route path="/dashmtestqadmin" element={<Dashmtestqadmin />} />
+                                        <Route path="/dashmtesto" element={<Dashmtesto />} />
+                                        <Route path="/dashmtestoadmin" element={<Dashmtestoadmin />} />
 
 
-                                <Route path="/dashmscholnew" element={<Dashmscholnew />} />
-                                <Route path="/dashmscholnewadmin" element={<Dashmscholnewadmin />} />
-                                <Route path="/dashmstudawardsnew" element={<Dashmstudawardsnew />} />
-                                <Route path="/dashmstudawardsnewadmin" element={<Dashmstudawardsnewadmin />} />
-                                <Route path="/dashmscholnewstud" element={<Dashmscholnewstud />} />
-                                <Route path="/dashmstudawardsnewstud" element={<Dashmstudawardsnewstud />} />
+                                        <Route path="/dashmqualitative" element={<Dashmqualitative />} />
+                                        <Route path="/dashmpolicy" element={<Dashmpolicy />} />
+                                        <Route path="/dashmeventsnew1" element={<Dashmeventsnew1 />} />
+                                        <Route path="/dashmeventsnew1admin" element={<Dashmeventsnew1admin />} />
+
+
+                                        <Route path="/dashmslideshow" element={<Dashmslideshow />} />
+                                        <Route path="/dashmslideshowadmin" element={<Dashmslideshowadmin />} />
+
+
+                                        <Route path="/dashmscholnew" element={<Dashmscholnew />} />
+                                        <Route path="/dashmscholnewadmin" element={<Dashmscholnewadmin />} />
+                                        <Route path="/dashmstudawardsnew" element={<Dashmstudawardsnew />} />
+                                        <Route path="/dashmstudawardsnewadmin" element={<Dashmstudawardsnewadmin />} />
+                                        <Route path="/dashmscholnewstud" element={<Dashmscholnewstud />} />
+                                        <Route path="/dashmstudawardsnewstud" element={<Dashmstudawardsnewstud />} />
 
 
 
-                                <Route path="/fourbitaddersubtractor" element={<FourBitAdderSubtractor />} />
-                                <Route path="/dashmclassnewstud" element={<Dashmclassnewstud />} />
-                                <Route path="/dashmclassnewc" element={<Dashmclassnewc />} />
-                                <Route path="/dashmattccode" element={<Dashmattccode />} />
-                                <Route path="/dashmattpcode" element={<Dashmattpcode />} />
+                                        <Route path="/fourbitaddersubtractor" element={<FourBitAdderSubtractor />} />
+                                        <Route path="/dashmclassnewstud" element={<Dashmclassnewstud />} />
+                                        <Route path="/dashmclassnewc" element={<Dashmclassnewc />} />
+                                        <Route path="/dashmattccode" element={<Dashmattccode />} />
+                                        <Route path="/dashmattpcode" element={<Dashmattpcode />} />
 
-                                <Route path="/subhalfadder1" element={<SubHalfAdder1 />} />
-                                <Route path="/basiclogicgateexpfirst" element={<BasicLogicGateExpFirst />} />
-                                <Route path="/basiclogicgateexpsecond" element={<BasicLogicGateExpSecond />} />
-                                <Route path="/fullsubtractor" element={<FullSubtractor />} />
-                                <Route path="/halfsubtractor" element={<HalfSubtractor />} />
-                                <Route path="/twobitadder" element={<TwoBitAdder />} />
+                                        <Route path="/subhalfadder1" element={<SubHalfAdder1 />} />
+                                        <Route path="/basiclogicgateexpfirst" element={<BasicLogicGateExpFirst />} />
+                                        <Route path="/basiclogicgateexpsecond" element={<BasicLogicGateExpSecond />} />
+                                        <Route path="/fullsubtractor" element={<FullSubtractor />} />
+                                        <Route path="/halfsubtractor" element={<HalfSubtractor />} />
+                                        <Route path="/twobitadder" element={<TwoBitAdder />} />
 
-                                <Route path="/dashmclassnew" element={<Dashmclassnew />} />
-                                <Route path="/dashmclassnewadmin" element={<Dashmclassnewadmin />} />
-                                <Route path="/dashmattendancenew" element={<Dashmattendancenew />} />
-                                <Route path="/dashmattendancenewadmin" element={<Dashmattendancenewadmin />} />
+                                        <Route path="/dashmclassnew" element={<Dashmclassnew />} />
+                                        <Route path="/dashmclassnewadmin" element={<Dashmclassnewadmin />} />
+                                        <Route path="/dashmattendancenew" element={<Dashmattendancenew />} />
+                                        <Route path="/dashmattendancenewadmin" element={<NewDashmattendancenewadmin />} />
+                                        <Route path="/newattendancereportds" element={<NewAttendanceReportds />} />
+                                        <Route path="/newcomunicationds" element={<NewComunicationds />} />
+                                        <Route path="/filemasterds" element={<NewFileMasterds />} />
+                                        <Route path="/filemovementds" element={<NewFileMovementds />} />
+                                        <Route path="/dashstudprofileallds" element={<Dashstudprofileallds />} />
+                                        <Route path="/studentprofile1ds" element={<StudentProfile1ds />} />
+                                        <Route path="/attendancetimereportds" element={<NewAttendanceTimeReportds />} />
 
 
-                                {/* <Route path="/resistor" element={<Resistor />} />
+                                        {/* <Route path="/resistor" element={<Resistor />} />
         <Route path="/bubblesort" element={<Bubblesort />} />
         <Route path="/firstsimulator" element={<Firstsimulator />} />
         <Route path="/secondsimulator" element={<SecondSimulator />} /> */}
 
 
-                                <Route path="/dashmquotanew" element={<Dashmquotanew />} />
-                                <Route path="/dashmquotanewadmin" element={<Dashmquotanewadmin />} />
+                                        <Route path="/dashmquotanew" element={<Dashmquotanew />} />
+                                        <Route path="/dashmquotanewadmin" element={<Dashmquotanewadmin />} />
 
 
-                                <Route path="/dashmmassignsubmitfac" element={<Dashmmassignsubmitfac />} />
+                                        <Route path="/dashmmassignsubmitfac" element={<Dashmmassignsubmitfac />} />
 
-                                <Route path="/dashmmassignsubmit" element={<Dashmmassignsubmit />} />
-                                <Route path="/dashmmassignsubmitadmin" element={<Dashmmassignsubmitadmin />} />
-                                <Route path="/dashmmdiscussion" element={<Dashmmdiscussion />} />
-                                <Route path="/dashmmdiscussionadmin" element={<Dashmmdiscussionadmin />} />
-
-
-                                <Route path="/dashmmcoursecostud" element={<Dashmmcoursecostud />} />
-                                <Route path="/dashmmcoursematerialstud" element={<Dashmmcoursematerialstud />} />
-                                <Route path="/dashmmcalendarstud" element={<Dashmmcalendarstud />} />
-                                <Route path="/dashmmassignmentsstud" element={<Dashmmassignmentsstud />} />
-                                <Route path="/dashmmanouncementsstud" element={<Dashmmannouncementsstud />} />
-
-                                <Route path="/dashmmassignments" element={<Dashmmassignments />} />
-                                <Route path="/dashmmassignmentsadmin" element={<Dashmmassignmentsadmin />} />
-                                <Route path="/dashmmanouncements" element={<Dashmmanouncements />} />
-                                <Route path="/dashmmanouncementsadmin" element={<Dashmmanouncementsadmin />} />
-                                <Route path="/dashmmcourseco" element={<Dashmmcourseco />} />
-                                <Route path="/dashmmcoursecoadmin" element={<Dashmmcoursecoadmin />} />
-                                <Route path="/dashmmcalendar" element={<Dashmmcalendar />} />
-                                <Route path="/dashmmcalendaradmin" element={<Dashmmcalendaradmin />} />
-                                <Route path="/dashmmcoursematerial" element={<Dashmmcoursematerial />} />
-                                <Route path="/dashmmcoursematerialadmin" element={<Dashmmcoursematerialadmin />} />
+                                        <Route path="/dashmmassignsubmit" element={<Dashmmassignsubmit />} />
+                                        <Route path="/dashmmassignsubmitadmin" element={<Dashmmassignsubmitadmin />} />
+                                        <Route path="/dashmmdiscussion" element={<Dashmmdiscussion />} />
+                                        <Route path="/dashmmdiscussionadmin" element={<Dashmmdiscussionadmin />} />
 
 
-                                <Route path="/dashmmsyllabus" element={<Dashmmsyllabus />} />
+                                        <Route path="/dashmmcoursecostud" element={<Dashmmcoursecostud />} />
+                                        <Route path="/dashmmcoursematerialstud" element={<Dashmmcoursematerialstud />} />
+                                        <Route path="/dashmmcalendarstud" element={<Dashmmcalendarstud />} />
+                                        <Route path="/dashmmassignmentsstud" element={<Dashmmassignmentsstud />} />
+                                        <Route path="/dashmmanouncementsstud" element={<Dashmmannouncementsstud />} />
 
-                                <Route path="/dashmmsyllabusadmin" element={<Dashmmsyllabusadmin />} />
-
-                                <Route path="/dashmmsyllabusstud" element={<Dashmmsyllabusstud />} />
-
-                                <Route path="/dashmclassenr1" element={<Dashmclassenr1 />} />
-                                <Route path="/dashmclassenr1admin" element={<Dashmclassenr1admin />} />
-                                <Route path="/dashmclassenr1stud" element={<Dashmclassenr1stud />} />
-
-
-
-                                <Route path="/dashmmstudents1" element={<Dashmmstudents1 />} />
-                                <Route path="/dashmmstudents1admin" element={<Dashmmstudents1admin />} />
-
-
-                                <Route path="/dashmmcourseslist" element={<Dashmmcourseslist />} />
-                                <Route path="/dashmmcourseslistadmin" element={<Dashmmcourseslistadmin />} />
+                                        <Route path="/dashmmassignments" element={<Dashmmassignments />} />
+                                        <Route path="/dashmmassignmentsadmin" element={<Dashmmassignmentsadmin />} />
+                                        <Route path="/dashmmanouncements" element={<Dashmmanouncements />} />
+                                        <Route path="/dashmmanouncementsadmin" element={<Dashmmanouncementsadmin />} />
+                                        <Route path="/dashmmcourseco" element={<Dashmmcourseco />} />
+                                        <Route path="/dashmmcoursecoadmin" element={<Dashmmcoursecoadmin />} />
+                                        <Route path="/dashmmcalendar" element={<Dashmmcalendar />} />
+                                        <Route path="/dashmmcalendaradmin" element={<Dashmmcalendaradmin />} />
+                                        <Route path="/dashmmcoursematerial" element={<Dashmmcoursematerial />} />
+                                        <Route path="/dashmmcoursematerialadmin" element={<Dashmmcoursematerialadmin />} />
 
 
-                                <Route path="/dashmmcolevelscalc" element={<Dashmmcolevelscalc />} />
+                                        <Route path="/dashmmsyllabus" element={<Dashmmsyllabus />} />
 
-                                <Route path="/dashmmcolevels" element={<Dashmmcolevels />} />
-                                <Route path="/dashmmcolevelsadmin" element={<Dashmmcolevelsadmin />} />
+                                        <Route path="/dashmmsyllabusadmin" element={<Dashmmsyllabusadmin />} />
 
+                                        <Route path="/dashmmsyllabusstud" element={<Dashmmsyllabusstud />} />
 
-                                <Route path="/dashmmattcalc" element={<Dashmmattcalc />} />
-                                <Route path="/dashmmattcalcadmin" element={<Dashmmattcalcadmin />} />
-
-
-                                <Route path="/dashmmfaccourses" element={<Dashmmfaccourses />} />
-                                <Route path="/dashmmfaccoursesadmin" element={<Dashmmfaccoursesadmin />} />
-                                <Route path="/dashmmfaccoursesatt" element={<Dashmmfaccoursesatt />} />
-                                <Route path="/dashmmfaccoursesattadmin" element={<Dashmmfaccoursesattadmin />} />
+                                        <Route path="/dashmclassenr1" element={<Dashmclassenr1 />} />
+                                        <Route path="/dashmclassenr1admin" element={<Dashmclassenr1admin />} />
+                                        <Route path="/dashmclassenr1stud" element={<Dashmclassenr1stud />} />
 
 
 
-                                <Route path="/dashmmprograms" element={<Dashmmprograms />} />
-                                <Route path="/dashmmprogramsadmin" element={<Dashmmprogramsadmin />} />
-                                <Route path="/dashmmcourses" element={<Dashmmcourses />} />
-                                <Route path="/dashmmcoursesadmin" element={<Dashmmcoursesadmin />} />
-                                <Route path="/dashmmstudents" element={<Dashmmstudents />} />
-                                <Route path="/dashmmstudentsadmin" element={<Dashmmstudentsadmin />} />
-                                <Route path="/dashmexamtimetable" element={<Dashmexamtimetable />} />
-                                <Route path="/dashmexamtimetableadmin" element={<Dashmexamtimetableadmin />} />
+                                        <Route path="/dashmmstudents1" element={<Dashmmstudents1 />} />
+                                        <Route path="/dashmmstudents1admin" element={<Dashmmstudents1admin />} />
+
+
+                                        <Route path="/dashmmcourseslist" element={<Dashmmcourseslist />} />
+                                        <Route path="/dashmmcourseslistadmin" element={<Dashmmcourseslistadmin />} />
+
+
+                                        <Route path="/dashmmcolevelscalc" element={<Dashmmcolevelscalc />} />
+
+                                        <Route path="/dashmmcolevels" element={<Dashmmcolevels />} />
+                                        <Route path="/dashmmcolevelsadmin" element={<Dashmmcolevelsadmin />} />
+
+
+                                        <Route path="/dashmmattcalc" element={<Dashmmattcalc />} />
+                                        <Route path="/dashmmattcalcadmin" element={<Dashmmattcalcadmin />} />
+
+
+                                        <Route path="/dashmmfaccourses" element={<Dashmmfaccourses />} />
+                                        <Route path="/dashmmfaccoursesadmin" element={<Dashmmfaccoursesadmin />} />
+                                        <Route path="/dashmmfaccoursesatt" element={<Dashmmfaccoursesatt />} />
+                                        <Route path="/dashmmfaccoursesattadmin" element={<Dashmmfaccoursesattadmin />} />
 
 
 
-                                <Route path="/loginstud" element={<Loginstud />} />
-                                <Route path="/dashmexamschedule" element={<Dashmexamschedule />} />
-                                <Route path="/dashmexamscheduleadmin" element={<Dashmexamscheduleadmin />} />
-                                <Route path="/dashmexamroom" element={<Dashmexamroom />} />
-                                <Route path="/dashmexamroomadmin" element={<Dashmexamroomadmin />} />
+                                        <Route path="/dashmmprograms" element={<Dashmmprograms />} />
+                                        <Route path="/dashmmprogramsadmin" element={<Dashmmprogramsadmin />} />
+                                        <Route path="/dashmmcourses" element={<Dashmmcourses />} />
+                                        <Route path="/dashmmcoursesadmin" element={<Dashmmcoursesadmin />} />
+                                        <Route path="/dashmmstudents" element={<Dashmmstudents />} />
+                                        <Route path="/dashmmstudentsadmin" element={<Dashmmstudentsadmin />} />
+                                        <Route path="/dashmexamtimetable" element={<Dashmexamtimetable />} />
+                                        <Route path="/dashmexamtimetableadmin" element={<Dashmexamtimetableadmin />} />
 
 
 
-                                <Route path="/dashmpublications" element={<Dashmpublications />} />
-                                <Route path="/dashmpublicationsadmin" element={<Dashmpublicationsadmin />} />
-                                <Route path="/dashmpatents" element={<Dashmpatents />} />
-                                <Route path="/dashmpatentsadmin" element={<Dashmpatentsadmin />} />
-                                <Route path="/dashmteacherfellow" element={<Dashmteacherfellow />} />
-                                <Route path="/dashmteacherfellowadmin" element={<Dashmteacherfellowadmin />} />
-                                <Route path="/dashmconsultancy" element={<Dashmconsultancy />} />
-                                <Route path="/dashmconsultancyadmin" element={<Dashmconsultancyadmin />} />
-                                <Route path="/dashmphdguide" element={<Dashmphdguide />} />
-                                <Route path="/dashmphdguideadmin" element={<Dashmphdguideadmin />} />
-                                <Route path="/dashmseminar" element={<Dashmseminar />} />
-                                <Route path="/dashmseminaradmin" element={<Dashmseminaradmin />} />
-                                <Route path="/dashmbook" element={<Dashmbook />} />
-                                <Route path="/dashmbookadmin" element={<Dashmbookadmin />} />
+                                        <Route path="/loginstud" element={<Loginstud />} />
+                                        <Route path="/dashmexamschedule" element={<Dashmexamschedule />} />
+                                        <Route path="/dashmexamscheduleadmin" element={<Dashmexamscheduleadmin />} />
+                                        <Route path="/dashmexamroom" element={<Dashmexamroom />} />
+                                        <Route path="/dashmexamroomadmin" element={<Dashmexamroomadmin />} />
 
 
 
-                                <Route path="/dashmprojects" element={<Dashmprojects />} />
-                                <Route path="/dashmprojectsadmin" element={<Dashmprojectsadmin />} />
+                                        <Route path="/dashmpublications" element={<Dashmpublications />} />
+                                        <Route path="/dashmpublicationsadmin" element={<Dashmpublicationsadmin />} />
+                                        <Route path="/dashmpatents" element={<Dashmpatents />} />
+                                        <Route path="/dashmpatentsadmin" element={<Dashmpatentsadmin />} />
+                                        <Route path="/dashmteacherfellow" element={<Dashmteacherfellow />} />
+                                        <Route path="/dashmteacherfellowadmin" element={<Dashmteacherfellowadmin />} />
+                                        <Route path="/dashmconsultancy" element={<Dashmconsultancy />} />
+                                        <Route path="/dashmconsultancyadmin" element={<Dashmconsultancyadmin />} />
+                                        <Route path="/dashmphdguide" element={<Dashmphdguide />} />
+                                        <Route path="/dashmphdguideadmin" element={<Dashmphdguideadmin />} />
+                                        <Route path="/dashmseminar" element={<Dashmseminar />} />
+                                        <Route path="/dashmseminaradmin" element={<Dashmseminaradmin />} />
+                                        <Route path="/dashmbook" element={<Dashmbook />} />
+                                        <Route path="/dashmbookadmin" element={<Dashmbookadmin />} />
 
 
 
-                                <Route path="/dashmncas22" element={<Dashmncas22 />} />
-                                <Route path="/dashmncas22admin" element={<Dashmncas22admin />} />
-                                <Route path="/dashmncas241" element={<Dashmncas241 />} />
-                                <Route path="/dashmncas241admin" element={<Dashmncas241admin />} />
-                                <Route path="/dashmncas23" element={<Dashmncas23 />} />
-                                <Route path="/dashmncas23admin" element={<Dashmncas23admin />} />
-                                <Route path="/dashmncas242" element={<Dashmncas242 />} />
-                                <Route path="/dashmncas242admin" element={<Dashmncas242admin />} />
-                                <Route path="/dashmncas243" element={<Dashmncas243 />} />
-                                <Route path="/dashmncas243admin" element={<Dashmncas243admin />} />
-                                <Route path="/dashmncas251" element={<Dashmncas251 />} />
-                                <Route path="/dashmncas251admin" element={<Dashmncas251admin />} />
-                                <Route path="/dashmncas252" element={<Dashmncas252 />} />
-                                <Route path="/dashmncas252admin" element={<Dashmncas252admin />} />
-                                <Route path="/dashmncas253" element={<Dashmncas253 />} />
-                                <Route path="/dashmncas253admin" element={<Dashmncas253admin />} />
-                                <Route path="/dashmncas26" element={<Dashmncas26 />} />
-                                <Route path="/dashmncas26admin" element={<Dashmncas26admin />} />
+                                        <Route path="/dashmprojects" element={<Dashmprojects />} />
+                                        <Route path="/dashmprojectsadmin" element={<Dashmprojectsadmin />} />
 
 
-                                <Route path="/dashboardcrmds" element={<DashboardCrmds />} />
-                                <Route path="/categoryds" element={<Categoryds />} />
-                                <Route path="/leadsds" element={<Leadsds />} />
-                                <Route path="/leadsdsadmin" element={<Leadsdsadmin />} />
-                                <Route path="/leaddetailds/:id" element={<Leaddetailds />} />
-                                <Route path="/programmasterds" element={<Programmasterds />} />
-                                <Route path="/landingpageds" element={<Landingpageds />} />
-                                <Route path="/dripcampaignds" element={<Dripcampaignds />} />
-                                <Route path="/apikeyds" element={<Apikeyds />} />
-                                <Route path="/analyticsds" element={<Analyticsds />} />
-                                <Route path="/landing/:slug" element={<Publiclandingpageds />} />
-                                <Route path="/communicationsettings" element={<CommunicationSettings />} />
-                                <Route path="/sourceds" element={<Sourceds />} />
 
-                                {/* API Configuration and Chatbot */}
-                                <Route path="/apiconfig" element={<ApiConfig />} />
-                                <Route path="/apichatbot" element={<ApiChatbot />} />
-                                <Route path="/apichatbot1" element={<ApiChatbot1 />} />
+                                        <Route path="/dashmncas22" element={<Dashmncas22 />} />
+                                        <Route path="/dashmncas22admin" element={<Dashmncas22admin />} />
+                                        <Route path="/dashmncas241" element={<Dashmncas241 />} />
+                                        <Route path="/dashmncas241admin" element={<Dashmncas241admin />} />
+                                        <Route path="/dashmncas23" element={<Dashmncas23 />} />
+                                        <Route path="/dashmncas23admin" element={<Dashmncas23admin />} />
+                                        <Route path="/dashmncas242" element={<Dashmncas242 />} />
+                                        <Route path="/dashmncas242admin" element={<Dashmncas242admin />} />
+                                        <Route path="/dashmncas243" element={<Dashmncas243 />} />
+                                        <Route path="/dashmncas243admin" element={<Dashmncas243admin />} />
+                                        <Route path="/dashmncas251" element={<Dashmncas251 />} />
+                                        <Route path="/dashmncas251admin" element={<Dashmncas251admin />} />
+                                        <Route path="/dashmncas252" element={<Dashmncas252 />} />
+                                        <Route path="/dashmncas252admin" element={<Dashmncas252admin />} />
+                                        <Route path="/dashmncas253" element={<Dashmncas253 />} />
+                                        <Route path="/dashmncas253admin" element={<Dashmncas253admin />} />
+                                        <Route path="/dashmncas26" element={<Dashmncas26 />} />
+                                        <Route path="/dashmncas26admin" element={<Dashmncas26admin />} />
 
 
-                        </Routes>
+                                        <Route path="/dashboardcrmds" element={<DashboardCrmds />} />
+                                        <Route path="/categoryds" element={<Categoryds />} />
+                                        <Route path="/leadsds" element={<Leadsds />} />
+                                        <Route path="/leadsdsadmin" element={<Leadsdsadmin />} />
+                                        <Route path="/leaddetailds/:id" element={<Leaddetailds />} />
+                                        <Route path="/programmasterds" element={<Programmasterds />} />
+                                        <Route path="/landingpageds" element={<Landingpageds />} />
+                                        <Route path="/dripcampaignds" element={<Dripcampaignds />} />
+                                        <Route path="/apikeyds" element={<Apikeyds />} />
+                                        <Route path="/analyticsds" element={<Analyticsds />} />
+                                        <Route path="/landing/:slug" element={<Publiclandingpageds />} />
+                                        <Route path="/communicationsettings" element={<CommunicationSettings />} />
+                                        <Route path="/sourceds" element={<Sourceds />} />
+                                        <Route path="/leadsag" element={<Leadsag />} />
+                                        <Route path="/unifiedlandingpageds" element={<UnifiedLandingPageds />} />
+                                        <Route path="/unified-landing/:slug" element={<PublicUnifiedLandingPageds />} />
+
+                                        {/* API Configuration and Chatbot */}
+                                        <Route path="/apiconfig" element={<ApiConfig />} />
+                                        <Route path="/apichatbot" element={<ApiChatbot />} />
+                                        <Route path="/apichatbot1" element={<ApiChatbot1 />} />
+
+                                        {/* Purchasing Module Routes - NEW */}
+                                        <Route path="/faculty-create-request" element={<FacultyCreateRequestds />} />
+                                        <Route path="/FacultyRequestApprovalds" element={<FacultyRequestApprovalds />} />
+                                        <Route path="/faculty-request-status" element={<FacultyRequestStatusds />} />
+                                        <Route path="/store-manager-dashboard" element={<StoreManagerDashboardds />} />
+                                        <Route path="/purchase-order-dashboard" element={<PurchaseOrderDashboardds />} />
+                                        <Route path="/delivery-dashboard" element={<DeliveryDashboardds />} />
+                                        <Route path="/dashboard-purchasing" element={<DashboardPurchaseds />} />
+                                        <Route path="/purchasing-master-data" element={<PurchasingMasterDatads />} />
+                                        <Route path="/ApprovalConfigurationds" element={<ApprovalConfigurationds />} />
+                                        <Route path="/PurchaseCellInventoryds" element={<PurchaseCellInventoryds />} />
+                                        <Route path="/ItemCategoryds" element={<ItemCategoryds />} />
+                                        <Route path="/ItemTypeds" element={<ItemTypeds />} />
+                                        <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
+                                        <Route path="/admin-new" element={<DashMainAdmin />} />
+                                </Routes>
+                        </React.Suspense>
                 </Router>
         );
 }

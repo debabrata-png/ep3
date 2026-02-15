@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -23,6 +23,8 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Edit, Delete, Add, Upload, ArrowBack } from "@mui/icons-material";
 import ep1 from "../api/ep1";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import global1 from "./global1";
 
 const UserManagementdsnov17 = () => {
@@ -56,7 +58,7 @@ const UserManagementdsnov17 = () => {
   const [filterModel, setFilterModel] = useState({ items: [] });
 
   // Fetch users
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -74,6 +76,7 @@ const UserManagementdsnov17 = () => {
         colid: global1.colid,
         page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
+        excludeRole: "Student", // ✅ Exclude Students
         ...(search && { search }),
         ...(roleFilter && { role: roleFilter }),
         ...(departmentFilter && { department: departmentFilter }),
@@ -99,7 +102,7 @@ const UserManagementdsnov17 = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [paginationModel, search, roleFilter, departmentFilter, semesterFilter, filterModel]);
 
   // ✅ ADD THIS NEW useEffect:
   useEffect(() => {
@@ -112,14 +115,7 @@ const UserManagementdsnov17 = () => {
     } else {
       setError("College ID is missing. Please log in.");
     }
-  }, [
-    paginationModel,
-    search,
-    roleFilter,
-    departmentFilter,
-    semesterFilter,
-    filterModel,
-  ]); // ✅ ADD filterModel
+  }, [fetchUsers]); // ✅ ADD filterModel
 
   // Delete user
   const handleDelete = async (id) => {
@@ -149,6 +145,24 @@ const UserManagementdsnov17 = () => {
     }
   };
 
+  // ✅ Export to Excel
+  const handleExport = () => {
+    try {
+      // Filter out passwords or sensitive info if needed, but here we dump 'users' state
+      const ws = XLSX.utils.json_to_sheet(users);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Users");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(data, "users_export.xlsx");
+    } catch (error) {
+      console.error("Export failed:", error);
+      setError("Failed to export data");
+    }
+  };
+
   // ✅ ADD THIS NEW FUNCTION:
   const fetchFilterOptions = async () => {
     try {
@@ -167,7 +181,7 @@ const UserManagementdsnov17 = () => {
       field: "srno",
       headerName: "Sr No",
       width: 80,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     { field: "rollno", headerName: "Roll No", width: 150 }, // ✅ Increased width
     { field: "regno", headerName: "Reg No", width: 150 }, // ✅ Increased width
@@ -177,7 +191,7 @@ const UserManagementdsnov17 = () => {
       field: "phone",
       headerName: "Phone",
       width: 130,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     { field: "role", headerName: "Role", width: 100 },
     { field: "department", headerName: "Department", width: 150 },
@@ -189,18 +203,18 @@ const UserManagementdsnov17 = () => {
       field: "gender",
       headerName: "Gender",
       width: 90,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "dob",
       headerName: "DOB",
       width: 110,
       valueGetter: (value) => {
-        if (!value) return "N/A";
+        if (!value) return "";
         try {
           return new Date(value).toLocaleDateString();
         } catch {
-          return "N/A";
+          return "";
         }
       },
     },
@@ -208,118 +222,118 @@ const UserManagementdsnov17 = () => {
       field: "category",
       headerName: "Category",
       width: 100,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "quota",
       headerName: "Quota",
       width: 100,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "fathername",
       headerName: "Father Name",
       width: 150,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "mothername",
       headerName: "Mother Name",
       width: 150,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "address",
       headerName: "Address",
       width: 200,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "eligibilityname",
       headerName: "Eligibility",
       width: 150,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "degree",
       headerName: "Degree",
       width: 120,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "minorsub",
       headerName: "Minor Sub",
       width: 120,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "vocationalsub",
       headerName: "Vocational Sub",
       width: 140,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "mdcsub",
       headerName: "MDC Sub",
       width: 120,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "othersub",
       headerName: "Other Sub",
       width: 120,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "merit",
       headerName: "Merit",
       width: 100,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "obtain",
       headerName: "Obtain",
       width: 100,
       valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "N/A",
+        value !== null && value !== undefined ? value : "",
     },
     {
       field: "bonus",
       headerName: "Bonus",
       width: 90,
       valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "N/A",
+        value !== null && value !== undefined ? value : "",
     },
     {
       field: "weightage",
       headerName: "Weightage",
       width: 110,
       valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "N/A",
+        value !== null && value !== undefined ? value : "",
     },
     {
       field: "ncctype",
       headerName: "NCC Type",
       width: 110,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "isdisabled",
       headerName: "Is Disabled",
       width: 110,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "scholarship",
       headerName: "Scholarship",
       width: 130,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "photo",
       headerName: "Photo URL",
       width: 150,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "status",
@@ -331,19 +345,19 @@ const UserManagementdsnov17 = () => {
       field: "status1",
       headerName: "Status1",
       width: 100,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "addedby",
       headerName: "Added By",
       width: 150,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "comments",
       headerName: "Comments",
       width: 200,
-      valueGetter: (value) => value || "N/A",
+      valueGetter: (value) => value || "",
     },
     {
       field: "lastlogin",
@@ -431,6 +445,14 @@ const UserManagementdsnov17 = () => {
             onClick={() => navigate("/bulkuploadusersdsoct18")}
           >
             Bulk Upload
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<Upload />}
+            onClick={handleExport}
+          >
+            Export to Excel
           </Button>
           {selectedIds.length > 0 && (
             <Button

@@ -1236,6 +1236,21 @@ export function mainListItems({ open }) {
         </AccordionDetails>
       </Accordion>
 
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Reports</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/admissionreport">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="University Admission Report" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
+
 
       {/* <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">

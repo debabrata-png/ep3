@@ -40,12 +40,23 @@ const BulkUploadUsersdsoct18 = () => {
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws);
 
-        // Add colid to each row
-        const usersData = data.map(row => ({
-          ...row,
-          colid: global1.colid,
-          status: row.status || 1
-        }));
+        // Helper to normalize keys to lowercase
+        const normalizeKeys = (obj) => {
+          return Object.keys(obj).reduce((acc, key) => {
+            acc[key.toLowerCase().trim()] = obj[key];
+            return acc;
+          }, {});
+        };
+
+        // Add colid to each row and normalize keys
+        const usersData = data.map(row => {
+          const normalizedRow = normalizeKeys(row);
+          return {
+            ...normalizedRow,
+            colid: global1.colid,
+            status: normalizedRow.status || 1
+          };
+        });
 
         setParsedData(usersData);
         setError("");
@@ -72,17 +83,17 @@ const BulkUploadUsersdsoct18 = () => {
       const res = await ep1.post("/api/v2/ds1bulkcreateuser", {
         users: parsedData
       });
-      
+
       setMessage(res.data.message);
       setUploadResult({
         created: res.data.created,
         duplicates: res.data.duplicates
       });
-      
+
       // Clear parsed data after successful upload
       setTimeout(() => {
         setParsedData([]);
-        navigate("/usermanagementdsoct18");
+        navigate("/usermanagementdsnov17");
       }, 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Error uploading users");

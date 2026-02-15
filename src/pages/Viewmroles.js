@@ -26,6 +26,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import AddUserModal1 from './Addroles1';
 
 
 function ViewPage() {
@@ -61,6 +62,8 @@ function ViewPage() {
     const name=global1.name;
 
     const [open, setOpen] = React.useState(false);
+    const [openAddWithRole, setOpenAddWithRole] = useState(false);
+
 
     const handleDeleteClick = async (id) => {
         alert(id);
@@ -310,6 +313,11 @@ return '';
     const handleOpenAddBulk = () => {
         setOpenAddBulk(true);
       };
+
+      const handleCloseAddWithRole = () => {
+  setOpenAddWithRole(false);
+};
+
   
     const handleCloseAdd = () => {
       setOpenAdd(false);
@@ -577,6 +585,14 @@ category:category,
            >
              Add 
            </Button>
+           <Button
+    variant="contained"
+    color="success"
+    style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '180px' }}
+    onClick={() => setOpenAddWithRole(true)}  // This opens the new modal with role dropdown
+  >
+    Add With Role Dropdown
+  </Button>
            {/* <Button
              variant="contained"
              color="success"
@@ -710,6 +726,12 @@ category:category,
                   newUser={newUser}
                   fetchViewPage={fetchViewPage}
                 />
+                <AddUserModal1
+  open={openAddWithRole}
+  handleClose={handleCloseAddWithRole}
+  fetchViewPage={fetchViewPage}
+/>
+
 
                 <AddUserModalBulk
                   open={openAddBulk}

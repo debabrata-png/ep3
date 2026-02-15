@@ -17,7 +17,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import HostelIcon from '@mui/icons-material/Hotel';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import { Typography} from '@mui/material';
+import { Typography } from '@mui/material';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddTaskIcon from '@mui/icons-material/AddTask';
@@ -43,8 +43,17 @@ import { menuitemsall } from './menuall';
 import { menuitemspurchase } from './menupurchase';
 import { menuitemscounselor } from './menucounselor';
 import { menuitemscrm } from './menucrm';
+import { menupurchasepu } from "./menupurchasepu";
+import { menuhoi } from './menuhoi';
+import { menustore } from './menustore';
+import { menuao } from './menuao';
+import { menuoe } from './menuoe';
+import { menucma } from './menucma';
+import { menupe } from './menupe';
+import { menuitemscounselor1 } from './menucounselor1';
+import { menulibrary } from './menulibrary';
 
-const getlink=()=>{
+const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
 
@@ -94,79 +103,137 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 export function mainListItems({ open }) {
 
-  const getitems=()=> {
+  const getitems = () => {
 
-   var role1=global1.role;
+    var role1 = global1.role;
 
-  if(role1=='Faculty') {
-    return (
-      <div>
-        {menuitems()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    if (role1 == 'Faculty') {
+      return (
+        <div>
+          {menuitems()}
+          {/* <menuitems /> */}
+        </div>
+      )
 
-  } else if(role1=='Hostel') {
-    return (
-      <div>
-        {menuitemshostel()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    } else if (role1 == 'Hostel') {
+      return (
+        <div>
+          {menuitemshostel()}
+          {/* <menuitems /> */}
+        </div>
+      )
 
-  } else if(role1=='Exam') {
-    return (
-      <div>
-        {menuitemsexam()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    } else if (role1 == 'Exam') {
+      return (
+        <div>
+          {menuitemsexam()}
+          {/* <menuitems /> */}
+        </div>
+      )
 
-  } else if(role1=='All') {
-    return (
-      <div>
-        {menuitemsall()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    } else if (role1 == 'All') {
+      return (
+        <div>
+          {menuitemsall()}
+          {/* <menuitems /> */}
+        </div>
+      )
 
-  } else if(role1=='Purchase') {
-    return (
-      <div>
-        {menuitemspurchase()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    } else if (role1 == 'Purchase') {
+      return (
+        <div>
+          {menuitemspurchase()}
+          {/* <menuitems /> */}
+        </div>
+      )
 
-  }else if(role1=='CRM') {
-    return (
-      <div>
-        {menuitemscrm()}
-        {/* <menuitems /> */}
-      </div>
-    )
-    
-  } else if(role1=='Counselor') {
-    return (
-      <div>
-        {menuitemscounselor()}
-        {/* <menuitems /> */}
-      </div>
-    )
+    } else if (role1 == 'CRM') {
+      return (
+        <div>
+          {menuitemscrm()}
+          {/* <menuitems /> */}
+        </div>
+      )
+
+    } else if (role1 == 'Counselor') {
+      return (
+        <div>
+          {menuitemscounselor()}
+          {/* <menuitems /> */}
+        </div>
+      )
+    } else if (role1 == 'Purchasepu') {
+      return (
+        <div>
+          {menupurchasepu()}
+          {/* <menuitems /> */}
+        </div>
+      )
+    } else if (role1 == 'HOI') {
+      return (
+        <div>
+          {menuhoi()}
+          {/* <menuitems /> */}
+        </div>
+      )
+    } else if (role1 == 'Store') {
+      return (
+        <div>
+          {menustore()}
+          {/* <menuitems /> */}
+        </div>
+      )
+    } else if (role1 == 'AO') {
+      return (
+        <div>
+          {menuao()}
+        </div>
+      )
+    } else if (role1 == 'OE') {
+      return (
+        <div>
+          {menuoe()}
+        </div>
+      )
+    } else if (role1 == 'CMA') {
+      return (
+        <div>
+          {menucma()}
+        </div>
+      )
+    } else if (role1 == 'PE') {
+      return (
+        <div>
+          {menupe()}
+        </div>
+
+      )
+    } else if (role1 == 'Counselor1') {
+      return (
+        <div>
+          {menuitemscounselor1()}
+        </div>
+      )
+    } else if (role1 == 'Library') {
+      return (
+        <div>
+          {menulibrary()}
+        </div>
+      )
+    }
+
   }
-
-}
 
   var content;
 
-  var role=global1.role;
+  var role = global1.role;
 
-  if(role=='Faculty') {
-    content=
-    <div>
-   
-    </div>
-    
+  if (role == 'Faculty') {
+    content =
+      <div>
+
+      </div>
+
   }
 
 
@@ -174,17 +241,17 @@ export function mainListItems({ open }) {
 
 
   return (
-    <div style={{overflowY: 'scroll', height: 600, width: 300, fontSize:10}}>
-     
-  
+    <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
+
+
       {/* {content} */}
 
       {getitems()}
 
 
-      
-      
-     
+
+
+
 
       {/* <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">

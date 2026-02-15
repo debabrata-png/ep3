@@ -57,28 +57,137 @@ const Leaddetailds = () => {
     next_followup_date: "",
   });
 
+  // Dynamic Options State
+  const [pipelineStages, setPipelineStages] = useState([]);
+  const [outcomes, setOutcomes] = useState([]);
+
   const [updateData, setUpdateData] = useState({
     pipeline_stage: "",
     lead_temperature: "",
+    institution: "",
+    program_type: "",
+    program: "",
   });
+
+  // State for cascading dropdowns
+  const [institutions, setInstitutions] = useState([]);
+  const [programTypes, setProgramTypes] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(false);
+  const [loadingProgramTypes, setLoadingProgramTypes] = useState(false);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
 
   useEffect(() => {
     fetchLeadDetails();
+    fetchPipelineStages();
+    fetchOutcomes();
   }, [id]);
+
+  const fetchPipelineStages = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallpipelinestageag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setPipelineStages(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching pipeline stages:", err);
+    }
+  };
+
+  const fetchOutcomes = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getalloutcomeag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setOutcomes(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching outcomes:", err);
+    }
+  };
 
   const fetchLeadDetails = async () => {
     try {
       const res = await ep1.get(`/api/v2/getleadbyidds/${id}`);
-      setLead(res.data.data.lead);
+      const leadData = res.data.data.lead;
+      setLead(leadData);
       setActivities(res.data.data.activities);
       setUpdateData({
-        pipeline_stage: res.data.data.lead.pipeline_stage,
-        lead_temperature: res.data.data.lead.lead_temperature,
+        pipeline_stage: leadData.pipeline_stage,
+        lead_temperature: leadData.lead_temperature,
+        institution: leadData.institution,
+        program_type: leadData.program_type,
+        program: leadData.program,
       });
+
+      // Pre-fetch dropdowns
+      fetchInstitutions();
+      if (leadData.institution) {
+        fetchProgramTypes(leadData.institution);
+        if (leadData.program_type) {
+          fetchPrograms(leadData.institution, leadData.program_type);
+        }
+      }
     } catch (err) {
       console.error("Error fetching lead details:", err);
       showSnackbar("Failed to fetch lead details", "error");
     }
+  };
+
+  const fetchInstitutions = async () => {
+    setLoadingInstitutions(true);
+    try {
+      const res = await ep1.get("/api/v2/getinstitutionsds", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.success) {
+        setInstitutions(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching institutions:", err);
+    }
+    setLoadingInstitutions(false);
+  };
+
+  const fetchProgramTypes = async (institution) => {
+    if (!institution) {
+      setProgramTypes([]);
+      return;
+    }
+    setLoadingProgramTypes(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramtypesds", {
+        params: { colid: global1.colid, institution }
+      });
+      if (res.data.success) {
+        setProgramTypes(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching program types:", err);
+    }
+    setLoadingProgramTypes(false);
+  };
+
+  const fetchPrograms = async (institution, programType) => {
+    if (!institution || !programType) {
+      setPrograms([]);
+      return;
+    }
+    setLoadingPrograms(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramsbyfiltersds", {
+        params: { colid: global1.colid, institution, program_type: programType }
+      });
+      if (res.data.success) {
+        setPrograms(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    }
+    setLoadingPrograms(false);
   };
 
   const handleLogCall = async () => {
@@ -334,11 +443,11 @@ const Leaddetailds = () => {
               value={callData.outcome}
               onChange={(e) => setCallData({ ...callData, outcome: e.target.value })}
             >
-              <MenuItem value="Interested">Interested</MenuItem>
-              <MenuItem value="Not Interested">Not Interested</MenuItem>
-              <MenuItem value="Call Back">Call Back</MenuItem>
-              <MenuItem value="No Answer">No Answer</MenuItem>
-              <MenuItem value="Busy">Busy</MenuItem>
+              {outcomes.map((option) => (
+                <MenuItem key={option._id} value={option.outcomename || option.name}>
+                  {option.outcomename || option.name}
+                </MenuItem>
+              ))}
             </TextField>
             <TextField
               fullWidth
@@ -385,9 +494,11 @@ const Leaddetailds = () => {
               value={meetingData.outcome}
               onChange={(e) => setMeetingData({ ...meetingData, outcome: e.target.value })}
             >
-              <MenuItem value="Interested">Interested</MenuItem>
-              <MenuItem value="Not Interested">Not Interested</MenuItem>
-              <MenuItem value="Meeting Scheduled">Meeting Scheduled</MenuItem>
+              {outcomes.map((option) => (
+                <MenuItem key={option._id} value={option.outcomename || option.name}>
+                  {option.outcomename || option.name}
+                </MenuItem>
+              ))}
             </TextField>
             <TextField
               fullWidth
@@ -425,39 +536,68 @@ const Leaddetailds = () => {
                 <TextField
                   select
                   fullWidth
-                  label="Pipeline Stage"
-                  value={["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(updateData.pipeline_stage) ? updateData.pipeline_stage : "Other"}
+                  label="Institution"
+                  value={updateData.institution || ""}
                   onChange={(e) => {
-                    if (e.target.value === "Other") {
-                      setUpdateData({ ...updateData, pipeline_stage: "" });
-                    } else {
-                      setUpdateData({ ...updateData, pipeline_stage: e.target.value });
-                    }
+                    setUpdateData({ ...updateData, institution: e.target.value, program_type: "", program: "" });
+                    fetchProgramTypes(e.target.value);
                   }}
+                  disabled={loadingInstitutions}
                 >
-                  <MenuItem value="New Lead">New Lead</MenuItem>
-                  <MenuItem value="Contacted">Contacted</MenuItem>
-                  <MenuItem value="Qualified">Qualified</MenuItem>
-                  <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
-                  <MenuItem value="Campus Visited">Campus Visited</MenuItem>
-                  <MenuItem value="Application Sent">Application Sent</MenuItem>
-                  <MenuItem value="Application Submitted">Application Submitted</MenuItem>
-                  <MenuItem value="Fee Paid">Fee Paid</MenuItem>
-                  <MenuItem value="Admitted">Admitted</MenuItem>
-                  <MenuItem value="Lost">Lost</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
+                  {institutions.map((inst, index) => (
+                    <MenuItem key={index} value={inst}>
+                      {inst}
+                    </MenuItem>
+                  ))}
                 </TextField>
 
-                {!["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(updateData.pipeline_stage) && (
-                  <TextField
-                    fullWidth
-                    label="Custom Stage Name"
-                    value={updateData.pipeline_stage === "Other" ? "" : updateData.pipeline_stage}
-                    onChange={(e) => setUpdateData({ ...updateData, pipeline_stage: e.target.value })}
-                    sx={{ mt: 2 }}
-                    placeholder="Enter custom stage..."
-                  />
-                )}
+                <TextField
+                  select
+                  fullWidth
+                  label="Program Type"
+                  value={updateData.program_type || ""}
+                  onChange={(e) => {
+                    setUpdateData({ ...updateData, program_type: e.target.value, program: "" });
+                    fetchPrograms(updateData.institution, e.target.value);
+                  }}
+                  disabled={!updateData.institution || loadingProgramTypes}
+                >
+                  {programTypes.map((type, index) => (
+                    <MenuItem key={index} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  select
+                  fullWidth
+                  label="Program"
+                  value={updateData.program || ""}
+                  onChange={(e) => setUpdateData({ ...updateData, program: e.target.value })}
+                  disabled={!updateData.program_type || loadingPrograms}
+                >
+                  {programs.map((prog) => (
+                    <MenuItem key={prog._id} value={prog.course_name}>
+                      {prog.course_name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  label="Pipeline Stage"
+                  value={updateData.pipeline_stage}
+                  onChange={(e) => {
+                    setUpdateData({ ...updateData, pipeline_stage: e.target.value });
+                  }}
+                >
+                  {pipelineStages.map((option) => (
+                    <MenuItem key={option._id} value={option.stagename || option.name}>
+                      {option.stagename || option.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </>
             )}
 

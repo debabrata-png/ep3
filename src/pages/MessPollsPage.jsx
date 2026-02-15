@@ -131,7 +131,14 @@ const MessPollsPage = () => {
 
   const handleSubmit = async () => {
     try {
-      await ep1.post("/api/v2/createmealpollsds", form);
+      const payload = {
+        ...form,
+        createdby: global1.user,
+        createdbyname: global1.name,
+        colid: global1.colid,
+      };
+
+      await ep1.post("/api/v2/createmealpollsds", payload);
       setSnackbar({
         open: true,
         message: "Poll created successfully",

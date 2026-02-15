@@ -125,6 +125,47 @@ export function menuitemscounselor() {
 
         </AccordionDetails>
       </Accordion>
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Settings</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+
+
+          <ListItem button component={RouterLink} to="/dashmquotanew">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="AI Credits" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/dashawsconfig">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="AWS config" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/dashmpassword">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Change password" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/signinpay">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subscription" />}
+          </ListItem>
+
+
+
+        </AccordionDetails>
+      </Accordion>
 
     </div>
   );

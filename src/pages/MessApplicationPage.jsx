@@ -59,10 +59,9 @@ const MessApplicationPage = () => {
         `/api/v2/getbuildingstaffds?colid=${global1.colid}`
       );
       if (data.success) {
-        const openBuildings = data.data.filter((b) => b.messstatus === "Open");
-        setBuildings(openBuildings);
-        if (openBuildings.length > 0) {
-          setSelectedBuilding(openBuildings[0].buildingname);
+        setBuildings(data.data);
+        if (data.data.length > 0) {
+          setSelectedBuilding(data.data[0].buildingname);
         }
       }
     } catch (err) {
@@ -158,6 +157,7 @@ const MessApplicationPage = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Building Name</TableCell>
               <TableCell>Student Name</TableCell>
               <TableCell>Regno</TableCell>
               <TableCell>Application Month</TableCell>
@@ -169,6 +169,7 @@ const MessApplicationPage = () => {
           <TableBody>
             {applications.map((app) => (
               <TableRow key={app._id}>
+                <TableCell>{app.buildingname}</TableCell>
                 <TableCell>{app.studentname}</TableCell>
                 <TableCell>{app.regno}</TableCell>
                 <TableCell>{app.applicationmonth}</TableCell>
@@ -180,8 +181,8 @@ const MessApplicationPage = () => {
                       app.appstatus === "Approved"
                         ? "success"
                         : app.appstatus === "Rejected"
-                        ? "error"
-                        : "warning"
+                          ? "error"
+                          : "warning"
                     }
                     size="small"
                   />

@@ -18,7 +18,12 @@ import {
   Snackbar,
   Chip,
   CircularProgress,
-  MenuItem
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText
 } from '@mui/material';
 import { Save, Download, Upload } from '@mui/icons-material';
 import ep1 from '../api/ep1';
@@ -28,19 +33,26 @@ import * as XLSX from 'xlsx';
 const BulkMarksEntryPageds = () => {
   const [semester, setSemester] = useState('');
   const [academicyear, setAcademicyear] = useState('');
+  const [section, setSection] = useState('');
   const [term, setTerm] = useState('term1');
   const [componentname, setComponentname] = useState('term1periodictest');
-  
+
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [marksData, setMarksData] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+
   // Dynamic options from User table
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableYears, setAvailableYears] = useState([]);
-  
+  const [availableSections, setAvailableSections] = useState([]);
+
+  // Working Days Dialog State
+  const [openWorkingDaysDialog, setOpenWorkingDaysDialog] = useState(false);
+  const [workingDaysInput, setWorkingDaysInput] = useState('');
+  const [existingWorkingDays, setExistingWorkingDays] = useState(0);
+
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   // Component options
@@ -49,13 +61,15 @@ const BulkMarksEntryPageds = () => {
       { value: 'term1periodictest', label: 'Term I Periodic Test' },
       { value: 'term1notebook', label: 'Term I Notebook' },
       { value: 'term1enrichment', label: 'Term I Enrichment' },
-      { value: 'term1midexam', label: 'Term I Mid Exam' }
+      { value: 'term1midexam', label: 'Term I Mid Exam' },
+      { value: 'term1totalpresentdays', label: 'Term I Present Days' }
     ],
     term2: [
       { value: 'term2periodictest', label: 'Term II Periodic Test' },
       { value: 'term2notebook', label: 'Term II Notebook' },
       { value: 'term2enrichment', label: 'Term II Enrichment' },
-      { value: 'term2annualexam', label: 'Term II Annual Exam' }
+      { value: 'term2annualexam', label: 'Term II Annual Exam' },
+      { value: 'term2totalpresentdays', label: 'Term II Present Days' }
     ]
   };
 
@@ -76,18 +90,19 @@ const BulkMarksEntryPageds = () => {
     if (semester && academicyear && term && componentname) {
       fetchData();
     }
-  }, [semester, academicyear, term, componentname]);
+  }, [semester, academicyear, term, componentname, section]);
 
   const fetchSemestersAndYears = async () => {
     try {
       const response = await ep1.get('/api/v2/getdistinctsemestersandyears9ds', {
         params: { colid: global1.colid }
       });
-      
+
       if (response.data.success) {
         setAvailableSemesters(response.data.semesters);
         setAvailableYears(response.data.admissionyears);
-        
+        setAvailableSections(response.data.sections || []);
+
         // Set default values
         if (response.data.semesters.length > 0) {
           setSemester(response.data.semesters[0]);
@@ -106,29 +121,50 @@ const BulkMarksEntryPageds = () => {
     setLoading(true);
     try {
       const response = await ep1.get('/api/v2/getstudentsandsubjectsformarks9ds', {
-        params: { 
-          colid: global1.colid, 
-          semester, 
-          academicyear, 
-          term, 
-          componentname 
+        params: {
+          colid: global1.colid,
+          semester,
+          academicyear,
+          section,
+          term,
+          componentname
         }
       });
-      
+
       if (response.data.success) {
         setStudents(response.data.students);
         setSubjects(response.data.subjects);
-        
+
         // Build marks map from existing marks
         const existingMarks = response.data.existingmarks || [];
         const marksMap = {};
-        
+
         existingMarks.forEach(mark => {
           const key = `${mark.regno}_${mark.subjectcode}`;
           marksMap[key] = mark.obtainedmarks || 0;
         });
-        
+
+
         setMarksData(marksMap);
+
+        // Check existing working days if it's an attendance component
+        if (componentname.includes('presentdays')) {
+          const isTerm1 = componentname.includes('term1');
+          const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
+
+          let maxWorking = 0;
+          if (response.data.existingmarks && response.data.existingmarks.length > 0) {
+            // Find max working days among existing records to see if it's set
+            response.data.existingmarks.forEach(m => {
+              if (m[workingDaysField] > maxWorking) {
+                maxWorking = m[workingDaysField];
+              }
+            });
+          }
+          setExistingWorkingDays(maxWorking);
+        } else {
+          setExistingWorkingDays(0);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -147,16 +183,26 @@ const BulkMarksEntryPageds = () => {
   };
 
   const handleSaveMarks = async () => {
+    // Check if we need working days
+    if (componentname.includes('presentdays') && existingWorkingDays === 0) {
+      setOpenWorkingDaysDialog(true);
+      return;
+    }
+
+    await submitMarks();
+  };
+
+  const submitMarks = async (extraData = null) => {
     setSaving(true);
     try {
       // Prepare marks array
       const marksArray = [];
-      
+
       students.forEach(student => {
         subjects.forEach(subject => {
           const key = `${student.regno}_${subject.subjectcode}`;
           const obtained = marksData[key];
-          
+
           if (obtained !== undefined && obtained !== '') {
             marksArray.push({
               regno: student.regno,
@@ -175,17 +221,31 @@ const BulkMarksEntryPageds = () => {
         return;
       }
 
-      const response = await ep1.post('/api/v2/bulksavemarksbycomponent9ds', {
+      const payload = {
         colid: Number(global1.colid),
         user: global1.user,
         semester,
         academicyear,
         componentname,
         marks: marksArray
-      });
+      };
+
+      if (extraData) {
+        payload.extraUpdates = extraData;
+      }
+
+      const response = await ep1.post('/api/v2/bulksavemarksbycomponent9ds', payload);
 
       if (response.data.success) {
         showSnackbar(`Successfully saved ${marksArray.length} marks`, 'success');
+        // Update local existing working days if we just set them
+        if (extraData) {
+          const isTerm1 = componentname.includes('term1');
+          const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
+          if (extraData[workingDaysField]) {
+            setExistingWorkingDays(extraData[workingDaysField]);
+          }
+        }
         fetchData();
       }
     } catch (error) {
@@ -196,9 +256,23 @@ const BulkMarksEntryPageds = () => {
     }
   };
 
+  const handleWorkingDaysConfirm = () => {
+    if (!workingDaysInput || Number(workingDaysInput) <= 0) {
+      showSnackbar('Please enter valid working days', 'error');
+      return;
+    }
+
+    setOpenWorkingDaysDialog(false);
+
+    const isTerm1 = componentname.includes('term1');
+    const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
+
+    submitMarks({ [workingDaysField]: Number(workingDaysInput) });
+  };
+
   const handleDownloadTemplate = () => {
     const data = [];
-    
+
     students.forEach(student => {
       subjects.forEach(subject => {
         const key = `${student.regno}_${subject.subjectcode}`;
@@ -233,7 +307,7 @@ const BulkMarksEntryPageds = () => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
         const newMarksData = { ...marksData };
-        
+
         jsonData.forEach(row => {
           const key = `${row.Regno}_${row.SubjectCode}`;
           if (row.ObtainedMarks !== undefined && row.ObtainedMarks !== '') {
@@ -249,7 +323,7 @@ const BulkMarksEntryPageds = () => {
       }
     };
     reader.readAsArrayBuffer(file);
-    
+
     // Reset file input
     event.target.value = '';
   };
@@ -329,6 +403,22 @@ const BulkMarksEntryPageds = () => {
                 ))}
               </TextField>
             </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                select
+                fullWidth
+                label="Section"
+                value={section}
+                onChange={(e) => setSection(e.target.value)}
+              >
+                <MenuItem value="">All Sections</MenuItem>
+                {availableSections.map((sec) => (
+                  <MenuItem key={sec} value={sec}>
+                    {sec}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
             <Grid item xs={12} md={3}>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
@@ -366,7 +456,7 @@ const BulkMarksEntryPageds = () => {
               </Box>
             </Grid>
           </Grid>
-          
+
           {subjects.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="body2" color="textSecondary">
@@ -450,6 +540,30 @@ const BulkMarksEntryPageds = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Working Days Dialog */}
+      <Dialog open={openWorkingDaysDialog} onClose={() => setOpenWorkingDaysDialog(false)}>
+        <DialogTitle>Enter Total Working Days</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Total working days data is missing for this term. Please enter the total working days to save with the attendance.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Total Working Days"
+            type="number"
+            fullWidth
+            variant="standard"
+            value={workingDaysInput}
+            onChange={(e) => setWorkingDaysInput(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenWorkingDaysDialog(false)}>Cancel</Button>
+          <Button onClick={handleWorkingDaysConfirm} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

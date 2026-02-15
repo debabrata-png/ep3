@@ -44,8 +44,12 @@ const Programmasterds = () => {
     category: "",
     course_code: "",
     course_name: "",
+    institution: "",
+    program_type: "",
     duration: "",
     eligibility: "",
+    eligibility: "",
+    total_seats: "",
     total_fee: "",
     application_fee: "",
     first_installment: "",
@@ -93,6 +97,9 @@ const Programmasterds = () => {
         category: program.category,
         course_code: program.course_code,
         course_name: program.course_name,
+        institution: program.institution || "",
+        program_type: program.program_type || "",
+        total_seats: program.total_seats || "",
         duration: program.duration || "",
         eligibility: program.eligibility || "",
         total_fee: program.fee_structure?.total_fee || "",
@@ -112,6 +119,9 @@ const Programmasterds = () => {
         category: "",
         course_code: "",
         course_name: "",
+        institution: "",
+        program_type: "",
+        total_seats: "",
         duration: "",
         eligibility: "",
         total_fee: "",
@@ -138,6 +148,9 @@ const Programmasterds = () => {
         category: formData.category,
         course_code: formData.course_code,
         course_name: formData.course_name,
+        institution: formData.institution,
+        program_type: formData.program_type,
+        total_seats: Number(formData.total_seats),
         duration: formData.duration,
         eligibility: formData.eligibility,
         fee_structure: {
@@ -229,8 +242,11 @@ const Programmasterds = () => {
           <TableHead sx={{ bgcolor: "#f8fafc" }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Course Code</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Course Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Code</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Institution</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Type</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Total Seats</TableCell>
               <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Duration</TableCell>
               <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Eligibility</TableCell>
               <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Total Fee</TableCell>
@@ -243,6 +259,9 @@ const Programmasterds = () => {
                 <TableCell sx={{ fontWeight: 500, color: "#1e293b" }}>{program.category}</TableCell>
                 <TableCell sx={{ color: "#64748b" }}>{program.course_code}</TableCell>
                 <TableCell sx={{ fontWeight: 500, color: "#1e293b" }}>{program.course_name}</TableCell>
+                <TableCell sx={{ color: "#64748b" }}>{program.institution}</TableCell>
+                <TableCell sx={{ color: "#64748b" }}>{program.program_type}</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: "#1e293b" }}>{program.total_seats}</TableCell>
                 <TableCell sx={{ color: "#64748b" }}>{program.duration}</TableCell>
                 <TableCell sx={{ color: "#64748b" }}>{program.eligibility}</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: "#1565c0" }}>₹{program.fee_structure?.total_fee?.toLocaleString()}</TableCell>
@@ -289,17 +308,36 @@ const Programmasterds = () => {
             </TextField>
             <TextField
               fullWidth
-              label="Course Code"
+              label="Program Code"
               value={formData.course_code}
               onChange={(e) => setFormData({ ...formData, course_code: e.target.value })}
               required
             />
             <TextField
               fullWidth
-              label="Course Name"
+              label="Program Name"
               value={formData.course_name}
               onChange={(e) => setFormData({ ...formData, course_name: e.target.value })}
               required
+            />
+            <TextField
+              fullWidth
+              label="Institution"
+              value={formData.institution}
+              onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Program Type"
+              value={formData.program_type}
+              onChange={(e) => setFormData({ ...formData, program_type: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Total Sanctioned Seats"
+              type="number"
+              value={formData.total_seats}
+              onChange={(e) => setFormData({ ...formData, total_seats: e.target.value })}
             />
             <TextField
               fullWidth

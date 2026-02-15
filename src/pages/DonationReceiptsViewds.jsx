@@ -19,6 +19,8 @@ import { Download, Visibility } from '@mui/icons-material';
 import ep1 from '../api/ep1';
 import jsPDF from 'jspdf';
 
+// const logo = '/logo.png'; // If we use it later
+
 const DonationReceiptsViewds = () => {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,83 +63,77 @@ const DonationReceiptsViewds = () => {
   const generatePDF = (receipt) => {
     const doc = new jsPDF();
 
-    // Logo removed
+    // Helper to add text
+    const addText = (text, x, y, size = 10, align = 'left', style = 'normal', color = [0, 0, 0]) => {
+      doc.setFontSize(size);
+      doc.setFont('helvetica', style);
+      doc.setTextColor(...color);
+      doc.text(text, x, y, { align });
+    };
 
-    doc.setFont('helvetica');
+    // --- PDF CONTENT START ---
 
-    doc.setFontSize(20);
-    doc.setTextColor(74, 111, 165);
-    doc.text('Vyagrashila Seva Samithi', 105, 30, { align: 'center' }); // Moved up from 70
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text('(Registered Religious Trust)', 105, 38, { align: 'center' }); // Moved up from 78
+    // 1. Header
+    // Note: Image handling in jsPDF requires base64 or an Image object. 
+    // If the logo is at '/logo.png', we can try to add it.
+    // doc.addImage('/logo.png', 'PNG', 15, 10, 25, 25); // Uncomment if logo.png is accessible and loadable this way.
 
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    // Using hardcoded values/receipt values. Since form sends them, receipt.trustRegNo is good.
-    // If undefined (old receipts), fallback to the new hardcoded values as this is the new standard.
+    // Instead of complex image loading, we'll center the text title for now as per "matched provided image" request which usually implies visual structure.
+
+    addText('Vyagrashila Seva Samithi', 105, 20, 18, 'center', 'bold');
+    addText('(Registered Religious Trust)', 105, 28, 12, 'center');
+
+    // 2. Receipt Label
+    doc.setFillColor(0, 0, 0); // Black background
+    doc.rect(140, 35, 50, 8, 'F');
+    addText('DONATION RECEIPT', 165, 40, 10, 'center', 'bold', [255, 255, 255]);
+
+    // 3. Trust Reg / PAN
+    doc.setDrawColor(0);
+    doc.line(20, 50, 190, 50);
+
     const trustRegNo = receipt.trustRegNo || 'YPR-4-00351-2025-26';
     const pan = receipt.pan || 'AAETV6768J';
-    // Trust Address removed
-    // const trustAddress = receipt.trustAddress || '';
+    addText(`Trust Regn No: ${trustRegNo} | PAN: ${pan}`, 105, 56, 10, 'center', 'bold');
 
-    doc.text(`Trust Regn. No: ${trustRegNo} | PAN: ${pan}`, 105, 48, { align: 'center' }); // Moved up and centered
-    // Address removed from PDF
-    // Removed Phone/Email line as requested
-    // Phone/Email removed from PDF
+    doc.line(20, 60, 190, 60);
 
-    doc.setFontSize(16);
-    doc.setTextColor(74, 111, 165);
-    doc.text('Donation / Contribution E-Receipt', 105, 65, { align: 'center' }); // Moved up from 115
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Receipt No: ${receipt.receiptNo || 'Auto-generated'}`, 20, 75); // Moved up from 125
-    doc.text(`Date: ${new Date(receipt.createdAt).toLocaleDateString()}`, 20, 81); // Moved up from 131
+    // 4. Receipt Date (Right Aligned)
+    const receiptDate = receipt.receiptDate ? new Date(receipt.receiptDate).toLocaleDateString() : new Date(receipt.createdAt).toLocaleDateString();
+    addText(`Date: ${receiptDate}`, 190, 70, 10, 'right');
 
-    doc.setFontSize(12);
-    doc.setTextColor(74, 111, 165);
-    doc.text('Donor Details', 20, 93); // Moved up from 143
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Name: ${receipt.donorName}`, 20, 101); // Moved up from 151
-    doc.text(`Address: ${receipt.donorAddress}`, 20, 107); // Moved up from 157
-    doc.text(`Mobile: ${receipt.donorMobile} | Email: ${receipt.donorEmail}`, 20, 113); // Moved up from 163
+    // 5. Donor Details
+    addText(`Name:`, 20, 80, 10, 'left', 'bold');
+    addText(receipt.donorName, 50, 80, 10);
 
-    doc.setFontSize(12);
-    doc.setTextColor(74, 111, 165);
-    doc.text('Donation Details', 20, 125); // Moved up from 175
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Amount Received: ${receipt.amountReceived}`, 20, 133); // Moved up from 183
-    doc.text(`In Words: ${receipt.amountInWords}`, 20, 139); // Moved up from 189
-
-    let paymentText = `Mode of Payment: ${receipt.modeOfPayment.toUpperCase()}`;
-    if (receipt.modeOfPayment === 'bank') {
-      paymentText += ` (Cheque No: ${receipt.chequeNo}, Bank: ${receipt.bankName}, Date: ${receipt.chequeDate})`;
-    } else if (receipt.modeOfPayment === 'upi') {
-      paymentText += ` (Txn ID: ${receipt.upiId}, Date: ${receipt.upiDate})`;
+    if (receipt.donorMobile) {
+      addText(`Mobile:`, 20, 88, 10, 'left', 'bold');
+      addText(receipt.donorMobile, 50, 88, 10);
     }
-    doc.text(paymentText, 20, 145, { maxWidth: 170 }); // Moved up from 195
 
-    const purpose = receipt.purposeOfDonation === 'Others' ? receipt.otherPurpose : receipt.purposeOfDonation;
-    doc.text(`Purpose of Donation: ${purpose}`, 20, 157); // Moved up from 207
+    // 6. Amount
+    addText(`Amount (₹):`, 20, 100, 10, 'left', 'bold');
+    addText(receipt.amountReceived?.toString(), 50, 100, 10);
 
-    doc.setFontSize(12);
-    doc.setTextColor(74, 111, 165);
-    doc.text('Declaration', 20, 169); // Moved up from 219
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text('This donation has been received towards the', 20, 177); // Moved up from 227
-    doc.text('religious/charitable purposes of the Trust.', 20, 183); // Moved up from 233
-    doc.text('(If registered under 80G: Donations are eligible for', 20, 195); // Moved up from 245
-    doc.text('deduction under section 80G of the Income Tax Act, 1961.)', 20, 201); // Moved up from 251
+    addText(`In Words:`, 20, 108, 10, 'left', 'bold');
+    addText(receipt.amountInWords, 50, 108, 10);
 
-    doc.text('For Vyagrashila Seva Samithi', 20, 230); // Moved up from 271
-    doc.text('Authorized Signatory: ___________________________', 20, 240); // Moved up from 281
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('*This is a digitally generated receipt and does not require a', 20, 255); // Moved up from 290
-    doc.text('physical signature.*', 20, 260); // Moved up from 295
+    // 7. Payment Mode
+    addText(`Mode of Payment:`, 20, 120, 10, 'left', 'bold');
+    let paymentText = receipt.modeOfPayment === 'bank' ? 'Online' : 'Cash';
+    addText(paymentText, 60, 120, 10);
+
+    if (receipt.modeOfPayment === 'bank' && receipt.upiId) {
+      addText(`Txn ID: ${receipt.upiId}`, 20, 128, 10);
+    }
+
+    // 8. Declaration
+    doc.line(20, 140, 190, 140);
+    addText('Declaration: This donation has been received towards the religious/charitable purposes of the Trust.', 20, 148, 9);
+
+    // 9. Signatory
+    addText('For Vyagrashila Seva Samithi', 190, 170, 10, 'right', 'bold');
+    addText('Authorized Signatory', 190, 190, 9, 'right');
 
     doc.save(`Donation_Receipt_${receipt.receiptNo || receipt._id}.pdf`);
   };
@@ -194,7 +190,6 @@ const DonationReceiptsViewds = () => {
                 <TableCell>Donor Name</TableCell>
                 <TableCell>Amount (₹)</TableCell>
                 <TableCell>Mode</TableCell>
-                <TableCell>Purpose</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -206,11 +201,6 @@ const DonationReceiptsViewds = () => {
                   <TableCell>{receipt.donorName}</TableCell>
                   <TableCell>{receipt.amountReceived}</TableCell>
                   <TableCell>{receipt.modeOfPayment}</TableCell>
-                  <TableCell>
-                    {receipt.purposeOfDonation === 'Others'
-                      ? receipt.otherPurpose
-                      : receipt.purposeOfDonation}
-                  </TableCell>
                   <TableCell>
                     <IconButton
                       color="primary"
@@ -224,7 +214,7 @@ const DonationReceiptsViewds = () => {
               ))}
               {receipts.length === 0 && !loading && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={6} align="center">
                     No donation receipts found
                   </TableCell>
                 </TableRow>

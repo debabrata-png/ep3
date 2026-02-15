@@ -18,11 +18,18 @@ import {
   Button,
   Pagination,
 } from "@mui/material";
-import { Edit, Delete, ArrowBack } from "@mui/icons-material";
+import {
+  Edit,
+  Delete,
+  ArrowBack,
+  CloudUpload,
+  Download,
+} from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import global1 from "./global1";
-// import ep1 from "../ap1/ep1";
-import ep1 from '../api/ep1';
+import ep1 from "../api/ep1";
+import * as XLSX from "xlsx";
+
 
 const LIMIT = 10;
 
@@ -40,6 +47,8 @@ const LibraryBooksPage = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [addForm, setAddForm] = useState({
     bookId: "",
     title: "",
@@ -50,11 +59,19 @@ const LibraryBooksPage = () => {
     accessid: "",
     category: "",
     booklanguage: "",
+    price: "",
+    pages: "",
+    source: "",
+    editionOfBook: "",
+    volume: "",
+    classNo: "",
+    donatedBy: "",
     issuedstatus: "available",
-    colid: Number(global1.colid),
+    colid: String(global1.colid),
   });
   const [studentQuery, setStudentQuery] = useState("");
   const [studentResults, setStudentResults] = useState([]);
+  const [error, setError] = useState("");
 
   const [issueForm, setIssueForm] = useState({
     regno: "",
@@ -74,7 +91,7 @@ const LibraryBooksPage = () => {
       const res = await ep1.get(`/api/v2/getlibrary/${id}`);
       const name = res.data.data?.libraryname || "";
       setLibraryName(name);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const fetchBooks = async (page = 1) => {
@@ -93,7 +110,7 @@ const LibraryBooksPage = () => {
 
       setBooks(res.data.data.books);
       setTotalPages(Math.ceil(res.data.data.total / LIMIT));
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleOpenIssueDialog = (book) => {
@@ -130,11 +147,239 @@ const LibraryBooksPage = () => {
       accessid: "",
       category: "",
       booklanguage: "",
-      colid: Number(global1.colid),
+      price: "",
+      pages: "",
+      source: "",
+      editionOfBook: "",
+      volume: "",
+      classNo: "",
+      donatedBy: "",
+      colid: String(global1.colid),
       issuedstatus: "available",
     });
+    setSelectedFile(null);
+    setError("");
     setAddDialogOpen(true);
   };
+
+  const downloadExcelTemplate = () => {
+
+    const templateData = [
+      {
+        author: "Sample Author",
+        accessid: "ACC001",
+        bookId: "BOOK001",
+        title: "Sample Book Title",
+        isbn: "978-1234567890",
+        publisher: "Sample Publisher",
+        publishedDate: "2024-01-01",
+        category: "Fiction",
+        booklanguage: "English",
+        price: "500",
+        pages: "250",
+        source: "Purchase",
+        editionOfBook: "1st",
+        volume: "1",
+        classNo: "813.54",
+        donatedBy: "John Doe"
+      }
+    ];
+
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Books Template");
+
+
+    const columnWidths = [
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 }, // bookId
+      { wch: 30 }, // title
+      { wch: 18 }, // isbn
+      { wch: 20 }, // publisher
+      { wch: 15 }, // publishedDate
+      { wch: 15 }, // category
+      { wch: 15 }, // booklanguage
+      { wch: 10 }, // price
+      { wch: 10 }, // pages
+      { wch: 15 }, // source
+      { wch: 15 }, //  editionOfBook
+      { wch: 10 }, // volume
+      { wch: 12 }, // classNo
+      { wch: 20 }, // donatedBy
+    ];
+    worksheet['!cols'] = columnWidths;
+    XLSX.writeFile(workbook, "Book_Upload_Template.xlsx");
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const validTypes = [
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ];
+      if (
+        validTypes.includes(file.type) ||
+        file.name.endsWith(".xlsx") ||
+        file.name.endsWith(".xls")
+      ) {
+        setSelectedFile(file);
+        setError("");
+      } else {
+        setError("Please select a valid Excel file (.xls or .xlsx)");
+        event.target.value = null;
+      }
+    }
+  };
+
+  const handleBulkUpload = async () => {
+    if (!selectedFile) {
+      setError("Please select a file");
+      return;
+    }
+
+    setUploading(true);
+    let totalInserted = 0;
+    let totalDuplicates = 0;
+    let totalValidationFailures = 0;
+    let allFailures = {
+      duplicates: [],
+      validationFailures: [],
+    };
+
+    try {
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+          if (jsonData.length === 0) {
+            setError("Excel file is empty.");
+            setUploading(false);
+            return;
+          }
+
+          const batchId = `BATCH-${Date.now()}`;
+          const getColumnValue = (row, ...possibleNames) => {
+            for (const name of possibleNames) {
+              if (row[name]) return String(row[name]).trim();
+            }
+            return "";
+          };
+
+          const booksData = jsonData.map((row) => ({
+            bookId: getColumnValue(row, "bookId", "BookId", "Book ID", "book_id"),
+            title: getColumnValue(row, "title", "Title"),
+            author: getColumnValue(row, "author", "Author", "Author Name"),
+            isbn: getColumnValue(row, "isbn", "ISBN"),
+            publisher: getColumnValue(row, "publisher", "Publisher"),
+            publishedDate: getColumnValue(row, "publishedDate", "PublishedDate", "Published Date"),
+            accessid: getColumnValue(row, "accessid", "AccessId", "Access ID", "access_id"),
+            category: getColumnValue(row, "category", "Category"),
+            booklanguage: getColumnValue(row, "booklanguage", "BookLanguage", "Language"),
+            price: getColumnValue(row, "price", "Price"),
+            pages: getColumnValue(row, "pages", "Pages"),
+            source: getColumnValue(row, "source", "Source"),
+            editionOfBook: getColumnValue(row, "editionOfBook", "EditionOfBook", "Edition"),
+            volume: getColumnValue(row, "volume", "Volume"),
+            classNo: getColumnValue(row, "classNo", "ClassNo", "Class No"),
+            donatedBy: getColumnValue(row, "donatedBy", "DonatedBy", "Donated By"),
+            bulkUploadBatch: batchId,
+            libraryid: id,
+            libraryname: libraryName,
+            colid: Number(global1.colid),
+            issuedstatus: "available",
+          }));
+
+          const CHUNK_SIZE = 500;
+          const totalChunks = Math.ceil(booksData.length / CHUNK_SIZE);
+          for (let i = 0; i < booksData.length; i += CHUNK_SIZE) {
+            const chunk = booksData.slice(i, i + CHUNK_SIZE);
+            const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
+
+            try {
+              const response = await ep1.post("/api/v2/books/bulk-upload", chunk);
+
+              totalInserted += response.data.summary.successCount || 0;
+              totalDuplicates += response.data.summary.duplicateCount || 0;
+              totalValidationFailures += response.data.summary.validationFailureCount || 0;
+
+
+              if (response.data.details?.duplicates) {
+                allFailures.duplicates.push(...response.data.details.duplicates.map(d => ({
+                  ...d,
+                  chunk: chunkNumber
+                })));
+              }
+              if (response.data.details?.validationFailures) {
+                allFailures.validationFailures.push(...response.data.details.validationFailures.map(v => ({
+                  ...v,
+                  chunk: chunkNumber
+                })));
+              }
+
+
+
+            } catch (err) {
+              console.error(`❌ Chunk ${chunkNumber} failed:`, err);
+              setError(`Chunk ${chunkNumber} failed: ${err.response?.data?.message || err.message}`);
+              setUploading(false);
+              return;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+
+          if (totalDuplicates > 0 || totalValidationFailures > 0) {
+            console.group("📋 Detailed Failure Report");
+
+            if (allFailures.duplicates.length > 0) {
+              console.warn("Duplicate Records:", allFailures.duplicates);
+            }
+
+            if (allFailures.validationFailures.length > 0) {
+              console.error("Validation Failures:", allFailures.validationFailures);
+            }
+
+            console.groupEnd();
+
+
+          }
+
+          setAddDialogOpen(false);
+          setSelectedFile(null);
+          setError("");
+          fetchBooks(page);
+
+        } catch (err) {
+          console.error("Processing error:", err);
+          setError(err.response?.data?.message || "Failed to process file");
+        } finally {
+          setUploading(false);
+        }
+      };
+
+      reader.onerror = () => {
+        setError("Failed to read file");
+        setUploading(false);
+      };
+
+      reader.readAsArrayBuffer(selectedFile);
+    } catch (err) {
+      console.error(err);
+      setError("Unexpected error during upload");
+      setUploading(false);
+    }
+  };
+
+
 
   const handleDeleteBook = async (bookId) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
@@ -159,7 +404,6 @@ const LibraryBooksPage = () => {
 
     let fineAmount = 0;
 
-    // ✅ Only calculate fine if book is being issued after due date (late issue)
     if (issueDate > dueDate && finePerDay > 0) {
       const daysLate = Math.ceil((issueDate - dueDate) / (1000 * 60 * 60 * 24));
       fineAmount = daysLate * finePerDay;
@@ -182,15 +426,12 @@ const LibraryBooksPage = () => {
     };
 
     try {
-      // ✅ 1. Create issued book record
       const res = await ep1.post("/api/v2/issuebook/create", payload);
 
-      // ✅ 2. Update book's issued status
       await ep1.post(`/api/v2/updatebook/${selectedBook._id}`, {
         issuedstatus: "issued",
       });
 
-      // ✅ 3. Create fine entry only if calculated fineAmount > 0
       if (fineAmount > 0) {
         const finePayload = {
           name: global1.name,
@@ -237,6 +478,15 @@ const LibraryBooksPage = () => {
   };
 
   const handleSubmitAdd = async () => {
+    if (!addForm.author) {
+      setError("Author is required");
+      return;
+    }
+    if (!addForm.accessid) {
+      setError("Access ID is required");
+      return;
+    }
+
     try {
       await ep1.post("/api/v2/createbook", {
         ...addForm,
@@ -245,9 +495,12 @@ const LibraryBooksPage = () => {
       });
       alert("Book added successfully!");
       setAddDialogOpen(false);
+      setError("");
       fetchBooks(page);
     } catch (err) {
-      alert("Failed to add book.");
+      const errorMsg = err.response?.data?.message || "Failed to add book";
+      setError(errorMsg);
+      console.error("Error adding book:", err);
     }
   };
 
@@ -259,7 +512,7 @@ const LibraryBooksPage = () => {
       });
       setBooks(res.data.data);
       setTotalPages(Math.ceil(res.data.total / LIMIT));
-    } catch (error) {}
+    } catch (error) { }
   };
 
   useEffect(() => {
@@ -291,7 +544,6 @@ const LibraryBooksPage = () => {
           const s = res.data.data;
           const student = { regno: s.regno, name: s.name, programcode: s.programcode, semester: s.semester };
 
-          // 🟢 Update both state and UI fields
           setStudentResults([student]);
           setIssueForm((prev) => ({
             ...prev,
@@ -312,10 +564,11 @@ const LibraryBooksPage = () => {
 
     return () => clearTimeout(timeout);
   }, [studentQuery]);
+
   return (
     <Box>
       <Button>
-        <ArrowBack onClick={() => navigate("/admin/libraries")} />
+        <ArrowBack onClick={() => navigate("/admin-libraries")} />
       </Button>
       <Typography
         variant="h4"
@@ -361,7 +614,7 @@ const LibraryBooksPage = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => navigate(`/library/${id}/issuedbooks`)}
+          onClick={() => navigate(`/library/${id}/issued-books`)}
         >
           View Issued Books
         </Button>
@@ -374,7 +627,7 @@ const LibraryBooksPage = () => {
         </Button>
       </Box>
 
-      <TableContainer component={Paper} sx={{ maxWidth: 1000, mx: "auto" }}>
+      <TableContainer component={Paper} sx={{ mx: "auto" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -387,6 +640,13 @@ const LibraryBooksPage = () => {
               <TableCell>Access ID</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Language</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Pages</TableCell>
+              <TableCell>Source</TableCell>
+              <TableCell>Edition</TableCell>
+              <TableCell>Volume</TableCell>
+              <TableCell>Class No</TableCell>
+              <TableCell>Donated By</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -399,8 +659,8 @@ const LibraryBooksPage = () => {
                       book.issuedstatus === "available"
                         ? "green"
                         : book.issuedstatus === "issued"
-                        ? "orange"
-                        : "inherit",
+                          ? "orange"
+                          : "inherit",
                     fontWeight: 600,
                     textTransform: "capitalize",
                   }}
@@ -415,6 +675,14 @@ const LibraryBooksPage = () => {
                 <TableCell>{book.accessid}</TableCell>
                 <TableCell>{book.category}</TableCell>
                 <TableCell>{book.booklanguage}</TableCell>
+                <TableCell>{book.price || "-"}</TableCell>
+                <TableCell>{book.pages || "-"}</TableCell>
+                <TableCell>{book.source || "-"}</TableCell>
+                <TableCell>{book.editionOfBook || "-"}</TableCell>
+
+                <TableCell>{book.volume || "-"}</TableCell>
+                <TableCell>{book.classNo || "-"}</TableCell>
+                <TableCell>{book.donatedBy || "-"}</TableCell>
                 <TableCell>
                   <Box display="flex" gap={1}>
                     <Button
@@ -463,49 +731,377 @@ const LibraryBooksPage = () => {
         </Box>
       )}
 
-      {/* Add Book Dialog */}
-      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)}>
+      {/* Add Book Dialog - Manual Entry + Bulk Upload */}
+      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Add Book</DialogTitle>
         <DialogContent>
-          {Object.keys(addForm)
-            .filter((field) => field !== "colid" && field !== "issuedstatus")
-            .map((field) => (
+          {error && (
+            <Box
+              sx={{
+                mb: 2,
+                p: 2,
+                backgroundColor: "#ffebee",
+                border: "1px solid #f44336",
+                borderRadius: "4px",
+              }}
+            >
+              <Typography variant="body2" color="error" sx={{ whiteSpace: "pre-wrap" }}>
+                {error}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Manual Entry Form */}
+          {!selectedFile ? (
+            <>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2 }}>
+                Manual Entry
+              </Typography>
+
+              {/* Required Fields First */}
               <TextField
-                key={field}
-                label={field.charAt(0).toUpperCase() + field.slice(1)}
+                label="Author (Required)"
                 fullWidth
                 margin="dense"
-                value={addForm[field] || ""}
-                onChange={(e) =>
-                  setAddForm({ ...addForm, [field]: e.target.value })
-                }
+                value={addForm.author || ""}
+                onChange={(e) => setAddForm({ ...addForm, author: e.target.value })}
               />
-            ))}
+              <TextField
+                label="Access ID (Required)"
+                fullWidth
+                margin="dense"
+                value={addForm.accessid || ""}
+                onChange={(e) => setAddForm({ ...addForm, accessid: e.target.value })}
+              />
+
+
+              <TextField
+                label="Book ID  "
+                fullWidth
+                margin="dense"
+                value={addForm.bookId || ""}
+                onChange={(e) => setAddForm({ ...addForm, bookId: e.target.value })}
+              />
+              <TextField
+                label="Title  "
+                fullWidth
+                margin="dense"
+                value={addForm.title || ""}
+                onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+              />
+              <TextField
+                label="ISBN  "
+                fullWidth
+                margin="dense"
+                value={addForm.isbn || ""}
+                onChange={(e) => setAddForm({ ...addForm, isbn: e.target.value })}
+              />
+              <TextField
+                label="Publisher "
+                fullWidth
+                margin="dense"
+                value={addForm.publisher || ""}
+                onChange={(e) => setAddForm({ ...addForm, publisher: e.target.value })}
+              />
+              <TextField
+                label="Published Date  "
+                fullWidth
+                margin="dense"
+                placeholder="YYYY-MM-DD"
+                value={addForm.publishedDate || ""}
+                onChange={(e) => setAddForm({ ...addForm, publishedDate: e.target.value })}
+              />
+              <TextField
+                label="Category  "
+                fullWidth
+                margin="dense"
+                value={addForm.category || ""}
+                onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+              />
+              <TextField
+                label="Book Language  "
+                fullWidth
+                margin="dense"
+                value={addForm.booklanguage || ""}
+                onChange={(e) => setAddForm({ ...addForm, booklanguage: e.target.value })}
+              />
+
+              <TextField
+                label="Price  "
+                type="number"
+                inputProps={{ step: "0.01", min: "0" }}
+                fullWidth
+                margin="dense"
+                value={addForm.price || ""}
+                onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
+              />
+
+
+              <TextField
+                label="Pages  "
+                type="number"
+                inputProps={{ min: "0" }}
+                fullWidth
+                margin="dense"
+                value={addForm.pages || ""}
+                onChange={(e) => setAddForm({ ...addForm, pages: e.target.value })}
+              />
+
+              {/* New Fields */}
+              <TextField
+                label="Source  "
+                fullWidth
+                margin="dense"
+                value={addForm.source || ""}
+                onChange={(e) => setAddForm({ ...addForm, source: e.target.value })}
+              />
+              <TextField
+                label=" Edition Of Book  "
+                fullWidth
+                margin="dense"
+
+                value={addForm.editionOfBook || ""}
+                onChange={(e) => setAddForm({ ...addForm, editionOfBook: e.target.value })}
+              />
+              <TextField
+                label="Volume  "
+                fullWidth
+                margin="dense"
+                value={addForm.volume || ""}
+                onChange={(e) => setAddForm({ ...addForm, volume: e.target.value })}
+              />
+              <TextField
+                label="Class No  "
+                fullWidth
+                margin="dense"
+                value={addForm.classNo || ""}
+                onChange={(e) => setAddForm({ ...addForm, classNo: e.target.value })}
+              />
+              <TextField
+                label="Donated By  "
+                fullWidth
+                margin="dense"
+                value={addForm.donatedBy || ""}
+                onChange={(e) => setAddForm({ ...addForm, donatedBy: e.target.value })}
+              />
+
+              <Box sx={{ my: 3, borderTop: "1px solid #e0e0e0" }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                Bulk Upload
+              </Typography>
+              <Typography variant="caption" color="textSecondary" sx={{ display: "block", mb: 2 }}>
+                Upload  file (.xls or .xlsx) with book details to add multiple books at once.
+              </Typography>
+              <Typography variant="caption" color="textSecondary" sx={{ display: "block", mb: 2, fontWeight: 500 }}>
+                Required columns: <strong>author, accessid</strong>
+                <br />
+
+              </Typography>
+
+              {/* Download Template Button */}
+              <Button
+                variant="outlined"
+                startIcon={<Download />}
+                fullWidth
+                sx={{ mb: 2 }}
+                onClick={downloadExcelTemplate}
+              >
+                Download   Template
+              </Button>
+
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<CloudUpload />}
+                fullWidth
+                sx={{ mb: 2 }}
+              >
+                Select   File
+                <input
+                  type="file"
+                  hidden
+                  accept=".xls,.xlsx"
+                  onChange={handleFileChange}
+                />
+              </Button>
+            </>
+          ) : (
+            <>
+
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor: "#e8f5e9",
+                  border: "1px solid #4caf50",
+                  borderRadius: "4px",
+                  mb: 2,
+                }}
+              >
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                  ✓ File Selected
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {selectedFile.name}
+                </Typography>
+              </Box>
+              <Button
+                variant="text"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setError("");
+                }}
+                sx={{ mb: 2 }}
+              >
+                ✕ Choose Different File
+              </Button>
+            </>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setAddDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmitAdd}>
-            Add
+          <Button
+            onClick={() => {
+              setAddDialogOpen(false);
+              setSelectedFile(null);
+              setError("");
+            }}
+          >
+            Cancel
           </Button>
+          {selectedFile ? (
+            <Button
+              variant="contained"
+              onClick={handleBulkUpload}
+              disabled={uploading}
+            >
+              {uploading ? "Uploading..." : "Upload File"}
+            </Button>
+          ) : (
+            <Button variant="contained" onClick={handleSubmitAdd}>
+              Add Book
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
-
-      {/* Edit Book Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Edit Book - {editForm.title}</DialogTitle>
         <DialogContent>
-          {Object.keys(addForm).map((field) => (
-            <TextField
-              key={field}
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
-              fullWidth
-              margin="dense"
-              value={editForm[field] || ""}
-              onChange={(e) =>
-                setEditForm({ ...editForm, [field]: e.target.value })
-              }
-            />
-          ))}
+          <TextField
+            label="Book ID"
+            fullWidth
+            margin="dense"
+            value={editForm.bookId || ""}
+            onChange={(e) => setEditForm({ ...editForm, bookId: e.target.value })}
+          />
+          <TextField
+            label="Title"
+            fullWidth
+            margin="dense"
+            value={editForm.title || ""}
+            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+          />
+          <TextField
+            label="Author"
+            fullWidth
+            margin="dense"
+            value={editForm.author || ""}
+            onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
+          />
+          <TextField
+            label="ISBN"
+            fullWidth
+            margin="dense"
+            value={editForm.isbn || ""}
+            onChange={(e) => setEditForm({ ...editForm, isbn: e.target.value })}
+          />
+          <TextField
+            label="Publisher"
+            fullWidth
+            margin="dense"
+            value={editForm.publisher || ""}
+            onChange={(e) => setEditForm({ ...editForm, publisher: e.target.value })}
+          />
+          <TextField
+            label="Published Date"
+            fullWidth
+            margin="dense"
+            value={editForm.publishedDate || ""}
+            onChange={(e) => setEditForm({ ...editForm, publishedDate: e.target.value })}
+          />
+          <TextField
+            label="Access ID"
+            fullWidth
+            margin="dense"
+            value={editForm.accessid || ""}
+            onChange={(e) => setEditForm({ ...editForm, accessid: e.target.value })}
+          />
+          <TextField
+            label="Category"
+            fullWidth
+            margin="dense"
+            value={editForm.category || ""}
+            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+          />
+          <TextField
+            label="Book Language"
+            fullWidth
+            margin="dense"
+            value={editForm.booklanguage || ""}
+            onChange={(e) => setEditForm({ ...editForm, booklanguage: e.target.value })}
+          />
+          <TextField
+            label="Price"
+            type="number"
+            inputProps={{ step: "0.01", min: "0" }}
+            fullWidth
+            margin="dense"
+            value={editForm.price || ""}
+            onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+          />
+          <TextField
+            label="Pages"
+            type="number"
+            inputProps={{ min: "0" }}
+            fullWidth
+            margin="dense"
+            value={editForm.pages || ""}
+            onChange={(e) => setEditForm({ ...editForm, pages: e.target.value })}
+          />
+          <TextField
+            label="Source"
+            fullWidth
+            margin="dense"
+            value={editForm.source || ""}
+            onChange={(e) => setEditForm({ ...editForm, source: e.target.value })}
+          />
+          <TextField
+            label=" Edition Of Book"
+            fullWidth
+            margin="dense"
+
+            value={editForm.editionOfBook || ""}
+            onChange={(e) => setEditForm({ ...editForm, editionOfBook: e.target.value })}
+          />
+          <TextField
+            label="Volume"
+            fullWidth
+            margin="dense"
+            value={editForm.volume || ""}
+            onChange={(e) => setEditForm({ ...editForm, volume: e.target.value })}
+          />
+          <TextField
+            label="Class No"
+            fullWidth
+            margin="dense"
+            value={editForm.classNo || ""}
+            onChange={(e) => setEditForm({ ...editForm, classNo: e.target.value })}
+          />
+          <TextField
+            label="Donated By"
+            fullWidth
+            margin="dense"
+            value={editForm.donatedBy || ""}
+            onChange={(e) => setEditForm({ ...editForm, donatedBy: e.target.value })}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
@@ -514,11 +1110,11 @@ const LibraryBooksPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
       {/* Issue Book Dialog */}
       <Dialog open={issueDialogOpen} onClose={() => setIssueDialogOpen(false)}>
         <DialogTitle>Issue Book - {selectedBook?.title}</DialogTitle>
         <DialogContent>
-          {/* Student search input */}
           <TextField
             label="Search Student"
             fullWidth
@@ -531,7 +1127,6 @@ const LibraryBooksPage = () => {
             }}
           />
 
-          {/* 🔽 Dropdown suggestion box */}
           {studentResults.map((s) => (
             <Box
               key={s.regno}
@@ -541,7 +1136,7 @@ const LibraryBooksPage = () => {
                   regno: s.regno,
                   student: s.name,
                 }));
-                setStudentQuery(`${s.regno}`); // Keep only regno in input
+                setStudentQuery(`${s.regno}`);
                 setStudentResults([]);
               }}
               sx={{
@@ -554,7 +1149,6 @@ const LibraryBooksPage = () => {
             </Box>
           ))}
 
-          {/* ✅ Read-only student name display */}
           {issueForm.student && (
             <TextField
               label="Student Name"
@@ -565,7 +1159,6 @@ const LibraryBooksPage = () => {
             />
           )}
 
-          {/* Rest of the fields */}
           <TextField
             label="Issue Date"
             type="date"

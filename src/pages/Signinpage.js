@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useEffect }  from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { TextField, Button, Grid, Typography, Box } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -8,216 +8,217 @@ import ep1 from '../api/ep1';
 
 const Signup = () => {
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const searchapi = async () => {
-        //alert('checking ' + email + ' ' + password);
+  const searchapi = async () => {
+    //alert('checking ' + email + ' ' + password);
 
-    const username=email;
+    const username = email;
 
-        if(!username || !password) {
-            alert('Please enter username and password');
-            return;
+    if (!username || !password) {
+      alert('Please enter username and password');
+      return;
+    }
+
+    const response = await ep1.get('/api/v1/loginapi', {
+      params: {
+        email: username.toLowerCase(),
+        password: password
+
+      }
+    });
+    //alert(response.data);
+    console.log(response.data);
+
+    if (response.data.status == "Success") {
+      const user = response.data.user;
+      const name = response.data.name;
+      const colid = response.data.colid;
+      const role = response.data.role;
+
+      const statuslog = parseInt(response.data.statuslog);
+
+      if (statuslog == 0) {
+        alert('Access is not yet activated. Please click on welcome email from reminder@epaathsala.com');
+        return;
+      }
+      // localStorage.setItem('user', user);
+      // localStorage.setItem('name', name);
+      // localStorage.setItem('colid', colid);
+      // localStorage.setItem('role', role);
+      const department = response.data.department;
+      // localStorage.setItem('department', department);
+      // localStorage.setItem('admincolid', colid);
+      global1.studid = response.data.user;
+      global1.user = response.data.user;
+      global1.name = response.data.name;
+      global1.name1 = response.data.name;
+      global1.colid = response.data.colid;
+      global1.admincolid = response.data.colid;
+      global1.token = response.data.token;
+      global1.department = response.data.department;
+      global1.programcode = response.data.programcode;
+
+      const lastlogin = new Date(response.data.lastlogin);
+      global1.lastlogin = lastlogin.toString();
+      console.log('lastlogin ' + lastlogin);
+      const todaydate = new Date();
+      var diffDays = lastlogin.getDate() - todaydate.getDate();
+      var diff = (lastlogin.getTime() - todaydate.getTime()) / 1000;
+      // Convert the difference from milliseconds to days
+      diff /= (60 * 60 * 24);
+      //alert(diff);
+      //console.log(diffDays);
+      if (diff < 1) {
+        alert('Your access expired. Please renew.');
+        navigate('/signinpay')
+        return;
+      }
+
+      global1.regno = response.data.regno;
+
+      global1.semester = response.data.semester;
+      global1.section = response.data.section;
+      global1.role = response.data.role;
+
+      global1.aqaryear = '2020-21';
+      global1.calendaryear = '2020';
+      global1.assessment = '2017-18,2018-19,2019-20,2020-21,2021-22';
+
+
+      const response1 = await ep1.get('/api/v1/getinstitutionname', {
+        params: {
+          user: user,
+          token: response.data.token,
+          colid: colid
         }
-        
-        const response = await ep1.get('/api/v1/loginapi', {
-            params: {
-                email: username.toLowerCase(),
-                password: password
+      });
 
-            }
-        });
-        //alert(response.data);
-        console.log(response.data);
-    
-        if (response.data.status == "Success") {
-            const user=response.data.user;
-            const name=response.data.name;
-            const colid=response.data.colid;
-            const role=response.data.role;
+      global1.instype = '';
+      global1.insname = '';
 
-            const statuslog=parseInt(response.data.statuslog);
+      global1.bulkuploadurl = 'https://canvasapi5u.azurewebsites.net/';
 
-            if(statuslog==0) {
-              alert('Access is not yet activated. Please click on welcome email from reminder@epaathsala.com');
-              return;
-            }
-            // localStorage.setItem('user', user);
-            // localStorage.setItem('name', name);
-            // localStorage.setItem('colid', colid);
-            // localStorage.setItem('role', role);
-            const department=response.data.department;
-            // localStorage.setItem('department', department);
-            // localStorage.setItem('admincolid', colid);
-            global1.studid = response.data.user;
-            global1.user = response.data.user;
-            global1.name = response.data.name;
-            global1.name1 = response.data.name;
-            global1.colid = response.data.colid;
-            global1.admincolid = response.data.colid;
-            global1.token = response.data.token;
-            global1.department = response.data.department;
-            global1.programcode = response.data.programcode;
+      var status1 = 'Submitted';
 
-            const lastlogin=new Date(response.data.lastlogin);
-            global1.lastlogin=lastlogin.toString();
-            console.log('lastlogin ' + lastlogin);
-            const todaydate=new Date();
-            var diffDays = lastlogin.getDate() - todaydate.getDate(); 
-            var diff = (lastlogin.getTime() - todaydate.getTime()) / 1000;
-  // Convert the difference from milliseconds to days
-  diff /= (60 * 60 * 24);
-            //alert(diff);
-            //console.log(diffDays);
-            if(diff<1) {
-              alert('Your access expired. Please renew.');
-              navigate('/signinpay')
-              return;
-            }
+      try {
+        status1 = response1.data.data.classes[0].status;
+      } catch (err) {
 
-            global1.regno = response.data.regno;
+      }
+      if (status1 == 'Blocked') {
+        // return <Navigate to="/noaccess" />;
+        alert('Access is suspended.')
+        return;
 
-            global1.semester = response.data.semester;
-            global1.section = response.data.section;
-            global1.role=response.data.role;
+      }
 
-            global1.aqaryear='2020-21';
-            global1.calendaryear='2020';
-            global1.assessment='2017-18,2018-19,2019-20,2020-21,2021-22';
-            
-    
-            const response1 = await ep1.get('/api/v1/getinstitutionname', {
-                params: {
-                    user: user,
-                    token: response.data.token,
-                    colid: colid
-                }
-            });
-    
-            global1.instype='';
-            global1.insname='';
-    
-            global1.bulkuploadurl='https://canvasapi5u.azurewebsites.net/';
+      if (status1 == 'Auto') {
+        // return <Navigate to="/noaccess" />;
+        global1.autorenew = 'Yes';
 
-            var status1='Submitted';
-    
-            try {
-                status1=response1.data.data.classes[0].status;
-            } catch(err) {
-    
-            }
-            if(status1=='Blocked') {
-                // return <Navigate to="/noaccess" />;
-                alert('Access is suspended.')
-                return;
-    
-            }
+      }
 
-            if(status1=='Auto') {
-              // return <Navigate to="/noaccess" />;
-              global1.autorenew='Yes';
-  
+      try {
+
+        global1.instype = response1.data.data.classes[0].type;
+        //localStorage.setItem('instype', response1.data.data.classes[0].type);
+      } catch (err) {
+
+      }
+      try {
+
+        global1.insname = response1.data.data.classes[0].institutionname;
+        //localStorage.setItem('insname', response1.data.data.classes[0].institutionname);
+      } catch (err) {
+
+      }
+
+      try {
+
+        global1.logo = response1.data.data.classes[0].logo;
+        //localStorage.setItem('logo', response1.data.data.classes[0].logo);
+      } catch (err) {
+
+      }
+
+      try {
+
+        global1.univid = response1.data.data.classes[0].admincolid;
+        //localStorage.setItem('univid', response1.data.data.classes[0].admincolid);
+      } catch (err) {
+
+      }
+
+      try {
+
+        global1.collegecode = response1.data.data.classes[0].institutioncode;
+        //localStorage.setItem('collegecode', response1.data.data.classes[0].institutioncode);
+      } catch (err) {
+
+      }
+      var name1 = name;
+      try {
+
+        name1 = name1 + ' ' + response1.data.data.classes[0].institutionname;
+        //localStorage.setItem('name1', name1);
+
+      } catch (err) {
+
+      }
+
+      if (response.data.role == 'Student') {
+        const response12 = await ep1.get('/api/v1/getcurrentyearbyprg', {
+          params: {
+            programcode: response.data.programcode,
+            semester: response.data.semester,
+            section: response.data.section,
+            token: response.data.token,
+            colid: colid
           }
-    
-            try {
-               
-                global1.instype=response1.data.data.classes[0].type;
-                //localStorage.setItem('instype', response1.data.data.classes[0].type);
-            } catch(err) {
-    
-            }
-            try {
-                
-                global1.insname=response1.data.data.classes[0].institutionname;
-                //localStorage.setItem('insname', response1.data.data.classes[0].institutionname);
-            } catch(err) {
-    
-            }
+        });
+        var lmsyear = '2022-23';
+        console.log(response12.data.data);
 
-            try {
-                
-                global1.logo=response1.data.data.classes[0].logo;
-                //localStorage.setItem('logo', response1.data.data.classes[0].logo);
-            } catch(err) {
-    
-            }
-    
-            try {
-             
-                global1.univid=response1.data.data.classes[0].admincolid;
-                //localStorage.setItem('univid', response1.data.data.classes[0].admincolid);
-            } catch(err) {
-    
-            }
-    
-            try {
-            
-                global1.collegecode=response1.data.data.classes[0].institutioncode;
-                //localStorage.setItem('collegecode', response1.data.data.classes[0].institutioncode);
-            } catch(err) {
-    
-            }
-            var name1=name;
-            try {
-                
-                name1=name1 + ' ' + response1.data.data.classes[0].institutionname;
-                //localStorage.setItem('name1', name1);
-                
-            } catch(err) {
-    
-            }
-    
-            if (response.data.role=='Student') {
-                const response12 = await ep1.get('/api/v1/getcurrentyearbyprg', {
-                    params: {
-                        programcode: response.data.programcode,
-                        semester: response.data.semester,
-                        section: response.data.section,
-                        token: response.data.token,
-                        colid: colid
-                    }
-                });
-                var lmsyear='2022-23';
-                console.log(response12.data.data);
-    
-                
-                try {
-                    lmsyear= response12.data.data.classes[0].year;
-    
-                } catch (err) {
-    
-                }
-                global1.lmsyear=lmsyear;
-                // return <Navigate to="/dashstud1" />;
-               
-            } else if (response.data.role=='Faculty') {
-             
-                // navigate('/dashmmfaccourses')
-                navigate('/dashdashfacnew');
-            } else if (response.data.role=='Admin') {
-                
-                navigate('/dashmncas11admin')
-            } else if (response.data.role=='Super') {
-                //history.replace('/dashmydetails');
-                // return <Navigate to="/viewcourse1" />;
-            } else if (response.data.role=='HoD') {
-                // return <Navigate to="/viewcourse1" />;
-            } else {
-               //navigate('/dashmmfaccourses');
-              navigate('/dashdashfacnew');
 
-            }
+        try {
+          lmsyear = response12.data.data.classes[0].year;
+
+        } catch (err) {
+
         }
-        else {
-            alert('Invalid Username or Password. Please try again.');
-            //setTerm2('Invalid Username or Password. Please try again.');
-        }
-        
-       
-    };
+        global1.lmsyear = lmsyear;
+        // return <Navigate to="/dashstud1" />;
+
+      } else if (response.data.role == 'Faculty') {
+
+        // navigate('/dashmmfaccourses')
+        navigate('/dashdashfacnew');
+      } else if (response.data.role == 'Admin') {
+
+        //navigate('/dashmncas11admin')
+        navigate('/admin-new')
+      } else if (response.data.role == 'Super') {
+        //history.replace('/dashmydetails');
+        // return <Navigate to="/viewcourse1" />;
+      } else if (response.data.role == 'HoD') {
+        // return <Navigate to="/viewcourse1" />;
+      } else {
+        //navigate('/dashmmfaccourses');
+        navigate('/dashdashfacnew');
+
+      }
+    }
+    else {
+      alert('Invalid Username or Password. Please try again.');
+      //setTerm2('Invalid Username or Password. Please try again.');
+    }
+
+
+  };
 
   return (
     <Box
@@ -227,7 +228,7 @@ const Signup = () => {
         overflow: "hidden",
         marginX: "auto",
         maxWidth: "1500px",
-        height:{xs:"100%" ,md: "100vh"}
+        height: { xs: "100%", md: "100vh" }
       }}
     >
       {/* Background div behind the content */}
@@ -241,7 +242,7 @@ const Signup = () => {
           right: "-170px",
           top: "-150px",
           rotate: "36deg",
-          
+
         }}
         className='backgroundBox'
       />
@@ -274,22 +275,22 @@ const Signup = () => {
               width: '100%',
             }}
           >
-            <div style={{ alignItems: 'center', width: 300, marginLeft: 100}}>
-             <img
-              src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-11-2048-FullLogo_Transparent_NoBuffer.png"
-              alt="ct_logo"
-              width="150"
-              height="60"
+            <div style={{ alignItems: 'center', width: 300, marginLeft: 100 }}>
+              <img
+                src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-11-2048-FullLogo_Transparent_NoBuffer.png"
+                alt="ct_logo"
+                width="150"
+                height="60"
 
-              style={{
-                objectFit: "cover",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                alignSelf: "center",
-                marginBottom: 30
-              }}
-            />
+                style={{
+                  objectFit: "cover",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  alignSelf: "center",
+                  marginBottom: 30
+                }}
+              />
             </div>
             {/* <Typography variant="h4" align="center" gutterBottom color='black'>
               Login
@@ -341,7 +342,7 @@ const Signup = () => {
                 </Grid> */}
                 <Grid item xs={12}>
                   <Button
-                   
+
                     variant="contained"
                     color="primary"
                     fullWidth
@@ -381,13 +382,13 @@ const Signup = () => {
             </form>
           </Box>
         </Box>
-        <Box sx={{ 
-          width: { xs: "90%", sm: "70%", md: "45%" }, 
-          zIndex: 1, 
-          textAlign: { xs: "center", md: "right" }, 
-          padding: { xs: 2, md: 0 } 
+        <Box sx={{
+          width: { xs: "90%", sm: "70%", md: "45%" },
+          zIndex: 1,
+          textAlign: { xs: "center", md: "right" },
+          padding: { xs: 2, md: 0 }
         }}>
-          <Typography variant='h2' fontWeight="bold" fontSize={{ xs: '1.5rem', sm: '2.5rem', md: '3rem' }} textTransform="uppercase" display={{xs:"none",md:"block"}}>
+          <Typography variant='h2' fontWeight="bold" fontSize={{ xs: '1.5rem', sm: '2.5rem', md: '3rem' }} textTransform="uppercase" display={{ xs: "none", md: "block" }}>
             Access LMS and Accreditation Management Platform with Generative AI.
           </Typography>
         </Box>

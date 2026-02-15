@@ -27,9 +27,10 @@ import {
   Pagination,
   Alert
 } from "@mui/material";
-import { Edit, Delete, Add, Upload, Search } from "@mui/icons-material";
+import { Edit, Delete, Add, Upload, Search, Download } from "@mui/icons-material";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
+import * as XLSX from "xlsx";
 
 const UserManagementdsoct18 = () => {
   const navigate = useNavigate();
@@ -37,19 +38,19 @@ const UserManagementdsoct18 = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  
+
   // Filters
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("");
   const [filterOptions, setFilterOptions] = useState({});
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  
+
   // Selected users for bulk actions
   const [selectedUsers, setSelectedUsers] = useState([]);
 
@@ -66,7 +67,7 @@ const UserManagementdsoct18 = () => {
         page,
         limit: 20
       };
-      
+
       if (search) params.search = search;
       if (roleFilter) params.role = roleFilter;
       if (departmentFilter) params.department = departmentFilter;
@@ -96,7 +97,7 @@ const UserManagementdsoct18 = () => {
 
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-    
+
     try {
       await ep1.get("/api/v2/ds1deleteuser", { params: { id: userId } });
       setMessage("User deleted successfully");
@@ -115,7 +116,7 @@ const UserManagementdsoct18 = () => {
     }
 
     if (!window.confirm(`Delete ${selectedUsers.length} selected users?`)) return;
-    
+
     try {
       await ep1.get("/api/v2/ds1bulkdeleteuser", {
         params: { ids: selectedUsers.join(",") }
@@ -146,6 +147,39 @@ const UserManagementdsoct18 = () => {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const params = {
+        colid: global1.colid,
+        // Fetch all for export, or implement pagination based export if needed. 
+        // For now, let's fetch 'all' by setting a high limit or using a specific export flag if backend supports it.
+        // Re-using same API but with high limit.
+        limit: 10000,
+      };
+
+      if (search) params.search = search;
+      if (roleFilter) params.role = roleFilter;
+      if (departmentFilter) params.department = departmentFilter;
+      if (semesterFilter) params.semester = semesterFilter;
+
+      const res = await ep1.get("/api/v2/ds1getalluser", { params });
+      const dataToExport = res.data.data;
+
+      if (!dataToExport || dataToExport.length === 0) {
+        setError("No data to export");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Users");
+      XLSX.writeFile(wb, "users_export.xlsx");
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      setError("Error exporting data");
+    }
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
@@ -167,6 +201,14 @@ const UserManagementdsoct18 = () => {
               onClick={() => navigate("/bulkuploadusersdsoct18")}
             >
               Bulk Upload
+            </Button>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<Download />}
+              onClick={handleExport}
+            >
+              Export
             </Button>
             {selectedUsers.length > 0 && (
               <Button
@@ -203,9 +245,13 @@ const UserManagementdsoct18 = () => {
               label="Role"
             >
               <MenuItem value="">All</MenuItem>
-              {filterOptions.roles?.map(role => (
-                <MenuItem key={role} value={role}>{role}</MenuItem>
-              ))}
+              {filterOptions.roles?.map(role => {
+                const val = role?.value || role;
+                const lab = role?.label || role;
+                return (
+                  <MenuItem key={val} value={val}>{lab}</MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
           <FormControl sx={{ minWidth: 150 }}>
@@ -216,9 +262,13 @@ const UserManagementdsoct18 = () => {
               label="Department"
             >
               <MenuItem value="">All</MenuItem>
-              {filterOptions.departments?.map(dept => (
-                <MenuItem key={dept} value={dept}>{dept}</MenuItem>
-              ))}
+              {filterOptions.departments?.map(dept => {
+                const val = dept?.value || dept;
+                const lab = dept?.label || dept;
+                return (
+                  <MenuItem key={val} value={val}>{lab}</MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
           <FormControl sx={{ minWidth: 120 }}>
@@ -229,9 +279,13 @@ const UserManagementdsoct18 = () => {
               label="Semester"
             >
               <MenuItem value="">All</MenuItem>
-              {filterOptions.semesters?.map(sem => (
-                <MenuItem key={sem} value={sem}>{sem}</MenuItem>
-              ))}
+              {filterOptions.semesters?.map(sem => {
+                const val = sem?.value || sem;
+                const lab = sem?.label || sem;
+                return (
+                  <MenuItem key={val} value={val}>{lab}</MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
         </Box>

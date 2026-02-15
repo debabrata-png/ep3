@@ -19,31 +19,33 @@ import { mainListItems, secondaryListItems } from './menucasadmin1';
 import { useState } from 'react';
 // import Chart from './Charts';
 // import Deposits from './Deposits';
-import ViewPage from './ViewmUser';
-import Login from './Login';
+// import ViewPage from './ViewmUser';
+// import UserManagementdsoct18 from './UserManagementdsoct18';
+import UserManagementdsnov17 from './UserManagementdsnov17';
+// import Login from './Login';
 import global1 from './global1';
 
 const SidebarWidth = 250;
 
 const AppBarStyled = styled(AppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-  })(({ theme, open }) => ({
+})(({ theme, open }) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
     }),
     ...(open && {
-      marginLeft: SidebarWidth,
-      width: `calc(100% - ${SidebarWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
+        marginLeft: SidebarWidth,
+        width: `calc(100% - ${SidebarWidth}px)`,
+        transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
     }),
-  }));
+}));
 
-  const DrawerStyled = styled(Drawer, {
+const DrawerStyled = styled(Drawer, {
     shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
     '& .MuiDrawer-paper': {
@@ -77,8 +79,8 @@ function DashboardContent() {
         setOpen(!open);
     };
 
-    const name=global1.name;
-    const institution=global1.institution;
+    const name = global1.name;
+    // const institution = global1.institution;
 
     return (
         <ThemeProvider theme={mdTheme}>
@@ -112,12 +114,12 @@ function DashboardContent() {
                             User management
                         </Typography>
                         <IconButton color="inherit">
-    <Badge color="inherit">
-        <Link to="/Login" style={{ textDecoration: 'none', color: 'inherit' }}> 
-            <Typography variant="body1">Sign out</Typography>
-        </Link>
-    </Badge>
-</IconButton>
+                            <Badge color="inherit">
+                                <Link to="/Login" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <Typography variant="body1">Sign out</Typography>
+                                </Link>
+                            </Badge>
+                        </IconButton>
 
                     </Toolbar>
                 </AppBarStyled>
@@ -147,7 +149,7 @@ function DashboardContent() {
                     <List>
                         {/* {mainListItems} */}
                         {mainListItems({ open })}
-                        </List>
+                    </List>
                     <Divider />
                     <List>{secondaryListItems}</List>
                 </DrawerStyled>
@@ -166,7 +168,7 @@ function DashboardContent() {
                     <Toolbar />
                     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                            < ViewPage/>
+                            <UserManagementdsnov17 />
                         </Paper>
                     </Container>
                 </Box>

@@ -41,7 +41,7 @@ const ParentDetailsPage = () => {
     address: "",
     studentname: "",
     regno: "",
-    user: global1.email,
+    user: global1.user,
     username: global1.name,
     colid: global1.colid,
   });
@@ -99,7 +99,7 @@ const ParentDetailsPage = () => {
         address: "",
         studentname: "",
         regno: "",
-        user: global1.email,
+        user: global1.user,
         username: global1.name,
         colid: global1.colid,
       });
@@ -114,15 +114,22 @@ const ParentDetailsPage = () => {
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...form,
+        user: global1.user,
+        username: global1.name,
+        colid: global1.colid,
+      };
+
       if (editId) {
-        await ep1.post("/api/v2/updateparentdetailsds", { ...form, id: editId });
+        await ep1.post("/api/v2/updateparentdetailsds", { ...payload, id: editId });
         setSnackbar({
           open: true,
           message: "Parent details updated successfully",
           severity: "success",
         });
       } else {
-        await ep1.post("/api/v2/addparentdetailsds", form);
+        await ep1.post("/api/v2/addparentdetailsds", payload);
         setSnackbar({
           open: true,
           message: "Parent details added successfully",

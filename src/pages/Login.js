@@ -28,14 +28,14 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const usernameref=useRef();
-  const passwordref=useRef();
+  const usernameref = useRef();
+  const passwordref = useRef();
 
   //const history=useHistory();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+
     // Handle login logic
     console.log('Email:', email);
     console.log('Password:', password);
@@ -45,21 +45,21 @@ function Login() {
     // const username=usernameref.current.value;
     // const password=passwordref.current.value;
 
-const username=email;
+    const username = email;
 
 
-    if(!username || !password) {
-        alert('Please enter username and password');
-        return;
+    if (!username || !password) {
+      alert('Please enter username and password');
+      return;
     }
-    
-    const response = await ep1.get('/api/v1/loginapi', {
-        params: {
-            email: username.toLowerCase(),
-            password: password
-            
 
-        }
+    const response = await ep1.get('/api/v1/loginapi', {
+      params: {
+        email: username.toLowerCase(),
+        password: password
+
+
+      }
     });
     console.log(response.data);
     //console.log('hello ' + response.data.status);
@@ -70,217 +70,217 @@ const username=email;
 
     // }
     if (response.data.status == "Success") {
-        const user=response.data.user;
-        const name=response.data.name;
-        const colid=response.data.colid;
-        const role=response.data.role;
-        //localStorage.setItem('user', user);
-        //localStorage.setItem('name', name);
-        //localStorage.setItem('colid', colid);
-        //localStorage.setItem('role', role);
-        const department=response.data.department;
-        //localStorage.setItem('department', department);
-        //localStorage.setItem('admincolid', colid);
-        global1.studid = response.data.user;
-        global1.user = response.data.user;
-        global1.name = response.data.name;
-        global1.name1 = response.data.name;
-        global1.colid = response.data.colid;
-        global1.admincolid = response.data.colid;
-        global1.token = response.data.token;
-        global1.department = response.data.department;
-        global1.programcode = response.data.programcode;
-        const lastlogin=new Date(response.data.lastlogin);
-        const todaydate=new Date();
-        var diffDays = lastlogin.getDate() - todaydate.getDate(); 
-        alert(diffDays);
-        // //global1.programid = response.data[0].programid;
-        // //global1.batch = response.data[0].batch;
-        global1.regno = response.data.regno;
-        // //global1.photos1 = response.data[0].photos1;
-        global1.semester = response.data.semester;
-        global1.section = response.data.section;
-        global1.role=response.data.role;
-        //alert(colid + '-' + name + '-' + user);
+      const user = response.data.user;
+      const name = response.data.name;
+      const colid = response.data.colid;
+      const role = response.data.role;
+      localStorage.setItem('user', user);
+      localStorage.setItem('name', name);
+      localStorage.setItem('colid', colid);
+      localStorage.setItem('role', role);
+      const department = response.data.department;
+      localStorage.setItem('department', department);
+      localStorage.setItem('admincolid', colid);
+      global1.studid = response.data.user;
+      global1.user = response.data.user;
+      global1.name = response.data.name;
+      global1.name1 = response.data.name;
+      global1.colid = response.data.colid;
+      global1.admincolid = response.data.colid;
+      global1.token = response.data.token;
+      global1.department = response.data.department;
+      global1.programcode = response.data.programcode;
+      const lastlogin = new Date(response.data.lastlogin);
+      const todaydate = new Date();
+      var diffDays = lastlogin.getDate() - todaydate.getDate();
+      alert(diffDays);
+      // //global1.programid = response.data[0].programid;
+      // //global1.batch = response.data[0].batch;
+      global1.regno = response.data.regno;
+      // //global1.photos1 = response.data[0].photos1;
+      global1.semester = response.data.semester;
+      global1.section = response.data.section;
+      global1.role = response.data.role;
+      //alert(colid + '-' + name + '-' + user);
 
-        global1.aqaryear='2020-21';
-        global1.calendaryear='2020';
-        global1.assessment='2017-18,2018-19,2019-20,2020-21,2021-22';
+      global1.aqaryear = '2020-21';
+      global1.calendaryear = '2020';
+      global1.assessment = '2017-18,2018-19,2019-20,2020-21,2021-22';
 
-        //console.log(global1.user);
-        
-        
-        // const fuser = firebase.auth().currentUser;
-        // if (fuser != null) {    
-        // } else {
-        //     skipuser();
-        // }
+      //console.log(global1.user);
 
-        console.log(response.data.token);
-        console.log(global1.token);
 
-        const response1 = await ep1.get('/api/v1/getinstitutionname', {
-            params: {
-                user: user,
-                token: response.data.token,
-                colid: colid
-            }
-        });
+      // const fuser = firebase.auth().currentUser;
+      // if (fuser != null) {    
+      // } else {
+      //     skipuser();
+      // }
 
-        alert(response1.data.data.classes[0].institutionname);
+      console.log(response.data.token);
+      console.log(global1.token);
 
-        console.log(response1.data);
-
-        global1.instype='';
-        global1.insname='';
-
-        global1.bulkuploadurl='https://canvasapi5u.azurewebsites.net/';
-
-        //global1.bulkuploadurl='https://canvasapi1.azurewebsites.net/';
-
-        //global1.bulkuploadurl='http://localhost:3000/';
-
-        var status1='Submitted';
-        alert(response1.data.data.classes[0].status);
-
-        try {
-            status1=response1.data.data.classes[0].status;
-        } catch(err) {
-          alert(err);
+      const response1 = await ep1.get('/api/v1/getinstitutionname', {
+        params: {
+          user: user,
+          token: response.data.token,
+          colid: colid
         }
-        if(status1=='Blocked') {
-            alert('Login not allowed. Your subscription is disabled.')
+      });
 
-            //history.replace('/noaccess');
-            // return <Navigate to="/noaccess" />;
-            return;
+      alert(response1.data.data.classes[0].institutionname);
 
-        }
+      console.log(response1.data);
 
-        global1.autorenew=status1;
+      global1.instype = '';
+      global1.insname = '';
 
-        if(status1=='Auto') {
-          global1.autorenew='Yes';
+      global1.bulkuploadurl = 'https://canvasapi5u.azurewebsites.net/';
+
+      //global1.bulkuploadurl='https://canvasapi1.azurewebsites.net/';
+
+      //global1.bulkuploadurl='http://localhost:3000/';
+
+      var status1 = 'Submitted';
+      alert(response1.data.data.classes[0].status);
+
+      try {
+        status1 = response1.data.data.classes[0].status;
+      } catch (err) {
+        alert(err);
+      }
+      if (status1 == 'Blocked') {
+        alert('Login not allowed. Your subscription is disabled.')
+
+        //history.replace('/noaccess');
+        // return <Navigate to="/noaccess" />;
+        return;
+
+      }
+
+      global1.autorenew = status1;
+
+      if (status1 == 'Auto') {
+        global1.autorenew = 'Yes';
 
       }
 
 
 
 
-        
+
+      try {
+        //console.log(response1.data.data.classes);
+        //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
+        global1.instype = response1.data.data.classes[0].type;
+        //localStorage.setItem('instype', response1.data.data.classes[0].type);
+      } catch (err) {
+
+      }
+      try {
+        //console.log(response1.data.data.classes);
+        //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
+        global1.insname = response1.data.data.classes[0].institutionname;
+        //localStorage.setItem('insname', response1.data.data.classes[0].institutionname);
+      } catch (err) {
+
+      }
+
+      try {
+        //console.log(response1.data.data.classes);
+        //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
+        global1.univid = response1.data.data.classes[0].admincolid;
+        //localStorage.setItem('univid', response1.data.data.classes[0].admincolid);
+      } catch (err) {
+
+      }
+
+      try {
+        //console.log(response1.data.data.classes);
+        //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
+        global1.collegecode = response1.data.data.classes[0].institutioncode;
+        //localStorage.setItem('collegecode', response1.data.data.classes[0].institutioncode);
+      } catch (err) {
+
+      }
+      var name1 = name;
+      try {
+        //console.log(response1.data.data.classes);
+        //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
+        name1 = name1 + ' ' + response1.data.data.classes[0].institutionname;
+        //localStorage.setItem('name1', name1);
+
+      } catch (err) {
+
+      }
+
+      // favcontxt.addFavorite({
+      //     studid: user,
+      //     name: name1,
+      //     course: 0,
+      // },response.data.role,colid,name1);
+
+      if (response.data.role == 'Student') {
+        const response12 = await ep1.get('/api/v1/getcurrentyearbyprg', {
+          params: {
+            programcode: response.data.programcode,
+            semester: response.data.semester,
+            section: response.data.section,
+            token: response.data.token,
+            colid: colid
+          }
+        });
+        var lmsyear = '2022-23';
+        console.log(response12.data.data);
+
+
         try {
-            //console.log(response1.data.data.classes);
-            //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
-            global1.instype=response1.data.data.classes[0].type;
-            //localStorage.setItem('instype', response1.data.data.classes[0].type);
-        } catch(err) {
+          lmsyear = response12.data.data.classes[0].year;
+
+        } catch (err) {
 
         }
-        try {
-            //console.log(response1.data.data.classes);
-            //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
-            global1.insname=response1.data.data.classes[0].institutionname;
-            //localStorage.setItem('insname', response1.data.data.classes[0].institutionname);
-        } catch(err) {
+        global1.lmsyear = lmsyear;
 
-        }
+        //history.replace('/dashstud1');
+        return <Navigate to="/dashstud1" />;
+        //alert('Student login is not enabled. Please login from app');
+      } else if (response.data.role == 'Faculty') {
+        // history.replace('/dasherp1');
+        //history.replace('/selectbrowser');
+        //return <Navigate to="/viewcourse1" />;
+        //alert('logged in');
+        navigate('/dashmncas11')
+      } else if (response.data.role == 'Admin') {
+        // history.replace('/dasherpadmin1');
+        //history.replace('/selectbrowseradmin');
+        //return <Navigate to="/viewcourse1" />;
+        navigate('/dashmncas11admin')
+      } else if (response.data.role == 'Super') {
+        //history.replace('/dashmydetails');
+        return <Navigate to="/viewcourse1" />;
+      } else if (response.data.role == 'HoD') {
+        //history.replace('/dasherp1');
+        return <Navigate to="/viewcourse1" />;
+      }
 
-        try {
-            //console.log(response1.data.data.classes);
-            //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
-            global1.univid=response1.data.data.classes[0].admincolid;
-            //localStorage.setItem('univid', response1.data.data.classes[0].admincolid);
-        } catch(err) {
 
-        }
-
-        try {
-            //console.log(response1.data.data.classes);
-            //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
-            global1.collegecode=response1.data.data.classes[0].institutioncode;
-            //localStorage.setItem('collegecode', response1.data.data.classes[0].institutioncode);
-        } catch(err) {
-
-        }
-        var name1=name;
-        try {
-            //console.log(response1.data.data.classes);
-            //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
-            name1=name1 + ' ' + response1.data.data.classes[0].institutionname;
-            //localStorage.setItem('name1', name1);
-            
-        } catch(err) {
-
-        }
-
-        // favcontxt.addFavorite({
-        //     studid: user,
-        //     name: name1,
-        //     course: 0,
-        // },response.data.role,colid,name1);
-
-        if (response.data.role=='Student') {
-            const response12 = await ep1.get('/api/v1/getcurrentyearbyprg', {
-                params: {
-                    programcode: response.data.programcode,
-                    semester: response.data.semester,
-                    section: response.data.section,
-                    token: response.data.token,
-                    colid: colid
-                }
-            });
-            var lmsyear='2022-23';
-            console.log(response12.data.data);
-
-            
-            try {
-                lmsyear= response12.data.data.classes[0].year;
-
-            } catch (err) {
-
-            }
-            global1.lmsyear=lmsyear;
-
-            //history.replace('/dashstud1');
-            return <Navigate to="/dashstud1" />;
-            //alert('Student login is not enabled. Please login from app');
-        } else if (response.data.role=='Faculty') {
-            // history.replace('/dasherp1');
-            //history.replace('/selectbrowser');
-            //return <Navigate to="/viewcourse1" />;
-            //alert('logged in');
-            navigate('/dashmncas11')
-        } else if (response.data.role=='Admin') {
-            // history.replace('/dasherpadmin1');
-            //history.replace('/selectbrowseradmin');
-            //return <Navigate to="/viewcourse1" />;
-            navigate('/dashmncas11admin')
-        } else if (response.data.role=='Super') {
-            //history.replace('/dashmydetails');
-            return <Navigate to="/viewcourse1" />;
-        } else if (response.data.role=='HoD') {
-            //history.replace('/dasherp1');
-            return <Navigate to="/viewcourse1" />;
-        }
-        
-
-        //setTerm2('Thank you');  
-        //navigation.navigate('Nland1');  
+      //setTerm2('Thank you');  
+      //navigation.navigate('Nland1');  
     }
     else {
-        alert('Invalid Username or Password. Please try again.');
-        //setTerm2('Invalid Username or Password. Please try again.');
+      alert('Invalid Username or Password. Please try again.');
+      //setTerm2('Invalid Username or Password. Please try again.');
     }
     //history.replace('/viewtasks');
-   
-};
+
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container component="main" maxWidth="xl" sx={{ backgroundColor:'#e1f5fe', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Container component="main" maxWidth="xl" sx={{ backgroundColor: '#e1f5fe', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Paper elevation={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: 3, flexDirection: 'column', width: '100%', maxWidth: '400px', bgcolor: 'white' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary',borderRadius:'0', width: 200, height: 40 }} src="/images/LogoLogin.png" alt="Logo" /> 
+          <Avatar sx={{ m: 1, bgcolor: 'secondary', borderRadius: '0', width: 200, height: 40 }} src="/images/LogoLogin.png" alt="Logo" />
           {/* <Typography component="h1" variant="h5">
             Login
           </Typography> */}

@@ -101,13 +101,56 @@ const Leadsdsadmin = () => {
   const [counselorOptions, setCounselorOptions] = useState([]);
   const [counselorLoading, setCounselorLoading] = useState(false);
 
+  // State for cascading dropdowns
+  const [institutions, setInstitutions] = useState([]);
+  const [programTypes, setProgramTypes] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(false);
+  const [loadingProgramTypes, setLoadingProgramTypes] = useState(false);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
+
+  // Dynamic Configuration State
+  const [pipelineStages, setPipelineStages] = useState([]);
+  const [outcomes, setOutcomes] = useState([]);
+
   const navetodashboard = () => {
     if (global1.role === "Admin" || global1.role === "All" || global1.role === "CRM") {
       navigate("/dashboardcrmds");
-    }else {
+    } else {
       navigate("/dashdashfacnew");
     }
   }
+
+  const checkDuplicate = async (field, value) => {
+    if (!value) return;
+    try {
+      const res = await ep1.get("/api/v2/checkduplicateds", {
+        params: { colid: global1.colid, [field]: value },
+      });
+      if (res.data.exists) {
+        const lead = res.data.lead;
+        alert(`Lead already exists!\nName: ${lead.name}\nAssigned To: ${lead.assignedto || "Unassigned"}\nPhone: ${lead.phone}\nEmail: ${lead.email}`);
+
+        setOpenDialog(false);
+        setFilters(prev => ({ ...prev, search: value }));
+
+        // Manually fetch with new search param
+        setLoading(true);
+        const params = {
+          colid: global1.colid,
+          user: global1.user,
+          role: global1.role,
+          ...filters,
+          search: value
+        };
+        const resStats = await ep1.get("/api/v2/getallleadsadmin", { params });
+        setLeads(resStats.data.data);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Error checking duplicate:", err);
+    }
+  };
 
   // Search Counselors
   const handleSearchCounselors = async (query) => {
@@ -169,7 +212,37 @@ const Leadsdsadmin = () => {
     fetchLeads();
     fetchSources();
     fetchCategories();
+    fetchInstitutions();
+    fetchInstitutions();
+    fetchPipelineStages();
+    fetchOutcomes();
   }, []);
+
+  const fetchPipelineStages = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallpipelinestageag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setPipelineStages(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching pipeline stages:", err);
+    }
+  };
+
+  const fetchOutcomes = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getalloutcomeag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setOutcomes(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching outcomes:", err);
+    }
+  };
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -211,6 +284,59 @@ const Leadsdsadmin = () => {
     }
   };
 
+  const fetchInstitutions = async () => {
+    setLoadingInstitutions(true);
+    try {
+      const res = await ep1.get("/api/v2/getinstitutionsds", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.success) {
+        setInstitutions(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching institutions:", err);
+    }
+    setLoadingInstitutions(false);
+  };
+
+  const fetchProgramTypes = async (institution) => {
+    if (!institution) {
+      setProgramTypes([]);
+      return;
+    }
+    setLoadingProgramTypes(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramtypesds", {
+        params: { colid: global1.colid, institution }
+      });
+      if (res.data.success) {
+        setProgramTypes(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching program types:", err);
+    }
+    setLoadingProgramTypes(false);
+  };
+
+  const fetchPrograms = async (institution, programType) => {
+    if (!institution || !programType) {
+      setPrograms([]);
+      return;
+    }
+    setLoadingPrograms(true);
+    try {
+      const res = await ep1.get("/api/v2/getprogramsbyfiltersds", {
+        params: { colid: global1.colid, institution, program_type: programType }
+      });
+      if (res.data.success) {
+        setPrograms(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    }
+    setLoadingPrograms(false);
+  };
+
   const handleOpenDialog = () => {
     setFormData({
       name: "",
@@ -219,13 +345,18 @@ const Leadsdsadmin = () => {
       category: "",
       course_interested: "",
       source: "",
-      source: "",
       city: "",
       state: "",
       assignedto: "",
+      institution: "",
+      program_type: "",
+      program: "",
       custom_fields: [],
     });
     setCounselorOptions([]); // Reset options
+    setProgramTypes([]);
+    setPrograms([]);
+    fetchInstitutions();
     setOpenDialog(true);
   };
 
@@ -283,12 +414,27 @@ const Leadsdsadmin = () => {
       source: lead.source || "",
       city: lead.city || "",
       state: lead.state || "",
-      pipeline_stage: lead.pipeline_stage || "New Lead",
+      assignedto: lead.assignedto || "",
+      institution: lead.institution || "",
+      program_type: lead.program_type || "",
+      program: lead.program || "",
+      pipeline_stage: lead.pipeline_stage || "",
+      leadstatus: lead.leadstatus || "", // Outcome
+
       next_followup_date: lead.next_followup_date
         ? dayjs(lead.next_followup_date).format("YYYY-MM-DD")
         : "",
       custom_fields: lead.custom_fields ? lead.custom_fields.map(f => ({ ...f })) : []
     });
+
+    // Pre-fetch keys to populate dropdowns if values exist
+    fetchInstitutions();
+    if (lead.institution) {
+      fetchProgramTypes(lead.institution);
+      if (lead.program_type) {
+        fetchPrograms(lead.institution, lead.program_type);
+      }
+    }
     setOpenEditDialog(true);
   };
 
@@ -507,10 +653,14 @@ const Leadsdsadmin = () => {
         <Box sx={{ fontWeight: 600, color: "#1e293b" }}>{params.value}</Box>
       ),
     },
+    { field: "user", headerName: "Created By", width: 150, editable: false },
     { field: "phone", headerName: "Phone", width: 130, editable: false },
     { field: "email", headerName: "Email", width: 200, editable: false },
     { field: "category", headerName: "Category", width: 130, editable: false },
     { field: "course_interested", headerName: "Course", width: 150, editable: false },
+    { field: "institution", headerName: "Institution", width: 150, editable: false },
+    { field: "program_type", headerName: "Program Type", width: 130, editable: false },
+    { field: "program", headerName: "Program", width: 180, editable: false },
     {
       field: "lead_temperature",
       headerName: "Temperature",
@@ -532,24 +682,29 @@ const Leadsdsadmin = () => {
       width: 160,
       editable: false,
       type: 'singleSelect',
-      valueOptions: [
-        'New Lead',
-        'Contacted',
-        'Qualified',
-        'Counselling Scheduled',
-        'Campus Visited',
-        'Application Sent',
-        'Application Submitted',
-        'Fee Paid',
-        'Admitted',
-        'Lost'
-      ],
+      valueOptions: pipelineStages.map(s => s.stagename),
       renderCell: (params) => (
         <Chip
           label={params.value}
           color={getPipelineColor(params.value)}
           size="small"
           sx={{ borderRadius: 1, fontWeight: 500 }}
+        />
+      ),
+    },
+    {
+      field: "leadstatus",
+      headerName: "Outcome",
+      width: 150,
+      editable: false,
+      type: 'singleSelect',
+      valueOptions: outcomes.map(o => o.outcomename),
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={params.value === 'Converted' ? 'success' : params.value === 'Lost' ? 'error' : 'default'}
+          size="small"
+          variant="outlined"
         />
       ),
     },
@@ -940,14 +1095,7 @@ const Leadsdsadmin = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Course Interested"
-                value={formData.course_interested}
-                onChange={(e) => setFormData({ ...formData, course_interested: e.target.value })}
-              />
-            </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 select
@@ -959,6 +1107,60 @@ const Leadsdsadmin = () => {
                 {sources.map((src) => (
                   <MenuItem key={src._id} value={src.source_name}>
                     {src.source_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Institution"
+                value={formData.institution || ""}
+                onChange={(e) => {
+                  setFormData({ ...formData, institution: e.target.value, program_type: "", program: "" });
+                  fetchProgramTypes(e.target.value);
+                }}
+                disabled={loadingInstitutions}
+              >
+                {institutions.map((inst, index) => (
+                  <MenuItem key={index} value={inst}>
+                    {inst}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program Type"
+                value={formData.program_type || ""}
+                onChange={(e) => {
+                  setFormData({ ...formData, program_type: e.target.value, program: "" });
+                  fetchPrograms(formData.institution, e.target.value);
+                }}
+                disabled={!formData.institution || loadingProgramTypes}
+              >
+                {programTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program"
+                value={formData.program || ""}
+                onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                disabled={!formData.program_type || loadingPrograms}
+              >
+                {programs.map((prog) => (
+                  <MenuItem key={prog._id} value={prog.course_name}>
+                    {prog.course_name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -1197,6 +1399,36 @@ const Leadsdsadmin = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 select
+                label="Pipeline Stage"
+                fullWidth
+                value={editFormData.pipeline_stage}
+                onChange={(e) => setEditFormData({ ...editFormData, pipeline_stage: e.target.value })}
+              >
+                {pipelineStages.map((option) => (
+                  <MenuItem key={option._id} value={option.stagename}>
+                    {option.stagename}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Outcome"
+                value={editFormData.leadstatus}
+                onChange={(e) => setEditFormData({ ...editFormData, leadstatus: e.target.value })}
+              >
+                {outcomes.map((option) => (
+                  <MenuItem key={option._id} value={option.outcomename}>
+                    {option.outcomename}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
                 fullWidth
                 label="Category"
                 value={editFormData.category}
@@ -1211,11 +1443,56 @@ const Leadsdsadmin = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
+                select
                 fullWidth
-                label="Course Interested"
-                value={editFormData.course_interested}
-                onChange={(e) => setEditFormData({ ...editFormData, course_interested: e.target.value })}
-              />
+                label="Institution"
+                value={editFormData.institution || ""}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, institution: e.target.value, program_type: "", program: "" });
+                  fetchProgramTypes(e.target.value);
+                }}
+              >
+                {institutions.map((inst, index) => (
+                  <MenuItem key={index} value={inst}>
+                    {inst}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program Type"
+                value={editFormData.program_type || ""}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, program_type: e.target.value, program: "" });
+                  fetchPrograms(editFormData.institution, e.target.value);
+                }}
+                disabled={!editFormData.institution}
+              >
+                {programTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program"
+                value={editFormData.program || ""}
+                onChange={(e) => setEditFormData({ ...editFormData, program: e.target.value })}
+                disabled={!editFormData.program_type}
+              >
+                {programs.map((prog) => (
+                  <MenuItem key={prog._id} value={prog.course_name}>
+                    {prog.course_name}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -1232,6 +1509,7 @@ const Leadsdsadmin = () => {
                 ))}
               </TextField>
             </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -1484,7 +1762,7 @@ const Leadsdsadmin = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Container >
   );
 };
 

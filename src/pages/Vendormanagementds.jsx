@@ -38,7 +38,8 @@ const Vendormanagementds = () => {
     state: "",
     city: "",
     mobileno: "",
-    email: ""
+    email: "",
+    doclink: ""
   });
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -90,7 +91,8 @@ const Vendormanagementds = () => {
       state: vendor.state,
       city: vendor.city,
       mobileno: vendor.mobileno,
-      email: vendor.email
+      email: vendor.email,
+      doclink: vendor.doclink || ""
     });
     setEditId(vendor._id);
     setEditMode(true);
@@ -144,7 +146,8 @@ const Vendormanagementds = () => {
           state: row.state,
           city: row.city,
           mobileno: row.mobileno,
-          email: row.email
+          email: row.email,
+          doclink: row.doclink || ""
         }));
 
         await ep1.post("/api/v2/bulkaddvendords", { vendors: vendorsArray });
@@ -167,7 +170,8 @@ const Vendormanagementds = () => {
       state: "",
       city: "",
       mobileno: "",
-      email: ""
+      email: "",
+      doclink: ""
     });
     setEditMode(false);
     setEditId(null);
@@ -185,6 +189,14 @@ const Vendormanagementds = () => {
     { field: "email", headerName: "Email", width: 200 },
     { field: "city", headerName: "City", width: 150 },
     { field: "state", headerName: "State", width: 150 },
+    {
+      field: "doclink",
+      headerName: "Attachment Link",
+      width: 200,
+      renderCell: (params) => (
+        params.value ? <a href={params.value} target="_blank" rel="noopener noreferrer">View Doc</a> : ''
+      )
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -329,6 +341,16 @@ const Vendormanagementds = () => {
                 required
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Attachment Link"
+                name="doclink"
+                value={formData.doclink}
+                onChange={handleInputChange}
+                placeholder="https://..."
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -341,6 +363,7 @@ const Vendormanagementds = () => {
                 required
               />
             </Grid>
+
           </Grid>
         </DialogContent>
         <DialogActions>

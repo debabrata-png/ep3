@@ -1138,6 +1138,29 @@ export function menuitems () {
         </AccordionDetails>
       </Accordion>
 
+
+     <Accordion>
+             <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+               <BusinessIcon sx={{ marginRight: 1 }} />
+               {open && <Typography sx={{ fontSize: 14 }}>Purchasing</Typography>}
+             </AccordionSummary>
+             <AccordionDetails>
+               <ListItem button component={RouterLink} to="/faculty-create-request">
+                 <ListItemIcon>
+                   <PersonIcon />
+                 </ListItemIcon>
+                 {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Request" />}
+               </ListItem>
+               <ListItem button component={RouterLink} to="/faculty-request-status">
+                 <ListItemIcon>
+                   <PersonIcon />
+                 </ListItemIcon>
+                 {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Request Status" />}
+               </ListItem>
+     
+             </AccordionDetails>
+           </Accordion>
+     
      
 
           <Accordion>

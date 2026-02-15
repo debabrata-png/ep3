@@ -23,7 +23,8 @@ import {
   Grid,
   Alert,
   Snackbar,
-  MenuItem
+  MenuItem,
+  Chip
 } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
 import ep1 from '../api/ep1';
@@ -36,11 +37,11 @@ const SubjectComponentConfigPageds = () => {
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  
+
   // Dynamic options from User table
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableYears, setAvailableYears] = useState([]);
-  
+
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const [formData, setFormData] = useState({
@@ -64,7 +65,8 @@ const SubjectComponentConfigPageds = () => {
     term2notebookactive: true,
     term2enrichmentactive: true,
     term2annualexamactive: true,
-    isactive: true
+    isactive: true,
+    isadditional: false
   });
 
   // Fetch semesters and years on component mount
@@ -83,11 +85,11 @@ const SubjectComponentConfigPageds = () => {
       const response = await ep1.get('/api/v2/getdistinctsemestersandyears9ds', {
         params: { colid: global1.colid }
       });
-      
+
       if (response.data.success) {
         setAvailableSemesters(response.data.semesters);
         setAvailableYears(response.data.admissionyears);
-        
+
         // Set default values
         if (response.data.semesters.length > 0) {
           setSemester(response.data.semesters[0]);
@@ -106,10 +108,10 @@ const SubjectComponentConfigPageds = () => {
     setLoading(true);
     try {
       const response = await ep1.get('/api/v2/listsubjectconfig9ds', {
-        params: { 
-          colid: global1.colid, 
-          semester, 
-          academicyear 
+        params: {
+          colid: global1.colid,
+          semester,
+          academicyear
         }
       });
       if (response.data.success) {
@@ -149,7 +151,8 @@ const SubjectComponentConfigPageds = () => {
         term2notebookactive: true,
         term2enrichmentactive: true,
         term2annualexamactive: true,
-        isactive: true
+        isactive: true,
+        isadditional: false
       });
       setEditMode(false);
     }
@@ -178,7 +181,7 @@ const SubjectComponentConfigPageds = () => {
           }
         }
       );
-      
+
       if (response.data.success) {
         showSnackbar(response.data.message, 'success');
         fetchConfigs();
@@ -197,7 +200,7 @@ const SubjectComponentConfigPageds = () => {
       const response = await ep1.get('/api/v2/deletesubjectconfig9ds', {
         params: { id }
       });
-      
+
       if (response.data.success) {
         showSnackbar('Configuration deleted successfully', 'success');
         fetchConfigs();
@@ -297,7 +300,10 @@ const SubjectComponentConfigPageds = () => {
               configs.map((config) => (
                 <TableRow key={config._id}>
                   <TableCell>{config.subjectcode}</TableCell>
-                  <TableCell>{config.subjectname}</TableCell>
+                  <TableCell>
+                    {config.subjectname}
+                    {config.isadditional && <Chip label="Additional" size="small" color="secondary" sx={{ ml: 1 }} />}
+                  </TableCell>
                   <TableCell>
                     {config.term1periodictestactive && `PT(${config.term1periodictestmax}) `}
                     {config.term1notebookactive && `NB(${config.term1notebookmax}) `}
@@ -360,7 +366,7 @@ const SubjectComponentConfigPageds = () => {
             <Grid item xs={12}>
               <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Term 1 Components</Typography>
             </Grid>
-            
+
             <Grid item xs={6} md={3}>
               <TextField
                 fullWidth
@@ -449,7 +455,7 @@ const SubjectComponentConfigPageds = () => {
             <Grid item xs={12}>
               <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Term 2 Components</Typography>
             </Grid>
-            
+
             <Grid item xs={6} md={3}>
               <TextField
                 fullWidth
@@ -531,6 +537,22 @@ const SubjectComponentConfigPageds = () => {
                   />
                 }
                 label="Active"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Subject Type</Typography>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isadditional}
+                    onChange={(e) => setFormData({ ...formData, isadditional: e.target.checked })}
+                  />
+                }
+                label="Is Additional Subject"
               />
             </Grid>
           </Grid>
