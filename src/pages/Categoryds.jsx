@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Container,
   Box,
   Typography,
   Button,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -29,8 +23,12 @@ import {
   Delete as DeleteIcon,
   ArrowBack as BackIcon,
   PersonAdd as AddCounsellorIcon,
+  CloudUpload as UploadIcon,
+  Download as DownloadIcon,
 } from "@mui/icons-material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
 
@@ -42,6 +40,7 @@ const Categoryds = () => {
   const [editMode, setEditMode] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const fileInputRef = useRef(null);
 
   // User Search State
   const [userOptions, setUserOptions] = useState([]);
@@ -69,6 +68,74 @@ const Categoryds = () => {
       showSnackbar("Failed to fetch categories", "error");
     }
   };
+
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        "Category Name": "",
+        "Category Code": "",
+        Description: "",
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "category_template.xlsx");
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: "binary" });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const data = XLSX.utils.sheet_to_json(ws);
+      processBulkUpload(data);
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = null;
+  };
+
+  const processBulkUpload = async (data) => {
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const row of data) {
+      try {
+        const payload = {
+          category_name: row["Category Name"],
+          category_code: row["Category Code"],
+          description: row["Description"],
+          colid: global1.colid,
+          created_by: global1.user,
+        };
+
+        if (!payload.category_name || !payload.category_code) {
+          console.warn("Skipping invalid row:", row);
+          errorCount++;
+          continue;
+        }
+
+        await ep1.post("/api/v2/createcategoryds", payload);
+        successCount++;
+      } catch (err) {
+        console.error("Error uploading row:", row, err);
+        errorCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      fetchCategories();
+      showSnackbar(`Successfully uploaded ${successCount} categories. ${errorCount > 0 ? `Failed: ${errorCount}` : ""}`, "success");
+    } else {
+      showSnackbar(`Upload failed. Success: ${successCount}, Failed: ${errorCount}`, "error");
+    }
+  };
+
 
   const handleSearchUsers = async (query) => {
     if (!query) {
@@ -203,6 +270,69 @@ const Categoryds = () => {
     setSnackbar({ open: true, message, severity });
   };
 
+  const columns = [
+    { field: "category_name", headerName: "Category Name", width: 200 },
+    { field: "category_code", headerName: "Category Code", width: 150 },
+    {
+      field: "counsellors",
+      headerName: "Counsellors",
+      width: 400,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: 'center', height: '100%' }}>
+          {params.row.counsellors?.map((counsellor, idx) => (
+            <Chip
+              key={idx}
+              label={counsellor.counsellor_name}
+              size="small"
+              onDelete={() => handleRemoveCounsellor(params.row._id, counsellor.counsellor_email)}
+              sx={{
+                bgcolor: "#e0f2fe",
+                color: "#0284c7",
+                fontWeight: 500,
+                "& .MuiChip-deleteIcon": { color: "#0284c7", "&:hover": { color: "#0369a1" } }
+              }}
+            />
+          ))}
+          <IconButton
+            size="small"
+            onClick={() => handleOpenCounsellorDialog(params.row)}
+            sx={{
+              bgcolor: "#f0fdf4",
+              color: "#16a34a",
+              "&:hover": { bgcolor: "#dcfce7" }
+            }}
+          >
+            <AddCounsellorIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      ),
+    },
+    { field: "description", headerName: "Description", width: 300 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <IconButton
+            onClick={() => handleOpenDialog(params.row)}
+            sx={{ color: "#3b82f6", bgcolor: "rgba(59, 130, 246, 0.1)", "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" } }}
+            size="small"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDelete(params.row._id)}
+            sx={{ color: "#ef4444", bgcolor: "rgba(239, 68, 68, 0.1)", "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)" } }}
+            size="small"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
+
   return (
     <Container maxWidth="lg" sx={{ mt: 6, mb: 6 }}>
       <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -222,90 +352,90 @@ const Categoryds = () => {
             Category & Counsellor Management
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-          sx={{
-            bgcolor: "#1565c0",
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            boxShadow: "0 4px 12px rgba(21, 101, 192, 0.2)",
-            "&:hover": { bgcolor: "#0d47a1" }
-          }}
-        >
-          Add Category
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleDownloadTemplate}
+            sx={{
+              borderColor: "#1565c0",
+              color: "#1565c0",
+              textTransform: "none",
+              fontWeight: 600,
+              "&:hover": { borderColor: "#0d47a1", bgcolor: "rgba(21, 101, 192, 0.04)" }
+            }}
+          >
+            Download Template
+          </Button>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<UploadIcon />}
+            sx={{
+              bgcolor: "#2e7d32",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "0 4px 12px rgba(46, 125, 50, 0.2)",
+              "&:hover": { bgcolor: "#1b5e20" }
+            }}
+          >
+            Bulk Upload
+            <input
+              type="file"
+              hidden
+              accept=".xlsx, .xls"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+            />
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+            sx={{
+              bgcolor: "#1565c0",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "0 4px 12px rgba(21, 101, 192, 0.2)",
+              "&:hover": { bgcolor: "#0d47a1" }
+            }}
+          >
+            Add Category
+          </Button>
+        </Box>
       </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)", overflow: "hidden" }}>
-        <Table>
-          <TableHead sx={{ bgcolor: "#f8fafc" }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Category Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Category Code</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Counsellors</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {categories.map((category) => (
-              <TableRow key={category._id} sx={{ "&:hover": { bgcolor: "#f8fafc" }, transition: "background-color 0.2s" }}>
-                <TableCell sx={{ fontWeight: 500, color: "#1e293b" }}>{category.category_name}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{category.category_code}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                    {category.counsellors?.map((counsellor, idx) => (
-                      <Chip
-                        key={idx}
-                        label={counsellor.counsellor_name}
-                        size="small"
-                        onDelete={() => handleRemoveCounsellor(category._id, counsellor.counsellor_email)}
-                        sx={{
-                          bgcolor: "#e0f2fe",
-                          color: "#0284c7",
-                          fontWeight: 500,
-                          "& .MuiChip-deleteIcon": { color: "#0284c7", "&:hover": { color: "#0369a1" } }
-                        }}
-                      />
-                    ))}
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenCounsellorDialog(category)}
-                      sx={{
-                        bgcolor: "#f0fdf4",
-                        color: "#16a34a",
-                        "&:hover": { bgcolor: "#dcfce7" }
-                      }}
-                    >
-                      <AddCounsellorIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell sx={{ color: "#64748b", maxWidth: 300 }}>{category.description}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <IconButton
-                      onClick={() => handleOpenDialog(category)}
-                      sx={{ color: "#3b82f6", bgcolor: "rgba(59, 130, 246, 0.1)", "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" } }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDelete(category._id)}
-                      sx={{ color: "#ef4444", bgcolor: "rgba(239, 68, 68, 0.1)", "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)" } }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper sx={{ height: 600, width: "100%", borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+        <DataGrid
+          rows={categories}
+          columns={columns}
+          getRowId={(row) => row._id}
+          slots={{ toolbar: GridToolbar }}
+          rowHeight={80}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
+            },
+          }}
+          pageSizeOptions={[10, 25, 50]}
+          disableRowSelectionOnClick
+          sx={{
+            border: 0,
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#f8fafc",
+              color: "#475569",
+              fontWeight: 600,
+            },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#f8fafc",
+            },
+          }}
+        />
+      </Paper>
 
       {/* Category Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>

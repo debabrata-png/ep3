@@ -50,7 +50,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-export function menupe() {
+export function menuspe() {
     const open = true;
     return (
         <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>

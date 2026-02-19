@@ -84,6 +84,7 @@ import FacultyRequestApprovalds from './pages/FacultyRequestApprovalds';
 import DashMainAdmin from './pages/DashMainAdmin';
 
 import Dashmncas11 from './pages/Dashmncas11';
+import ProgramCounselords from './pages/ProgramCounselords';
 import Dashmncas11admin from './pages/Dashmncas11admin';
 import Dashmncas12 from './pages/Dashmncas12';
 import Dashmncas12admin from './pages/Dashmncas12admin';
@@ -226,6 +227,7 @@ import Dashmattpcode from './pages/Dashmattpcode';
 // Purchasing Module Imports - NEW
 import FacultyCreateRequestds from './pages/FacultyCreateRequestds';
 import FacultyRequestStatusds from './pages/FacultyRequestStatusds';
+import StoreUserAccessds from './pages/StoreUserAccessds';
 import StoreManagerDashboardds from './pages/StoreManagerDashboardds';
 import PurchaseOrderDashboardds from './pages/PurchaseOrderDashboardds';
 import DeliveryDashboardds from './pages/DeliveryDashboardds';
@@ -271,6 +273,7 @@ import Dashmtestnew from './pages/Dashmtestnew';
 import Dashmtestnewadmin from './pages/Dashmtestnewadmin';
 import Dashmtestq from './pages/Dashmtestq';
 import Dashmtestqadmin from './pages/Dashmtestqadmin';
+import Dashmtestqstud from './pages/Dashmtestqstud';
 import Dashmtesto from './pages/Dashmtesto';
 import Dashmtestoadmin from './pages/Dashmtestoadmin';
 
@@ -296,7 +299,10 @@ import ANDGate2 from './pages/ANDGate2';
 import ORGate from './pages/ORGate';
 import ORGate2 from './pages/ORGate2';
 
-import Dashmtestqstud from './pages/Dashmtestqstud';
+// ... existing imports
+import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
+
+// ... inside Routes
 
 import NANDGate from './pages/NANDGate';
 import NANDGate2 from './pages/NANDGate2';
@@ -311,6 +317,8 @@ import HalfSubtractorCircuit from './pages/HalfSubtractorCircuit';
 import XNORGate from './pages/XNORGate';
 import XNORGate2 from './pages/XNORGate2';
 import XORGate2 from './pages/XORGate2';
+
+
 
 import FullSubCircuitVerify from './pages/FullSubCircuitVerify';
 import FullSubtractorCircuit from './pages/FullSubtractorCircuit';
@@ -1386,6 +1394,7 @@ import Admissiontemplateann3 from "./pages/Admissiontemplateann3";
 function App() {
         return (
                 <Router>
+                        <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
                                         {/* ----------------------------------------------------------------------- */}
@@ -1413,6 +1422,11 @@ function App() {
                                         <Route path="/admissiontemplateann3/:colId" element={<Admissiontemplateann3 />} />
 
                                         {/* OE Specific */}
+
+                                        <Route path="/role/store-user-access" element={<RoleLayout><StoreUserAccessds /></RoleLayout>} />
+                                        <Route path="/role/purchasing-dashboard" element={<RoleLayout><DashboardPurchaseds /></RoleLayout>} />
+
+                                        {/* Store Specific */}
                                         <Route path="/role/oe-dashboard" element={<RoleLayout><OEDashboardds /></RoleLayout>} />
 
                                         {/* Store Specific */}
@@ -2548,6 +2562,7 @@ function App() {
                                         <Route path="/videopage31" element={<Videopage32a />} />
                                         {/* <Route path="/videopage31" element={<Videopage31 />} /> */}
                                         <Route path="/videopage3" element={<Videopage3 />} />
+                                        <Route path="/confirmadmissionds" element={<ConfirmAdmissionds />} />
                                         <Route path="/videopagepre" element={<Videopagepre />} />
                                         <Route path="/videopage2" element={<VideoPage2 />} />
 
@@ -2798,6 +2813,7 @@ function App() {
                                         <Route path="/leadsdsadmin" element={<Leadsdsadmin />} />
                                         <Route path="/leaddetailds/:id" element={<Leaddetailds />} />
                                         <Route path="/programmasterds" element={<Programmasterds />} />
+                                        <Route path="/programcounselords" element={<ProgramCounselords />} />
                                         <Route path="/landingpageds" element={<Landingpageds />} />
                                         <Route path="/dripcampaignds" element={<Dripcampaignds />} />
                                         <Route path="/apikeyds" element={<Apikeyds />} />

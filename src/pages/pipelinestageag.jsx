@@ -28,6 +28,7 @@ const Pipelinestageag = () => {
         stagename: "",
         description: "",
         isactive: true,
+        is_final_stage: false,
     });
 
     useEffect(() => {
@@ -53,6 +54,7 @@ const Pipelinestageag = () => {
                 stagename: stage.stagename,
                 description: stage.description,
                 isactive: stage.isactive,
+                is_final_stage: stage.is_final_stage || false,
             });
         } else {
             setEditMode(false);
@@ -61,6 +63,7 @@ const Pipelinestageag = () => {
                 stagename: "",
                 description: "",
                 isactive: true,
+                is_final_stage: false,
             });
         }
         setOpenDialog(true);
@@ -76,6 +79,7 @@ const Pipelinestageag = () => {
                 stagename: formData.stagename,
                 description: formData.description,
                 isactive: formData.isactive,
+                is_final_stage: formData.is_final_stage,
                 colid: global1.colid,
                 user: global1.user,
                 name: global1.name,
@@ -120,6 +124,21 @@ const Pipelinestageag = () => {
                     }}
                 >
                     {params.value ? "Active" : "Inactive"}
+                </Typography>
+            ),
+        },
+        {
+            field: "is_final_stage",
+            headerName: "Final Stage",
+            flex: 0.5,
+            renderCell: (params) => (
+                <Typography
+                    sx={{
+                        fontWeight: 600,
+                        color: params.value ? "blue" : "grey",
+                    }}
+                >
+                    {params.value ? "Yes" : "No"}
                 </Typography>
             ),
         },
@@ -217,6 +236,15 @@ const Pipelinestageag = () => {
                                 />
                             }
                             label={formData.isactive ? "Active" : "Inactive"}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={formData.is_final_stage}
+                                    onChange={(e) => setFormData({ ...formData, is_final_stage: e.target.checked })}
+                                />
+                            }
+                            label={formData.is_final_stage ? "Final Stage (Admitted)" : "Not Final Stage"}
                         />
                     </Box>
                 </DialogContent>

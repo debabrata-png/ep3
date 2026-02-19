@@ -64,11 +64,10 @@ const AdmissionReportPageds = () => {
 
     const exportToExcel = () => {
         const data = [
-            ["Madhya Pradesh Private University Regulatory Commission, Bhopal"],
             ["Numerical information of students for session 2024-25"],
             // Headers
             [
-                "Name of the private university",
+                global1.name,
                 "Total number of approved seats for admission in first year", "", "", "", "", "",
                 "Number of students admitted in the first year in session 2024-2025", "", "", "", "", "",
                 "Total number of students studying in the university (All Sem/Year)", "", "", "", "", ""
@@ -81,7 +80,7 @@ const AdmissionReportPageds = () => {
             ],
             // Data Row
             [
-                "People's University",
+                global.name,
                 approvedSeats.UG, approvedSeats.PG, approvedSeats.Integrated, approvedSeats.PhD, approvedSeats.Diploma, approvedSeats.Certificate,
                 reportData['UG'] || 0, reportData['PG'] || 0, reportData['Integrated (5 Year)'] || 0, reportData['Ph.D.'] || 0, reportData['Diploma'] || 0, reportData['Certificate'] || 0,
                 studyingStudents.UG, studyingStudents.PG, studyingStudents.Integrated, studyingStudents.PhD, studyingStudents.Diploma, studyingStudents.Certificate
@@ -152,7 +151,7 @@ const AdmissionReportPageds = () => {
                                 </TableHead>
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>People's University</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}>{global1.name}</TableCell>
 
                                         {/* Approved Seats Inputs */}
                                         {categories.map(cat => (

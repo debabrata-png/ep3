@@ -300,7 +300,7 @@ const ImprestManagerds = () => {
                     )}
 
                     {/* Edit/Delete for others */}
-                    {global1.role !== 'Purchasepu' && (
+                    {global1.role !== 'PE' && (
                         <>
                             <IconButton onClick={() => handleEdit(params.row)} color="primary"><EditIcon /></IconButton>
                             <IconButton onClick={() => handleDelete(params.row._id)} color="error"><DeleteIcon /></IconButton>

@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Container,
   Box,
   Typography,
   Button,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,8 +20,12 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   ArrowBack as BackIcon,
+  CloudUpload as UploadIcon,
+  Download as DownloadIcon,
 } from "@mui/icons-material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
 
@@ -39,6 +37,7 @@ const Programmasterds = () => {
   const [editMode, setEditMode] = useState(false);
   const [currentProgram, setCurrentProgram] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     category: "",
@@ -47,7 +46,6 @@ const Programmasterds = () => {
     institution: "",
     program_type: "",
     duration: "",
-    eligibility: "",
     eligibility: "",
     total_seats: "",
     total_fee: "",
@@ -88,6 +86,95 @@ const Programmasterds = () => {
       console.error("Error fetching categories:", err);
     }
   };
+
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        Category: "",
+        "Program Code": "",
+        "Program Name": "",
+        Institution: "",
+        "Program Type": "",
+        "Total Seats": "",
+        Duration: "",
+        Eligibility: "",
+        "Total Fee": "",
+        "Application Fee": "",
+        "First Installment": "",
+        Installments: "",
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "program_master_template.xlsx");
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: "binary" });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const data = XLSX.utils.sheet_to_json(ws);
+      processBulkUpload(data);
+    };
+    reader.readAsBinaryString(file);
+    // Reset file input
+    e.target.value = null;
+  };
+
+  const processBulkUpload = async (data) => {
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const row of data) {
+      try {
+        const payload = {
+          category: row["Category"],
+          course_code: row["Program Code"],
+          course_name: row["Program Name"],
+          institution: row["Institution"],
+          program_type: row["Program Type"],
+          total_seats: Number(row["Total Seats"]) || 0,
+          duration: row["Duration"],
+          eligibility: row["Eligibility"],
+          fee_structure: {
+            total_fee: Number(row["Total Fee"]) || 0,
+            application_fee: Number(row["Application Fee"]) || 0,
+            first_installment: Number(row["First Installment"]) || 0,
+            installments: Number(row["Installments"]) || 0,
+          },
+          colid: global1.colid,
+          created_by: global1.user,
+        };
+
+        if (!payload.category || !payload.course_code || !payload.course_name) {
+          console.warn("Skipping invalid row:", row);
+          errorCount++;
+          continue;
+        }
+
+        await ep1.post("/api/v2/createprogrammasterds", payload);
+        successCount++;
+      } catch (err) {
+        console.error("Error uploading row:", row, err);
+        errorCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      fetchPrograms();
+      showSnackbar(`Successfully uploaded ${successCount} programs. ${errorCount > 0 ? `Failed: ${errorCount}` : ""}`, "success");
+    } else {
+      showSnackbar(`Upload failed. Success: ${successCount}, Failed: ${errorCount}`, "error");
+    }
+  };
+
 
   const handleOpenDialog = (program = null) => {
     if (program) {
@@ -203,6 +290,52 @@ const Programmasterds = () => {
     setSnackbar({ open: true, message, severity });
   };
 
+  const columns = [
+    { field: "category", headerName: "Category", width: 150 },
+    { field: "course_code", headerName: "Program Code", width: 120 },
+    { field: "course_name", headerName: "Program Name", width: 200 },
+    { field: "institution", headerName: "Institution", width: 150 },
+    { field: "program_type", headerName: "Program Type", width: 130 },
+    { field: "total_seats", headerName: "Total Seats", width: 100 },
+    { field: "duration", headerName: "Duration", width: 100 },
+    { field: "eligibility", headerName: "Eligibility", width: 150 },
+    {
+      field: "total_fee",
+      headerName: "Total Fee",
+      width: 120,
+      valueGetter: (params) => params.row.fee_structure?.total_fee,
+      valueFormatter: (params) => {
+        if (params.value == null) {
+          return "";
+        }
+        return `₹${params.value.toLocaleString()}`;
+      },
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <IconButton
+            onClick={() => handleOpenDialog(params.row)}
+            sx={{ color: "#3b82f6", bgcolor: "rgba(59, 130, 246, 0.1)", "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" } }}
+            size="small"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDelete(params.row._id)}
+            sx={{ color: "#ef4444", bgcolor: "rgba(239, 68, 68, 0.1)", "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)" } }}
+            size="small"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
+
   return (
     <Container maxWidth="xl" sx={{ mt: 6, mb: 6 }}>
       <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -220,72 +353,89 @@ const Programmasterds = () => {
           </IconButton>
           <Typography variant="h4" sx={{ fontWeight: 700, color: "#1e293b" }}>Program Master</Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-          sx={{
-            bgcolor: "#1565c0",
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            boxShadow: "0 4px 12px rgba(21, 101, 192, 0.2)",
-            "&:hover": { bgcolor: "#0d47a1" }
-          }}
-        >
-          Add Program
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleDownloadTemplate}
+            sx={{
+              borderColor: "#1565c0",
+              color: "#1565c0",
+              textTransform: "none",
+              fontWeight: 600,
+              "&:hover": { borderColor: "#0d47a1", bgcolor: "rgba(21, 101, 192, 0.04)" }
+            }}
+          >
+            Download Template
+          </Button>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<UploadIcon />}
+            sx={{
+              bgcolor: "#2e7d32",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "0 4px 12px rgba(46, 125, 50, 0.2)",
+              "&:hover": { bgcolor: "#1b5e20" }
+            }}
+          >
+            Bulk Upload
+            <input
+              type="file"
+              hidden
+              accept=".xlsx, .xls"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+            />
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+            sx={{
+              bgcolor: "#1565c0",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "0 4px 12px rgba(21, 101, 192, 0.2)",
+              "&:hover": { bgcolor: "#0d47a1" }
+            }}
+          >
+            Add Program
+          </Button>
+        </Box>
       </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)", overflow: "hidden" }}>
-        <Table>
-          <TableHead sx={{ bgcolor: "#f8fafc" }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Code</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Institution</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Program Type</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Total Seats</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Duration</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Eligibility</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Total Fee</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", py: 2 }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {programs.map((program) => (
-              <TableRow key={program._id} sx={{ "&:hover": { bgcolor: "#f8fafc" }, transition: "background-color 0.2s" }}>
-                <TableCell sx={{ fontWeight: 500, color: "#1e293b" }}>{program.category}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{program.course_code}</TableCell>
-                <TableCell sx={{ fontWeight: 500, color: "#1e293b" }}>{program.course_name}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{program.institution}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{program.program_type}</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#1e293b" }}>{program.total_seats}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{program.duration}</TableCell>
-                <TableCell sx={{ color: "#64748b" }}>{program.eligibility}</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#1565c0" }}>₹{program.fee_structure?.total_fee?.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <IconButton
-                      onClick={() => handleOpenDialog(program)}
-                      sx={{ color: "#3b82f6", bgcolor: "rgba(59, 130, 246, 0.1)", "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" } }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDelete(program._id)}
-                      sx={{ color: "#ef4444", bgcolor: "rgba(239, 68, 68, 0.1)", "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)" } }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper sx={{ height: 600, width: "100%", borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+        <DataGrid
+          rows={programs}
+          columns={columns}
+          getRowId={(row) => row._id}
+          slots={{ toolbar: GridToolbar }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
+            },
+          }}
+          pageSizeOptions={[10, 25, 50]}
+          disableRowSelectionOnClick
+          sx={{
+            border: 0,
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#f8fafc",
+              color: "#475569",
+              fontWeight: 600,
+            },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#f8fafc",
+            },
+          }}
+        />
+      </Paper>
 
       {/* Program Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>

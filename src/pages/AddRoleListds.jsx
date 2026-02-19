@@ -112,12 +112,8 @@ function AddRoleListds({ open, handleClose, fetchViewPage }) {
                     <MenuItem value="">
                         <em>Select role</em>
                     </MenuItem>
-                    <MenuItem value="Store">Store Incharge</MenuItem>
-                    <MenuItem value="AO">AO</MenuItem>
-                    <MenuItem value="OE">Office Executive</MenuItem>
-                    <MenuItem value="CMA">Competent Authority</MenuItem>
                     <MenuItem value="PE">Purchase Executive</MenuItem>
-                    <MenuItem value="PE">Sr. Purchase Executive</MenuItem>
+                    <MenuItem value="SPE">Sr. Purchase Executive</MenuItem>
                 </Select>
                 <br /><br />
 

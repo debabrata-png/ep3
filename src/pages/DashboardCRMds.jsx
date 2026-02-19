@@ -21,6 +21,7 @@ import {
   Analytics as AnalyticsIcon,
   Settings as SettingsIcon,
   Source as SourceIcon,
+  HowToReg as AdmissionIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import global1 from "./global1";
@@ -120,6 +121,18 @@ const Dashboardds = () => {
       icon: <SettingsIcon sx={{ fontSize: 48, color: "#F59E0B" }} />,
       route: "/outcomeag",
     },
+    {
+      title: "Confirm Admission",
+      description: "Approve student admissions",
+      icon: <AdmissionIcon sx={{ fontSize: 48, color: "#d81b60" }} />,
+      route: "/confirmadmissionds",
+    },
+    {
+      title: "Program Counselor",
+      description: "Manage programs with counselors",
+      icon: <ProgramIcon sx={{ fontSize: 48, color: "#e91e63" }} />,
+      route: "/programcounselords",
+    },
   ];
 
   const handleLogout = () => {
@@ -136,7 +149,7 @@ const Dashboardds = () => {
       <AppBar position="static" sx={{ background: "linear-gradient(90deg, #1565c0 0%, #0d47a1 100%)", boxShadow: "0 4px 20px 0 rgba(0,0,0,0.1)" }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Career College CRM - Dashboard
+            CRM - Dashboard
           </Typography>
           <Typography variant="body1" sx={{ mr: 2, fontWeight: 500 }}>
             Welcome, {global1.name}

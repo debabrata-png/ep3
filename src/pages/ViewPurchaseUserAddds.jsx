@@ -1,774 +1,422 @@
-import ep1 from '../api/ep1';
-import React, { useEffect, useState, useRef } from 'react';
-import global1 from './global1';
-import { Button, Box, Paper, Container, Grid, TextField } from '@mui/material';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-import AddUserModalBulk from './AddmUserbulk';
-import EditUserModal from '../Crud/Edit';
-import DeleteUserModal from '../Crud/Delete';
-import ExportUserModal from './Export';
-import { DataGrid } from '@mui/x-data-grid';
-import dayjs from 'dayjs';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { PieChart } from '@mui/x-charts/PieChart';
 
-import pdfToText from 'react-pdftotext';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Box,
+    Button,
+    Container,
+    Typography,
+    Paper,
+    TextField,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
+    Stack,
+    Alert,
+    IconButton,
+    Tooltip,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+} from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { Edit, Delete, Add, Upload, ArrowBack } from "@mui/icons-material";
+import ep1 from "../api/ep1";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import global1 from "./global1";
+import AddRoleListds from './AddRoleListds'; // Import the specific Add Modal
+import EditRoleListds from './EditRoleListds'; // Import Edit Modal
 
-import Backdrop from '@mui/material/Backdrop';
-import CircularProgress from '@mui/material/CircularProgress';
+const ViewPurchaseUserAddds = () => {
+    const navigate = useNavigate();
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [deleteDialog, setDeleteDialog] = useState(false);
+    const [openAddRole, setOpenAddRole] = useState(false);
 
-import Tesseract from 'tesseract.js';
+    // Edit State
+    const [openEditRole, setOpenEditRole] = useState(false);
+    const [editUser, setEditUser] = useState(null);
 
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import AddUserModal1 from './AddRoleListds';
+    // Filters
+    const [search, setSearch] = useState("");
+    const [departmentFilter, setDepartmentFilter] = useState("");
+    const [roleFilter, setRoleFilter] = useState(""); // Add Role Filter
 
-
-function ViewPurchaseUserAddds() {
-    const [rows, setRows] = useState([]);
-    const [results, setResults] = useState([]);
-    const [second, setSecond] = useState([]);
-    // const [openAdd, setOpenAdd] = useState(false);
-    const [openAddBulk, setOpenAddBulk] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
-    const [openDelete, setOpenDelete] = useState(false);
-    const [openExport, setOpenExport] = useState(false);
-    const [selectedUser, setSelectedUser] = useState();
-    const [newUser, setNewUser] = useState({
-        coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '', studentsenrolled: '',
-        price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '', dateadded: ''
-    });
-
-    const emailref = useRef();
-
-    const [file, setFile] = useState();
-    const [dialogopen, setDialogopen] = React.useState(false);
-    const [itemstocheck, setItemstocheck] = useState();
-
-    const [selectedImage, setSelectedImage] = useState(null);
-    const handleImageUpload = (event) => {
-        const image = event.target.files[0];
-        setSelectedImage(URL.createObjectURL(image));
-    };
-
-    const user = global1.user;
-    const token = global1.token;
-    const colid = global1.colid;
-    const name = global1.name;
-
-    const [open, setOpen] = React.useState(false);
-    const [openAddWithRole, setOpenAddWithRole] = useState(false);
-
-
-    const handleDeleteClick = async (id) => {
-        alert(id);
-        const response = await ep1.get('/api/v2/deleteaddoncbyfac', {
-            params: {
-                id: id,
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZGVtb0BjYW1wdXMudGVjaG5vbG9neSIsImNvbGlkIjoiMzAiLCJpYXQiOjE3MTY3ODk5NTEsImV4cCI6MTcxNzUwOTk1MX0.eXO0DAHibVppz9hj2LkIEE3nMY8xPNxg1OmasdRus1s",
-                user: "demo@campus.technology"
-            }
-
-        });
-        alert(response.data.status);
-        const a = await fetchViewPage();
-    };
-
-    const onButtonClick = async (e, row) => {
-        e.stopPropagation();
-        //do whatever you want with the row
-        //alert(row._id);
-        const response = await ep1.get('/api/v2/deletefaculty', {
-            params: {
-                id: row._id,
-                token: token,
-                user: user
-            }
-
-        });
-        alert(response.data.status);
-        const a = await fetchViewPage();
-    };
-
-    const columns = [
-        { field: '_id', headerName: 'ID' },
-
-        {
-            field: 'name',
-            headerName: 'Name',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'email',
-            headerName: 'Email',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'phone',
-            headerName: 'Phone',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'password',
-            headerName: 'Password',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'department',
-            headerName: 'Department',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-
-        {
-            field: 'role',
-            headerName: 'Role',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'gender',
-            headerName: 'Gender',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-        {
-            field: 'category',
-            headerName: 'Category',
-            type: 'text',
-            width: 200,
-            editable: true,
-            valueFormatter: (params) => {
-                if (params.value) {
-                    return params.value;
-                } else {
-                    return '';
-                }
-            }
-        },
-
-
-        {
-            field: 'actions', headerName: 'Actions', width: 300, renderCell: (params) => {
-                return (
-                    <table>
-                        <tr>
-                            <td>
-                                <Button
-                                    onClick={(e) => onButtonClick(e, params.row)}
-                                    variant="contained"
-                                >
-                                    Delete
-                                </Button>
-                            </td>
-                            <td width="10px"></td>
-                            <td>
-                                <Button
-                                    onClick={(e) => onButtonClickgo(e, params.row)}
-                                    variant="contained"
-                                >
-                                    Check document
-
-                                </Button>
-                            </td>
-
-                        </tr>
-                    </table>
-                );
-            }
-        }
+    // ✅ DEFINE PURCHASE ROLES (Must match AddRoleListds)
+    const purchaseRoles = [
+        { value: 'PE', label: 'Purchase Executive' },
+        { value: 'SPE', label: 'Sr. Purchase Executive' }
     ];
 
+    // DataGrid pagination
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: 20,
+    });
+    const [rowCount, setRowCount] = useState(0);
+    const [filterModel, setFilterModel] = useState({ items: [] });
 
-    const coursetitleref = useRef();
+    // Fetch users
+    const fetchUsers = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-    const fetchViewPage = async () => {
-        const role = emailref.current.value;
-        if (!role) {
-            alert('Please enter role');
-            return;
+            if (!global1.colid) {
+                setError("College ID (colid) is missing. Please log in again.");
+                setLoading(false);
+                return;
+            }
+
+            const params = {
+                colid: global1.colid,
+                page: paginationModel.page + 1,
+                limit: paginationModel.pageSize,
+                ...(search && { search }),
+                ...(departmentFilter && { department: departmentFilter }),
+                ...(roleFilter && { role: roleFilter }), // Add Role Filter params
+            };
+
+            // ✅ ADD COLUMN FILTERS FROM DATAGRID
+            if (filterModel.items && filterModel.items.length > 0) {
+                filterModel.items.forEach((filter) => {
+                    if (filter.value) {
+                        params[filter.field] = filter.value;
+                    }
+                });
+            }
+
+            // ✅ CALL NEW BACKEND ENDPOINT
+            const res = await ep1.get("/api/v2/ds1getpurchaseusers", { params });
+
+            setUsers(res.data.data || []);
+            setRowCount(res.data.pagination?.total || 0);
+        } catch (err) {
+            console.error("❌ Error fetching users:", err);
+            setError(err.response?.data?.message || "Error fetching users");
+        } finally {
+            setLoading(false);
         }
-        const response = await ep1.get('/api/v2/getallfaculties1', {
-            params: {
-                token: token,
-                colid: colid,
-                user: user,
-                role: role
-            }
-        });
-        setRows(response.data.data.classes);
-    };
-
-    const getgraphdata = async () => {
-        const response = await ep1.get('/api/v2/getUsercountbyfac', {
-            params: {
-                token: token,
-                colid: colid,
-                user: user
-            }
-        });
-        setResults(response.data.data.classes);
-    };
-
-    const getgraphdatasecond = async () => {
-        const response = await ep1.get('/api/v2/getUsersecondbyfac', {
-            params: {
-                token: token,
-                colid: colid,
-                user: user
-            }
-        });
-        setSecond(response.data.data.classes);
-    };
-
-    const refreshpage = async () => {
-        fetchViewPage();
-        // getgraphdata();
-        // getgraphdatasecond();
-    }
+    }, [paginationModel, search, departmentFilter, roleFilter, filterModel]); // Add roleFilter dependency
 
     useEffect(() => {
-        //fetchViewPage();
-        // getgraphdata();
-        // getgraphdatasecond();
-    }, []);
+        if (global1.colid) {
+            fetchUsers();
+        } else {
+            setError("College ID is missing. Please log in.");
+        }
+    }, [fetchUsers]);
 
+    // Reset pagination when filters change - REMOVED (Handled in onChange)
+
+    // Delete user
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        try {
+            await ep1.get(`/api/v2/ds1deleteuser?id=${id}`);
+            setMessage("User deleted successfully");
+            fetchUsers();
+            setTimeout(() => setMessage(""), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || "Error deleting user");
+        }
+    };
+
+    // Bulk delete
+    const handleBulkDelete = async () => {
+        try {
+            const idsString = selectedIds.join(",");
+            await ep1.get(`/api/v2/ds1bulkdeleteuser?ids=${idsString}`);
+            setMessage(`${selectedIds.length} users deleted successfully`);
+            setSelectedIds([]);
+            setDeleteDialog(false);
+            fetchUsers();
+            setTimeout(() => setMessage(""), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || "Error deleting users");
+        }
+    };
+
+    // Handle Edit
+    const handleEdit = (user) => {
+        setEditUser(user);
+        setOpenEditRole(true);
+    };
+
+    // ✅ Export to Excel
     const handleExport = () => {
-        const ws = XLSX.utils.json_to_sheet(rows);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'ViewPage');
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
-        saveAs(data, 'ViewPage_data.xlsx');
-        setOpenExport(false);
-    };
-
-    // const handleOpenAdd = () => {
-    //   setOpenAdd(true);
-    // };
-
-    const handleOpenAddBulk = () => {
-        setOpenAddBulk(true);
-    };
-
-    const handleCloseAddWithRole = () => {
-        setOpenAddWithRole(false);
-    };
-
-
-    // const handleCloseAdd = () => {
-    //   setOpenAdd(false);
-    //   setNewUser({
-    //     coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '',
-    //     price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '',studentsenrolled:'', dateadded: ''
-    //   });
-    // };
-
-    const handleCloseAddBulk = () => {
-        setOpenAddBulk(false);
-        setNewUser({
-            coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '',
-            price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '', studentsenrolled: '', dateadded: ''
-        });
-    };
-
-    const handleOpenEdit = (user) => {
-        global1.coursetitle = user.coursetitle;
-        global1.coursecode = user.coursecode;
-        global1.duration = user.duration;
-        global1.coursetype = user.coursetype;
-        global1.dateadded = user.dateadded;
-        setSelectedUser(user);
-        setOpenEdit(true);
-
-        //alert(user.coursetitle);
-
-    };
-
-
-
-    const handleOpenEdit1 = async (user) => {
-        //alert(user.email + ' ' + user._id + ', phone ' + user.phone + ', password ' + user.password + ', department ' + user.department);
-
-        //const title=titleref.current.value;
-        const name = user.name;
-        const email = user.email;
-        const Phone = user.phone;
-        const Password = user.password;
-        const Department = user.department;
-
-        const role = user.role;
-        const gender = user.gender;
-        const category = user.category;
-
-        if (!email || email == '') {
-            alert('Email is required');
-            return;
-        }
-        if (!Phone) {
-            alert('Phone is required');
-
-            Phone = 'NA';
-        }
-        if (!Password) {
-            alert('Password is required');
-
-            Password = 'Password@123';
-        }
-        if (!Department) {
-            alert('Department is required');
-
-            Department = 'NA';
-        }
-
-        if (!gender) {
-            alert('Gender is required');
-            return;
-        }
-
-        if (!role) {
-            alert('Role is required');
-            return;
-        }
-
-        if (!category) {
-            alert('Category is required');
-            return;
-        }
-
-        //alert(user.email + ' ' + user._id + ', phone ' + Phone + ', password ' + Password+ ', department ' + Department);
-
-        //alert(coursetitle + ' - ' + studentscompleted);
-
-
-        const response = await ep1.get('/api/v2/updatefaculty1', {
-            params: {
-                id: user._id,
-                user: user.user,
-                token: token,
-                // name: user.name,
-                colid: colid,
-                name: name,
-                email: email,
-                phone: Phone,
-                password: Password,
-                department: Department,
-                role: role,
-                gender: gender,
-                category: category,
-
-                status1: 'Submitted',
-                comments: ''
-
-            }
-        });
-
-
-
-        //const a = await fetchViewPage();
-
-        //alert(response.data.status);
-
-
-        //alert(user.coursetitle);
-
-    };
-
-    const handleCloseEdit = () => {
-        setOpenEdit(false);
-        setSelectedUser(null);
-    };
-
-    const handleOpenDelete = (user) => {
-        setSelectedUser(user);
-        setOpenDelete(true);
-    };
-
-    const handleCloseDelete = () => {
-        setOpenDelete(false);
-        setSelectedUser(null);
-    };
-
-    const handleAddUser = () => {
-        const newUserId = rows.length ? rows[rows.length - 1]._id + 1 : 1;
-        const newRow = { ...newUser, _id: newUserId };
-        setRows([...rows, newRow]);
-        // handleCloseAdd();
-    };
-
-    const handleEditUser = () => {
-        const updatedRows = rows.map((row) =>
-            row._id === selectedUser._id ? { ...selectedUser } : row
-        );
-        setRows(updatedRows);
-        handleCloseEdit();
-    };
-
-    const handleDeleteUser = () => {
-        const updatedRows = rows.filter((row) => row._id !== selectedUser._id);
-        setRows(updatedRows);
-        handleCloseDelete();
-    };
-
-    const handleInputChange = (event, field) => {
-        const { value } = event.target;
-        if (openAddBulk) { // openAdd removed
-            setNewUser({ ...newUser, [field]: value });
-        } else if (openEdit) {
-            setSelectedUser({ ...selectedUser, [field]: value });
+        try {
+            const ws = XLSX.utils.json_to_sheet(users);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Users");
+            const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+            const data = new Blob([excelBuffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            saveAs(data, "purchase_users_export.xlsx");
+        } catch (error) {
+            console.error("Export failed:", error);
+            setError("Failed to export data");
         }
     };
 
-    function extractText1(event) {
-
-        const file1 = event.target.files[0];
-        setFile(file1);
-
-    }
-
-    const onButtonClickgo = async (e, row) => {
-        e.stopPropagation();
-        var itemstocheck = row.name;
-        setItemstocheck(itemstocheck);
-        global1.itemstocheck = itemstocheck;
-        setDialogopen(true);
-
-
-
-    };
-
-    const processpdf = async () => {
-        if (!file) {
-            alert('Please select file');
-            return;
-        }
-
-        setOpen(true);
-        pdfToText(file)
-            .then((text) => checktext1(text, itemstocheck))
-            .catch((error) => alert("Failed to extract text from pdf"));
-        setOpen(false);
-
-    }
-
-    const recognizeText = async (e, row) => {
-        e.stopPropagation();
-        var itemstocheck = row.name + '~' + row.title + '~' + row.journal;
-        setItemstocheck(itemstocheck);
-
-    };
-
-    const processimage = async () => {
-
-        if (!selectedImage) {
-            alert('Please select image');
-            return;
-        }
-        if (selectedImage) {
-            const result = await Tesseract.recognize(selectedImage);
-            //alert(result.data.text);
-            checktext1(result.data.text, itemstocheck);
-        }
-
-    }
-
-    const checktext1 = (stext, itemstocheck) => {
-        const ar1 = itemstocheck.split('~');
-        var found = 0;
-        var notthere = '';
-        for (var i = 0; i < ar1.length; i++) {
-            if (stext.toLowerCase().indexOf(ar1[i]) > -1) {
-                found = found + 1;
-            } else {
-                notthere = notthere + ar1[i] + ' ';
-            }
-
-        }
-        var percentage = Math.round(parseFloat(found) / parseFloat(ar1.length) * 100);
-        alert('Percentage match ' + percentage + '. Missing items ' + notthere);
-    }
-
-    const handleDialogclose = () => {
-        setDialogopen(false);
-    };
+    // DataGrid columns
+    const columns = [
+        { field: "name", headerName: "Name", width: 180 },
+        { field: "email", headerName: "Email", width: 220 },
+        { field: "phone", headerName: "Phone", width: 130 },
+        { field: "role", headerName: "Role", width: 150 },
+        { field: "department", headerName: "Department", width: 150 },
+        { field: "password", headerName: "Password", width: 150 }, // Added as per request, typically hidden
+        { field: "gender", headerName: "Gender", width: 100 },
+        { field: "category", headerName: "Category", width: 100 },
+        {
+            field: "lastlogin",
+            headerName: "Last Login",
+            width: 180,
+            valueGetter: (params) => {
+                // Fix for DataGrid v6 valueGetter signature (params.value is not available directly on params in v5, but v6 is usually (value, row))
+                // However, providing a safe check:
+                const val = params.value || params.row?.lastlogin;
+                if (!val) return "N/A";
+                try {
+                    return new Date(val).toLocaleString();
+                } catch {
+                    return "Invalid Date";
+                }
+            },
+        },
+        {
+            field: "actions",
+            headerName: "Actions",
+            width: 150,
+            sortable: false,
+            filterable: false,
+            renderCell: (params) => (
+                <>
+                    <Tooltip title="Edit User">
+                        <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => handleEdit(params.row)} // Open Edit Modal
+                            sx={{ mr: 1 }}
+                        >
+                            <Edit fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete User">
+                        <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(params.row._id)}
+                        >
+                            <Delete fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </>
+            ),
+        },
+    ];
 
     return (
-        <React.Fragment>
-            <Container maxWidth="100%" sx={{ mt: 4, mb: 4 }}>
-                <p>Enter Role</p>
-                <Box display="flex" marginBottom={4} marginTop={2}>
-                    <TextField id="outlined-basic" type="text" sx={{ width: "200px" }} label="Role" variant="outlined" inputRef={emailref} />
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            {/* Header */}
+            <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+                <Typography variant="h4">Purchase User Management</Typography>
+            </Box>
 
-                </Box>
-                <Box display="flex" marginBottom={4} marginTop={2}>
+            {/* Success/Error Messages */}
+            {message && (
+                <Alert severity="success" sx={{ mb: 2 }} onClose={() => setMessage("")}>
+                    {message}
+                </Alert>
+            )}
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
+                    {error}
+                </Alert>
+            )}
 
+            {/* Actions Bar */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+                <Stack direction="row" spacing={2} sx={{ mb: 2 }} flexWrap="wrap">
+                    <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={() => setOpenAddRole(true)} // Open AddRoleListds
+                    >
+                        Add User
+                    </Button>
                     <Button
                         variant="contained"
                         color="success"
-                        style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '180px' }}
-                        onClick={fetchViewPage}
+                        startIcon={<Upload />}
+                        onClick={handleExport}
                     >
-                        Load users
+                        Export to Excel
                     </Button>
-
-                </Box>
-                <Box display="flex" marginBottom={4} marginTop={2}>
-
-                    {/* <Button
-             variant="contained"
-             color="success"
-             style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '80px' }}
-             onClick={handleOpenAdd}
-           >
-             Add 
-           </Button> */}
                     <Button
-                        variant="contained"
-                        color="success"
-                        style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '180px' }}
-                        onClick={() => setOpenAddWithRole(true)}  // This opens the new modal with role dropdown
-                    >
-                        Add With Role Dropdown
-                    </Button>
-                    {/* <Button
-             variant="contained"
-             color="success"
-             style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '80px' }}
-             onClick={handleOpenAddBulk}
-           >
-             Bulk
-           </Button> */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        style={{ padding: '5px 10px', fontSize: '12px', marginRight: '4px', height: '30px', width: '80px' }}
-                        onClick={() => setOpenExport(true)}
-                    >
-                        Export
-                    </Button>
-
-                    <Button onClick={refreshpage}
                         variant="contained"
                         color="secondary"
-                        style={{ padding: '5px 10px', fontSize: '12px', height: '30px', width: '80px' }}
+                        onClick={fetchUsers}
                     >
                         Refresh
                     </Button>
-                </Box>
-                <Grid container spacing={3}>
+                    {selectedIds.length > 0 && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            startIcon={<Delete />}
+                            onClick={() => setDeleteDialog(true)}
+                        >
+                            Delete Selected ({selectedIds.length})
+                        </Button>
+                    )}
+                </Stack>
+
+                {/* Filters */}
+                <Stack direction="row" spacing={2} flexWrap="wrap" alignItems="center">
+                    <TextField
+                        label="Search"
+                        placeholder="Name, Email, Phone"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPaginationModel(prev => ({ ...prev, page: 0 }));
+                        }}
+                        size="small"
+                        sx={{ minWidth: 250 }}
+                    />
+
+                    <FormControl size="small" sx={{ minWidth: 200 }}>
+                        <InputLabel>Role</InputLabel>
+                        <Select
+                            value={roleFilter}
+                            label="Role"
+                            onChange={(e) => {
+                                setRoleFilter(e.target.value);
+                                setPaginationModel(prev => ({ ...prev, page: 0 }));
+                            }}
+                        >
+                            <MenuItem value="">All Roles</MenuItem>
+                            {purchaseRoles.map((role) => (
+                                <MenuItem key={role.value} value={role.value}>
+                                    {role.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
 
+                    <TextField
+                        label="Department"
+                        placeholder="Department"
+                        value={departmentFilter}
+                        onChange={(e) => {
+                            setDepartmentFilter(e.target.value);
+                            setPaginationModel(prev => ({ ...prev, page: 0 }));
+                        }}
+                        size="small"
+                        sx={{ minWidth: 200 }}
+                    />
 
-
-                    <br />
-
-                    <Dialog
-                        open={dialogopen}
-                        onClose={handleDialogclose}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            setSearch("");
+                            setDepartmentFilter("");
+                            setRoleFilter("");
+                        }}
                     >
-                        <DialogTitle id="alert-dialog-title">
-                            {"Document Validator"}
-                        </DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-description">
+                        Clear Filters
+                    </Button>
+                </Stack>
+            </Paper>
 
+            {/* DataGrid */}
+            <Paper sx={{ height: 600, width: "100%" }}>
+                <DataGrid
+                    rows={users}
+                    columns={columns}
+                    getRowId={(row) => row._id}
+                    loading={loading}
+                    pageSizeOptions={[10, 20, 50, 100]}
+                    paginationModel={paginationModel}
+                    paginationMode="server"
+                    onPaginationModelChange={setPaginationModel}
+                    rowCount={rowCount}
+                    checkboxSelection
+                    disableRowSelectionOnClick
+                    filterMode="server"
+                    filterModel={filterModel}
+                    onFilterModelChange={(newModel) => {
+                        setFilterModel(newModel);
+                        setPaginationModel({ ...paginationModel, page: 0 });
+                    }}
+                    onRowSelectionModelChange={(newSelection) => {
+                        setSelectedIds(newSelection);
+                    }}
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                            showQuickFilter: true,
+                            quickFilterProps: { debounceMs: 500 },
+                        },
+                    }}
+                    sx={{
+                        "& .MuiDataGrid-cell": {
+                            borderRight: "1px solid #e0e0e0",
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                            backgroundColor: "#f5f5f5",
+                            borderBottom: "2px solid #1976d2",
+                        },
+                    }}
+                />
+            </Paper>
 
-                                <Grid item xs={12}>
-                                    <Paper elevation={5} sx={{ p: 2, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                                        <Box>
+            {/* Bulk Delete Confirmation Dialog */}
+            <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
+                <DialogTitle>Confirm Bulk Delete</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to delete {selectedIds.length} users? This
+                    action cannot be undone.
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialog(false)}>Cancel</Button>
+                    <Button onClick={handleBulkDelete} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-                                            Select pdf or image file document proof
+            {/* Add Role Modal */}
+            <AddRoleListds
+                open={openAddRole}
+                handleClose={() => setOpenAddRole(false)}
+                fetchViewPage={fetchUsers}
+            />
 
-                                            {/* Checking for {itemstocheck} */}
-                                            <br /><br />
+            {/* Edit Role Modal */}
+            <EditRoleListds
+                open={openEditRole}
+                handleClose={() => {
+                    setOpenEditRole(false);
+                    setEditUser(null);
+                }}
+                fetchViewPage={fetchUsers}
+                editUser={editUser}
+            />
 
-                                            <table>
-                                                <tr>
-                                                    <td>
-                                                        Select pdf
-                                                    </td>
-                                                    <td width="20px"></td>
-                                                    <td>
-                                                        <input type="file" accept="application/pdf" onChange={extractText1} />
-                                                    </td>
-                                                </tr><tr>
-                                                    <td>Select image</td>
-                                                    <td width="20px"></td>
-                                                    <td>
-                                                        <input type="file" accept="image/*" onChange={handleImageUpload} />
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <Backdrop
-                                                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                                                open={open}
-
-                                            >
-                                                <CircularProgress color="inherit" />
-                                            </Backdrop>
-
-                                        </Box>
-                                    </Paper>
-                                </Grid>
-
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleDialogclose} autoFocus>Close</Button>
-                            <Button onClick={processpdf}>
-                                Check pdf
-                            </Button>
-                            <Button onClick={processimage}>
-                                Check image
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-
-
-
-                    <Grid item xs={12}>
-                        <Paper elevation={5} sx={{ p: 2, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                            {/* <h1>Table Component</h1> */}
-
-
-
-                            <DataGrid getRowId={(row) => row._id}
-
-                                rows={rows}
-                                columns={columns}
-
-                                initialState={{
-                                    pagination: {
-                                        paginationModel: {
-                                            pageSize: 10,
-                                        },
-                                    },
-                                }}
-                                processRowUpdate={(updatedRow, originalRow) =>
-                                    handleOpenEdit1(updatedRow)
-                                }
-                                // onProcessRowUpdateError={(error) => alert(error)}
-                                pageSizeOptions={[10]}
-                                disableRowSelectionOnClick
-                            />
-                            {/* add button handler */}
-                            {/* <AddUserModal
-                  open={openAdd}
-                  handleClose={handleCloseAdd}
-                  handleInputChange={handleInputChange}
-                  handleAddUser={handleAddUser}
-                  newUser={newUser}
-                  fetchViewPage={fetchViewPage}
-                /> */}
-                            <AddUserModal1
-                                open={openAddWithRole}
-                                handleClose={handleCloseAddWithRole}
-                                fetchViewPage={fetchViewPage}
-                            />
-
-
-                            <AddUserModalBulk
-                                open={openAddBulk}
-                                handleClose={handleCloseAddBulk}
-                                handleInputChange={handleInputChange}
-                                handleAddUser={handleAddUser}
-                                newUser={newUser}
-                                fetchViewPage={fetchViewPage}
-                            />
-
-                            <EditUserModal
-                                open={openEdit}
-                                handleClose={handleCloseEdit}
-                                handleInputChange={handleInputChange}
-                                handleEditUser={handleEditUser}
-                                selectedUser={selectedUser}
-                            />
-
-                            <DeleteUserModal
-                                open={openDelete}
-                                handleClose={handleCloseDelete}
-                                handleDeleteUser={handleDeleteUser}
-                                selectedUser={selectedUser}
-                            />
-
-                            <ExportUserModal
-                                open={openExport}
-                                handleClose={() => setOpenExport(false)}
-                                handleExport={handleExport}
-                            />
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </Container>
-        </React.Fragment>
+        </Container>
     );
-}
+};
 
 export default ViewPurchaseUserAddds;

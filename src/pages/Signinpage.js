@@ -1,7 +1,9 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { TextField, Button, Grid, Typography, Box } from '@mui/material';
+import { TextField, Button, Grid, Typography, Box, IconButton, InputAdornment } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 import global1 from './global1';
 import ep1 from '../api/ep1';
@@ -12,6 +14,13 @@ const Signup = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const searchapi = async () => {
     //alert('checking ' + email + ' ' + password);
@@ -323,11 +332,25 @@ const Signup = () => {
                     fullWidth
                     label="Password"
                     variant="outlined"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     size="small"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 {/* <Grid item xs={12}>

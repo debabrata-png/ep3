@@ -35,6 +35,7 @@ const PublicUnifiedLandingPageds = () => {
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [programs, setPrograms] = useState([]);
+    const [sources, setSources] = useState([]); // NEW: State for sources
 
     const [decryptedData, setDecryptedData] = useState(null);
     const [formData, setFormData] = useState({
@@ -118,16 +119,27 @@ const PublicUnifiedLandingPageds = () => {
                 params: { colid: colid }
             });
             setCategories(res.data.data);
+
+            // Also fetch sources
+            const resSources = await ep1.get("/api/v2/getallsourcesds", {
+                params: { colid: colid }
+            });
+            setSources(resSources.data.data);
+
         } catch (err) {
             console.error("Error fetching categories:", err);
         }
     }
 
-    // NEW: Fetch programs filtered by category
+    // NEW: Fetch programs filtered by category from ProgramCounselords
     const fetchProgramsByCategory = async (category) => {
         try {
-            const res = await ep1.get(`/api/v2/getprogramsbycategoryds/${category}`, {
-                params: { colid: landingPage.colid },
+            const res = await ep1.get(`/api/v2/getallprogramcounselords`, {
+                params: {
+                    colid: landingPage.colid,
+                    category: category,
+                    is_active: 'Yes'
+                },
             });
             setPrograms(res.data.data);
         } catch (err) {
@@ -154,18 +166,39 @@ const PublicUnifiedLandingPageds = () => {
             const sourceParam = searchParams.get('source');
             const leadSource = sourceParam || `Unified Landing Page - ${landingPage.page_name}`;
 
+            // Determine Counselor
+            const categoryObj = categories.find(c => c.category_name === selectedCategory);
+            const programObj = programs.find(p => p.course_name === formData.course_interested);
+
+            let assignedCounselor = null;
+
+            // 1. Check Category Counselors
+            if (categoryObj?.counsellors?.length > 0) {
+                // Pick random counselor from category
+                const randomIndex = Math.floor(Math.random() * categoryObj.counsellors.length);
+                assignedCounselor = categoryObj.counsellors[randomIndex];
+            }
+            // 2. Fallback to Program Counselor
+            else if (programObj?.counsellor_name && programObj?.counsellor_email) {
+                assignedCounselor = {
+                    counsellor_name: programObj.counsellor_name,
+                    counsellor_email: programObj.counsellor_email
+                };
+            }
+
             const payload = {
                 name: formData.name,
                 phone: formData.phone,
                 email: formData.email,
                 category: selectedCategory, // NEW: Use selected category
                 course_interested: formData.course_interested,
-                source: leadSource,
+                source: formData.source || leadSource, // Use selected source or default
                 city: formData.city,
                 state: formData.state,
                 colid: decryptedData.colid,
                 user: decryptedData.user,
                 landing_page_id: landingPage._id,
+                assignedto: assignedCounselor?.counsellor_email || "", // Maps to crmh1.assignedto
                 // We might want to flag this came from a unified page if needed
             };
 
@@ -184,6 +217,7 @@ const PublicUnifiedLandingPageds = () => {
                 course_interested: "",
                 city: "",
                 state: "",
+                source: "", // Reset source
             });
             setSelectedCategory(""); // Reset category
             setPrograms([]);
@@ -345,6 +379,25 @@ const PublicUnifiedLandingPageds = () => {
                                                 {programs.map((program) => (
                                                     <MenuItem key={program._id} value={program.course_name}>
                                                         {program.course_name}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        ) : field.field_type === 'select' && field.field_name === 'source' ? (
+                                            <TextField
+                                                fullWidth
+                                                select
+                                                label={field.field_label}
+                                                required={field.is_required}
+                                                value={formData[field.field_name] || ""} // Ensure controlled input
+                                                onChange={(e) => setFormData({ ...formData, [field.field_name]: e.target.value })}
+                                                InputProps={{
+                                                    startAdornment: <CategoryIcon sx={{ color: "#64748b", mr: 1 }} />, // Using CategoryIcon for source as generic placeholder
+                                                    sx: { borderRadius: 2 }
+                                                }}
+                                            >
+                                                {sources.filter(s => s.is_active === 'Yes').map((source) => (
+                                                    <MenuItem key={source._id} value={source.source_name}>
+                                                        {source.source_name}
                                                     </MenuItem>
                                                 ))}
                                             </TextField>

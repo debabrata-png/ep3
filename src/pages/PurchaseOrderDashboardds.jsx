@@ -531,7 +531,7 @@ const PurchaseOrderDashboardds = ({ role }) => {
 
         try {
             await ep1.post('/api/v2/addprassigneds', {
-                name: `PRA-${Date.now()}`,
+                name: global1.name,
                 user: global1.user, // Creator (Purchase Officer/Admin)
                 colid: global1.colid,
                 prassigneemail: userObj.email,
@@ -594,7 +594,7 @@ const PurchaseOrderDashboardds = ({ role }) => {
             });
 
         // Add 'Assign' Column for Store Requests if User is NOT OE
-        if (context === 'storeRequests' && role !== 'OE') {
+        if (context === 'storeRequests' && role !== 'PE' && role !== 'SPE') {
             cols.push({
                 field: 'actions',
                 headerName: 'Actions',
@@ -602,7 +602,7 @@ const PurchaseOrderDashboardds = ({ role }) => {
                 renderCell: (params) => (
                     params.row.reqstatus !== 'Assigned' && params.row.reqstatus !== 'Completed' ?
                         <Button variant="contained" size="small" onClick={() => handleOpenAssignDialog(params.row)}>
-                            Assign OE
+                            Assign
                         </Button> : <Typography variant="caption">Assigned</Typography>
                 )
             });
@@ -865,7 +865,7 @@ const PurchaseOrderDashboardds = ({ role }) => {
 
             {/* Assignment Dialog */}
             <Dialog open={assignDialogOpen} onClose={() => setAssignDialogOpen(false)}>
-                <DialogTitle>Assign Request to OE</DialogTitle>
+                <DialogTitle>Assign Request</DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
                         Assigning Request: <b>{selectedReqForAssign?.itemname}</b> (Qty: {selectedReqForAssign?.quantity})

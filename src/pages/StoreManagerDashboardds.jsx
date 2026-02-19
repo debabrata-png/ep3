@@ -19,6 +19,9 @@ import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
+import PRTemplate from './PRTemplate';
+import { createRoot } from 'react-dom/client';
+
 const StoreManagerDashboardds = () => {
     const [tabValue, setTabValue] = useState(0);
     const [requests, setRequests] = useState([]);
@@ -40,6 +43,130 @@ const StoreManagerDashboardds = () => {
     const [allItems, setAllItems] = useState([]);
     const [newStock, setNewStock] = useState({ storeid: '', itemid: '', quantity: '' });
 
+    // Print State
+    const [printPRData, setPrintPRData] = useState(null);
+
+
+    // Create PR Tab State
+    const [cart, setCart] = useState([]);
+    const [history, setHistory] = useState([]); // PR History
+    const [createPrItem, setCreatePrItem] = useState(null);
+    const [createPrQty, setCreatePrQty] = useState('');
+
+    // PR Configuration State
+    const [prConfigData, setPrConfigData] = useState({
+        institutionname: "People's Group",
+        address: "Karond Bhanpur By Pass Road, Bhopal-462037",
+        phone: "+91-0755-4005013",
+        prshort: 'PRCSPU'
+    });
+    const [configId, setConfigId] = useState(null);
+
+    const handleAddToCart = () => {
+        if (!createPrItem || !createPrQty) return;
+        const newItem = {
+            itemid: createPrItem._id,
+            itemcode: createPrItem.itemcode,
+            itemname: createPrItem.itemname,
+            quantity: createPrQty,
+            storeid: createPrItem.storeid || stores[0]?._id, // Default to first store if not linked? Or logic needs refinement.
+            storename: stores.find(s => s._id === (createPrItem.storeid || stores[0]?._id))?.storename || 'General Store'
+        };
+        setCart([...cart, newItem]);
+        setCreatePrItem(null);
+        setCreatePrQty('');
+    };
+
+    const handleGeneratePR = async () => {
+        // Generate PR Number
+        const date = new Date();
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const random = Math.floor(1000 + Math.random() * 9000);
+        // Use prshort from config, default to PRCSPU
+        const prefix = prConfigData.prshort || 'PRCSPU';
+        const prNum = `${prefix}/ ${yyyy}${mm}${dd}${random}`;
+
+        try {
+            // Loop and Save
+            for (const item of cart) {
+                await ep1.post('/api/v2/addstorerequisationds', {
+                    itemid: item.itemid,
+                    itemname: item.itemname,
+                    itemcode: item.itemcode,
+                    name: `Store Request - ${item.itemname}`,
+                    storeid: item.storeid,
+                    store: item.storename,
+                    quantity: Number(item.quantity),
+                    reqdate: new Date(),
+                    reqstatus: 'Purchase Requested', // Directly set status
+                    colid: global1.colid,
+                    user: global1.user,
+                    prnumber: prNum // Save generated PR Number
+                });
+            }
+
+            alert(`PR Generated Successfully! PR Number: ${prNum}`);
+
+            // Set Print Data
+            setPrintConfig(prev => ({ ...prev, prNumber: prNum }));
+            setRequestToPrint(null); // Clear single request
+            // We need to pass the CART items to the print dialog
+            // We can reuse requestToPrint but it expects a single object usually. 
+            // Better to add a 'printItems' state or pass cart directly if we open dialog immediately.
+            setOpenPrintDialog(true);
+
+            // Clear Cart (maybe after print confirm? but let's clear now to avoid duplicates)
+            // setCart([]); // Keep cart until print confirmed? Or clear and save in a 'lastGeneratedPR' state?
+            // Let's keep cart for the print dialog to read, then clear.
+
+        } catch (error) {
+            console.error("Error generating PR:", error);
+            alert("Failed to generate PR.");
+        }
+    };
+
+    const fetchPRConfig = async () => {
+        try {
+            const response = await ep1.get(`/api/v2/getprconfigds?colid=${global1.colid}`);
+            if (response.data.data) {
+                const data = response.data.data;
+                setPrConfigData({
+                    institutionname: data.institutionname || "People's Group",
+                    address: data.address || "Karond Bhanpur By Pass Road, Bhopal-462037",
+                    phone: data.phone || "+91-0755-4005013",
+                    prshort: data.prshort || 'PRCSPU'
+                });
+                setConfigId(data._id);
+            }
+        } catch (error) {
+            console.error('Error fetching PR Config:', error);
+        }
+    };
+
+    const handleSaveConfig = async () => {
+        try {
+            const payload = {
+                ...prConfigData,
+                colid: global1.colid,
+                user: global1.user,
+                name: global1.name || localStorage.getItem('name')
+            };
+
+            if (configId) {
+                await ep1.post(`/api/v2/updateprconfigds?id=${configId}`, payload);
+            } else {
+                await ep1.post('/api/v2/addprconfigds', payload);
+                fetchPRConfig();
+            }
+            alert('Configuration Saved Successfully');
+        } catch (error) {
+            console.error('Error saving config:', error);
+            alert('Failed to save configuration');
+        }
+    };
+
     useEffect(() => {
         // Restore global1 if missing (on reload)
         if (!global1.colid && localStorage.getItem('colid')) {
@@ -47,38 +174,205 @@ const StoreManagerDashboardds = () => {
             global1.user = localStorage.getItem('user');
             global1.name = localStorage.getItem('name');
             global1.department = localStorage.getItem('department');
+            global1.role = localStorage.getItem('role');
         }
 
         if (tabValue === 0) fetchRequests();
-        else {
+        else if (tabValue === 1) {
             fetchInventory();
             fetchStores();
             fetchAllItems();
+        } else if (tabValue === 3) {
+            fetchHistory();
         }
+
+        // Always fetch config
+        fetchPRConfig();
     }, [tabValue]);
 
     const fetchRequests = async () => {
         try {
             const response = await ep1.get(`/api/v2/getallrequisationds?colid=${global1.colid}`);
-            const all = response.data.data.requisitions || [];
-            // Add unique ID for DataGrid if missing (using _id)
-            setRequests(all.filter(r => r.reqstatus === 'Pending').map(r => ({ ...r, id: r._id })));
+            let all = response.data.data.requisitions || [];
+
+            // Filter by Assigned Stores
+            const mapRes = await ep1.get(`/api/v2/getallstoreuserds?colid=${global1.colid}`);
+            const mappings = mapRes.data.data.storeUsers || [];
+            const userMappings = mappings.filter(m => m.user === global1.user); // Match current user
+
+            if (userMappings.length > 0) {
+                const allowedStoreIds = userMappings.map(m => m.storeid);
+                const allowedStoreNames = userMappings.map(m => m.store);
+
+                // Filter requests where storeid matches or store name matches
+                all = all.filter(r =>
+                    allowedStoreIds.includes(r.storeid) || allowedStoreNames.includes(r.store)
+                );
+            } else {
+                // No mapping = Show All
+            }
+
+            // Show Pending and Purchase Requested
+            setRequests(all.filter(r => r.reqstatus === 'Pending' || r.reqstatus === 'Purchase Requested').map(r => ({ ...r, id: r._id })));
         } catch (error) {
             console.error('Error fetching requests:', error);
         }
     };
 
+    const [allowedStoresDebug, setAllowedStoresDebug] = useState([]);
+
     const fetchInventory = async () => {
         try {
             const response = await ep1.get(`/api/v2/getallstoreitemds?colid=${global1.colid}`);
-            const items = response.data.data.storeItems || [];
+            let items = response.data.data.storeItems || [];
+
+            // Filter by Visible Stores (if stores state is populated)
+            // Note: fetchStores() runs concurrently or before/after. 
+            // Better to rely on the same logic or ensure stores are loaded.
+            // However, since stores state update might lag, let's re-implement the check logic or wait for stores.
+            // Actually, we can just filter by the same logic here or simpler:
+            // If we want strict security, we'd do it on backend. Frontend: filter by 'stores' state if available.
+            // But 'stores' state might not be ready yet.
+            // Let's replicate the mapping check for robustness.
+
+            const mapRes = await ep1.get(`/api/v2/getallstoreuserds?colid=${global1.colid}`);
+            const mappings = mapRes.data.data.storeUsers || [];
+            const userMappings = mappings.filter(m => m.user === global1.user);
+
+            if (userMappings.length > 0) {
+                // User requested filtering based on store name
+                // Normalize allowed stores: trim whitespace and lowercase for robust matching
+                const allowedStoreNames = userMappings.map(m => m.store ? m.store.trim().toLowerCase() : "");
+
+                // Debugging to see what is happening
+                console.log("Debug - Allowed Stores (Normalized):", allowedStoreNames);
+                console.log("Debug - Total Items before filter:", items.length);
+
+                // Filter items
+                items = items.filter(i => {
+                    if (!i.storename) return false; // Skip items with no store name
+                    const itemStoreName = i.storename.trim().toLowerCase();
+                    return allowedStoreNames.includes(itemStoreName);
+                });
+
+                console.log("Debug - Items after filter:", items.length);
+            } else {
+                setAllowedStoresDebug(['ALL (No Mapping Found)']);
+                // If no mappings, show ALL items (Admin/Default View)
+            }
+
             setInventory(items.map(i => ({ ...i, id: i._id })));
         } catch (error) {
             console.error('Error fetching inventory:', error);
         }
     };
 
-    const fetchStores = async () => { try { const res = await ep1.get(`/api/v2/getallstoremasterds?colid=${global1.colid}`); setStores(res.data.data.stores || []); } catch (e) { console.error(e); } };
+    const fetchHistory = async () => {
+        try {
+            // Fetch sent requests (storerequisationds)
+            const response = await ep1.get(`/api/v2/getallstorerequisationds?colid=${global1.colid}`);
+            let all = response.data.data.requisitions || [];
+
+            // Filter by Assigned Stores
+            const mapRes = await ep1.get(`/api/v2/getallstoreuserds?colid=${global1.colid}`);
+            const mappings = mapRes.data.data.storeUsers || [];
+            const userMappings = mappings.filter(m => m.user === global1.user);
+
+            if (userMappings.length > 0) {
+                const allowedStoreIds = userMappings.map(m => m.storeid);
+                // store requisation might use 'store' for name or 'storeid'
+                const allowedStoreNames = userMappings.map(m => m.store);
+
+                all = all.filter(r =>
+                    allowedStoreIds.includes(r.storeid) || allowedStoreNames.includes(r.store)
+                );
+            }
+
+            // Filter for those that have a PR Number (indicating they were generated via new tab) or just all
+            setHistory(all.map(r => ({ ...r, id: r._id })));
+        } catch (error) {
+            console.error('Error fetching history:', error);
+        }
+    };
+
+    const handleReprint = (prNumber) => {
+        if (!prNumber) {
+            alert("No PR Number found for this record.");
+            return;
+        }
+
+        // Filter all items with this PR Number
+        const itemsToPrint = history.filter(item => item.prnumber === prNumber);
+
+        if (itemsToPrint.length === 0) {
+            alert("No items found for this PR.");
+            return;
+        }
+
+        setPrintConfig(prev => ({ ...prev, prNumber: prNumber }));
+
+        // Open Print
+        const printWindow = window.open('', '', 'height=800,width=800');
+        printWindow.document.write('<html><head><title>Print PR</title>');
+        printWindow.document.write('</head><body><div id="print-root"></div></body></html>');
+        printWindow.document.close();
+
+        const root = createRoot(printWindow.document.getElementById('print-root'));
+
+        const createdByName = global1.name || localStorage.getItem('name') || global1.user || 'Unknown';
+
+        root.render(
+            <PRTemplate
+                requestData={{}} // Empty fallback
+                items={itemsToPrint}
+                prNumber={prNumber}
+                instituteName={printConfig.institutionName}
+                instituteAddress={printConfig.address}
+                institutePhone={printConfig.phone}
+                createdByName={createdByName}
+            />
+        );
+
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+        }, 1000);
+    };
+
+    const fetchStores = async () => {
+        try {
+            // 1. Fetch All Stores
+            const res = await ep1.get(`/api/v2/getallstoremasterds?colid=${global1.colid}`);
+            const allStores = res.data.data.stores || [];
+
+            // 2. Fetch User-Store Mappings
+            const mapRes = await ep1.get(`/api/v2/getallstoreuserds?colid=${global1.colid}`);
+            const mappings = mapRes.data.data.storeUsers || [];
+
+            // 3. Check for Mapping
+            // Using global1.user (which should be email/username) to match 'user' field in storeuserds
+            // Also checking 'userid' if available, but 'user' field seems primary based on previous context
+            const userMappings = mappings.filter(m => m.user === global1.user || m.userid === global1.user);
+
+            if (userMappings.length > 0) {
+                // User is restricted to specific stores
+                const allowedStoreIds = userMappings.map(m => m.storeid);
+                // Also match by store name if ID is missing (fallback)
+                const allowedStoreNames = userMappings.map(m => m.store);
+
+                const filteredStores = allStores.filter(s =>
+                    allowedStoreIds.includes(s._id) || allowedStoreNames.includes(s.storename)
+                );
+                setStores(filteredStores);
+            } else {
+                // No mapping found -> Show ALL stores (Admin/Default)
+                setStores(allStores);
+            }
+
+        } catch (e) {
+            console.error("Error fetching stores:", e);
+        }
+    };
     const fetchAllItems = async () => { try { const res = await ep1.get(`/api/v2/getallitemmasterds?colid=${global1.colid}`); setAllItems(res.data.data.items || []); } catch (e) { console.error(e); } };
 
     // --- Allotment Logic ---
@@ -147,6 +441,7 @@ const StoreManagerDashboardds = () => {
             const storeObj = stores.find(s => s._id === selectedRequest.storeid);
             const itemMaster = allItems.find(i => i.itemcode === selectedRequest.itemcode);
 
+            // 1. Add to Purchase Cell
             await ep1.post('/api/v2/addstorerequisationds', {
                 itemid: itemMaster?._id || selectedRequest.itemid,
                 itemname: selectedRequest.itemname,
@@ -159,6 +454,12 @@ const StoreManagerDashboardds = () => {
                 colid: global1.colid,
                 user: global1.user
             });
+
+            // 2. Update Original Request Status
+            await ep1.post(`/api/v2/updaterequisationds?id=${selectedRequest._id}`, {
+                reqstatus: 'Purchase Requested'
+            });
+
             alert('Purchase Request Sent to Purchase Cell');
             setOpenPurchaseModal(false);
             fetchRequests();
@@ -193,6 +494,96 @@ const StoreManagerDashboardds = () => {
             console.error('Error adding stock:', error);
             alert('Failed to add stock');
         }
+    };
+    // --- Print Logic ---
+    const [openPrintDialog, setOpenPrintDialog] = useState(false);
+    const [printConfig, setPrintConfig] = useState({
+        institutionName: prConfigData.institutionname,
+        address: prConfigData.address,
+        phone: prConfigData.phone,
+        prNumber: ''
+    });
+    const [requestToPrint, setRequestToPrint] = useState(null);
+
+    const handlePrintPR = async (row) => {
+        // Check if PR Number already exists
+        let prNum = row.prnumber;
+
+        if (!prNum) {
+            // Generate New PR Number: PRCSPU/YYYYMMDD<Random>
+            const date = new Date();
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const random = Math.floor(1000 + Math.random() * 9000);
+            // Use prshort from config, default to PRCSPU
+            const prefix = prConfigData.prshort || 'PRCSPU';
+            prNum = `${prefix}/ ${yyyy}${mm}${dd}${random}`;
+
+            // Save to Backend
+            try {
+                await ep1.post(`/api/v2/updaterequisationds?id=${row._id}`, {
+                    prnumber: prNum,
+                    colid: global1.colid
+                });
+
+                // Update Local State
+                setRequests(prev => prev.map(r => r._id === row._id ? { ...r, prnumber: prNum } : r));
+                setPrintPRData(prev => prev ? { ...prev, prnumber: prNum } : null);
+
+            } catch (error) {
+                console.error("Error saving PR Number:", error);
+                alert("Could not generate/save PR Number. Printing with temporary ID.");
+            }
+        }
+
+        setRequestToPrint(row);
+        setPrintConfig({
+            institutionName: prConfigData.institutionname,
+            address: prConfigData.address,
+            phone: prConfigData.phone,
+            prNumber: prNum
+        });
+        setOpenPrintDialog(true);
+    };
+
+    const handleConfirmPrint = () => {
+        setOpenPrintDialog(false);
+
+        const printWindow = window.open('', '', 'height=800,width=800');
+        printWindow.document.write('<html><head><title>Print PR</title>');
+        printWindow.document.write('</head><body><div id="print-root"></div></body></html>');
+        printWindow.document.close();
+
+        const root = createRoot(printWindow.document.getElementById('print-root'));
+
+        // Determine what to print: Single Request or Cart
+        const itemsToPrint = requestToPrint ? null : cart;
+
+        // createdByName
+        const createdByName = global1.name || localStorage.getItem('name') || global1.user || 'Unknown';
+
+        root.render(
+            <PRTemplate
+                requestData={requestToPrint || {}}
+                items={itemsToPrint}
+                prNumber={printConfig.prNumber}
+                instituteName={printConfig.institutionName}
+                instituteAddress={printConfig.address}
+                institutePhone={printConfig.phone}
+                createdByName={createdByName}
+            />
+        );
+
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+
+            // If we printed the cart, clear it now
+            if (!requestToPrint && cart.length > 0) {
+                setCart([]);
+            }
+        }, 1000);
     };
 
     // --- Columns ---
@@ -232,7 +623,7 @@ const StoreManagerDashboardds = () => {
             cols.push({
                 field: 'actions',
                 headerName: 'Actions',
-                width: 250,
+                width: 350,
                 renderCell: (params) => (
                     <Box>
                         <Button
@@ -240,7 +631,7 @@ const StoreManagerDashboardds = () => {
                             variant="contained"
                             color="success"
                             onClick={() => handleOpenAllot(params.row)}
-                            sx={{ mr: 1 }}
+                            sx={{ mr: 1, display: params.row.reqstatus === 'Pending' ? 'inline-flex' : 'none' }}
                         >
                             Allot
                         </Button>
@@ -249,8 +640,19 @@ const StoreManagerDashboardds = () => {
                             variant="outlined"
                             color="primary"
                             onClick={() => handleRequestPurchase(params.row)}
+                            sx={{ mr: 1, display: params.row.reqstatus === 'Pending' ? 'inline-flex' : 'none' }}
                         >
                             Request Purchase
+                        </Button>
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handlePrintPR(params.row)}
+                            disabled={params.row.reqstatus !== 'Purchase Requested'}
+                            sx={{ display: params.row.reqstatus === 'Purchase Requested' ? 'inline-flex' : 'none' }}
+                        >
+                            Print PR
                         </Button>
                     </Box>
                 )
@@ -260,89 +662,286 @@ const StoreManagerDashboardds = () => {
         return cols;
     };
 
-    const requestColumns = generateColumns(requests, 'requests');
-    const inventoryColumns = generateColumns(inventory, 'inventory');
+
+
+    const columns = [
+        { field: 'itemname', headerName: 'Item Name', width: 200 },
+        { field: 'quantity', headerName: 'Quantity', width: 100 },
+        { field: 'storename', headerName: 'Store', width: 150 },
+        { field: 'department', headerName: 'Department', width: 150 },
+        { field: 'reqdate', headerName: 'Date', width: 150, valueFormatter: (params) => new Date(params.value).toLocaleDateString() },
+        { field: 'reqstatus', headerName: 'Status', width: 150 },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 300,
+            renderCell: (params) => (
+                <Box>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => handleOpenAllot(params.row)}
+                        sx={{ mr: 1 }}
+                    >
+                        Approve / Allot
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        color="secondary"
+                        onClick={() => handlePrintPR(params.row)}
+                    >
+                        Print PR
+                    </Button>
+                </Box>
+            )
+        }
+    ];
 
     return (
-        <Box p={3} sx={{ height: '85vh', width: '100%' }}>
-            <Typography variant="h4" gutterBottom>
-                Store Manager Dashboard
-            </Typography>
+        <Box p={3}>
             <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 2 }}>
-                <Tab label="Faculty Requests" />
-                <Tab label="Store Inventory" />
+                <Tab label="Requests" />
+                <Tab label="Inventory & Stock" />
+                <Tab label="Create PR" />
+                <Tab label="PR History" />
+                <Tab label="Configuration" />
             </Tabs>
 
             {tabValue === 0 && (
-                <Paper sx={{ height: 600, width: '100%' }}>
+                <Box sx={{ height: 600, width: '100%' }}>
                     <DataGrid
                         rows={requests}
-                        columns={requestColumns}
+                        columns={columns}
                         pageSizeOptions={[10, 25, 50]}
                         disableRowSelectionOnClick
                     />
-                </Paper>
-            )}
-
-            {tabValue === 1 && (
-                <Box sx={{ height: 600, width: '100%' }}>
-                    <Box display="flex" justifyContent="flex-end" mb={2}>
-                        <Button variant="contained" onClick={() => setOpenAddStockModal(true)}>Add Opening Stock</Button>
-                    </Box>
-                    <Paper sx={{ height: '100%', width: '100%' }}>
-                        <DataGrid
-                            rows={inventory}
-                            columns={inventoryColumns}
-                            pageSizeOptions={[10, 25, 50]}
-                            disableRowSelectionOnClick
-                        />
-                    </Paper>
                 </Box>
             )}
 
-            {/* Allotment & Availability Dialog */}
-            <Dialog open={openAllotModal} onClose={() => setOpenAllotModal(false)}>
-                <DialogTitle>Allot Item: {selectedRequest?.itemname}</DialogTitle>
-                <DialogContent sx={{ pt: 2, minWidth: 400 }}>
-                    <Typography variant="subtitle1" gutterBottom>
-                        <strong>Store:</strong> {selectedRequest?.storename}
-                    </Typography>
-                    <Grid container spacing={2} sx={{ mb: 2 }}>
-                        <Grid item xs={6}>
-                            <Typography color="textSecondary">Requested:</Typography>
-                            <Typography variant="h6">{selectedRequest?.quantity}</Typography>
+            {tabValue === 1 && (
+                <Box>
+                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button variant="contained" onClick={() => setOpenAddStockModal(true)}>
+                            Add Stock
+                        </Button>
+                    </Box>
+                    <Box sx={{ height: 600, width: '100%' }}>
+                        <DataGrid
+                            rows={inventory}
+                            columns={[
+                                { field: 'itemname', headerName: 'Item Name', width: 200 },
+                                { field: 'quantity', headerName: 'Quantity', width: 150 },
+                                { field: 'storename', headerName: 'Store', width: 200 },
+                                {
+                                    field: 'updatedate',
+                                    headerName: 'Last Updated',
+                                    width: 200,
+                                    valueFormatter: (params) => params.value ? new Date(params.value).toLocaleString() : ''
+                                }
+                            ]}
+                            pageSizeOptions={[10, 25, 50]}
+                        />
+                    </Box>
+                </Box>
+            )}
+
+            {/* Configuration Tab */}
+            {tabValue === 4 && (
+                <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 3, border: '1px solid #ccc', borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom>PR Print Configuration</Typography>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Institution Name"
+                                fullWidth
+                                value={prConfigData.institutionname}
+                                onChange={(e) => setPrConfigData({ ...prConfigData, institutionname: e.target.value })}
+                            />
                         </Grid>
-                        <Grid item xs={6}>
-                            <Typography color="textSecondary">Available Stock:</Typography>
-                            {/* Stock Check is implicit here */}
-                            <Typography variant="h6" color={Number(currentStock) >= Number(selectedRequest?.quantity) ? 'green' : 'error'}>
-                                {currentStock}
-                            </Typography>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Address"
+                                fullWidth
+                                value={prConfigData.address}
+                                onChange={(e) => setPrConfigData({ ...prConfigData, address: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Phone"
+                                fullWidth
+                                value={prConfigData.phone}
+                                onChange={(e) => setPrConfigData({ ...prConfigData, phone: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="PR Short Code (e.g., PRCSPU)"
+                                fullWidth
+                                value={prConfigData.prshort}
+                                onChange={(e) => setPrConfigData({ ...prConfigData, prshort: e.target.value })}
+                                helperText="This code will be prefixed to generated PR Numbers."
+                            />
+                        </Grid>
+                        <Grid item xs={12} sx={{ textAlign: 'right' }}>
+                            <Button variant="contained" onClick={handleSaveConfig}>
+                                Save Configuration
+                            </Button>
                         </Grid>
                     </Grid>
+                </Box >
+            )}
 
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Quantity to Allot"
-                        type="number"
-                        fullWidth
-                        variant="outlined"
-                        value={allotQty}
-                        onChange={(e) => setAllotQty(e.target.value)}
-                        helperText="You can allot less than requested (Partial Allotment)"
-                    />
+            {
+                tabValue === 2 && (
+                    <Box p={3}>
+                        {/* ... (Create PR Tab content) ... */}
+                        <Typography variant="h6" gutterBottom>Create New Purchase Requisition</Typography>
+
+                        {/* Input Section */}
+                        {/* ... existing input section ... */}
+                        <Paper sx={{ p: 2, mb: 3 }}>
+                            <Grid container spacing={2} alignItems="center">
+                                <Grid item xs={12} md={4}>
+                                    <Autocomplete
+                                        options={allItems}
+                                        getOptionLabel={(option) => option.itemname || ""}
+                                        value={createPrItem}
+                                        onChange={(e, val) => setCreatePrItem(val)}
+                                        renderInput={(params) => <TextField {...params} label="Select Item" size="small" />}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        label="Quantity"
+                                        type="number"
+                                        size="small"
+                                        fullWidth
+                                        value={createPrQty}
+                                        onChange={(e) => setCreatePrQty(e.target.value)}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleAddToCart}
+                                        disabled={!createPrItem || !createPrQty}
+                                    >
+                                        Add to List
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Paper>
+
+                        {/* Cart Table */}
+                        <Box sx={{ height: 300, width: '100%', mb: 2 }}>
+                            <DataGrid
+                                rows={cart.map((item, index) => ({ ...item, id: index }))}
+                                columns={[
+                                    { field: 'itemname', headerName: 'Item Name', width: 250 },
+                                    { field: 'quantity', headerName: 'Quantity', width: 150 },
+                                    { field: 'storename', headerName: 'Store', width: 200 },
+                                    {
+                                        field: 'actions',
+                                        headerName: 'Actions',
+                                        width: 150,
+                                        renderCell: (params) => (
+                                            <Button
+                                                size="small"
+                                                color="error"
+                                                onClick={() => setCart(prev => prev.filter((_, i) => i !== params.id))}
+                                            >
+                                                Remove
+                                            </Button>
+                                        )
+                                    }
+                                ]}
+                                pageSizeOptions={[5, 10]}
+                                disableRowSelectionOnClick
+                            />
+                        </Box>
+
+                        {/* Generate Button */}
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                color="secondary"
+                                disabled={cart.length === 0}
+                                onClick={handleGeneratePR}
+                            >
+                                Generate PR & Print
+                            </Button>
+                        </Box>
+                    </Box>
+                )
+            }
+
+            {
+                tabValue === 3 && (
+                    <Box sx={{ height: 600, width: '100%', p: 3 }}>
+                        <Typography variant="h6" gutterBottom>PR History (Sent to Purchase Cell)</Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                            <Button onClick={fetchHistory} variant="outlined" size="small">Refresh</Button>
+                        </Box>
+                        <DataGrid
+                            rows={history}
+                            columns={[
+                                { field: 'prnumber', headerName: 'PR Number', width: 200 },
+                                { field: 'reqdate', headerName: 'Date', width: 150, valueFormatter: (params) => new Date(params.value).toLocaleDateString() },
+                                { field: 'itemname', headerName: 'Item', width: 200 },
+                                { field: 'quantity', headerName: 'Qty', width: 100 },
+                                { field: 'store', headerName: 'Store', width: 150 },
+                                { field: 'reqstatus', headerName: 'Status', width: 150 },
+                                {
+                                    field: 'actions',
+                                    headerName: 'Actions',
+                                    width: 200,
+                                    renderCell: (params) => (
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            onClick={() => handleReprint(params.row.prnumber)}
+                                        >
+                                            Reprint PR
+                                        </Button>
+                                    )
+                                }
+                            ]}
+                            pageSizeOptions={[10, 25, 50]}
+                            disableRowSelectionOnClick
+                            initialState={{
+                                sorting: {
+                                    sortModel: [{ field: 'reqdate', sort: 'desc' }],
+                                },
+                            }}
+                        />
+                    </Box>
+                )
+            }
+
+            {/* Allotment Modal */}
+            <Dialog open={openAllotModal} onClose={() => setOpenAllotModal(false)}>
+                <DialogTitle>Allot Item: {selectedRequest?.itemname}</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography><strong>Requested Qty:</strong> {selectedRequest?.quantity}</Typography>
+                        <Typography><strong>Current Stock:</strong> {currentStock}</Typography>
+
+                        <TextField
+                            label="Allot Quantity"
+                            type="number"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                            value={allotQty}
+                            onChange={(e) => setAllotQty(e.target.value)}
+                        />
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenAllotModal(false)}>Cancel</Button>
-                    <Button
-                        onClick={submitAllotment}
-                        variant="contained"
-                        color="success"
-                        disabled={currentStock === 'Checking...' || Number(currentStock) < 1 || Number(allotQty) <= 0 || Number(allotQty) > Number(currentStock)}
-                    >
-                        Confirm Allotment
-                    </Button>
+                    <Button variant="contained" onClick={submitAllotment}>Confirm Allotment</Button>
                 </DialogActions>
             </Dialog>
 
@@ -394,7 +993,7 @@ const StoreManagerDashboardds = () => {
                     <Button onClick={handleAddStockSubmit} variant="contained">Add Stock</Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
 };
 

@@ -69,7 +69,7 @@ const UnifiedLandingPageds = () => {
         form_fields: [
             { field_name: "name", field_label: "Full Name", field_type: "text", is_required: true },
             { field_name: "phone", field_label: "Phone Number", field_type: "tel", is_required: true },
-            { field_name: "email", field_label: "Email", field_type: "email", is_required: true },
+            { field_name: "email", field_label: "Email", field_type: "email", is_required: false },
         ],
     });
 
@@ -81,6 +81,7 @@ const UnifiedLandingPageds = () => {
         { field_name: "course_interested", field_label: "Course Interested", field_type: "select" },
         { field_name: "city", field_label: "City", field_type: "text" },
         { field_name: "state", field_label: "State", field_type: "text" },
+        { field_name: "source", field_label: "Source", field_type: "select" },
     ];
 
     useEffect(() => {

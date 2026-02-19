@@ -52,6 +52,7 @@ import { menucma } from './menucma';
 import { menupe } from './menupe';
 import { menuitemscounselor1 } from './menucounselor1';
 import { menulibrary } from './menulibrary';
+import { menuspe } from './menuspe';
 
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
@@ -218,6 +219,12 @@ export function mainListItems({ open }) {
       return (
         <div>
           {menulibrary()}
+        </div>
+      )
+    } else if (role1 == 'SPE') {
+      return (
+        <div>
+          {menuspe()}
         </div>
       )
     }

@@ -1,195 +1,306 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Box,
-    Typography,
-    Paper,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Grid,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow
-} from '@mui/material';
+import { Box, Typography, Paper, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
-const DeliveryDashboardds = () => {
-    const [approvedPOs, setApprovedPOs] = useState([]);
-    const [openDeliveryModal, setOpenDeliveryModal] = useState(false);
-    const [selectedPO, setSelectedPO] = useState(null);
-    const [deliveryNote, setDeliveryNote] = useState('');
-    const [docLink, setDocLink] = useState('');
+import GRNTemplate from './GRNTemplate';
+import { createRoot } from 'react-dom/client';
 
-    // For Quality Check
-    const [deliveryItems, setDeliveryItems] = useState([]);
+const DeliveryDashboardds = () => {
+    const [approvedPOs, setApprovedPOs] = useState([]); // Force update
+    const [loading, setLoading] = useState(false);
+    const [selectedPO, setSelectedPO] = useState(null);
+    const [poItems, setPoItems] = useState([]);
+    const [openDeliveryModal, setOpenDeliveryModal] = useState(false);
+
+    // Delivery Update State
+    const [deliveryUpdates, setDeliveryUpdates] = useState({}); // { itemId: { received, returned, remarks } }
+    const [docLink, setDocLink] = useState('');
+    const [deliveryNote, setDeliveryNote] = useState('');
+
+    // New Fields for GRN Format (Challan & Bill)
+    const [challanNo, setChallanNo] = useState('');
+    const [challanDate, setChallanDate] = useState('');
+    const [billNo, setBillNo] = useState('');
+    const [billDate, setBillDate] = useState('');
 
     useEffect(() => {
+        // Restore global1 if missing
+        if (!global1.colid && localStorage.getItem('colid')) {
+            global1.colid = localStorage.getItem('colid');
+            global1.user = localStorage.getItem('user');
+            global1.name = localStorage.getItem('name');
+        }
         fetchApprovedPOs();
     }, []);
 
     const fetchApprovedPOs = async () => {
+        setLoading(true);
         try {
-            const response = await ep1.get(`/api/v2/getallstorepoorderds?colid=${global1.colid}`);
-            const allPOs = response.data.data.poOrders || [];
-            const approved = allPOs.filter(po => po.postatus === 'Approved' || po.approvalStatus === 'Completed');
-            setApprovedPOs(approved.map(p => ({ ...p, id: p._id })));
+            // Fetch POs where status is Approved (or Partially Delivered?)
+            const res = await ep1.get(`/api/v2/getallstorepoorderds?colid=${global1.colid}`);
+            const allPOs = res.data.data.poOrders || [];
+            // Filter only Approved ones
+            const approved = allPOs.filter(po => po.postatus === 'Approved' || po.postatus === 'Partially Delivered');
+            setApprovedPOs(approved.map(po => ({ ...po, id: po._id })));
         } catch (error) {
-            console.error('Error fetching POs:', error);
+            console.error(error);
         }
+        setLoading(false);
     };
 
-    const handleMarkDeliveredClick = async (po) => {
+    const handleOpenDelivery = async (po) => {
         setSelectedPO(po);
-        setDeliveryNote('');
+        setOpenDeliveryModal(true);
+        setDeliveryUpdates({});
         setDocLink('');
+        setDeliveryNote('');
 
-        // Fetch PO Items for Quality Check
+        // Reset Challan/Bill fields
+        setChallanNo('');
+        setChallanDate('');
+        setBillNo('');
+        setBillDate('');
+
         try {
             const res = await ep1.get(`/api/v2/getallstorepoitemsds?colid=${global1.colid}`);
             const allItems = res.data.data.poItems || [];
-            // Filter items for this PO
-            const poItems = allItems.filter(item => item.poid === po.poid);
-
-            // Initialize delivery state for each item
-            const itemsWithState = poItems.map(item => ({
-                ...item,
-                receivedQty: item.quantity, // Default to full acceptance
-                returnedQty: 0
-            }));
-
-            setDeliveryItems(itemsWithState);
-            setOpenDeliveryModal(true);
+            const myItems = allItems.filter(i => i.poid === po.poid);
+            setPoItems(myItems);
         } catch (error) {
-            console.error('Error fetching PO items:', error);
-            alert('Error loading PO items');
+            console.error(error);
         }
     };
 
-    const handleQtyChange = (index, field, value) => {
-        const newItems = [...deliveryItems];
-        const val = parseInt(value) || 0;
-        const item = newItems[index];
-
-        if (field === 'returnedQty') {
-            if (val > item.quantity) {
-                alert("Returned quantity cannot exceed total quantity");
-                return;
+    const handleUpdateChange = (itemId, field, value) => {
+        setDeliveryUpdates(prev => ({
+            ...prev,
+            [itemId]: {
+                ...prev[itemId],
+                [field]: value
             }
-            item.returnedQty = val;
-            item.receivedQty = item.quantity - val;
-        } else if (field === 'receivedQty') {
-            if (val > item.quantity) {
-                alert("Received quantity cannot exceed total quantity");
-                return;
-            }
-            item.receivedQty = val;
-            item.returnedQty = item.quantity - val;
-        }
-        setDeliveryItems(newItems);
+        }));
     };
 
     const submitDelivery = async () => {
         try {
-            await ep1.post('/api/v2/markdelivered', {
-                poid_str: selectedPO.poid,
-                po_db_id: selectedPO._id,
-                receivedby: deliveryNote,
-                note: deliveryNote,
+            // 1. Update Each Item & Create Delivery Record
+            for (const item of poItems) {
+                const update = deliveryUpdates[item._id];
+                if (update) {
+                    // Create Delivery Record
+                    await ep1.post('/api/v2/adddeliverydsds', {
+                        name: item.itemname,
+                        user: global1.user,
+                        colid: global1.colid,
+                        store: item.store || 'Main Store', // Default or fetch
+                        storeid: item.storeid || '0',
+                        poid: selectedPO.poid,
+                        po: selectedPO.poid,
+                        item: item.itemname,
+                        itemcode: item.itemcode || '000',
+                        delivered: update.received || '0',
+                        accepted: update.received || '0', // Assuming accepted = received for now
+                        return: update.returned || '0',
+                        doclink: docLink,
+                        deldate: new Date()
+                    });
+                }
+            }
+
+            // 2. Update PO Status
+            await ep1.post(`/api/v2/updatestorepoorderds?id=${selectedPO._id}`, {
+                postatus: 'Delivered', // Or check for partial
+                deliveryNote: deliveryNote,
                 doclink: docLink,
-                user: global1.user,
-                name: global1.name,
-                colid: global1.colid,
-                deliveryDetails: deliveryItems.map(item => ({
-                    itemid: item.itemid, // This is the ITEM ID (Master ID or PO Item ID? - Backend expects PO Item ID mapping logic likely, but let's send full details)
-                    // Backend uses item.itemcode if available in PO Item, usually stored as 'itemid' in PO item schema for master reference?
-                    // Let's ensure backend gets what it needs.
-                    // POItem schema: itemid (MasterItem ID), itemcode, itemname...
-                    itemcode: item.itemcode || item.itemid, // Fallback
-                    itemname: item.itemname,
-                    itemtype: item.itemtype,
-                    receivedQty: item.receivedQty,
-                    returnedQty: item.returnedQty,
-                    price: item.price,
-                    discount: item.discount // If existing
-                }))
+                colid: global1.colid
             });
+
             alert('Delivery Recorded Successfully');
             setOpenDeliveryModal(false);
             fetchApprovedPOs();
+
         } catch (error) {
             console.error('Error recording delivery:', error);
             alert('Failed to record delivery');
         }
     };
 
-    // Dynamic Columns
+    const handlePrintGRN = (po, fromDialog = false) => {
+        // Generate GRN Number: YYYY-MM-DD-Random
+        const date = new Date();
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const random = Math.floor(1000 + Math.random() * 9000);
+        // Prefix matching the example image somewhat or default
+        const grnNumber = `GRNCSPU/ ${yyyy}${mm}${dd}${random}`;
+
+        const printProcess = async () => {
+            let itemsToPrint = [];
+
+            if (fromDialog) {
+                // Use current state from modal (Live Data)
+                itemsToPrint = poItems.map(item => {
+                    const update = deliveryUpdates[item._id] || {};
+                    // Determine Price with Fallback
+                    const finalPrice = item.price ? Number(item.price) :
+                        (item.unitPriceWithTax ? Number(item.unitPriceWithTax) :
+                            (item.total && item.quantity ? (Number(item.total) / Number(item.quantity)) : 0)
+                        );
+
+                    return {
+                        ...item,
+                        // Use entered values, or default to quantity/0
+                        receivedQty: update.received ? Number(update.received) : item.quantity,
+                        returnedQty: update.returned ? Number(update.returned) : 0,
+                        // Use robustly determined price
+                        unitPrice: finalPrice
+                    };
+                });
+            } else {
+                // Fetch from backend logic (Fallback)
+                itemsToPrint = poItems;
+                itemsToPrint = itemsToPrint.map(item => ({
+                    ...item,
+                    unitPrice: item.price || 0
+                }));
+            }
+
+            // Gather Extra Data from Inputs
+            const extraData = {
+                challanNo,
+                challanDate,
+                billNo,
+                billDate,
+                deliveryNote
+            };
+
+            const printWindow = window.open('', '', 'height=800,width=800');
+            printWindow.document.write('<html><head><title>Print GRN</title>');
+            printWindow.document.write('</head><body><div id="print-root"></div></body></html>');
+            printWindow.document.close();
+
+            const root = createRoot(printWindow.document.getElementById('print-root'));
+            root.render(<GRNTemplate poData={po} items={itemsToPrint} grnNumber={grnNumber} extraData={extraData} />);
+
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 1000);
+        };
+
+        printProcess();
+    };
+
+
     const generateColumns = (data) => {
         if (!data || data.length === 0) return [];
         const keys = Object.keys(data[0]);
-        const cols = keys
-            .filter(key => key !== '_id' && key !== 'colid' && key !== 'id' && key !== '__v')
-            .map(key => {
-                const colDef = {
-                    field: key,
-                    headerName: key.charAt(0).toUpperCase() + key.slice(1),
-                    width: 150
-                };
-                if (key.toLowerCase().includes('date')) {
-                    colDef.valueFormatter = (params) => params.value ? new Date(params.value).toLocaleDateString() : 'N/A';
-                }
-                return colDef;
-            });
-
-        cols.push({
-            field: 'doclink',
-            headerName: 'Attachment Link',
-            width: 200,
-            renderCell: (params) => (
-                params.value ? <a href={params.value} target="_blank" rel="noopener noreferrer">View Doc</a> : ''
-            )
-        });
-
-        cols.push({
-            field: 'actions',
-            headerName: 'Actions',
-            width: 200,
-            renderCell: (params) => (
-                <Button variant="contained" size="small" onClick={() => handleMarkDeliveredClick(params.row)}>
-                    Quality Check & Deliver
-                </Button>
-            )
-        });
-        return cols;
+        return keys
+            .filter(key => key !== '_id' && key !== 'colid' && key !== 'id' && key !== '__v'
+                && key !== 'approvalLog' && key !== 'doclink')
+            .map(key => ({
+                field: key,
+                headerName: key.charAt(0).toUpperCase() + key.slice(1),
+                width: 150
+            }));
     };
 
     const columns = generateColumns(approvedPOs);
+    // Action Column
+    columns.push({
+        field: 'actions',
+        headerName: 'Actions',
+        width: 250,
+        renderCell: (params) => (
+            <Box>
+                <Button
+                    variant="contained"
+                    size="small"
+                    color="primary"
+                    onClick={() => handleOpenDelivery(params.row)}
+                    sx={{ mr: 1 }}
+                >
+                    Quality Check / Receive
+                </Button>
+            </Box>
+        )
+    });
+
+    // Attachment Link Column
+    columns.push({
+        field: 'doclink',
+        headerName: 'Attachment Link',
+        width: 200,
+        renderCell: (params) => (
+            params.row.doclink ?
+                <a href={params.row.doclink} target="_blank" rel="noopener noreferrer">View Attachment</a>
+                : 'N/A'
+        )
+    });
+
 
     return (
         <Box p={3} sx={{ height: '85vh', width: '100%' }}>
-            <Typography variant="h4" gutterBottom>Delivery Quality Check Dashboard</Typography>
-
+            <Typography variant="h4" gutterBottom>Delivery & Quality Dashboard</Typography>
             <Paper sx={{ height: 600, width: '100%' }}>
                 <DataGrid
                     rows={approvedPOs}
                     columns={columns}
-                    pageSize={10}
-                    rowsPerPageOptions={[10, 25, 50]}
-                    disableSelectionOnClick
+                    pageSizeOptions={[10, 25, 50]}
                 />
             </Paper>
 
             <Dialog open={openDeliveryModal} onClose={() => setOpenDeliveryModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Quality Check & Delivery: {selectedPO?.poid}</DialogTitle>
+                <DialogTitle>Receive Delivery: {selectedPO?.poid}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
+
+                        {/* Challan & Bill Inputs */}
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                label="Challan No"
+                                fullWidth
+                                size="small"
+                                value={challanNo}
+                                onChange={e => setChallanNo(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                type="date"
+                                label="Challan Date"
+                                InputLabelProps={{ shrink: true }}
+                                fullWidth
+                                size="small"
+                                value={challanDate}
+                                onChange={e => setChallanDate(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                label="Bill No"
+                                fullWidth
+                                size="small"
+                                value={billNo}
+                                onChange={e => setBillNo(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                type="date"
+                                label="Bill Date"
+                                InputLabelProps={{ shrink: true }}
+                                fullWidth
+                                size="small"
+                                value={billDate}
+                                onChange={e => setBillDate(e.target.value)}
+                            />
+                        </Grid>
+
+
                         <Grid item xs={12}>
                             <Typography variant="subtitle1" gutterBottom>Items Quality Check</Typography>
                             <TableContainer component={Paper} variant="outlined">
@@ -197,22 +308,31 @@ const DeliveryDashboardds = () => {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Item</TableCell>
-                                            <TableCell>Total Qty</TableCell>
+                                            <TableCell>Ordered Qty</TableCell>
+                                            <TableCell>Unit Price</TableCell>
                                             <TableCell>Accepted Qty</TableCell>
                                             <TableCell>Returned Qty</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {deliveryItems.map((item, index) => (
-                                            <TableRow key={item._id || index}>
+                                        {poItems.map((item) => (
+                                            <TableRow key={item._id}>
                                                 <TableCell>{item.itemname}</TableCell>
                                                 <TableCell>{item.quantity}</TableCell>
+                                                {/* Show Price - Robust Fallback */}
+                                                <TableCell>
+                                                    {item.price ? item.price :
+                                                        (item.unitPriceWithTax ? item.unitPriceWithTax :
+                                                            (item.total && item.quantity ? (item.total / item.quantity).toFixed(2) : 0)
+                                                        )
+                                                    }
+                                                </TableCell>
                                                 <TableCell>
                                                     <TextField
                                                         type="number"
                                                         size="small"
-                                                        value={item.receivedQty}
-                                                        onChange={(e) => handleQtyChange(index, 'receivedQty', e.target.value)}
+                                                        value={deliveryUpdates[item._id]?.received || ''}
+                                                        onChange={(e) => handleUpdateChange(item._id, 'received', e.target.value)}
                                                         inputProps={{ min: 0, max: item.quantity }}
                                                     />
                                                 </TableCell>
@@ -220,8 +340,8 @@ const DeliveryDashboardds = () => {
                                                     <TextField
                                                         type="number"
                                                         size="small"
-                                                        value={item.returnedQty}
-                                                        onChange={(e) => handleQtyChange(index, 'returnedQty', e.target.value)}
+                                                        value={deliveryUpdates[item._id]?.returned || ''}
+                                                        onChange={(e) => handleUpdateChange(item._id, 'returned', e.target.value)}
                                                         inputProps={{ min: 0, max: item.quantity }}
                                                     />
                                                 </TableCell>
@@ -233,7 +353,7 @@ const DeliveryDashboardds = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Delivery Note / Received By"
+                                label="Delivery Note / Remarks"
                                 fullWidth
                                 multiline
                                 rows={2}
@@ -254,10 +374,17 @@ const DeliveryDashboardds = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDeliveryModal(false)}>Cancel</Button>
+                    <Button
+                        onClick={() => handlePrintGRN(selectedPO, true)}
+                        variant="outlined"
+                        color="secondary"
+                    >
+                        Print GRN
+                    </Button>
                     <Button onClick={submitDelivery} variant="contained" color="success">Confirm Delivery</Button>
                 </DialogActions>
-            </Dialog>
-        </Box>
+            </Dialog >
+        </Box >
     );
 };
 

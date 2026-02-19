@@ -134,7 +134,7 @@ const UserManagementdsnov17 = () => {
   const handleBulkDelete = async () => {
     try {
       const idsString = selectedIds.join(",");
-      await ep1.delete(`/api/v2/ds1bulkdeleteuser?ids=${idsString}`);
+      await ep1.get(`/api/v2/ds1bulkdeleteuser?ids=${idsString}`);
       setMessage(`${selectedIds.length} users deleted successfully`);
       setSelectedIds([]);
       setDeleteDialog(false);
