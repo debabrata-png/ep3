@@ -1,6 +1,6 @@
 import React from 'react';
 import AdminLayout from '../components/AdminLayout';
-import ViewPage from './PurchaseOrderDashboardds';
+import ViewPage from './PurchaseOrderDashboardNewds';
 
 export default function NewPurchaseOrderDashboardds() {
     return (

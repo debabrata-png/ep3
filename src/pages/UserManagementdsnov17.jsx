@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -37,10 +37,21 @@ const UserManagementdsnov17 = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
 
   // Filters
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // what user types
+  const [search, setSearch] = useState("");           // debounced — triggers API
   const [roleFilter, setRoleFilter] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("");
+  const searchTimer = useRef(null);
+
+  // Debounce: update search state 500ms after user stops typing
+  useEffect(() => {
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      setSearch(searchInput);
+    }, 500);
+    return () => clearTimeout(searchTimer.current);
+  }, [searchInput]);
 
   // ✅ ADD THIS NEW STATE:
   const [filterOptions, setFilterOptions] = useState({
@@ -76,7 +87,6 @@ const UserManagementdsnov17 = () => {
         colid: global1.colid,
         page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
-        excludeRole: "Student", // ✅ Exclude Students
         ...(search && { search }),
         ...(roleFilter && { role: roleFilter }),
         ...(departmentFilter && { department: departmentFilter }),
@@ -191,7 +201,7 @@ const UserManagementdsnov17 = () => {
       field: "phone",
       headerName: "Phone",
       width: 130,
-      valueGetter: (value) => value || "",
+      valueGetter: (value) => (value && typeof value !== 'object') ? String(value) : "",
     },
     { field: "role", headerName: "Role", width: 100 },
     { field: "department", headerName: "Department", width: 150 },
@@ -471,8 +481,8 @@ const UserManagementdsnov17 = () => {
           <TextField
             label="Search"
             placeholder="Name, Email, Regno, Phone"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             size="small"
             sx={{ minWidth: 250 }}
           />
@@ -485,11 +495,12 @@ const UserManagementdsnov17 = () => {
               onChange={(e) => setRoleFilter(e.target.value)}
             >
               <MenuItem value="">All</MenuItem>
-              {filterOptions.roles.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label} ({option.count})
-                </MenuItem>
-              ))}
+              {filterOptions.roles
+                .map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label} ({option.count})
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
 
@@ -528,6 +539,7 @@ const UserManagementdsnov17 = () => {
           <Button
             variant="outlined"
             onClick={() => {
+              setSearchInput("");
               setSearch("");
               setRoleFilter("");
               setDepartmentFilter("");

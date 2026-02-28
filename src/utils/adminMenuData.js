@@ -15,6 +15,12 @@ export const adminMenuData = [
         ],
     },
     {
+        title: "Reports",
+        items: [
+            { label: "Institution wise Dashboard", path: "/admin/drigable-institutions" },
+        ],
+    },
+    {
         title: "Admission",
         items: [
             { label: "University Admission Report", path: "/admissionreport" },
@@ -136,5 +142,17 @@ export const adminMenuData = [
             { label: "Change password", path: "/dashmpassword" },
             { label: "Subscription", path: "/signinpay" },
         ],
+    },
+    {
+        title: 'Subjects',
+        items: [
+            { label: "Subject Management", path: "/subject-management" }
+        ]
+    },
+    {
+        title: "Alumni Management",
+        items: [
+            { label: "Mentor Management", path: "/mentor-management" }
+        ]
     }
 ];

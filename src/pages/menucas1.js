@@ -53,6 +53,8 @@ import { menupe } from './menupe';
 import { menuitemscounselor1 } from './menucounselor1';
 import { menulibrary } from './menulibrary';
 import { menuspe } from './menuspe';
+import { menuhostel1 } from './menuhostel1';
+import { menualumni } from './menualumni';
 
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
@@ -227,6 +229,14 @@ export function mainListItems({ open }) {
           {menuspe()}
         </div>
       )
+    } else if (role1 === 'Hostel1') {
+      <div>
+        {menuhostel1()}
+      </div>
+    } else if (role1 === "Alumni") {
+      <div>
+        {menualumni()}
+      </div>
     }
 
   }

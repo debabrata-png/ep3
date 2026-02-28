@@ -40,6 +40,7 @@ const CoScholasticActivityConfigds = () => {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
     const [formData, setFormData] = useState({
+        code: '',
         activityname: '',
         description: ''
     });
@@ -90,11 +91,11 @@ const CoScholasticActivityConfigds = () => {
 
     const handleOpenDialog = (activity = null) => {
         if (activity) {
-            setFormData({ activityname: activity.activityname, description: activity.description || '' });
+            setFormData({ code: activity.code || '', activityname: activity.activityname, description: activity.description || '' });
             setEditMode(true);
             setSelectedActivityId(activity._id);
         } else {
-            setFormData({ activityname: '', description: '' });
+            setFormData({ code: '', activityname: '', description: '' });
             setEditMode(false);
             setSelectedActivityId(null);
         }
@@ -219,6 +220,7 @@ const CoScholasticActivityConfigds = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell><strong>Activity Code</strong></TableCell>
                             <TableCell><strong>Activity Name</strong></TableCell>
                             <TableCell><strong>Description</strong></TableCell>
                             <TableCell><strong>Actions</strong></TableCell>
@@ -236,6 +238,7 @@ const CoScholasticActivityConfigds = () => {
                         ) : (
                             activities.map((activity) => (
                                 <TableRow key={activity._id}>
+                                    <TableCell>{activity.code || '-'}</TableCell>
                                     <TableCell>{activity.activityname}</TableCell>
                                     <TableCell>{activity.description}</TableCell>
                                     <TableCell>
@@ -258,6 +261,13 @@ const CoScholasticActivityConfigds = () => {
                 <DialogContent>
                     <TextField
                         autoFocus
+                        margin="dense"
+                        label="Activity Code (Optional)"
+                        fullWidth
+                        value={formData.code}
+                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                    />
+                    <TextField
                         margin="dense"
                         label="Activity Name"
                         fullWidth

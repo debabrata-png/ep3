@@ -241,6 +241,13 @@ const LibraryBooksPage = () => {
     }
 
     setUploading(true);
+    let totalInserted = 0;
+    let totalDuplicates = 0;
+    let totalValidationFailures = 0;
+    let allFailures = {
+      duplicates: [],
+      validationFailures: [],
+    };
 
     try {
       const reader = new FileReader();
@@ -259,6 +266,7 @@ const LibraryBooksPage = () => {
             return;
           }
 
+          const batchId = `BATCH-${Date.now()}`;
           const getColumnValue = (row, ...possibleNames) => {
             for (const name of possibleNames) {
               if (row[name]) return String(row[name]).trim();
@@ -266,7 +274,6 @@ const LibraryBooksPage = () => {
             return "";
           };
 
-          // Process all data in frontend
           const booksData = jsonData.map((row) => ({
             bookId: getColumnValue(row, "bookId", "BookId", "Book ID", "book_id"),
             title: getColumnValue(row, "title", "Title"),
@@ -284,6 +291,7 @@ const LibraryBooksPage = () => {
             volume: getColumnValue(row, "volume", "Volume"),
             classNo: getColumnValue(row, "classNo", "ClassNo", "Class No"),
             donatedBy: getColumnValue(row, "donatedBy", "DonatedBy", "Donated By"),
+            bulkUploadBatch: batchId,
             libraryid: id,
             libraryname: libraryName,
             colid: Number(global1.colid),
@@ -291,46 +299,59 @@ const LibraryBooksPage = () => {
           }));
 
           const CHUNK_SIZE = 500;
-          const totalBooks = booksData.length;
-          const totalChunks = Math.ceil(totalBooks / CHUNK_SIZE);
-          let totalInserted = 0;
-
-          console.log(`📦 Total books to upload: ${totalBooks}`);
-          console.log(`📦 Total batches: ${totalChunks}`);
-
-          // Process each chunk sequentially
+          const totalChunks = Math.ceil(booksData.length / CHUNK_SIZE);
           for (let i = 0; i < booksData.length; i += CHUNK_SIZE) {
             const chunk = booksData.slice(i, i + CHUNK_SIZE);
             const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
 
-            console.log(`⬆️ Uploading batch ${chunkNumber}/${totalChunks} (${chunk.length} books)...`);
-
             try {
               const response = await ep1.post("/api/v2/books/bulk-upload", chunk);
 
-              const inserted = response.data.insertedCount || chunk.length;
-              totalInserted += inserted;
+              totalInserted += response.data.summary.successCount || 0;
+              totalDuplicates += response.data.summary.duplicateCount || 0;
+              totalValidationFailures += response.data.summary.validationFailureCount || 0;
 
-              console.log(`✅ Batch ${chunkNumber}/${totalChunks} completed - Inserted: ${inserted} books`);
 
-              // Optional: Show progress to user
-              const progress = Math.round((chunkNumber / totalChunks) * 100);
-              setError(`Uploading... ${progress}% complete (${totalInserted}/${totalBooks} books uploaded)`);
+              if (response.data.details?.duplicates) {
+                allFailures.duplicates.push(...response.data.details.duplicates.map(d => ({
+                  ...d,
+                  chunk: chunkNumber
+                })));
+              }
+              if (response.data.details?.validationFailures) {
+                allFailures.validationFailures.push(...response.data.details.validationFailures.map(v => ({
+                  ...v,
+                  chunk: chunkNumber
+                })));
+              }
+
+
 
             } catch (err) {
-              console.error(`❌ Batch ${chunkNumber}/${totalChunks} failed:`, err);
-              setError(`Batch ${chunkNumber} failed: ${err.response?.data?.message || err.message}`);
+              console.error(`❌ Chunk ${chunkNumber} failed:`, err);
+              setError(`Chunk ${chunkNumber} failed: ${err.response?.data?.message || err.message}`);
               setUploading(false);
               return;
             }
 
-            // Small delay between batches to avoid overwhelming the server
             await new Promise((resolve) => setTimeout(resolve, 100));
           }
 
-          console.log(`🎉 Upload completed! Total inserted: ${totalInserted}/${totalBooks}`);
+          if (totalDuplicates > 0 || totalValidationFailures > 0) {
+            console.group("📋 Detailed Failure Report");
 
-          alert(`Upload completed successfully!\n\nTotal books uploaded: ${totalInserted}/${totalBooks}`);
+            if (allFailures.duplicates.length > 0) {
+              console.warn("Duplicate Records:", allFailures.duplicates);
+            }
+
+            if (allFailures.validationFailures.length > 0) {
+              console.error("Validation Failures:", allFailures.validationFailures);
+            }
+
+            console.groupEnd();
+
+
+          }
 
           setAddDialogOpen(false);
           setSelectedFile(null);
@@ -357,6 +378,7 @@ const LibraryBooksPage = () => {
       setUploading(false);
     }
   };
+
 
 
   const handleDeleteBook = async (bookId) => {
@@ -546,7 +568,7 @@ const LibraryBooksPage = () => {
   return (
     <Box>
       <Button>
-        <ArrowBack onClick={() => navigate("/admin/libraries")} />
+        <ArrowBack onClick={() => navigate("/admin-libraries")} />
       </Button>
       <Typography
         variant="h4"

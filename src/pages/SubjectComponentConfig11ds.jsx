@@ -258,6 +258,7 @@ const SubjectComponentConfig11ds = () => {
                             <TableCell align="center">Half Yearly (Th+Pr)</TableCell>
                             <TableCell align="center">Annual (Th+Pr)</TableCell>
                             <TableCell align="center">Additional</TableCell>
+                            <TableCell align="center">Last Updated</TableCell>
                             <TableCell align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -270,6 +271,13 @@ const SubjectComponentConfig11ds = () => {
                                 <TableCell align="center">{subject.halfyearlyth} + {subject.halfyearlypractical}</TableCell>
                                 <TableCell align="center">{subject.annualth} + {subject.annualpractical}</TableCell>
                                 <TableCell align="center">{subject.isadditional ? 'Yes' : 'No'}</TableCell>
+                                <TableCell align="center">
+                                    {subject.updatedAt
+                                        ? new Date(subject.updatedAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                        : subject.updatedat
+                                            ? new Date(subject.updatedat).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                            : '-'}
+                                </TableCell>
                                 <TableCell align="center">
                                     <IconButton onClick={() => handleOpenDialog(subject)} color="primary">
                                         <Edit />

@@ -88,7 +88,7 @@ const GRNTemplate = ({ poData, items, grnNumber, extraData = {} }) => {
                     <div className="bold-text" style={{ fontSize: '1.2rem' }}>{instName}</div>
                     <div style={{ fontSize: '1rem' }}>{instAddress}, Phone:- {instPhone}</div>
                     <div className="bold-text mt-4" style={{ fontSize: '1.1rem' }}>
-                        Goods Receipt Note
+                        Goods Return Note
                     </div>
                 </div>
 
@@ -126,7 +126,7 @@ const GRNTemplate = ({ poData, items, grnNumber, extraData = {} }) => {
                             <th>Section Name</th>
                             <th>Item Name</th>
                             <th>Item Make</th>
-                            <th>Rec. Item Quantity</th>
+                            <th>Ret. Item Quantity</th>
                             <th>Item Unit</th>
                             <th>Unit Price(Rs.)</th>
                             <th>Total Amount(Rs.)</th>

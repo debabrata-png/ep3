@@ -50,7 +50,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-export function menupe() {
+export function menuhostel1() {
     const open = true;
     return (
         <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
@@ -58,37 +58,17 @@ export function menupe() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    <Typography sx={{ fontSize: 14 }}>Purchase Module</Typography>
+                    <Typography sx={{ fontSize: 14 }}>Hostel Module</Typography>
 
                 </AccordionSummary>
                 <AccordionDetails>
-
-                    <ListItem button component={RouterLink} to="/role/oe-dashboard">
+                    <ListItem button component={RouterLink} to="/hostel-master">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PE Dashboard" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Hostel master" />}
                     </ListItem>
 
-                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
-                    </ListItem>
-
-                    <ListItem button component={RouterLink} to="/role/cash-approval">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
-                    </ListItem>
-                    <ListItem button component={RouterLink} to="/role/purchasing-master-data">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
-                    </ListItem>
                 </AccordionDetails>
             </Accordion>
             <Accordion>

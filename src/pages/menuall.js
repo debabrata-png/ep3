@@ -285,7 +285,6 @@ export function menuitemsall() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: '14px' }} primary="Course-wise Admission Report" />}
           </ListItem>
-
         </AccordionDetails>
       </Accordion>
 
@@ -859,6 +858,13 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="School Report Config" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/rankreportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Rank Report" />}
+          </ListItem>
+
           <ListItem button component={RouterLink} to="/subjectcomponentconfig9ds">
             <ListItemIcon>
               <SettingsIcon />
@@ -878,6 +884,24 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Marks View" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpage1to5ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: '14px' }} primary="Class 1-5 Report Card" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpage6to8ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Class 6 - 8" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpage9to10ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Class 9 - 10" />}
           </ListItem>
           <ListItem button component={RouterLink} to="/studentmarksheetviewpagekgds">
             <ListItemIcon>
@@ -919,6 +943,18 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Bulk Marks Entry 11" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/compartmentmarks9ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Compartment Marks All" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/compartmentmarks11ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Compartment Marks 11" />}
           </ListItem>
         </AccordionDetails>
       </Accordion>
@@ -4484,6 +4520,26 @@ export function menuitemsall() {
           </ListItem>
         </AccordionDetails>
       </Accordion> */}
+      <Accordion>
+        <AccordionSummary aria-controls="panel-reports-content" id="panel-reports-header">
+          <AssignmentIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Report Cards</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpagekgds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Nursery - KG II" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/studentmarksheetviewpage1to5ds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Class 1 - 5" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
     </div>
   );
 }

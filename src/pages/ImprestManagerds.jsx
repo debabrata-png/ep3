@@ -277,7 +277,17 @@ const ImprestManagerds = () => {
         { field: 'imprestcode', headerName: 'Imprest Code', width: 150 },
         { field: 'officername', headerName: 'Officer Name', width: 200 },
         { field: 'amount', headerName: 'Amount', width: 120 },
-        { field: 'impdate', headerName: 'Date', width: 150, valueFormatter: (params) => new Date(params.value).toLocaleDateString() },
+        {
+            field: 'impdate', headerName: 'Date', width: 150, valueFormatter: (params) => {
+                if (!params.value) return '';
+                const date = new Date(params.value);
+                if (isNaN(date.getTime())) return params.value;
+                const d = String(date.getDate()).padStart(2, '0');
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const y = date.getFullYear();
+                return `${d}/${m}/${y}`;
+            }
+        },
         { field: 'status', headerName: 'Status', width: 120 },
         {
             field: 'actions',
@@ -300,7 +310,7 @@ const ImprestManagerds = () => {
                     )}
 
                     {/* Edit/Delete for others */}
-                    {global1.role !== 'PE' && (
+                    {global1.role !== 'PE' && global1.role !== 'OE' && (
                         <>
                             <IconButton onClick={() => handleEdit(params.row)} color="primary"><EditIcon /></IconButton>
                             <IconButton onClick={() => handleDelete(params.row._id)} color="error"><DeleteIcon /></IconButton>
@@ -412,7 +422,14 @@ const ImprestManagerds = () => {
                             {/* Ref No & Date */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 10px 0 10px', fontSize: '14px', fontWeight: 'bold' }}>
                                 <div>{printData?.imprestcode}</div>
-                                <div>DATE : {printData?.impdate ? new Date(printData.impdate).toLocaleDateString('en-GB') : ''}</div>
+                                <div>DATE : {printData?.impdate ? (() => {
+                                    const date = new Date(printData.impdate);
+                                    if (isNaN(date.getTime())) return printData.impdate;
+                                    const d = String(date.getDate()).padStart(2, '0');
+                                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                                    const y = date.getFullYear();
+                                    return `${d}/${m}/${y}`;
+                                })() : ''}</div>
                             </div>
 
                             {/* Content Body */}

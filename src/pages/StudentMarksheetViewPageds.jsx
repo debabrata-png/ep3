@@ -260,8 +260,10 @@ const StudentMarksheetViewPageds = () => {
     // School name and details
     if (pdfData.school) {
       doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
+      doc.setFont("times", "bold");
+      doc.setTextColor(128, 0, 0); // Maroon - Cambria Bold approximation
       doc.text((pdfData.school.schoolname || 'SCHOOL NAME').toUpperCase(), 297.5, 90, { align: 'center' });
+      doc.setTextColor(0, 0, 0); // Reset to black
 
       doc.setFontSize(12);
       doc.text(`CBSE Affiliation No. : ${pdfData.school.affiliationno || ''}`, 297.5, 110, { align: 'center' });
@@ -271,26 +273,30 @@ const StudentMarksheetViewPageds = () => {
 
       // Helper to draw icons based on text position
       const drawIcon = (type, textX, textY, textWidth) => {
-        const iconX = textX - (textWidth / 2) - 15; // Position left of text
-        const iconY = textY - 3; // Center vertically relative to text baseline
-
-        doc.setLineWidth(1);
+        const iconX = textX - (textWidth / 2) - 18;
+        const iconY = textY - 3;
+        doc.setLineWidth(0.8);
         doc.setDrawColor(0);
-
+        doc.setFillColor(255, 255, 255);
+        const r = 5.5;
         if (type === 'location') {
-          // Pin Icon
-          doc.circle(iconX + 4, iconY - 2, 3);
-          doc.line(iconX + 4, iconY + 1, iconX + 4, iconY + 6);
+          doc.circle(iconX + 4, iconY - 1, r);
+          doc.setFillColor(0);
+          doc.circle(iconX + 4, iconY - 2, 1.5, 'F');
+          doc.setLineWidth(1.2);
+          doc.line(iconX + 4, iconY + r - 1.5, iconX + 4, iconY + r + 3);
+          doc.setLineWidth(0.8);
         } else if (type === 'email') {
-          // Envelope Icon
-          doc.rect(iconX, iconY - 4, 10, 7);
-          doc.line(iconX, iconY - 4, iconX + 5, iconY + 1);
-          doc.line(iconX + 10, iconY - 4, iconX + 5, iconY + 1);
+          doc.circle(iconX + 4, iconY - 1, r);
+          doc.rect(iconX + 0.5, iconY - 3.2, 7, 4.5);
+          doc.line(iconX + 0.5, iconY - 3.2, iconX + 4, iconY - 0.5);
+          doc.line(iconX + 7.5, iconY - 3.2, iconX + 4, iconY - 0.5);
         } else if (type === 'phone') {
-          // Mobile Phone Icon
-          doc.setLineWidth(1);
-          doc.roundedRect(iconX + 1, iconY - 4, 8, 8, 2, 2); // Mobile Body
-          doc.circle(iconX + 5, iconY + 2, 0.5, 'F'); // Home Button
+          // Mobile phone icon in circle
+          doc.circle(iconX + 4, iconY - 1, r);
+          doc.roundedRect(iconX + 2.2, iconY - 4.5, 3.6, 6, 0.5, 0.5);
+          doc.setFillColor(0);
+          doc.circle(iconX + 4, iconY + 0.8, 0.5, 'F');
         }
       };
 
@@ -318,7 +324,7 @@ const StudentMarksheetViewPageds = () => {
     if (pdfData.school?.logolink) {
       try {
         const logoUrl = pdfData.school.logolink.startsWith('http') ? pdfData.school.logolink : `${ep1.defaults.baseURL}/${pdfData.school.logolink}`;
-        doc.addImage(logoUrl, 'PNG', 505, 60, 60, 60);
+        doc.addImage(logoUrl, 'PNG', 30, 75, 100, 60);
       } catch (e) { console.warn("School Logo fail", e); }
     }
 
@@ -326,7 +332,7 @@ const StudentMarksheetViewPageds = () => {
     try {
       const cbseLogoImg = new Image();
       cbseLogoImg.src = '/CBSE_logo.jpeg';
-      doc.addImage(cbseLogoImg, 'JPEG', 30, 60, 60, 60);
+      doc.addImage(cbseLogoImg, 'JPEG', 505, 60, 65, 65);
     } catch (e) { /* ignore */ }
 
     // PERFORMANCE PROFILE heading
@@ -801,7 +807,7 @@ const StudentMarksheetViewPageds = () => {
       currentY = Math.max(currentY, coTableY + coTableH) + 40; // Safe spacing
 
       // PART III heading
-      drawText("PART III - ADDITIONAL SUBJECT", 30, currentY, 12, true);
+      drawText("ADDITIONAL SUBJECT", 30, currentY, 12, true);
       currentY += 20;
 
       // Additional Subjects Table
@@ -851,7 +857,15 @@ const StudentMarksheetViewPageds = () => {
         drawLine(addTableX + 463.75, addRowY, addTableX + 463.75, addRowY + addRowH, 1);
 
         // Area Name
-        drawText(sub.subjectname, addTableX + 10, addRowY + 20, 10, true);
+        const addSubNameWidth = doc.getTextWidth(sub.subjectname);
+        if (addSubNameWidth > 240) {
+          doc.setFontSize(9);
+          const splitSub = doc.splitTextToSize(sub.subjectname, 240);
+          doc.text(splitSub, addTableX + 10, addRowY + 12);
+          doc.setFontSize(10);
+        } else {
+          drawText(sub.subjectname, addTableX + 10, addRowY + 20, 10, true);
+        }
 
         // Values
         // Term 1 Marks/Grade

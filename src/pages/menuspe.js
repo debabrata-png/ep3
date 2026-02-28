@@ -70,13 +70,6 @@ export function menuspe() {
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PE Dashboard" />}
                     </ListItem>
 
-                    <ListItem button component={RouterLink} to="/role/purchase-order-dashboard">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Orders" />}
-                    </ListItem>
-
                     <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
                         <ListItemIcon>
                             <PersonIcon />
@@ -90,7 +83,12 @@ export function menuspe() {
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
                     </ListItem>
-
+                    <ListItem button component={RouterLink} to="/role/purchasing-master-data">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
+                    </ListItem>
                 </AccordionDetails>
             </Accordion>
             <Accordion>

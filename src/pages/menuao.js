@@ -60,11 +60,17 @@ export function menuao() {
                     {open && <Typography sx={{ fontSize: 14 }}>Administrative Officer</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/storerequisationds">
+                    <ListItem button component={RouterLink} to="/faculty-create-request">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Requisition" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Requisition" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/faculty-request-status">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Requisition Status" />}
                     </ListItem>
                 </AccordionDetails>
             </Accordion>

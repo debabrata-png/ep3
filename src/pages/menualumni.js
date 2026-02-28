@@ -50,7 +50,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-export function menupe() {
+export function menualumni() {
     const open = true;
     return (
         <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
@@ -58,37 +58,31 @@ export function menupe() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    <Typography sx={{ fontSize: 14 }}>Purchase Module</Typography>
+                    <Typography sx={{ fontSize: 14 }}>Alumni Module</Typography>
 
                 </AccordionSummary>
                 <AccordionDetails>
-
-                    <ListItem button component={RouterLink} to="/role/oe-dashboard">
+                    <ListItem button component={RouterLink} to="/profileag">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PE Dashboard" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Profile" />}
                     </ListItem>
 
-                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
+                    <ListItem button component={RouterLink} to="/mentor-registration">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Mentor Registration" />}
                     </ListItem>
 
-                    <ListItem button component={RouterLink} to="/role/cash-approval">
+                    <ListItem button component={RouterLink} to="/student-chat">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Chat" />}
                     </ListItem>
-                    <ListItem button component={RouterLink} to="/role/purchasing-master-data">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
-                    </ListItem>
+
                 </AccordionDetails>
             </Accordion>
             <Accordion>

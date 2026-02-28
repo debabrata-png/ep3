@@ -52,7 +52,8 @@ const ViewPurchaseUserAddds = () => {
     // ✅ DEFINE PURCHASE ROLES (Must match AddRoleListds)
     const purchaseRoles = [
         { value: 'PE', label: 'Purchase Executive' },
-        { value: 'SPE', label: 'Sr. Purchase Executive' }
+        { value: 'SPE', label: 'Sr. Purchase Executive' },
+        { value: 'OE', label: 'Office Executive' }
     ];
 
     // DataGrid pagination
@@ -174,7 +175,7 @@ const ViewPurchaseUserAddds = () => {
         { field: "phone", headerName: "Phone", width: 130 },
         { field: "role", headerName: "Role", width: 150 },
         { field: "department", headerName: "Department", width: 150 },
-        { field: "password", headerName: "Password", width: 150 }, // Added as per request, typically hidden
+        { field: "password", headerName: "Password", width: 150 },
         { field: "gender", headerName: "Gender", width: 100 },
         { field: "category", headerName: "Category", width: 100 },
         {

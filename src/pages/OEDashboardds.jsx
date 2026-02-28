@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Box, Tabs, Tab, Paper, Typography } from '@mui/material';
 import OEPRAssignmentsds from './OEPRAssignmentsds';
 import ImprestManagerds from './ImprestManagerds';
-import PurchaseOrderDashboardds from './PurchaseOrderDashboardds';
+import PurchaseOrderDashboardds from './PurchaseOrderDashboardNewds';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import global1 from './global1';
 
 const OEDashboardds = () => {
     const [value, setValue] = useState(0);
@@ -18,12 +19,12 @@ const OEDashboardds = () => {
         <Box sx={{ width: '100%', minHeight: '100vh', backgroundColor: '#f4f6f8' }}>
             <Paper elevation={0} square sx={{ borderBottom: '1px solid #e0e0e0', px: 3, pt: 2, pb: 0, backgroundColor: '#fff' }}>
                 <Typography variant="h5" sx={{ mb: 2, fontWeight: 600, color: '#1a237e' }}>
-                    Officer Executive Dashboard
+                    {global1.role === 'OE' ? 'Office Executive Dashboard' : 'Purchase Executive Dashboard'}
                 </Typography>
                 <Tabs
                     value={value}
                     onChange={handleChange}
-                    aria-label="OE Dashboard Tabs"
+                    aria-label="PE Dashboard Tabs"
                     textColor="primary"
                     indicatorColor="primary"
                     sx={{

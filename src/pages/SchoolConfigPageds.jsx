@@ -88,6 +88,7 @@ const ConfigForm = () => { // Renamed from SchoolConfigPageds
         affiliationno: '',
         email: '',
         phone: '',
+        telephone: '',
         logolink: '',
         schoolcode: '',
         udisecode: '',
@@ -241,6 +242,14 @@ const ConfigForm = () => { // Renamed from SchoolConfigPageds
                                 label="Phone / Mobile"
                                 value={formData.phone || ''}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Telephone"
+                                value={formData.telephone || ''}
+                                onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
                             />
                         </Grid>
 

@@ -82,6 +82,10 @@ import StudentMarksheetViewPageKGds from './pages/StudentMarksheetViewPageKGds';
 import BulkLeadActionsds from './pages/BulkLeadActionsds';
 import FacultyRequestApprovalds from './pages/FacultyRequestApprovalds';
 import DashMainAdmin from './pages/DashMainAdmin';
+import StudentMarksheetViewPage1to5ds from './pages/StudentMarksheetViewPage1to5ds';
+import StudentMarksheetViewPage6to8ds from './pages/StudentMarksheetViewPage6to8ds';
+import StudentMarksheetViewPage9to10ds from './pages/StudentMarksheetViewPage9to10ds';
+import RankReportds from './pages/RankReportds';
 
 import Dashmncas11 from './pages/Dashmncas11';
 import ProgramCounselords from './pages/ProgramCounselords';
@@ -135,6 +139,13 @@ import Loginstud from './pages/Loginstud';
 
 import Dashmmprograms from './pages/Dashmmprograms';
 import Dashmmprogramsadmin from './pages/Dashmmprogramsadmin';
+
+// Drigable Report Detailed Pages
+import UserManagementReportds from './pages/UserManagementReportds';
+import RoleSpecificReportds from './pages/RoleSpecificReportds';
+import LMSReportds from './pages/LMSReportds';
+import PurchaseReportds from './pages/PurchaseReportds';
+
 import Dashmmcourses from './pages/Dashmmcourses';
 import Dashmmcoursesadmin from './pages/Dashmmcoursesadmin';
 import Dashmmstudents from './pages/Dashmmstudents';
@@ -147,6 +158,8 @@ import Dashmmfaccoursesadmin from './pages/Dashmmfaccoursesadmin';
 import Dashmmfaccoursesatt from './pages/Dashmmfaccoursesatt';
 import Dashmmfaccoursesattadmin from './pages/Dashmmfaccoursesattadmin';
 import AdmissionInstitutionWiseReportds from './pages/AdmissionInstitutionWiseReportds';
+import DrigableInstitutionSelectionds from './pages/DrigableInstitutionSelectionds';
+import DrigableReportDashboardds from './pages/DrigableReportDashboardds';
 
 import Dashmmattcalc from './pages/Dashmmattcalc';
 import UnifiedLandingPageds from './pages/UnifiedLandingPageds';
@@ -229,7 +242,7 @@ import FacultyCreateRequestds from './pages/FacultyCreateRequestds';
 import FacultyRequestStatusds from './pages/FacultyRequestStatusds';
 import StoreUserAccessds from './pages/StoreUserAccessds';
 import StoreManagerDashboardds from './pages/StoreManagerDashboardds';
-import PurchaseOrderDashboardds from './pages/PurchaseOrderDashboardds';
+import PurchaseOrderDashboardds from './pages/PurchaseOrderDashboardNewds';
 import DeliveryDashboardds from './pages/DeliveryDashboardds';
 import ApprovalConfigurationds from './pages/ApprovalConfigurationds';
 import PurchaseCellInventoryds from './pages/PurchaseCellInventoryds';
@@ -1376,6 +1389,7 @@ import StudentProfile1ds from './pages/StudentProfile1ds';
 import NewAttendanceTimeReportds from './pages/NewAttendanceTimeReportds';
 import AdmissionReportPageds from './pages/AdmissionReportPageds';
 import AdmissionCourseWiseReportPageds from './pages/AdmissionCourseWiseReportPageds';
+import CompartmentMarksEntryds from './pages/CompartmentMarksEntryds';
 
 // NEW IMPORTS REORGANIZED
 import RoleLayout from './components/RoleLayout';
@@ -1387,6 +1401,17 @@ import NewAdminRoles from './pages/NewAdminroles';
 import Admissiontemplateann1 from "./pages/Admissiontemplateann1";
 import Admissiontemplateann2 from "./pages/Admissiontemplateann2";
 import Admissiontemplateann3 from "./pages/Admissiontemplateann3";
+
+import MentorRegistration from "./pages/Mentorregistration "; import Admissiontemplate1 from "./components/Admissiontemplate1";
+import Admissiontemplateag1 from "./components/Admissiontemplateag1";
+import Admissiontemplateag2 from "./components/Admissiontemplateag2";
+import MentorManagement from "./pages/mentormanagement";
+import StudentChat from "./pages/Alumnichat";
+import StudentAlumniChat from "./pages/StudentAlumniChat";
+import SubjectManagement from "./pages/SubjectManagement";
+import ProfilePage from "./pages/ProfilePage"
+import HostelMasterPage from "./pages/HostelPageag";
+
 
 
 
@@ -1420,6 +1445,19 @@ function App() {
                                         <Route path="/admissiontemplateann1/:colId" element={<Admissiontemplateann1 />} />
                                         <Route path="/admissiontemplateann2/:colId" element={<Admissiontemplateann2 />} />
                                         <Route path="/admissiontemplateann3/:colId" element={<Admissiontemplateann3 />} />
+
+                                        <Route path="/profileag" element={<ProfilePage />} />
+                                        <Route path="/mentor-registration" element={<MentorRegistration />} />
+                                        <Route path="/student-chat" element={<StudentChat />} />
+                                        <Route path="/subject-management" element={<SubjectManagement />} />
+                                        <Route path="/hostel-master" element={<HostelMasterPage />} />
+                                        <Route path="/admission/1/:colId" element={<Admissiontemplate1 />} />
+                                        <Route path="/admissionag/1/:colId" element={<Admissiontemplateag1 />} />
+                                        <Route path="/admissionag/2/:colId" element={<Admissiontemplateag2 />} />
+                                        <Route path="/mentor-management" element={<MentorManagement />} />
+                                        <Route path="/student-alumni-chat" element={<StudentAlumniChat />} />
+
+                                        {/* Drigable Report Detailed Pages */}
 
                                         {/* OE Specific */}
 
@@ -1607,6 +1645,13 @@ function App() {
 
                                         {/* Institutions Route */}
                                         <Route path="/admin/institutions" element={<NewInstitutionsds />} />
+                                        <Route path="/admin/drigable-institutions" element={<DrigableInstitutionSelectionds />} />
+                                        <Route path="/drigablereport" element={<DrigableReportDashboardds />} />
+                                        <Route path="/usermanagementreport" element={<UserManagementReportds />} />
+                                        <Route path="/rolespecificreport/:role" element={<RoleSpecificReportds />} />
+                                        <Route path="/lmsreport" element={<LMSReportds />} />
+                                        <Route path="/purchasereport" element={<PurchaseReportds />} />
+
                                         <Route path="/admissionreport" element={<AdmissionReportPageds />} />
                                         <Route path="/admissioncoursewisereport" element={<AdmissionCourseWiseReportPageds />} />
 
@@ -2845,6 +2890,14 @@ function App() {
                                         <Route path="/ItemTypeds" element={<ItemTypeds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />
+                                        <Route path="/studentmarksheetviewpage1to5ds" element={<StudentMarksheetViewPage1to5ds />} />
+                                        <Route path="/studentmarksheetviewpage6to8ds" element={<StudentMarksheetViewPage6to8ds />} />
+                                        <Route path="/studentmarksheetviewpage9to10ds" element={<StudentMarksheetViewPage9to10ds />} />
+                                        <Route path="/rankreportds" element={<RankReportds />} />
+
+                                        {/* Compartment / Supplementary Exam Marks Entry */}
+                                        <Route path="/compartmentmarks9ds" element={<CompartmentMarksEntryds classGroup="9ds" />} />
+                                        <Route path="/compartmentmarks11ds" element={<CompartmentMarksEntryds classGroup="11ds" />} />
                                 </Routes>
                         </React.Suspense>
                 </Router>

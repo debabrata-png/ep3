@@ -45,22 +45,62 @@ const StoreManagerDashboardds = () => {
 
     // Print State
     const [printPRData, setPrintPRData] = useState(null);
+    const [prConfigData, setPrConfigData] = useState({
+        institutionname: '',
+        address: '',
+        phone: '',
+        prshort: ''
+    });
+    const [configId, setConfigId] = useState(null);
 
 
     // Create PR Tab State
     const [cart, setCart] = useState([]);
     const [history, setHistory] = useState([]); // PR History
+    const [createPrCategory, setCreatePrCategory] = useState('');
+    const [createPrType, setCreatePrType] = useState('');
     const [createPrItem, setCreatePrItem] = useState(null);
     const [createPrQty, setCreatePrQty] = useState('');
+    const [createPrUnit, setCreatePrUnit] = useState('');
+    const [apiCategories, setApiCategories] = useState([]);
+    const [apiTypes, setApiTypes] = useState([]);
+    const [apiUnits, setApiUnits] = useState([]);
 
-    // PR Configuration State
-    const [prConfigData, setPrConfigData] = useState({
-        institutionname: "People's Group",
-        address: "Karond Bhanpur By Pass Road, Bhopal-462037",
-        phone: "+91-0755-4005013",
-        prshort: 'PRCSPU'
-    });
-    const [configId, setConfigId] = useState(null);
+    const fetchCategories = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallitemcategoryds?colid=${global1.colid}`);
+            const items = res.data.data.items || [];
+            if (items.length > 0) {
+                setApiCategories(items.map(c => c.name || c.category).filter(Boolean));
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    const fetchTypes = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallitemtypeds?colid=${global1.colid}`);
+            const itemTypes = res.data.data.itemTypes || [];
+            if (itemTypes.length > 0) {
+                setApiTypes(itemTypes.map(t => t.name || t.itemtype).filter(Boolean));
+            }
+        } catch (error) {
+            console.error('Error fetching types:', error);
+        }
+    };
+
+    const fetchUnits = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallitemunitds?colid=${global1.colid}`);
+            const items = res.data.data.items || [];
+            if (items.length > 0) {
+                setApiUnits(items.map(u => u.name || u.unitcode || u.unit).filter(Boolean));
+            }
+        } catch (error) {
+            console.error('Error fetching units:', error);
+        }
+    };
 
     const handleAddToCart = () => {
         if (!createPrItem || !createPrQty) return;
@@ -69,12 +109,14 @@ const StoreManagerDashboardds = () => {
             itemcode: createPrItem.itemcode,
             itemname: createPrItem.itemname,
             quantity: createPrQty,
+            unit: createPrUnit,
             storeid: createPrItem.storeid || stores[0]?._id, // Default to first store if not linked? Or logic needs refinement.
             storename: stores.find(s => s._id === (createPrItem.storeid || stores[0]?._id))?.storename || 'General Store'
         };
         setCart([...cart, newItem]);
         setCreatePrItem(null);
         setCreatePrQty('');
+        setCreatePrUnit('');
     };
 
     const handleGeneratePR = async () => {
@@ -95,7 +137,7 @@ const StoreManagerDashboardds = () => {
                     itemid: item.itemid,
                     itemname: item.itemname,
                     itemcode: item.itemcode,
-                    name: `Store Request - ${item.itemname}`,
+                    name: global1.name,
                     storeid: item.storeid,
                     store: item.storename,
                     quantity: Number(item.quantity),
@@ -180,6 +222,9 @@ const StoreManagerDashboardds = () => {
         if (tabValue === 0) fetchRequests();
         else if (tabValue === 1) {
             fetchInventory();
+            fetchStores();
+            fetchAllItems();
+        } else if (tabValue === 2) {
             fetchStores();
             fetchAllItems();
         } else if (tabValue === 3) {
@@ -803,16 +848,61 @@ const StoreManagerDashboardds = () => {
                         {/* ... existing input section ... */}
                         <Paper sx={{ p: 2, mb: 3 }}>
                             <Grid container spacing={2} alignItems="center">
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} md={2}>
                                     <Autocomplete
-                                        options={allItems}
+                                        options={apiCategories.length > 0 ? apiCategories : [...new Set(allItems.map(i => i.category || '').filter(Boolean))]}
+                                        value={createPrCategory}
+                                        onOpen={fetchCategories}
+                                        onChange={(e, val) => {
+                                            setCreatePrCategory(val || '');
+                                            setCreatePrType('');
+                                            setCreatePrItem(null);
+                                            setCreatePrUnit('');
+                                        }}
+                                        renderInput={(params) => <TextField {...params} label="Category" size="small" />}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={2}>
+                                    <Autocomplete
+                                        options={apiTypes.length > 0 ? apiTypes : [...new Set(allItems.filter(i => !createPrCategory || i.category === createPrCategory).map(i => i.itemtype || '').filter(Boolean))]}
+                                        value={createPrType}
+                                        onOpen={fetchTypes}
+                                        onChange={(e, val) => {
+                                            setCreatePrType(val || '');
+                                            setCreatePrItem(null);
+                                            setCreatePrUnit('');
+                                        }}
+                                        disabled={!createPrCategory}
+                                        renderInput={(params) => <TextField {...params} label="Type" size="small" />}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3}>
+                                    <Autocomplete
+                                        options={allItems.filter(i =>
+                                            (!createPrCategory || (i.category || '') === createPrCategory) &&
+                                            (!createPrType || (i.itemtype || '') === createPrType)
+                                        )}
                                         getOptionLabel={(option) => option.itemname || ""}
                                         value={createPrItem}
-                                        onChange={(e, val) => setCreatePrItem(val)}
+                                        onChange={(e, val) => {
+                                            setCreatePrItem(val);
+                                            setCreatePrUnit(val?.unit || '');
+                                        }}
                                         renderInput={(params) => <TextField {...params} label="Select Item" size="small" />}
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} md={2}>
+                                    <Autocomplete
+                                        options={apiUnits}
+                                        value={createPrUnit}
+                                        onOpen={fetchUnits}
+                                        onChange={(e, val) => {
+                                            setCreatePrUnit(val || '');
+                                        }}
+                                        renderInput={(params) => <TextField {...params} label="Unit" size="small" />}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={1.5}>
                                     <TextField
                                         label="Quantity"
                                         type="number"
@@ -822,13 +912,14 @@ const StoreManagerDashboardds = () => {
                                         onChange={(e) => setCreatePrQty(e.target.value)}
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} md={1.5}>
                                     <Button
                                         variant="contained"
                                         onClick={handleAddToCart}
-                                        disabled={!createPrItem || !createPrQty}
+                                        disabled={!createPrItem || !createPrQty || !createPrUnit}
+                                        fullWidth
                                     >
-                                        Add to List
+                                        Add
                                     </Button>
                                 </Grid>
                             </Grid>
@@ -840,7 +931,8 @@ const StoreManagerDashboardds = () => {
                                 rows={cart.map((item, index) => ({ ...item, id: index }))}
                                 columns={[
                                     { field: 'itemname', headerName: 'Item Name', width: 250 },
-                                    { field: 'quantity', headerName: 'Quantity', width: 150 },
+                                    { field: 'quantity', headerName: 'Quantity', width: 100 },
+                                    { field: 'unit', headerName: 'Unit', width: 100 },
                                     { field: 'storename', headerName: 'Store', width: 200 },
                                     {
                                         field: 'actions',

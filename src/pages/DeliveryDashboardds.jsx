@@ -38,14 +38,30 @@ const DeliveryDashboardds = () => {
     const fetchApprovedPOs = async () => {
         setLoading(true);
         try {
-            // Fetch POs where status is Approved (or Partially Delivered?)
+            // 1. Fetch User's Store Mappings
+            const mapRes = await ep1.get(`/api/v2/getallstoreuserds?colid=${global1.colid}`);
+            const mappings = mapRes.data.data.storeUsers || [];
+            const userMappings = mappings.filter(m => m.user === global1.user);
+            const userIsMapped = userMappings.length > 0;
+            const allowedStoreIds = userMappings.map(m => m.storeid);
+            const allowedStoreNames = userMappings.map(m => m.store);
+
+            // 2. Fetch POs where status is Approved (or Partially Delivered?)
             const res = await ep1.get(`/api/v2/getallstorepoorderds?colid=${global1.colid}`);
             const allPOs = res.data.data.poOrders || [];
-            // Filter only Approved ones
-            const approved = allPOs.filter(po => po.postatus === 'Approved' || po.postatus === 'Partially Delivered');
+
+            // 3. Filter only Approved ones AND filter by Allowed Stores
+            let approved = allPOs.filter(po => po.postatus === 'Approved' || po.postatus === 'Partially Delivered');
+
+            if (userIsMapped) {
+                approved = approved.filter(po =>
+                    allowedStoreIds.includes(po.storeid) || allowedStoreNames.includes(po.storename)
+                );
+            }
+
             setApprovedPOs(approved.map(po => ({ ...po, id: po._id })));
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching POs or store mappings:", error);
         }
         setLoading(false);
     };

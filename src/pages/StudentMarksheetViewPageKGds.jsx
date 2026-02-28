@@ -28,7 +28,7 @@ import jsPDF from "jspdf";
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
-const StudentMarksheetViewPageds = () => {
+const StudentMarksheetViewPageKGds = () => {
   const [regno, setRegno] = useState('');
   const [semester, setSemester] = useState('');
   const [academicyear, setAcademicyear] = useState('');
@@ -113,7 +113,7 @@ const StudentMarksheetViewPageds = () => {
 
     setLoading(true);
     try {
-      // Use the same endpoint as PDF generation to ensure consistent data and formatting
+      // Use the existing endpoint which returns marks data. We will re-process this data for KG logic.
       const response = await ep1.get('/api/v2/getmarksheetpdfdata9ds', {
         params: {
           colid: global1.colid,
@@ -124,10 +124,9 @@ const StudentMarksheetViewPageds = () => {
       });
 
       if (response.data.success) {
-        // The endpoint returns data.subjects which contains the formatted marks
         if (response.data.data && response.data.data.subjects) {
           setMarks(response.data.data.subjects);
-          setFullPdfData(response.data.data); // Store full data for PDF
+          setFullPdfData(response.data.data);
         } else {
           setMarks([]);
           setFullPdfData(null);
@@ -193,18 +192,16 @@ const StudentMarksheetViewPageds = () => {
   const generateMarksheetPDF = async (pdfData) => {
     const doc = new jsPDF({
       orientation: "portrait",
-      unit: "pt",  // Changed to points for better precision (1pt = 1/72 inch)
+      unit: "pt",
       format: "a4",
     });
 
-
-
-    // Helper functions
-    const drawText = (text, x, y, size = 12, bold = false, color = [0, 0, 0]) => {
+    // --- HELPER FUNCTIONS ---
+    const drawText = (text, x, y, size = 12, bold = false, color = [0, 0, 0], align = 'left') => {
       doc.setFontSize(size);
       doc.setFont("helvetica", bold ? "bold" : "normal");
       doc.setTextColor(...color);
-      doc.text(String(text), x, y);
+      doc.text(String(text), x, y, { align: align });
     };
 
     const drawLine = (x1, y1, x2, y2, width = 1, color = [0, 0, 0]) => {
@@ -226,878 +223,676 @@ const StudentMarksheetViewPageds = () => {
       }
     };
 
-    // Helper to get border color based on class
-    const getBorderColor = (classType) => {
-      // Since this is the KG specific report card, we return Purple by default
-      return [128, 0, 128]; // Purple (Standard Purple)
+    // Helper to center text in a box
+    const drawCenteredText = (text, x, y, w, h, size = 10, bold = false) => {
+      const textWidth = doc.getTextWidth(String(text));
+      const textX = x + (w - textWidth) / 2;
+      const textY = y + (h / 2) + (size / 3); // Vertical center approx
+      drawText(text, textX, textY, size, bold);
     };
 
-    const mainBorderColor = getBorderColor(pdfData.classtype || semester); // Use semester as fallback for class
+    const getBorderColor = () => [128, 0, 128]; // Purple for Nursery-KG
+    const mainBorderColor = getBorderColor();
 
-    // ==================== PAGE 1: PROFILE PAGE ====================
+    // --- PAGE 1: PERFORMANCE PROFILE ---
 
-    // Colored outer border
+    // Borders
     drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
-
-    // Inner black border
     drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
 
-    // School Code & UDISE Code (top corners)
-    drawText("School Code", 30, 35, 10, true);
-    drawText(pdfData.school?.schoolcode || "", 30, 50, 12);
-    drawText("UDISE Code", 470, 35, 10, true);
-    drawText(pdfData.school?.udisecode || "", 470, 50, 12);
+    // --- HEADER ---
+    const logoY = 50;
+    const logoSize = 65;
+    const schoolLogoWidth = 100;
+    const schoolLogoHeight = 60;
+    const topTextY = 35;
+    const centerX = 297.5;
 
-    // School name and details
-    // School name and details
-    if (pdfData.school) {
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.text((pdfData.school.schoolname || 'SCHOOL NAME').toUpperCase(), 297.5, 90, { align: 'center' });
+    // 1. Top Row: School Code (Left) & UDISE Code (Right)
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
 
-      doc.setFontSize(12);
-      doc.text(`CBSE Affiliation No. : ${pdfData.school.affiliationno || ''}`, 297.5, 110, { align: 'center' });
+    doc.text(`School Code: ${pdfData.school?.schoolcode || ''}`, 30, topTextY);
+    doc.text(`UDISE Code: ${pdfData.school?.udisecode || ''}`, 565, topTextY, { align: 'right' });
 
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
+    // 2. Logos (School Left, CBSE Right)
+    try {
+      const schoolLogoImg = new Image();
+      schoolLogoImg.src = '/CPS.jpeg';
+      doc.addImage(schoolLogoImg, 'JPEG', 30, logoY + 15, schoolLogoWidth, schoolLogoHeight);
+    } catch (e) { }
 
-      // Helper to draw icons based on text position
-      const drawIcon = (type, textX, textY, textWidth) => {
-        const iconX = textX - (textWidth / 2) - 15; // Position left of text
-        const iconY = textY - 3; // Center vertically relative to text baseline
-
-        doc.setLineWidth(1);
-        doc.setDrawColor(0);
-
-        if (type === 'location') {
-          // Pin Icon
-          doc.circle(iconX + 4, iconY - 2, 3);
-          doc.line(iconX + 4, iconY + 1, iconX + 4, iconY + 6);
-        } else if (type === 'email') {
-          // Envelope Icon
-          doc.rect(iconX, iconY - 4, 10, 7);
-          doc.line(iconX, iconY - 4, iconX + 5, iconY + 1);
-          doc.line(iconX + 10, iconY - 4, iconX + 5, iconY + 1);
-        } else if (type === 'phone') {
-          // Mobile Phone Icon
-          doc.setLineWidth(1);
-          doc.roundedRect(iconX + 1, iconY - 4, 8, 8, 2, 2); // Mobile Body
-          doc.circle(iconX + 5, iconY + 2, 0.5, 'F'); // Home Button
-        }
-      };
-
-      const address = `${pdfData.school.addressline1 || ''}, ${pdfData.school.addressline2 || ''}`;
-      const addressW = doc.getTextWidth(address);
-      doc.text(address, 297.5, 125, { align: 'center' });
-      drawIcon('location', 297.5, 125, addressW);
-
-      const email = pdfData.school.email || '';
-      const emailW = doc.getTextWidth(email);
-      doc.text(email, 297.5, 140, { align: 'center' });
-      if (email) drawIcon('email', 297.5, 140, emailW);
-
-      const phone = pdfData.school.phone || '';
-      const phoneW = doc.getTextWidth(phone);
-      doc.text(phone, 297.5, 155, { align: 'center' });
-      if (phone) drawIcon('phone', 297.5, 155, phoneW);
-
-    } else {
-      // Fallback if no school config
-      drawText("SCHOOL NAME", 150, 90, 22, true);
-    }
-
-    // Add School Logo (Right) - Lowered to Y=60
-    if (pdfData.school?.logolink) {
-      try {
-        const logoUrl = pdfData.school.logolink.startsWith('http') ? pdfData.school.logolink : `${ep1.defaults.baseURL}/${pdfData.school.logolink}`;
-        doc.addImage(logoUrl, 'PNG', 505, 60, 60, 60);
-      } catch (e) { console.warn("School Logo fail", e); }
-    }
-
-    // Add CBSE Logo (Left) - static asset - Lowered to Y=60
     try {
       const cbseLogoImg = new Image();
-      cbseLogoImg.src = '/CBSE_logo.jpeg';
-      doc.addImage(cbseLogoImg, 'JPEG', 30, 60, 60, 60);
-    } catch (e) { /* ignore */ }
+      cbseLogoImg.src = '/CBSE_logo.png';
+      doc.addImage(cbseLogoImg, 'PNG', 500, logoY, logoSize, logoSize);
+    } catch (e) { }
 
-    // PERFORMANCE PROFILE heading
-    // Increased Y from 185 to 210 for more spacing
-    drawText("PERFORMANCE  PROFILE", 180, 210, 18, true);
-    drawLine(180, 215, 415, 215, 2);
+    // 3. Center School Details
+    let headY = 60;
+    const schoolName = pdfData.school?.schoolname || "SCHOOL NAME";
 
-    // Session
-    drawText("Session :", 210, 235, 14, true);
-    drawText(pdfData.session, 275, 235, 14);
+    doc.setFontSize(22);
+    doc.setFont("times", "bold");
+    doc.setTextColor(128, 0, 0); // Maroon - Cambria Bold approximation
+    doc.text(schoolName.toUpperCase(), centerX, headY, { align: 'center' });
+    doc.setTextColor(0, 0, 0); // Reset to black
 
-    // Photo box
-    drawRect(485, 200, 80, 100, { lineWidth: 2 });
+    headY += 18;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(`CBSE Affiliation No. : ${pdfData.school?.affiliationno || ''}`, centerX, headY, { align: 'center' });
 
-    // Add Photo if available
-    if (pdfData.profile && pdfData.profile.photo) {
-      try {
-        // Assuming photo is a full URL or base64. 
-        // If it's a relative path, you might need to prepend the backend URL.
-        const photoUrl = pdfData.profile.photo.startsWith('http')
-          ? pdfData.profile.photo
-          : `${ep1.defaults.baseURL}/${pdfData.profile.photo}`;
+    headY += 15;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const address = `${pdfData.school?.addressline1 || ''}, ${pdfData.school?.addressline2 || ''}`;
 
-        // Note: addImage might fail if Cross-Origin issues exist. 
-        // In a real app, you might need to fetch the image as blob/base64 first.
-        doc.addImage(photoUrl, 'JPEG', 486, 201, 78, 98);
-      } catch (e) {
-        console.warn("Could not add photo to PDF", e);
-        drawText("Photo", 505, 255, 10);
+    const drawIcon = (type, x, y) => {
+      const r = 5.5;
+      doc.setLineWidth(0.8);
+      doc.setDrawColor(0);
+      doc.circle(x, y - 1, r, 'S');
+
+      doc.setFillColor(0);
+
+      if (type === 'location') {
+        doc.circle(x, y - 2.5, 2.2, 'F');
+        doc.triangle(x - 2.1, y - 2, x + 2.1, y - 2, x, y + 2, 'F');
+        doc.setFillColor(255);
+        doc.circle(x, y - 2.5, 0.8, 'F');
+      } else if (type === 'email') {
+        doc.rect(x - 3.5, y - 3, 7, 4.5, 'F');
+        doc.setDrawColor(255);
+        doc.setLineWidth(0.6);
+        doc.line(x - 3.5, y - 3, x, y - 0.5);
+        doc.line(x + 3.5, y - 3, x, y - 0.5);
+        doc.setDrawColor(0);
+      } else if (type === 'telephone' || type === 'phone') {
+        doc.rect(x - 2.5, y - 1, 5, 2.5, 'F');
+        doc.rect(x - 1, y - 2, 2, 1, 'F');
+        doc.setLineWidth(1.2);
+        doc.line(x - 2, y - 2, x + 2, y - 2);
+        doc.circle(x - 2, y - 2, 0.8, 'F');
+        doc.circle(x + 2, y - 2, 0.8, 'F');
+        doc.setFillColor(255);
+        doc.circle(x, y + 0.3, 0.5, 'F');
+        doc.setFillColor(0);
+      } else if (type === 'mobile') {
+        doc.roundedRect(x - 2, y - 3.5, 4, 7, 0.8, 0.8, 'F');
+        doc.setFillColor(255);
+        doc.rect(x - 1.5, y - 2.2, 3, 4.5, 'F');
+        doc.circle(x, y + 2.8, 0.3, 'F');
+        doc.setFillColor(0);
       }
-    } else {
-      drawText("Photo", 505, 255, 10);
+    };
+
+    const addrW = doc.getTextWidth(address);
+    doc.text(address, centerX, headY, { align: 'center' });
+    drawIcon('location', centerX - (addrW / 2) - 8, headY);
+
+    headY += 15;
+    const email = pdfData.school?.email || "";
+    const emailW = doc.getTextWidth(email);
+    doc.text(email, centerX, headY, { align: 'center' });
+    drawIcon('email', centerX - (emailW / 2) - 10, headY - 1);
+
+    headY += 15;
+    const phone = pdfData.school?.phone || "";
+    const tel = pdfData.school?.telephone || "";
+
+    const pText = phone ? ` ${phone}` : "";
+    const tText = tel ? ` ${tel}` : "";
+    const separator = "   |   ";
+    const pW = doc.getTextWidth(pText);
+    const tW = doc.getTextWidth(tText);
+    const sepW = (phone && tel) ? doc.getTextWidth(separator) : 0;
+    const iconW = 12;
+
+    const totalW = (phone ? (iconW + pW) : 0) + sepW + (tel ? (iconW + tW) : 0);
+    let curX = centerX - (totalW / 2);
+
+    if (phone) {
+      drawIcon('telephone', curX + 4, headY - 2);
+      doc.text(pText, curX + iconW, headY);
+      curX += iconW + pW;
+    }
+    if (phone && tel) {
+      doc.text(separator, curX, headY);
+      curX += sepW;
+    }
+    if (tel) {
+      drawIcon('mobile', curX + 4, headY - 2);
+      doc.text(tText, curX + iconW, headY);
     }
 
-    // Start of the profile section content
-    // We will adjust the Y position of the Scholastic table later where it is defined
+    headY += 15;
 
 
 
-    // Student's Profile heading
-    drawText("Student's  Profile", 30, 280, 14, true);
+    // Logo & CBSE Logo
 
-
-    // Profile fields
-    let currentY = 320;
-    const lineGap = 35;
-    const leftLabelX = 40;
-    const leftValueX = 180;
-    const rightLabelX = 350;
-    const rightValueX = 450;
-    const endX = 565;
-
-    // Helper for profile row
-    const drawProfileRow = (label, value, y) => {
-      drawText(label, leftLabelX, y, 12, true);
-      drawText(":", leftLabelX + 130, y, 12, true); // Colon alignment
-      drawLine(leftValueX, y + 3, endX, y + 3, 1);
-      drawText(value || "", leftValueX + 5, y, 12);
-    };
-
-    // Helper for split row (2 items)
-    const drawSplitRow = (label1, value1, label2, value2, y) => {
-      // First item
-      drawText(label1, leftLabelX, y, 12, true);
-      drawText(":", leftLabelX + 130, y, 12, true);
-      drawLine(leftValueX, y + 3, rightLabelX - 10, y + 3, 1);
-      drawText(value1 || "", leftValueX + 5, y, 12);
-
-      // Second item
-      drawText(label2, rightLabelX, y, 12, true);
-      drawText(":", rightLabelX + 90, y, 12, true);
-      drawLine(rightValueX, y + 3, endX, y + 3, 1);
-      drawText(value2 || "", rightValueX + 5, y, 12);
-    };
-
-    // Student Name
-    drawProfileRow("Student's Name", pdfData.profile.name, currentY);
-    currentY += lineGap;
-
-    // Father's Name
-    drawProfileRow("Father's Name", pdfData.profile.father, currentY);
-    currentY += lineGap;
-
-    // Mother's Name
-    drawProfileRow("Mother's Name", pdfData.profile.mother, currentY);
-    currentY += lineGap;
-
-    // Resi. Address
-    drawProfileRow("Resi. Address", pdfData.profile.address, currentY);
-    currentY += lineGap;
-
-    // Class & Section
-    drawSplitRow("Class", pdfData.classtype || semester, "Section", pdfData.profile.section, currentY);
-    currentY += lineGap;
-
-    // Roll No. & Date of Birth
-    drawSplitRow("Roll No.", pdfData.profile.rollNo, "Date of Birth", pdfData.profile.dob, currentY);
-    currentY += lineGap;
-
-    // Admission No. & Contact No.
-    drawSplitRow("Admission No.", pdfData.profile.admissionNo, "Contact No.", pdfData.profile.contact, currentY);
-    currentY += lineGap;
-
-    // CBSE Reg. No.
-    drawProfileRow("CBSE Reg. No.", pdfData.profile.cbseRegNo || "", currentY);
-    currentY += lineGap;
-
-    // ATTENDANCE Table
-    // ATTENDANCE Table
-    const tableX = 58;
-    const tableY = 600;
-    const col1W = 180;
-    const col2W = 150;
-    const col3W = 150;
-    const rowH = 25;
-
-    // Draw Header Row
-    drawRect(tableX, tableY, col1W + col2W + col3W, rowH, { lineWidth: 1.5, fillColor: [230, 230, 230] }); // Light gray header
-    drawText("Attendance", tableX + 45, tableY + 17, 12, true);
-    drawText("Term-I", tableX + col1W + 50, tableY + 17, 12, true);
-    drawText("Term-II", tableX + col1W + col2W + 50, tableY + 17, 12, true);
-
-    // Draw Data Rows
-    const drawAttendanceRow = (label, t1, t2, index) => {
-      const y = tableY + rowH * (index + 1);
-      drawRect(tableX, y, col1W + col2W + col3W, rowH, { lineWidth: 1 });
-
-      // Vertical dividers
-      drawLine(tableX + col1W, y, tableX + col1W, y + rowH, 1);
-      drawLine(tableX + col1W + col2W, y, tableX + col1W + col2W, y + rowH, 1);
-
-      drawText(label, tableX + 10, y + 17, 12, true);
-      drawText(String(t1), tableX + col1W + 65, y + 17, 12);
-      drawText(String(t2), tableX + col1W + col2W + 65, y + 17, 12);
-    };
-
-    drawAttendanceRow("Total Working Days", pdfData.attendance.term1.working || "-", pdfData.attendance.term2.working || "-", 0);
-    drawAttendanceRow("Total Attendance", pdfData.attendance.term1.present || "-", pdfData.attendance.term2.present || "-", 1);
-
-    // Signature lines
-    drawText("Class Teacher's Signature", 40, 800, 12, true);
-    drawText("Parent's Signature", 400, 800, 12, true);
-
-
-
-    // ==================== SORTING & CALCULATION LOGIC ====================
-
-    // Helper to extract numeric value from mark
-    const getMarkValue = (mark) => {
-      const num = parseFloat(mark);
-      return isNaN(num) ? 0 : num;
-    };
-
-    // Calculate total score for sorting (Term 1 + Term 2 Total)
-    const processedSubjects = pdfData.subjects.map(sub => {
-      const t1 = getMarkValue(sub.term1Total);
-      const t2 = getMarkValue(sub.term2Total);
-      return {
-        ...sub,
-        totalScore: t1 + t2, // Used for sorting
-        t1Value: t1,
-        t2Value: t2
-      };
-    });
-
-    // Sort descending by total score
-    processedSubjects.sort((a, b) => b.totalScore - a.totalScore);
-
-    // 1. Logic Separation based on 'isAdditional' flag
-    const scholasticSubjects = processedSubjects.filter(sub =>
-      !sub.isAdditional || sub.isAdditional === 'false' || sub.isAdditional === false
-    );
-    const additionalSubjects = processedSubjects.filter(sub =>
-      sub.isAdditional === 'true' || sub.isAdditional === true
-    );
-
-    // Filter Failed Subjects (Compartment)
-    // Criteria: Term 2 Grade starts with 'E' OR Term 2 Total < 33 (assuming 33 is pass)
-    const failedSubjects = processedSubjects.filter(sub => {
-      const grade = sub.term2Grade ? sub.term2Grade.toUpperCase() : '';
-      // Check if grade is E, E1, E2
-      if (grade.startsWith('E')) return true;
-      // Check marks if grade is missing or ambiguous
-      const marks = parseFloat(sub.term2Total);
-      if (!isNaN(marks) && marks < 33) return true;
-      return false;
-    });
-
-    // Calculate Totals for Scholastic Only
-    let grandT1 = 0;
-    let grandT2 = 0;
-
-    scholasticSubjects.forEach(sub => {
-      grandT1 += sub.t1Value;
-      grandT2 += sub.t2Value;
-    });
-    grandT1 = parseFloat(grandT1.toFixed(1));
-    grandT2 = parseFloat(grandT2.toFixed(1));
-
-    // 50% Weighting Calculation
-    const weightedT1 = parseFloat((grandT1 * 0.5).toFixed(1));
-    const weightedT2 = parseFloat((grandT2 * 0.5).toFixed(1));
-    const recalculatedGrandTotal = parseFloat((weightedT1 + weightedT2).toFixed(1));
-
-    // Max marks calculation: 
-    // 5 subjects * 100 marks per subject = 500 max marks total per term.
-    // Weighted max per term = 250.
-    // Total Weighted Max = 500.
-
-    const overallPercentage = scholasticSubjects.length > 0
-      ? (recalculatedGrandTotal / (scholasticSubjects.length * 100)) * 100
-      : 0;
-
-    // Helper for overall grade
-    const calculateGrade = (percentage) => {
-      if (percentage >= 91) return "A1";
-      if (percentage >= 81) return "A2";
-      if (percentage >= 71) return "B1";
-      if (percentage >= 61) return "B2";
-      if (percentage >= 51) return "C1";
-      if (percentage >= 41) return "C2";
-      if (percentage >= 33) return "D";
-      return "E";
-    };
-
-    const overallGrade = calculateGrade(overallPercentage);
-
-
-    // ==================== PAGE 3: SCHOLASTIC AREAS ====================
-    doc.addPage();
-
-    // Colored border
-    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
 
     // Title
-    drawText("PART I - SCHOLASTIC AREAS", 195, 60, 16, true);
+    drawText("PERFORMANCE  PROFILE", centerX, 210, 18, true, [0, 0, 0], 'center');
 
-    // Main subjects table
-    // Main subjects table
-    const subTableX = 20;
-    let subTableY = 90;
-    const totalW = 555;
-    const subjectColW = 100; // Increased for Subject
-    const colW = 38; // 38 * 12 = 456. Total = 556. Approx.
+    // Session (Centered)
+    const sessionText = `Session : ${pdfData.session}`;
+    drawText(sessionText, centerX, 235, 14, true, [0, 0, 0], 'center');
+    const sessionW = doc.getTextWidth(sessionText);
+    drawLine(centerX - sessionW / 2, 237, centerX + sessionW / 2, 237, 1);
 
-    // Header Heights
-    const headerRow1H = 25;
-    const headerRow2H = 100; // Vertical text area
-    const headerRow3H = 20; // Marks row
+    // --- Profile Section ---
+    // Photo Box
+    drawRect(485, 200, 80, 100, { lineWidth: 1 });
+    if (pdfData.profile && pdfData.profile.photo) {
+      try {
+        const photoUrl = pdfData.profile.photo.startsWith('http') ? pdfData.profile.photo : `${ep1.defaults.baseURL}/${pdfData.profile.photo}`;
+        doc.addImage(photoUrl, 'JPEG', 486, 201, 78, 98);
+      } catch (e) {
+        drawText("Photo", 510, 250, 10);
+      }
+    } else {
+      drawText("Photo", 510, 250, 10);
+    }
 
-    // Draw Headers
-    // Row 1: Term Headers
-    drawRect(subTableX, subTableY, subjectColW, headerRow1H + headerRow2H + headerRow3H, { lineWidth: 1 }); // Subject cell spanning 3 rows
-    drawText("SUBJECT", subTableX + 25, subTableY + 70, 10, true); // Centered roughly
+    drawText("Student Profile", 30, 280, 14, true);
 
-    // Term 1 Header
-    drawRect(subTableX + subjectColW, subTableY, colW * 6, headerRow1H, { lineWidth: 1, fillColor: [240, 240, 240] });
-    drawText("TERM-I (100 MARKS)", subTableX + subjectColW + 60, subTableY + 17, 10, true);
+    let currentY = 320;
+    const lineGap = 35;
+    const labelX = 30;
+    const valX = 150;
+    const endLineX = 570;
 
-    // Term 2 Header
-    drawRect(subTableX + subjectColW + (colW * 6), subTableY, colW * 6, headerRow1H, { lineWidth: 1, fillColor: [240, 240, 240] });
-    drawText("TERM-II (100 MARKS)", subTableX + subjectColW + (colW * 6) + 60, subTableY + 17, 10, true);
+    // Helper to format date dd/mm/yyyy
+    const formatDate = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return as is if invalid
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
 
-    // Row 2: Vertical Headers
+    const drawLineItem = (label, value) => {
+      drawText(label, labelX, currentY, 12, true);
+      drawText(":", labelX + 110, currentY, 12, true);
+      drawLine(valX, currentY + 2, endLineX, currentY + 2, 1);
+      drawText(value || "", valX + 10, currentY, 12);
+      currentY += lineGap;
+    };
+
+    drawLineItem("Roll No.", pdfData.profile.rollNo);
+    drawLineItem("Admission No.", pdfData.profile.admissionNo);
+    drawLineItem("Student's Name", pdfData.profile.name);
+
+    // Split Row for Class / Section
+    drawText("Class", labelX, currentY, 12, true);
+    drawText(":", labelX + 110, currentY, 12, true);
+    drawLine(valX, currentY + 2, 350, currentY + 2, 1);
+    const classVal = pdfData.classtype || semester;
+    drawText(classVal, valX + 10, currentY, 12);
+
+    drawText("Section", 370, currentY, 12, true);
+    drawText(":", 420, currentY, 12, true);
+    drawLine(430, currentY + 2, endLineX, currentY + 2, 1);
+    drawText(pdfData.profile.section || "", 440, currentY, 12);
+    currentY += lineGap;
+
+    drawLineItem("Date of Birth", formatDate(pdfData.profile.dob));
+    drawLineItem("Mother's Name", pdfData.profile.mother);
+    drawLineItem("Father's Name", pdfData.profile.father);
+    drawLineItem("Address", pdfData.profile.address);
+    drawLineItem("Contact No.", pdfData.profile.contact);
+
+    // --- Attendance Table ---
+    const attY = 650;
+    const attX = 30;
+    const attW = 535;
+    const attRowH = 25;
+
+    // Header
+    drawRect(attX, attY, attW, attRowH, { lineWidth: 1, fillColor: [240, 240, 240] });
+    const col1W = 178; // 1/3
+    const col2W = 178;
+    drawLine(attX + col1W, attY, attX + col1W, attY + (attRowH * 3), 1);
+    drawLine(attX + col1W + col2W, attY, attX + col1W + col2W, attY + (attRowH * 3), 1);
+
+    drawCenteredText("Attendance", attX, attY, col1W, attRowH, 12, true);
+    drawCenteredText("Term-I", attX + col1W, attY, col2W, attRowH, 12, true);
+    drawCenteredText("Term-II", attX + col1W + col2W, attY, attW - col1W - col2W, attRowH, 12, true);
+
+    // Rows
+    const drawAttRow = (label, val1, val2, index) => {
+      const y = attY + (attRowH * index);
+      drawRect(attX, y, attW, attRowH, { lineWidth: 1 });
+      drawLine(attX + col1W, y, attX + col1W, y + attRowH, 1);
+      drawLine(attX + col1W + col2W, y, attX + col1W + col2W, y + attRowH, 1);
+
+      drawText(label, attX + 10, y + 17, 11, true);
+      drawCenteredText(String(val1), attX + col1W, y, col2W, attRowH, 11);
+      drawCenteredText(String(val2), attX + col1W + col2W, y, attW - col1W - col2W, attRowH, 11);
+    };
+
+    drawAttRow("Total Working Days", pdfData.attendance.term1.working, pdfData.attendance.term2.working, 1);
+    drawAttRow("Total Attendance", pdfData.attendance.term1.present, pdfData.attendance.term2.present, 2);
+
+    // Signatures (Bottom)
+    drawText("Class Teacher's Signature", 50, 780, 12, true);
+    drawText("Parent's Signature", 400, 780, 12, true);
+
+
+    // --- PAGE 2: SCHOLASTIC AREAS ---
+    doc.addPage();
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
+    drawRect(20, 20, 555, 802, { lineWidth: 1.5 }); // Inner border
+
+    // Title
+    drawText("PART I - SCHOLASTIC AREAS", centerX, 50, 16, true, [0, 0, 0], 'center');
+
+    // --- Scholastic Table ---
+    const tableX = 25;
+    const tableY = 70;
+    const tableW = 545;
+    const subColW = 100;
+    const valColW = 37;
+
+    const row1H = 25;
+    const row2H = 100;
+    const row3H = 20;
+
+    // Header 1: Term Labels
+    drawRect(tableX, tableY, subColW, row1H + row2H + row3H, { lineWidth: 1 }); // Subject box
+    drawCenteredText("SUBJECT", tableX, tableY, subColW, row1H + row2H + row3H, 11, true);
+
+    const term1W = valColW * 6;
+    drawRect(tableX + subColW, tableY, term1W, row1H, { lineWidth: 1, fillColor: [240, 240, 240] });
+    drawCenteredText("TERM-I (100 MARKS)", tableX + subColW, tableY, term1W, row1H, 10, true);
+
+    const term2W = valColW * 6;
+    drawRect(tableX + subColW + term1W, tableY, term2W, row1H, { lineWidth: 1, fillColor: [240, 240, 240] });
+    drawCenteredText("TERM-II (100 MARKS)", tableX + subColW + term1W, tableY, term2W, row1H, 10, true);
+
+    // Header 2: Vertical Vertical Headers
     const headers = [
       "Pre Mid Term", "Note Book", "Sub. Enrichment", "Mid Term Exam", "Marks Obtained", "GRADE",
       "Post Mid Term", "Note Book", "Sub. Enrichment", "Annual Exam", "Marks Obtained", "GRADE"
     ];
 
-    let currentX = subTableX + subjectColW;
-    const verticalTextY = subTableY + headerRow1H + 90; // Bottom of text (since rotated 90deg, anchor is bottom-left usually)
-
-    headers.forEach((h, i) => {
-      drawRect(currentX, subTableY + headerRow1H, colW, headerRow2H, { lineWidth: 1 });
-      // Vertical Text
-      doc.text(h, currentX + 23, verticalTextY, { angle: 90 });
-      currentX += colW;
+    let cx = tableX + subColW;
+    const vy = tableY + row1H;
+    headers.forEach((h) => {
+      drawRect(cx, vy, valColW, row2H, { lineWidth: 1 });
+      doc.text(h, cx + (valColW / 2) + 4, vy + row2H - 10, { angle: 90 });
+      cx += valColW;
     });
 
-    // Row 3: Max Marks
-    const maxMarks = [
-      "(10)", "(5)", "(5)", "(80)", "(100)", "",
-      "(10)", "(5)", "(5)", "(80)", "(100)", ""
-    ];
-
-    currentX = subTableX + subjectColW;
-    maxMarks.forEach((m, i) => {
-      drawRect(currentX, subTableY + headerRow1H + headerRow2H, colW, headerRow3H, { lineWidth: 1 });
-      if (m) drawText(m, currentX + 8, subTableY + headerRow1H + headerRow2H + 13, 9);
-      currentX += colW;
+    // Header 3: Max Marks (Centered)
+    const maxMarks = ["(10)", "(5)", "(5)", "(80)", "(100)", "", "(10)", "(5)", "(5)", "(80)", "(100)", ""];
+    cx = tableX + subColW;
+    const my = tableY + row1H + row2H;
+    maxMarks.forEach((m) => {
+      drawRect(cx, my, valColW, row3H, { lineWidth: 1 });
+      if (m) drawCenteredText(m, cx, my, valColW, row3H, 9);
+      cx += valColW;
     });
-
 
     // Data Rows
-    let rowY = subTableY + headerRow1H + headerRow2H + headerRow3H;
-    const subRowHeight = 25;
-
-    // Helper to draw a data row
-    const drawDataRow = (name, values, isTotal = false) => {
-      // Subject Name
-      drawRect(subTableX, rowY, subjectColW, subRowHeight, { lineWidth: 1 });
-      drawText(name.substring(0, 25), subTableX + 5, rowY + 17, isTotal ? 10 : 9, isTotal);
-
-      // Values
-      let x = subTableX + subjectColW;
-      values.forEach((val, i) => {
-        drawRect(x, rowY, colW, subRowHeight, { lineWidth: 1 });
-        const text = String(val);
-        const textWidth = doc.getTextWidth(text);
-        drawText(text, x + (colW - textWidth) / 2, rowY + 17, 9, isTotal);
-        x += colW;
-      });
-      rowY += subRowHeight;
-    };
-
-    // Scholastic Subjects
-    scholasticSubjects.forEach(sub => {
-      const vals = [
-        sub.term1PeriodicTest || "-", sub.term1Notebook || "-", sub.term1Enrichment || "-", sub.term1MidExam || "-", sub.term1Total || "-", sub.term1Grade || "-",
-        sub.term2PeriodicTest || "-", sub.term2Notebook || "-", sub.term2Enrichment || "-", sub.term2AnnualExam || "-", sub.term2Total || "-", sub.term2Grade || "-"
-      ];
-      drawDataRow(sub.subjectname, vals);
-    });
-
-    // Total Row
-    // Term 1 Totals
-    // For totals, usually we sum Max Marks? No, usually checking grand totals.
-    // The image has empty cells for individual components in Total row?
-    // Image shows: Total | | | | | | | | | | | |
-    // If user wants empty cells or specific sums?
-    // User image cuts off at Total.
-    // I will show Grand Total in the "Marks Obtained" columns (index 4 and 10).
-    const totalVals = ["", "", "", "", grandT1, "", "", "", "", "", grandT2, ""];
-    drawDataRow("Total", totalVals, true);
-
-
-
-    // FINAL ASSESSMENT section
-    // Push down to lower section of page
-    // Check where we are. If e.g. at 450, pushing to 550?
-    // Let's add significant buffer.
-    rowY += 40; // Reduced from 60
-    drawText("FINAL ASSESSMENT", subTableX + 220, rowY, 14, true);
-
-    // Final assessment table
-    rowY += 20; // Reduced from 25
-
-    // Table Structure:
-    // Header: TERM - I (Assessment) | TERM - II (Assessment)
-    // Sub-header 1: Max Marks | Marks Obt | % | Rank | Max Marks | Marks Obt | % | Rank
-    // (Actually image shows: Max | Obt | % | Rank  FOR BOTH)
-
-    const termColW = 277.5; // Half width
-
-    // Header Row 1
-    drawRect(subTableX, rowY, termColW, 30, { lineWidth: 1, fillColor: [240, 240, 240] });
-    drawRect(subTableX + termColW, rowY, termColW, 30, { lineWidth: 1, fillColor: [240, 240, 240] });
-
-    drawText("TERM - I (Assessment)", subTableX + 70, rowY + 20, 12, true);
-    drawText("TERM - II (Assessment)", subTableX + termColW + 70, rowY + 20, 12, true);
-
-    // Header Row 2 & Data Rows
-    // Rows: Max Marks, Marks Obtained, Percentage, Rank
-    const labels = ["Maximum Marks", "Marks Obtained", "Percentage", "Rank"];
-    const colLabelW = 100;
-    const colValueW = 177.5; // Remaining width for value? No, table structure is different.
-    // Image: 
-    // | Maximum Marks | <val> | Maximum Marks | <val> |
-    // | Marks Obtained| <val> | Marks Obtained| <val> |
-    // | Percentage    | <val> | Percentage    | <val> |
-    // | Rank          | <val> | Rank          | <val> |
-
-    // Let's implement this row-by-row structure
-    rowY += 30;
-
-    const drawFinalRow = (label, val1, val2) => {
-      // Term 1 part
-      drawRect(subTableX, rowY, colLabelW + 30, 25, { lineWidth: 1 }); // Label box
-      drawRect(subTableX + colLabelW + 30, rowY, termColW - (colLabelW + 30), 25, { lineWidth: 1 }); // Value box
-      drawText(label, subTableX + 5, rowY + 17, 10, true);
-      drawText(String(val1 || "-"), subTableX + colLabelW + 60, rowY + 17, 10);
-
-      // Term 2 part
-      drawRect(subTableX + termColW, rowY, colLabelW + 30, 25, { lineWidth: 1 }); // Label box
-      drawRect(subTableX + termColW + colLabelW + 30, rowY, termColW - (colLabelW + 30), 25, { lineWidth: 1 }); // Value box
-      drawText(label, subTableX + termColW + 5, rowY + 17, 10, true);
-      drawText(String(val2 || "-"), subTableX + termColW + colLabelW + 60, rowY + 17, 10);
-
-      rowY += 25;
-    };
-
-    // Calculate Term 1 and Term 2 Max Marks
-    // Assuming 100 per subject
-    const term1Max = scholasticSubjects.length * 100;
-    const term1Obt = grandT1; // Calculated earlier
-    const term1Perc = term1Max > 0 ? ((term1Obt / term1Max) * 100).toFixed(2) + '%' : '-';
-
-    const term2Max = scholasticSubjects.length * 100;
-    const term2Obt = grandT2;
-    const term2Perc = term2Max > 0 ? ((term2Obt / term2Max) * 100).toFixed(2) + '%' : '-';
-
-    drawFinalRow("Maximum Marks", term1Max, term2Max);
-    drawFinalRow("Marks Obtained", term1Obt, term2Obt);
-    drawFinalRow("Percentage", term1Perc, term2Perc);
-    drawFinalRow("Rank", pdfData.rank || "-", "-"); // Show rank in first slot (or both if needed, or merge)
-
-    // Check space for Remarks (needs significant space)
-    // Reduce threshold to aggressive fitting (try to fit if space allows 175px)
-    // Bottom limit ~800. So if rowY < 625, we can try.
-    if (rowY > 625) {
-      doc.addPage();
-      drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
-      drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
-      rowY = 50;
-    } else {
-      rowY += 30; // Reduced padding from 50
-    }
-
-    // Split Remarks Section
-    // Header Row
-    const remarkW = 277.5;
-    drawRect(subTableX, rowY, remarkW, 25, { lineWidth: 1, fillColor: [240, 240, 240] });
-    drawRect(subTableX + remarkW, rowY, remarkW, 25, { lineWidth: 1, fillColor: [240, 240, 240] });
-    drawText("CLASS TEACHER'S REMARKS TERM I", subTableX + 20, rowY + 17, 10, true);
-    drawText("CLASS TEACHER'S REMARKS TERM II", subTableX + remarkW + 20, rowY + 17, 10, true);
-
-    rowY += 25;
-    // Remark Bodies (Large Boxes)
-    const remarkH = 150;
-    drawRect(subTableX, rowY, remarkW, remarkH, { lineWidth: 1 });
-    drawRect(subTableX + remarkW, rowY, remarkW, remarkH, { lineWidth: 1 });
-
-    // Assuming we might have separate remarks in future, for now show same or split
-    // Since input is single 'remarks', we'll just show it in Term 2 or leave blank?
-    // User requested "Class Teacher's Remarks Term I" and "... Term II".
-    // I'll leave them blank for manual entry or populate if data exists.
-    // For now, I'll put the existing remark in Term 2 (Annual) and leave Term 1 blank or dash.
-
-    // Draw Term 1 Remark
-    if (pdfData.remarksTerm1) {
-      const splitRemark1 = doc.splitTextToSize(pdfData.remarksTerm1, remarkW - 20);
-      doc.text(splitRemark1, subTableX + 10, rowY + 20);
-    }
-
-    // Draw Term 2 Remark (Main remark)
-    if (pdfData.remarksTerm2) {
-      const splitRemark2 = doc.splitTextToSize(pdfData.remarksTerm2, remarkW - 20);
-      doc.text(splitRemark2, subTableX + remarkW + 10, rowY + 20);
-    }
-
-    // ==================== PAGE 4: CO-SCHOLASTIC AREAS ====================
-    doc.addPage();
-
-    // Colored border
-    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
-    // Inner border
-    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
-
-    // PART II heading
-    drawText("PART II - CO-SCHOLASTIC AREAS : [ON 3-POINT (A-C) GRADING SCALE]", 30, 60, 12, true);
-
-    // Co-scholastic table
-    const coTableX = 30;
-    let coTableY = 90;
-    const coTableW = 535;
-    const coTableH = 130;
-
-    // Main table border
-    drawRect(coTableX, coTableY, coTableW, coTableH, { lineWidth: 1.5 });
-
-    // Column headers
-    drawRect(coTableX, coTableY, coTableW, 25, { lineWidth: 1, fillColor: [242, 242, 242] });
-
-    // Vertical lines for columns
-    drawLine(coTableX + 280, coTableY, coTableX + 280, coTableY + coTableH, 1);
-    drawLine(coTableX + 380, coTableY, coTableX + 380, coTableY + coTableH, 1);
-
-    // Headers
-    drawText("Grade", coTableX + 320, coTableY + 13, 11, true);
-    drawText("Grade", coTableX + 420, coTableY + 13, 11, true);
-    drawText("(Term I)", coTableX + 310, coTableY + 22, 9);
-    drawText("(Term II)", coTableX + 410, coTableY + 22, 9);
-
-    // Co-scholastic data rows - TRACK END Y
-    currentY = coTableY + 40; // Start after header
-    pdfData.coScholastic.forEach((item, idx) => {
-      const rowY = coTableY + 40 + (idx * 25);
-      currentY = rowY + 25; // Update currentY to bottom of this row
-
-      // Horizontal line
-      drawLine(coTableX, rowY - 15, coTableX + coTableW, rowY - 15, 0.5);
-
-      // Area name
-      drawText(item.area, coTableX + 5, rowY - 3, 9);
-
-      // Grades
-      drawText(item.term1Grade || "-", coTableX + 320, rowY - 3, 10);
-      drawText(item.term2Grade || "-", coTableX + 420, rowY - 3, 10);
-    });
-
-    // ==================== PART III: ADDITIONAL SUBJECTS (INLINE) ====================
-    if (additionalSubjects.length > 0) {
-      // Ensure we start below the table border OR the last row, whichever is lower
-      currentY = Math.max(currentY, coTableY + coTableH) + 40; // Safe spacing
-
-      // PART III heading
-      drawText("PART III - ADDITIONAL SUBJECT", 30, currentY, 12, true);
-      currentY += 20;
-
-      // Additional Subjects Table
-      const addTableX = 30;
-      let addTableY = currentY;
-      const addTableW = 535;
-
-      // Table Header
-      drawRect(addTableX, addTableY, addTableW, 50, { lineWidth: 1, fillColor: [242, 242, 242] });
-
-      // AREA Column
-      drawRect(addTableX, addTableY, 250, 50, { lineWidth: 1 });
-      drawText("AREA", addTableX + 100, addTableY + 30, 11, true);
-
-      // TERM I Header
-      drawRect(addTableX + 250, addTableY, 142.5, 25, { lineWidth: 1 });
-      drawText("TERM - I", addTableX + 290, addTableY + 17, 10, true);
-
-      // TERM II Header
-      drawRect(addTableX + 392.5, addTableY, 142.5, 25, { lineWidth: 1 });
-      drawText("TERM - II", addTableX + 435, addTableY + 17, 10, true);
-
-      // Subheaders
-      drawRect(addTableX + 250, addTableY + 25, 71.25, 25, { lineWidth: 1 });
-      drawText("MARKS", addTableX + 260, addTableY + 42, 9, true);
-
-      drawRect(addTableX + 321.25, addTableY + 25, 71.25, 25, { lineWidth: 1 });
-      drawText("GRADE", addTableX + 331, addTableY + 42, 9, true);
-
-      drawRect(addTableX + 392.5, addTableY + 25, 71.25, 25, { lineWidth: 1 });
-      drawText("MARKS", addTableX + 402, addTableY + 42, 9, true);
-
-      drawRect(addTableX + 463.75, addTableY + 25, 71.25, 25, { lineWidth: 1 });
-      drawText("GRADE", addTableX + 473, addTableY + 42, 9, true);
-
-      // Data Rows
-      let addRowY = addTableY + 50;
-      const addRowH = 30;
-
-      additionalSubjects.forEach((sub) => {
-        drawRect(addTableX, addRowY, addTableW, addRowH, { lineWidth: 1 });
-
-        // Divider Lines
-        drawLine(addTableX + 250, addRowY, addTableX + 250, addRowY + addRowH, 1);
-        drawLine(addTableX + 321.25, addRowY, addTableX + 321.25, addRowY + addRowH, 1);
-        drawLine(addTableX + 392.5, addRowY, addTableX + 392.5, addRowY + addRowH, 1);
-        drawLine(addTableX + 463.75, addRowY, addTableX + 463.75, addRowY + addRowH, 1);
-
-        // Area Name
-        drawText(sub.subjectname, addTableX + 10, addRowY + 20, 10, true);
-
-        // Values
-        // Term 1 Marks/Grade
-        drawText(String(sub.term1Total || "-"), addTableX + 270, addRowY + 20, 10);
-        drawText(String(sub.term1Grade || "-"), addTableX + 340, addRowY + 20, 10);
-
-        // Term 2 Marks/Grade
-        drawText(String(sub.term2Total || "-"), addTableX + 410, addRowY + 20, 10);
-        drawText(String(sub.term2Grade || "-"), addTableX + 480, addRowY + 20, 10);
-
-        addRowY += addRowH;
-      });
-
-      currentY = addRowY; // Update main cursor
-    }
-
-    // ==================== COMPARTMENT TABLE ====================
-    if (failedSubjects.length > 0) {
-      // Ensure formatting spacing
-      currentY = Math.max(currentY, coTableY + coTableH) + 40;
-
-      // Title
-      const compTitle = "DETAILS OF COMPARTMENT EXAMINATION";
-      const titleW = doc.getTextWidth(compTitle);
-      drawText(compTitle, (595 - titleW) / 2, currentY, 14, true); // Centered (A4 width ~595)
-
-      currentY += 20;
-
-      // Table formatting
-      const compTableX = 30;
-      const compTableW = 535;
-      const compHeaderH = 30;
-      const compRowH = 25;
-
-      // Column Widths from image approximation
-      // SR NO | SUBJECT | MAX MARKS | MARKS OBTAINED | RESULT
-      const cw1 = 40; // Sr No
-      const cw3 = 80; // Max Marks
-      const cw4 = 100; // Marks Obtained
-      const cw5 = 80; // Result
-      const cw2 = compTableW - cw1 - cw3 - cw4 - cw5; // Subject (Remaining)
-
-      const cx1 = compTableX;
-      const cx2 = cx1 + cw1;
-      const cx3 = cx2 + cw2;
-      const cx4 = cx3 + cw3;
-      const cx5 = cx4 + cw4;
-
-      // Header Row
-      drawRect(cx1, currentY, cw1, compHeaderH, { lineWidth: 1, fillColor: [240, 240, 240] });
-      drawRect(cx2, currentY, cw2, compHeaderH, { lineWidth: 1, fillColor: [240, 240, 240] });
-      drawRect(cx3, currentY, cw3, compHeaderH, { lineWidth: 1, fillColor: [240, 240, 240] });
-      drawRect(cx4, currentY, cw4, compHeaderH, { lineWidth: 1, fillColor: [240, 240, 240] });
-      drawRect(cx5, currentY, cw5, compHeaderH, { lineWidth: 1, fillColor: [240, 240, 240] });
-
-      // Header Text
-      // Centering helper
-      const centerText = (txt, x, w, y) => {
-        const tw = doc.getTextWidth(txt);
-        doc.text(txt, x + (w - tw) / 2, y);
-      };
-
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      centerText("SR.\nNO.", cx1, cw1, currentY + 12);
-      centerText("SUBJECT", cx2, cw2, currentY + 18);
-      centerText("MAX\nMARKS", cx3, cw3, currentY + 12); // Multiline
-      centerText("MARKS\nOBTAINED", cx4, cw4, currentY + 12);
-      centerText("RESULT", cx5, cw5, currentY + 18);
-
-      currentY += compHeaderH;
-
-      // Data Rows
-      failedSubjects.forEach((sub, idx) => {
-        drawRect(cx1, currentY, cw1, compRowH, { lineWidth: 1 });
-        drawRect(cx2, currentY, cw2, compRowH, { lineWidth: 1 });
-        drawRect(cx3, currentY, cw3, compRowH, { lineWidth: 1 });
-        drawRect(cx4, currentY, cw4, compRowH, { lineWidth: 1 });
-        drawRect(cx5, currentY, cw5, compRowH, { lineWidth: 1 });
-
-        doc.setFont("helvetica", "normal");
-        centerText(String(idx + 1), cx1, cw1, currentY + 16);
-        drawText(sub.subjectname, cx2 + 5, currentY + 16, 10); // Left align subject
-        centerText("80", cx3, cw3, currentY + 16); // Hardcoded 80 based on requirements
-
-        // Empty columns for Marks Obtained and Result
-
-        currentY += compRowH;
-      });
-    }
-
-    // Promotion section - Dynamic Y
-    // Ensure we don't overlap if previous content pushed lower than 480
-    // But user wants it in the empty space, so let's start after currentY with some padding.
-    // Origin was 480.
-    let promotionY = Math.max(480, currentY + 40);
-    drawText("Congratulations Promoted to Class :", 30, promotionY, 12, true);
-    drawLine(250, promotionY + 3, 550, promotionY + 3, 1);
-    drawText(pdfData.promotedToClass || "", 260, promotionY, 12);
-
-    promotionY += 30;
-    drawText("New Session begins on :", 30, promotionY, 12, true);
-    drawLine(180, promotionY + 3, 550, promotionY + 3, 1);
-
-    // Format Date to DD/MM/YYYY
-    let sessionDate = pdfData.newSessionDate || "";
-    if (sessionDate && sessionDate.includes('-')) {
-      const [yyyy, mm, dd] = sessionDate.split('-');
-      if (yyyy && mm && dd && yyyy.length === 4) {
-        sessionDate = `${dd}/${mm}/${yyyy}`;
+    let dy = my + row3H;
+    const dRowH = 25;
+
+    // Filter scholastic subjects
+    const scholasticSubjects = pdfData.subjects.filter(sub => !sub.isAdditional || sub.isAdditional === 'false');
+
+    // Calculate Grand Totals for Total Row
+    let gT1Obt = 0, gT2Obt = 0;
+    let hasFailure = false;
+
+    // FONT SIZE INCREASED for data
+    const dataFontSize = 11;
+
+    scholasticSubjects.forEach((sub, i) => {
+      // Calculations
+      // Term 1
+      const t1PT = sub.term1PeriodicTest || 0;
+      const t1NB = sub.term1Notebook || 0;
+      const t1Enr = sub.term1Enrichment || 0;
+      const t1Mid = sub.term1MidExam || 0;
+      const t1Tot = (parseFloat(t1PT) + parseFloat(t1NB) + parseFloat(t1Enr) + parseFloat(t1Mid)).toFixed(1);
+      const t1Grade = sub.term1Grade;
+
+      // Term 2
+      const t2PT = sub.term2PeriodicTest || 0;
+      const t2NB = sub.term2Notebook || 0;
+      const t2Enr = sub.term2Enrichment || 0;
+      const t2Ann = sub.term2AnnualExam || 0;
+      const t2Tot = (parseFloat(t2PT) + parseFloat(t2NB) + parseFloat(t2Enr) + parseFloat(t2Ann)).toFixed(1);
+      const t2Grade = sub.term2Grade;
+
+      // Check for Failure (Grade E)
+      if ((t1Grade && t1Grade.toUpperCase() === 'E') || (t2Grade && t2Grade.toUpperCase() === 'E')) {
+        hasFailure = true;
       }
+
+      // Add to Grands
+      gT1Obt += parseFloat(t1Tot);
+      gT2Obt += parseFloat(t2Tot);
+
+      const rowVals = [
+        t1PT, t1NB, t1Enr, t1Mid, t1Tot, t1Grade,
+        t2PT, t2NB, t2Enr, t2Ann, t2Tot, t2Grade
+      ];
+
+      drawRect(tableX, dy, subColW, dRowH, { lineWidth: 1 });
+      const subNameWidth = doc.getTextWidth(sub.subjectname);
+      if (subNameWidth > subColW - 10) {
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        const splitSub = doc.splitTextToSize(sub.subjectname, subColW - 10);
+        doc.text(splitSub, tableX + 5, dy + 12);
+        doc.setFontSize(10); // reset
+      } else {
+        drawText(sub.subjectname, tableX + 5, dy + 17, 10);
+      }
+
+      cx = tableX + subColW;
+      rowVals.forEach(v => {
+        drawRect(cx, dy, valColW, dRowH, { lineWidth: 1 });
+        drawCenteredText(String(v || '-'), cx, dy, valColW, dRowH, dataFontSize);
+        cx += valColW;
+      });
+      dy += dRowH;
+    });
+
+    // Total Row (Only Totals)
+    drawRect(tableX, dy, subColW, dRowH, { lineWidth: 1 });
+    drawText("Total", tableX + 5, dy + 17, 11, true);
+
+    // Draw cells for total row
+    cx = tableX + subColW;
+    for (let c = 0; c < 12; c++) {
+      drawRect(cx, dy, valColW, dRowH, { lineWidth: 1 });
+      if (c === 4) drawCenteredText(gT1Obt.toFixed(0), cx, dy, valColW, dRowH, 11, true);
+      if (c === 10) drawCenteredText(gT2Obt.toFixed(0), cx, dy, valColW, dRowH, 11, true);
+      cx += valColW;
     }
-    drawText(sessionDate, 190, promotionY, 12);
+    dy += 10;
 
-    // Signature section
-    drawText("Exam I/C Signature", 50, 800, 12, true);
-    drawText("Principal's Signature", 400, 800, 12, true);
+    // --- FINAL ASSESSMENT ---
+    dy += 30;
+    drawRect(tableX, dy, tableW, 25, { lineWidth: 1, fillColor: [230, 230, 230] });
+    drawCenteredText("FINAL ASSESSMENT", tableX, dy, tableW, 25, 12, true);
+    dy += 25;
 
+    // Table Structure: Term I (Assessment) | Term II (Assessment)
+    const halfW = tableW / 2;
+    drawRect(tableX, dy, halfW, 25, { lineWidth: 1 });
+    drawCenteredText("TERM - I (Assessment)", tableX, dy, halfW, 25, 11, true);
+    drawRect(tableX + halfW, dy, halfW, 25, { lineWidth: 1 });
+    drawCenteredText("TERM - II (Assessment)", tableX + halfW, dy, halfW, 25, 11, true);
+    dy += 25;
 
+    // Calculate Final Values
+    const maxPoss = scholasticSubjects.length * 100;
+    const p1 = maxPoss > 0 ? ((gT1Obt / maxPoss) * 100).toFixed(2) : 0;
+    const p2 = maxPoss > 0 ? ((gT2Obt / maxPoss) * 100).toFixed(2) : 0;
 
+    const rank = hasFailure ? '-' : (pdfData.rank || '-');
 
-
-    // ==================== PAGE 5: INSTRUCTIONS ====================
-    doc.addPage();
-
-    // Colored outer border
-    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
-    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
-
-    // Instructions title
-    drawText("Instructions", 250, 70, 18, true);
-
-    // First grading scale section
-    drawText("Grading Scale for scholastic area : Grades are awarded on 8-point grading scale as follows :-", 40, 110, 12, true);
-
-    // First table - Scholastic grading scale
-    let table1X = 80;
-    let table1Y = 140;
-    const table1W = 435;
-    const table1H = 240;
-    const table1Rows = 9;
-    const rowHeight = table1H / table1Rows;
-
-    // Table border
-    drawRect(table1X, table1Y, table1W, table1H, { lineWidth: 1.5 });
-
-    // Vertical divider
-    drawLine(table1X + table1W / 2, table1Y, table1X + table1W / 2, table1Y + table1H, 1.5);
-
-    // Horizontal lines
-    for (let i = 1; i < table1Rows; i++) {
-      const y = table1Y + (i * rowHeight);
-      drawLine(table1X, y, table1X + table1W, y, 1);
-    }
-
-    // Headers
-    drawText("MARKS RANGE", table1X + 80, table1Y + 20, 12, true);
-    drawText("GRADE", table1X + table1W / 2 + 80, table1Y + 20, 12, true);
-
-    // Data
-    const scholasticGrades = [
-      ['91-100', 'A1'],
-      ['81-90', 'A2'],
-      ['71-80', 'B1'],
-      ['61-70', 'B2'],
-      ['51-60', 'C1'],
-      ['41-50', 'C2'],
-      ['33-40', 'D'],
-      ['32 & Below', 'E (Failed)']
+    const finalRows = [
+      { label: "Maximum Marks", v1: maxPoss, v2: maxPoss },
+      { label: "Marks Obtained", v1: gT1Obt.toFixed(0), v2: gT2Obt.toFixed(0) },
+      { label: "Percentage", v1: `${p1}%`, v2: `${p2}%` },
+      { label: "Rank", v1: rank, v2: rank }
     ];
 
-    scholasticGrades.forEach((row, i) => {
-      const y = table1Y + ((i + 2) * rowHeight) - 10;
-      drawText(row[0], table1X + 80, y, 11);
-      drawText(row[1], table1X + table1W / 2 + 80, y, 11);
+    const labelW = 120;
+    const valueW = halfW - labelW;
+
+    finalRows.forEach(row => {
+      // Term 1 Side
+      drawRect(tableX, dy, labelW, 25, { lineWidth: 1 });
+      drawText(row.label, tableX + 5, dy + 17, 10, true);
+      drawRect(tableX + labelW, dy, valueW, 25, { lineWidth: 1 });
+      drawCenteredText(String(row.v1), tableX + labelW, dy, valueW, 25, 11);
+
+      // Term 2 Side
+      drawRect(tableX + halfW, dy, labelW, 25, { lineWidth: 1 });
+      drawText(row.label, tableX + halfW + 5, dy + 17, 10, true);
+      drawRect(tableX + halfW + labelW, dy, valueW, 25, { lineWidth: 1 });
+      drawCenteredText(String(row.v2), tableX + halfW + labelW, dy, valueW, 25, 11);
+
+      dy += 25;
     });
 
-    // Second grading scale section - Co-Scholastic
-    drawText("Grading Scale for Co-Scholastic areas : Grades are awarded on 3-point grading scale as", 40, 415, 12, true);
-    drawText("follows :-", 40, 430, 12, true);
+    // --- Remarks ---
+    dy += 20;
+    const maxY = 750; // Bottom limit inside border
+    const remarkH = Math.max(100, maxY - dy); // Ensure at least 100, extend to bottom
+    drawRect(tableX, dy, tableW, 30, { lineWidth: 1, fillColor: [240, 240, 240] });
+    drawCenteredText("CLASS TEACHER'S REMARKS", tableX, dy, tableW, 30, 12, true);
+    dy += 30;
+    drawRect(tableX, dy, tableW, remarkH, { lineWidth: 1 });
 
-    // Second table - Co-Scholastic grading scale (3-point)
-    let table2X = 80;
-    let table2Y = 455;
-    const table2W = 435;
-    const table2H = 120;
-    const table2Rows = 4;
-    const row2Height = table2H / table2Rows;
-
-    // Table border
-    drawRect(table2X, table2Y, table2W, table2H, { lineWidth: 1.5 });
-
-    // Vertical divider
-    drawLine(table2X + table2W / 2, table2Y, table2X + table2W / 2, table2Y + table2H, 1.5);
-
-    // Horizontal lines
-    for (let i = 1; i < table2Rows; i++) {
-      const y = table2Y + (i * row2Height);
-      drawLine(table2X, y, table2X + table2W, y, 1);
+    const remarkText = pdfData.remarksTerm2 || pdfData.remarksTerm1 || pdfData.remarks || "";
+    if (remarkText) {
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      const lines = doc.splitTextToSize(remarkText, tableW - 20);
+      doc.text(lines, tableX + 10, dy + 20);
     }
 
-    // Headers
-    drawText("GRADE", table2X + 80, table2Y + 20, 12, true);
-    drawText("GRADE POINT", table2X + table2W / 2 + 80, table2Y + 20, 12, true);
 
-    // Data for Co-Scholastic 3-point scale
-    const coScholasticGrades = [
+    // --- PAGE 3: CO-SCHOLASTIC & ADDITIONAL ---
+    doc.addPage();
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
+    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
+
+    drawCenteredText("PART II - CO-SCHOLASTIC AREAS", 20, 50, 555, 30, 16, true);
+
+    // Co-Scholastic Table
+    let cy = 90;
+    const cTableX = 30;
+    const cTableW = 535;
+    const cRowH = 30;
+
+    // Header
+    drawRect(cTableX, cy, cTableW, 25, { lineWidth: 1, fillColor: [240, 240, 240] });
+    drawCenteredText("CO-SCHOLASTIC AREAS (ON 3-POINT (A-C) GRADING SCALE)", cTableX, cy, cTableW, 25, 11, true);
+    cy += 25;
+    drawRect(cTableX, cy, 250, 30, { lineWidth: 1 }); // Subject
+    drawCenteredText("SUBJECT", cTableX, cy, 250, 30, 11, true);
+    drawRect(cTableX + 250, cy, 142, 30, { lineWidth: 1 });
+    drawCenteredText("GRADE (TERM - I)", cTableX + 250, cy, 142, 30, 10, true);
+    drawRect(cTableX + 392, cy, 143, 30, { lineWidth: 1 });
+    drawCenteredText("GRADE (TERM - II)", cTableX + 392, cy, 143, 30, 10, true);
+    cy += 30;
+
+    pdfData.coScholastic.forEach(co => {
+      drawRect(cTableX, cy, 250, cRowH, { lineWidth: 1 });
+      const areaWidth = doc.getTextWidth(co.area);
+      if (areaWidth > 240) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        const splitArea = doc.splitTextToSize(co.area, 240);
+        doc.text(splitArea, cTableX + 10, cy + 12);
+        doc.setFontSize(11); // reset
+      } else {
+        drawText(co.area, cTableX + 10, cy + 20, 11, true);
+      }
+
+      drawRect(cTableX + 250, cy, 142, cRowH, { lineWidth: 1 });
+      drawCenteredText(co.term1Grade || '-', cTableX + 250, cy, 142, cRowH, 11);
+
+      drawRect(cTableX + 392, cy, 143, cRowH, { lineWidth: 1 });
+      drawCenteredText(co.term2Grade || '-', cTableX + 392, cy, 143, cRowH, 11);
+      cy += cRowH;
+    });
+
+    cy += 40;
+
+    // Additional Subjects
+    drawCenteredText("PART III - ADDITIONAL SUBJECT", 20, cy, 555, 30, 16, true);
+    cy += 40;
+
+    const addSubjects = pdfData.subjects.filter(sub => sub.isAdditional === true || sub.isAdditional === 'true');
+
+    if (addSubjects.length > 0) {
+      drawRect(cTableX, cy, 180, 50, { lineWidth: 1 });
+      drawCenteredText("AREA", cTableX, cy, 180, 50, 11, true);
+
+      drawRect(cTableX + 180, cy, 177, 25, { lineWidth: 1 });
+      drawCenteredText("TERM - I", cTableX + 180, cy, 177, 25, 11, true);
+
+      drawRect(cTableX + 180, cy + 25, 88, 25, { lineWidth: 1 });
+      drawCenteredText("MARKS", cTableX + 180, cy + 25, 88, 25, 9, true);
+      drawRect(cTableX + 268, cy + 25, 89, 25, { lineWidth: 1 });
+      drawCenteredText("GRADE", cTableX + 268, cy + 25, 89, 25, 9, true);
+
+      drawRect(cTableX + 357, cy, 178, 25, { lineWidth: 1 });
+      drawCenteredText("TERM - II", cTableX + 357, cy, 178, 25, 11, true);
+
+      drawRect(cTableX + 357, cy + 25, 89, 25, { lineWidth: 1 });
+      drawCenteredText("MARKS", cTableX + 357, cy + 25, 89, 25, 9, true);
+      drawRect(cTableX + 446, cy + 25, 89, 25, { lineWidth: 1 });
+      drawCenteredText("GRADE", cTableX + 446, cy + 25, 89, 25, 9, true);
+
+      cy += 50;
+
+      const calculateAddGrade = (marks) => {
+        if (!marks || isNaN(marks)) return '-';
+        const num = parseFloat(marks) * 2;
+        if (num >= 91) return 'A1';
+        if (num >= 81) return 'A2';
+        if (num >= 71) return 'B1';
+        if (num >= 61) return 'B2';
+        if (num >= 51) return 'C1';
+        if (num >= 41) return 'C2';
+        if (num >= 33) return 'D';
+        return 'E';
+      };
+
+      addSubjects.forEach(sub => {
+        drawRect(cTableX, cy, 180, 30, { lineWidth: 1 });
+        const addSubWidth = doc.getTextWidth(sub.subjectname);
+        if (addSubWidth > 170) {
+          doc.setFontSize(9);
+          const splitSub = doc.splitTextToSize(sub.subjectname, 170);
+          doc.text(splitSub, cTableX + 5, cy + 12);
+          doc.setFontSize(10); // reset
+        } else {
+          drawText(sub.subjectname, cTableX + 5, cy + 20, 10);
+        }
+
+        const t1Total = sub.term1Total || '-';
+        const t1GradeCalc = t1Total !== '-' ? calculateAddGrade(t1Total) : '-';
+
+        drawRect(cTableX + 180, cy, 88, 30, { lineWidth: 1 });
+        drawCenteredText(String(t1Total), cTableX + 180, cy, 88, 30, 10);
+        drawRect(cTableX + 268, cy, 89, 30, { lineWidth: 1 });
+        drawCenteredText(String(t1GradeCalc), cTableX + 268, cy, 89, 30, 10);
+
+        const t2Total = sub.term2Total || '-';
+        const t2GradeCalc = t2Total !== '-' ? calculateAddGrade(t2Total) : '-';
+
+        drawRect(cTableX + 357, cy, 89, 30, { lineWidth: 1 });
+        drawCenteredText(String(t2Total), cTableX + 357, cy, 89, 30, 10);
+        drawRect(cTableX + 446, cy, 89, 30, { lineWidth: 1 });
+        drawCenteredText(String(t2GradeCalc), cTableX + 446, cy, 89, 30, 10);
+        cy += 30;
+      });
+    }
+
+    cy += 50;
+
+    // Promotion Info
+    drawText("Congratulations, Promoted to class:", 30, cy, 12);
+    drawLine(240, cy + 2, 550, cy + 2, 1);
+    drawText(pdfData.promotedToClass || "", 250, cy, 12, true);
+
+    cy += 30;
+    drawText("New Session Begins on:", 30, cy, 12);
+    const sessionDate = formatDate(pdfData.newSessionDate);
+    drawText(`Date:   ${sessionDate}`, 240, cy, 12, true);
+    drawLine(280, cy + 2, 550, cy + 2, 1);
+
+    // Signatures (Bottom of Page 3)
+    drawText("Exam I/C Signature", 50, 780, 12, true);
+    drawText("Principal's Signature", 400, 780, 12, true);
+
+
+    // --- PAGE 4: INSTRUCTIONS ---
+    doc.addPage();
+    drawRect(10, 10, 575, 822, { lineWidth: 4, strokeColor: mainBorderColor });
+    drawRect(20, 20, 555, 802, { lineWidth: 1.5 });
+
+    drawText("Instructions", centerX, 60, 18, true, [0, 0, 0], 'center');
+
+    let iy = 100;
+    drawText("Grading scale for scholastic areas : Grades are awarded on a 8-point grading", 40, iy, 12);
+    iy += 15;
+    drawText("scale as follows", 40, iy, 12);
+    iy += 20;
+
+    // Table 1: Scholastic Grades
+    const iTableX = 80;
+    const iTableW = 435;
+
+    drawRect(iTableX, iy, iTableW, 30, { lineWidth: 1.5 });
+    drawCenteredText("MARKS RANGE", iTableX, iy, iTableW / 2, 30, 12, true);
+    drawCenteredText("GRADE", iTableX + iTableW / 2, iy, iTableW / 2, 30, 12, true);
+
+    const schGrades = [
+      ['91-100', 'A1'], ['81-90', 'A2'], ['71-80', 'B1'], ['61-70', 'B2'],
+      ['51-60', 'C1'], ['41-50', 'C2'], ['33-40', 'D'], ['32 and Below', 'E (Needs improvement)']
+    ];
+
+    let gY = iy + 30;
+    const gH = 30;
+    schGrades.forEach(g => {
+      drawRect(iTableX, gY, iTableW / 2, gH, { lineWidth: 1 });
+      drawCenteredText(g[0], iTableX, gY, iTableW / 2, gH, 11);
+      drawRect(iTableX + iTableW / 2, gY, iTableW / 2, gH, { lineWidth: 1 });
+      drawCenteredText(g[1], iTableX + iTableW / 2, gY, iTableW / 2, gH, 11);
+      gY += gH;
+    });
+
+    iy = gY + 40;
+    drawText("Grading scale for co-scholastic areas : Grades are awarded on 3-point", 40, iy, 12);
+    iy += 15;
+    drawText("grading scale as follows", 40, iy, 12);
+    iy += 20;
+
+    // Table 2: Co-Scholastic
+    drawRect(iTableX, iy, iTableW, 30, { lineWidth: 1.5 });
+    drawCenteredText("GRADE", iTableX, iy, iTableW / 2, 30, 12, true);
+    drawCenteredText("GRADE POINT", iTableX + iTableW / 2, iy, iTableW / 2, 30, 12, true);
+
+    const coGrades = [
       ['A', '5 (Outstanding)'],
       ['B', '4 (Very Good)'],
       ['C', '3 (Fair)']
     ];
 
-    coScholasticGrades.forEach((row, i) => {
-      const y = table2Y + ((i + 2) * row2Height) - 8;
-      drawText(row[0], table2X + 80, y, 11);
-      drawText(row[1], table2X + table2W / 2 + 80, y, 11);
+    gY = iy + 30;
+    coGrades.forEach(g => {
+      drawRect(iTableX, gY, iTableW / 2, gH, { lineWidth: 1 });
+      drawCenteredText(g[0], iTableX, gY, iTableW / 2, gH, 11);
+      drawRect(iTableX + iTableW / 2, gY, iTableW / 2, gH, { lineWidth: 1 });
+      drawCenteredText(g[1], iTableX + iTableW / 2, gY, iTableW / 2, gH, 11);
+      gY += gH;
     });
+
+    // FOOTER QUOTE
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(128, 0, 128); // Purple quote
+    drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
 
     return doc;
   };
-
-
 
   const showSnackbar = (message, severity) => {
     setSnackbar({ open: true, message, severity });
@@ -1110,7 +905,7 @@ const StudentMarksheetViewPageds = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Student Marksheet View (Class 9-10)
+        Student Marksheet View (Nursery - KG II)
       </Typography>
 
       {/* Search Filters */}
@@ -1130,7 +925,7 @@ const StudentMarksheetViewPageds = () => {
               <TextField
                 select
                 fullWidth
-                label="Semester"
+                label="Class"
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
               >
@@ -1187,81 +982,12 @@ const StudentMarksheetViewPageds = () => {
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* Term 1 Marks */}
-            <Typography variant="h6" gutterBottom color="primary">
-              Term I Marks
-            </Typography>
-            <TableContainer component={Paper} sx={{ mb: 3 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Subject</TableCell>
-                    <TableCell align="center">Periodic (10)</TableCell>
-                    <TableCell align="center">Notebook (5)</TableCell>
-                    <TableCell align="center">Enrichment (5)</TableCell>
-                    <TableCell align="center">Mid Exam (80)</TableCell>
-                    <TableCell align="center">Total (100)</TableCell>
-                    <TableCell align="center">Grade</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {marks.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{row.subjectname}</TableCell>
-                      <TableCell align="center">{row.term1PeriodicTest}</TableCell>
-                      <TableCell align="center">{row.term1Notebook}</TableCell>
-                      <TableCell align="center">{row.term1Enrichment}</TableCell>
-                      <TableCell align="center">{row.term1MidExam}</TableCell>
-                      <TableCell align="center">{row.term1Total}</TableCell>
-                      <TableCell align="center">{row.term1Grade}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Term 2 Marks */}
-            <Typography variant="h6" gutterBottom color="primary">
-              Term II Marks
-            </Typography>
-            <TableContainer component={Paper} sx={{ mb: 3 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Subject</TableCell>
-                    <TableCell align="center">Periodic (10)</TableCell>
-                    <TableCell align="center">Notebook (5)</TableCell>
-                    <TableCell align="center">Enrichment (5)</TableCell>
-                    <TableCell align="center">Annual Exam (80)</TableCell>
-                    <TableCell align="center">Total (100)</TableCell>
-                    <TableCell align="center">Grade</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {marks.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{row.subjectname}</TableCell>
-                      <TableCell align="center">{row.term2PeriodicTest}</TableCell>
-                      <TableCell align="center">{row.term2Notebook}</TableCell>
-                      <TableCell align="center">{row.term2Enrichment}</TableCell>
-                      <TableCell align="center">{row.term2AnnualExam}</TableCell>
-                      <TableCell align="center">{row.term2Total}</TableCell>
-                      <TableCell align="center">{row.term2Grade}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              PDF Generation ready for Nursery-KG Format. Click "Generate Report" to preview/download.
+            </Alert>
 
             {/* Actions */}
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
-              <Button
-                variant="outlined"
-                startIcon={<Print />}
-                onClick={handlePrint}
-              >
-                Print View
-              </Button>
               <Button
                 variant="contained"
                 startIcon={<DownloadIcon />}
@@ -1292,22 +1018,13 @@ const StudentMarksheetViewPageds = () => {
         <DialogContent>
           <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Class Teacher's Remarks (Term I)"
+              label="Class Teacher's Remarks"
               fullWidth
               multiline
-              rows={2}
+              rows={3}
               value={pdfParams.remarksTerm1}
               onChange={(e) => setPdfParams({ ...pdfParams, remarksTerm1: e.target.value })}
-              placeholder="Enter Term I remarks..."
-            />
-            <TextField
-              label="Class Teacher's Remarks (Term II)"
-              fullWidth
-              multiline
-              rows={2}
-              value={pdfParams.remarksTerm2}
-              onChange={(e) => setPdfParams({ ...pdfParams, remarksTerm2: e.target.value })}
-              placeholder="Enter Term II remarks..."
+              placeholder="Enter remarks..."
             />
 
             <TextField
@@ -1316,11 +1033,11 @@ const StudentMarksheetViewPageds = () => {
               fullWidth
               value={pdfParams.promotedToClass}
               onChange={(e) => setPdfParams({ ...pdfParams, promotedToClass: e.target.value })}
-              helperText="Select the class student is promoted to"
             >
-              <MenuItem value=""><em>None</em></MenuItem>
               {availableSemesters.map((sem) => (
-                <MenuItem key={sem} value={sem}>{sem}</MenuItem>
+                <MenuItem key={sem} value={sem}>
+                  {sem}
+                </MenuItem>
               ))}
             </TextField>
 
@@ -1345,4 +1062,4 @@ const StudentMarksheetViewPageds = () => {
   );
 };
 
-export default StudentMarksheetViewPageds;
+export default StudentMarksheetViewPageKGds;

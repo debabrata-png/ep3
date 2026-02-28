@@ -284,17 +284,18 @@ const SubjectComponentConfigPageds = () => {
               <TableCell><strong>Subject Name</strong></TableCell>
               <TableCell><strong>Term 1 Components</strong></TableCell>
               <TableCell><strong>Term 2 Components</strong></TableCell>
+              <TableCell><strong>Last Updated</strong></TableCell>
               <TableCell><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} align="center">Loading...</TableCell>
+                <TableCell colSpan={6} align="center">Loading...</TableCell>
               </TableRow>
             ) : configs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center">No configurations found</TableCell>
+                <TableCell colSpan={6} align="center">No configurations found</TableCell>
               </TableRow>
             ) : (
               configs.map((config) => (
@@ -315,6 +316,13 @@ const SubjectComponentConfigPageds = () => {
                     {config.term2notebookactive && `NB(${config.term2notebookmax}) `}
                     {config.term2enrichmentactive && `EN(${config.term2enrichmentmax}) `}
                     {config.term2annualexamactive && `AE(${config.term2annualexammax})`}
+                  </TableCell>
+                  <TableCell>
+                    {config.updatedAt
+                      ? new Date(config.updatedAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      : config.updatedat
+                        ? new Date(config.updatedat).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        : '-'}
                   </TableCell>
                   <TableCell>
                     <IconButton
