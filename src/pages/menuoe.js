@@ -58,7 +58,7 @@ export function menuoe() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    {open && <Typography sx={{ fontSize: 14 }}>Officer Executive</Typography>}
+                    {open && <Typography sx={{ fontSize: 14 }}>Officer Executive Old</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
 
@@ -77,6 +77,37 @@ export function menuoe() {
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
+                    </ListItem>
+
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion>
+                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    {open && <Typography sx={{ fontSize: 14 }}>Officer Executive</Typography>}
+                </AccordionSummary>
+                <AccordionDetails>
+
+                    <ListItem button component={RouterLink} to="/role/oe-dashboard2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="OE Dashboard" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/role/purchase-order-dashboard2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Orders" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds2">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
@@ -127,7 +158,7 @@ export function menuoe() {
                     {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/role/staff-profile">
+                    <ListItem button component={RouterLink} to="/role/staff-profile2">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>

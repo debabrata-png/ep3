@@ -30,6 +30,8 @@ import { menuoe as MenuOE } from '../pages/menuoe';
 import { menucma as MenuCMA } from '../pages/menucma';
 import { menuao as MenuAO } from '../pages/menuao';
 import { menupe as MenuPE } from '../pages/menupe';
+import { menusecurity as MenuSecurity } from '../pages/menusecurity';
+import { menuquality as MenuQuality } from '../pages/menuquality';
 import { getTitle } from '../utils/routeTitles';
 
 const drawerWidth = 240;
@@ -119,6 +121,8 @@ function RoleLayoutContent({ children, customMenu }) {
         if (r === 'CA') return <MenuCMA />;
         if (r === 'AE') return <MenuAO />;
         if (r === 'PE') return <MenuPE />;
+        if (r === 'Security' || r === 'GatewaySecurity') return <MenuSecurity />;
+        if (r === 'Quality' || r === 'QualityInspector') return <MenuQuality />;
 
         // Default fallback or simplified view
         return <MenuPurchase />;

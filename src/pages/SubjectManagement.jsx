@@ -190,8 +190,8 @@ const theme = createTheme({
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const getInitialForm = () => ({
-  name: "",
-  user: "",
+  name: global1.name,
+  user: global1.user,
   colid: global1.colid,
   subjectName: "",
   fullName: "",
@@ -419,45 +419,6 @@ export default function SubjectManagement() {
                 <Typography variant="overline" color="text.secondary" sx={{ display: "block", pb: 1.5, borderBottom: "1px solid", borderColor: "divider", mb: 2.5 }}>
                   Record Metadata
                 </Typography>
-                <Grid container spacing={3} sx={{ mb: 3.5 }}>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Added By"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      placeholder="e.g. Dr. Anita Sharma"
-                      helperText="Full name of the person adding this record"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <BadgeOutlinedIcon sx={{ color: "text.secondary", fontSize: 22 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="User Account"
-                      name="user"
-                      value={form.user}
-                      onChange={handleChange}
-                      placeholder="e.g. anita@college.edu"
-                      helperText="Email address or system username"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <AccountCircleOutlinedIcon sx={{ color: "text.secondary", fontSize: 22 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-
                 {/* Section: Subject Details */}
                 <Typography variant="overline" color="text.secondary" sx={{ display: "block", pb: 1.5, borderBottom: "1px solid", borderColor: "divider", mb: 2.5 }}>
                   Subject Details

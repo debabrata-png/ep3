@@ -57,7 +57,7 @@ export function menuao() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    {open && <Typography sx={{ fontSize: 14 }}>Administrative Officer</Typography>}
+                    {open && <Typography sx={{ fontSize: 14 }}>Administrative Officer Old</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
                     <ListItem button component={RouterLink} to="/faculty-create-request">
@@ -74,13 +74,34 @@ export function menuao() {
                     </ListItem>
                 </AccordionDetails>
             </Accordion>
+
+            <Accordion>
+                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    {open && <Typography sx={{ fontSize: 14 }}>Administrative Officer</Typography>}
+                </AccordionSummary>
+                <AccordionDetails>
+                    <ListItem button component={RouterLink} to="/faculty-create-request2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Requisition" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/faculty-request-status2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Requisition Status" />}
+                    </ListItem>
+                </AccordionDetails>
+            </Accordion>
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/role/staff-profile">
+                    <ListItem button component={RouterLink} to="/role/staff-profile2">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>

@@ -1402,15 +1402,52 @@ import Admissiontemplateann1 from "./pages/Admissiontemplateann1";
 import Admissiontemplateann2 from "./pages/Admissiontemplateann2";
 import Admissiontemplateann3 from "./pages/Admissiontemplateann3";
 
-import MentorRegistration from "./pages/Mentorregistration "; import Admissiontemplate1 from "./components/Admissiontemplate1";
+import MentorRegistration from "./pages/Mentorregistration ";
+import Admissiontemplateann1new from "./components/Admissiontemplate1";
 import Admissiontemplateag1 from "./components/Admissiontemplateag1";
 import Admissiontemplateag2 from "./components/Admissiontemplateag2";
+import Admissiontemplateann3new from "./components/Admissiontemplate3";
+import Admissiontemplateann2new from "./components/Admissiontemplate2";
 import MentorManagement from "./pages/mentormanagement";
 import StudentChat from "./pages/Alumnichat";
 import StudentAlumniChat from "./pages/StudentAlumniChat";
 import SubjectManagement from "./pages/SubjectManagement";
 import ProfilePage from "./pages/ProfilePage"
 import HostelMasterPage from "./pages/HostelPageag";
+
+
+// Purchasing Module Imports
+import FacultyCreateRequestds2 from './pages/FacultyCreateRequestds2';
+import FacultyRequestStatusds2 from './pages/FacultyRequestStatusds2';
+import FacultyRequestApprovalds2 from './pages/FacultyRequestApprovalds2';
+import StoreUserAccessds2 from './pages/StoreUserAccessds2';
+import StoreManagerDashboardds2 from './pages/StoreManagerDashboardds2';
+import PurchaseOrderDashboardds2 from './pages/PurchaseOrderDashboardds2';
+import DeliveryDashboardds2 from './pages/DeliveryDashboardds2';
+import GatewaySecurityDashboard2 from './pages/GatewaySecurityDashboard2';
+import FinancialAllocationDashboardds2 from './pages/FinancialAllocationDashboardds2';
+import QualityInspectorDashboardds2 from './pages/QualityInspectorDashboardds2';
+import ApprovalConfigurationds2 from './pages/ApprovalConfigurationds2';
+import PurchaseCellInventoryds2 from './pages/PurchaseCellInventoryds2';
+import DashboardPurchaseds2 from './pages/DashboardPurchaseds2';
+import PurchasingMasterDatads2 from './pages/PurchasingMasterDatads2';
+import ItemCategoryds2 from './pages/ItemCategoryds2';
+import ItemTypeds2 from './pages/ItemTypeds2';
+import ItemUnitds2 from './pages/ItemUnitds2';
+import CashApprovalds2 from './pages/CashApprovalds2';
+import ApproveCashApprovalds2 from './pages/ApproveCashApprovalds2';
+import StaffProfileds2 from './pages/StaffProfileds2';
+import NewPurchaseUserAddds2 from './pages/NewPurchaseUserAddds2';
+import VendorComparisonSheetds2 from './pages/VendorComparisonSheetds2';
+import OEDashboardds2 from './pages/OEDashboardds2';
+import DeliveryTypeMasterds2 from './pages/DeliveryTypeMasterds2';
+
+import FeeSummaryReport from './pages/FeeSummaryReport';
+
+import ProgramFeeReport from './pages/ProgramFeeReport';
+import StudentLedgerReport from './pages/StudentLedgerReport';
+
+import CrmhDashboard from "./pages/CrmhDashboard";
 
 
 
@@ -1422,6 +1459,52 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
+                                        <Route path="/crmh-dashboard" element={<CrmhDashboard />} />
+
+                                        <Route path="/programfeereport" element={<ProgramFeeReport />} />
+                                        <Route path="/studentledgerreport" element={<StudentLedgerReport />} />
+
+                                        <Route path="/feesummaryreport" element={<FeeSummaryReport />} />
+
+                                        {/* Purchasing Module Routes */}
+                                        <Route path="/role/purchase-order-dashboard2" element={<RoleLayout><PurchaseOrderDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
+                                        <Route path="/role/purchasing-master-data2" element={<RoleLayout><PurchasingMasterDatads2 /></RoleLayout>} />
+                                        <Route path="/role/ApprovalConfigurationds2" element={<RoleLayout><ApprovalConfigurationds2 /></RoleLayout>} />
+                                        <Route path="/role/vendor-comparison2" element={<RoleLayout><VendorComparisonSheetds2 /></RoleLayout>} />
+                                        <Route path="/role/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
+                                        <Route path="/role/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
+                                        <Route path="/role/ItemUnitds2" element={<RoleLayout><ItemUnitds2 /></RoleLayout>} />
+                                        <Route path="/role/purchase-user2-add2" element={<RoleLayout><NewPurchaseUserAddds2 /></RoleLayout>} />
+                                        <Route path="/role/cash-approval2" element={<RoleLayout><CashApprovalds2 /></RoleLayout>} />
+                                        <Route exact path="/approvecashapprovalds/:id" element={<RoleLayout><ApproveCashApprovalds2 /></RoleLayout>} />
+                                        <Route path="/role/store-user2-access2" element={<RoleLayout><StoreUserAccessds2 /></RoleLayout>} />
+                                        <Route path="/role/purchasing-dashboard2" element={<RoleLayout><DashboardPurchaseds2 /></RoleLayout>} />
+                                        <Route path="/role/oe-dashboard2" element={<RoleLayout><OEDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/store-manager-dashboard2" element={<RoleLayout><StoreManagerDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/delivery-dashboard2" element={<RoleLayout><DeliveryDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
+                                        <Route path="/role/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/quality-inspector2" element={<RoleLayout><QualityInspectorDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/staff-profile2" element={<RoleLayout><StaffProfileds2 /></RoleLayout>} />
+                                        <Route path="/role/delivery-type-master2" element={<RoleLayout><DeliveryTypeMasterds2 /></RoleLayout>} />
+
+                                        {/* Purchasing Module Routes - Standard Routes */}
+                                        <Route path="/faculty-create-request2" element={<RoleLayout><FacultyCreateRequestds2 /></RoleLayout>} />
+                                        <Route path="/FacultyRequestApprovalds2" element={<RoleLayout><FacultyRequestApprovalds2 /></RoleLayout>} />
+                                        <Route path="/faculty-request-status2" element={<RoleLayout><FacultyRequestStatusds2 /></RoleLayout>} />
+                                        <Route path="/store-manager-dashboard2" element={<RoleLayout><StoreManagerDashboardds2 /></RoleLayout>} />
+                                        <Route path="/purchase-order-dashboard2" element={<RoleLayout><PurchaseOrderDashboardds2 /></RoleLayout>} />
+                                        <Route path="/delivery-dashboard2" element={<RoleLayout><DeliveryDashboardds2 /></RoleLayout>} />
+                                        <Route path="/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
+                                        <Route path="/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
+                                        <Route path="/quality-inspector2" element={<RoleLayout><QualityInspectorDashboardds2 /></RoleLayout>} />
+                                        <Route path="/dashboard-purchasing2" element={<RoleLayout><DashboardPurchaseds2 /></RoleLayout>} />
+                                        <Route path="/purchasing-master-data2" element={<RoleLayout><PurchasingMasterDatads2 /></RoleLayout>} />
+                                        <Route path="/ApprovalConfigurationds2" element={<RoleLayout><ApprovalConfigurationds2 /></RoleLayout>} />
+                                        <Route path="/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
+                                        <Route path="/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
+                                        <Route path="/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
                                         {/* ----------------------------------------------------------------------- */}
                                         {/* NEW ROLE-BASED ROUTES (Sticky Sidebar) */}
                                         {/* ----------------------------------------------------------------------- */}
@@ -1451,9 +1534,11 @@ function App() {
                                         <Route path="/student-chat" element={<StudentChat />} />
                                         <Route path="/subject-management" element={<SubjectManagement />} />
                                         <Route path="/hostel-master" element={<HostelMasterPage />} />
-                                        <Route path="/admission/1/:colId" element={<Admissiontemplate1 />} />
-                                        <Route path="/admissionag/1/:colId" element={<Admissiontemplateag1 />} />
+                                        <Route path="/admission/1/:colId" element={<Admissiontemplateann1new />} />
                                         <Route path="/admissionag/2/:colId" element={<Admissiontemplateag2 />} />
+                                        <Route path="/admissionag/1/:colId" element={<Admissiontemplateag1 />} />
+                                        <Route path="/admission/2/:colId" element={<Admissiontemplateann2new />} />
+                                        <Route path="/admission/3/:colId" element={<Admissiontemplateann3new />} />
                                         <Route path="/mentor-management" element={<MentorManagement />} />
                                         <Route path="/student-alumni-chat" element={<StudentAlumniChat />} />
 

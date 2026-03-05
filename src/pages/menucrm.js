@@ -70,7 +70,7 @@ export function menuitemscrm() {
     <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
 
       {/* Dashboard Section */}
-      <ListItem button component={RouterLink} to="/dashdashfacnew">
+      <ListItem button component={RouterLink} to="/crmh-dashboard">
         <ListItemIcon>
           <DashboardIcon />
         </ListItemIcon>
@@ -84,7 +84,7 @@ export function menuitemscrm() {
           {open && <Typography sx={{ fontSize: 14 }}>CRM</Typography>}
         </AccordionSummary>
         <AccordionDetails>
-          <ListItem button component={RouterLink} to="/Dashmcrmh1">
+          <ListItem button component={RouterLink} to="/crmh-dashboard">
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>

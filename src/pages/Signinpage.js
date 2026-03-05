@@ -215,6 +215,8 @@ const Signup = () => {
         // return <Navigate to="/viewcourse1" />;
       } else if (response.data.role == 'HoD') {
         // return <Navigate to="/viewcourse1" />;
+      } else if (response.data.role == "CRM") {
+        navigate('/crmh-dashboard');
       } else {
         //navigate('/dashmmfaccourses');
         navigate('/dashdashfacnew');

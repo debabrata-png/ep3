@@ -1,6 +1,6 @@
 import { TextField, MenuItem, Box } from "@mui/material";
 
-const FormField = ({ label, type, name, value, onChange, options = [] }) => {
+const FormField = ({ label, type, name, value, onChange, options = [], ...rest }) => {
   const isSelect = type === "select";
   const isDate = type === "date";
 
@@ -16,6 +16,8 @@ const FormField = ({ label, type, name, value, onChange, options = [] }) => {
           onChange={onChange}
           variant="outlined"
           size="small"
+          sx={{ minWidth: 180 }}
+          {...rest}
         >
           <MenuItem value="">-- Select --</MenuItem>
           {options.map((opt, idx) => (
@@ -35,6 +37,7 @@ const FormField = ({ label, type, name, value, onChange, options = [] }) => {
           variant="outlined"
           size="small"
           InputLabelProps={isDate ? { shrink: true } : {}}
+          {...rest}
         />
       )}
     </Box>

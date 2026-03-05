@@ -55,7 +55,7 @@ const Admissiontemplateag2 = () => {
     studentWhatsApp1: "", studentWhatsApp2: "",
     fatherWhatsApp: "", motherPhone: "",
     aadhaarNumber: "", dateOfBirth: "",
-    
+
     // --- Step 3: Contact & Address ---
     permanentAddress: "", permanentDistrict: "", permanentState: "", permanentPinCode: "",
     correspondenceAddress: "", correspondenceDistrict: "", correspondenceState: "", correspondencePinCode: "",
@@ -182,11 +182,11 @@ const Admissiontemplateag2 = () => {
                   <Grid item xs={4}><FormField label="Admission Fee Amount" name="admissionFeeAmount" value={formData.admissionFeeAmount} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Receipt No" name="admissionFeeReceiptNo" value={formData.admissionFeeReceiptNo} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Date" type="date" name="admissionFeeDate" value={formData.admissionFeeDate} onChange={handleChange} /></Grid>
-                  
+
                   <Grid item xs={4}><FormField label="College Fee Amount" name="collegeFeeAmount" value={formData.collegeFeeAmount} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Receipt No" name="collegeFeeReceiptNo" value={formData.collegeFeeReceiptNo} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Date" type="date" name="collegeFeeDate" value={formData.collegeFeeDate} onChange={handleChange} /></Grid>
-                  
+
                   <Grid item xs={4}><FormField label="Counseling Fee Amount" name="counselingFeeAmount" value={formData.counselingFeeAmount} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Receipt No" name="counselingFeeReceiptNo" value={formData.counselingFeeReceiptNo} onChange={handleChange} /></Grid>
                   <Grid item xs={4}><FormField label="Date" type="date" name="counselingFeeDate" value={formData.counselingFeeDate} onChange={handleChange} /></Grid>
@@ -223,13 +223,13 @@ const Admissiontemplateag2 = () => {
                   <Grid item xs={4}><FormField label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} required /></Grid>
                   <Grid item xs={6}><FormField label="Father's Name" name="fatherName" value={formData.fatherName} onChange={handleChange} /></Grid>
                   <Grid item xs={6}><FormField label="Mother's Name" name="motherName" value={formData.motherName} onChange={handleChange} /></Grid>
-                  
+
                   <Grid item xs={6}><FormField label="Students What's App No. 1" name="studentWhatsApp1" value={formData.studentWhatsApp1} onChange={handleChange} required /></Grid>
                   <Grid item xs={6}><FormField label="Students What's App No. 2" name="studentWhatsApp2" value={formData.studentWhatsApp2} onChange={handleChange} /></Grid>
-                  
+
                   <Grid item xs={6}><FormField label="Mobile No. (Father)" name="fatherWhatsApp" value={formData.fatherWhatsApp} onChange={handleChange} /></Grid>
                   <Grid item xs={6}><FormField label="Mobile No. (Mother)" name="motherPhone" value={formData.motherPhone} onChange={handleChange} /></Grid>
-                  
+
                   <Grid item xs={6}><FormField label="Aadhaar Card No." name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} required /></Grid>
                   <Grid item xs={6}><FormField label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required /></Grid>
                 </Grid>
@@ -263,7 +263,7 @@ const Admissiontemplateag2 = () => {
                     <FormField label="Gender" type="select" name="gender" value={formData.gender} onChange={handleChange} required
                       options={[{ label: "Male", value: "Male" }, { label: "Female", value: "Female" }]} />
                   </Grid>
-                  
+
                   <Grid item xs={6}><FormField label="Email (Parent)" name="parentEmail" value={formData.parentEmail} onChange={handleChange} /></Grid>
                   <Grid item xs={6}>
                     <FormField label="Category" type="select" name="category" value={formData.category} onChange={handleChange} required
@@ -308,13 +308,13 @@ const Admissiontemplateag2 = () => {
                     <TableBody>
                       {formData.academicDetailsAg2.map((row, i) => (
                         <TableRow key={i}>
-                          <TableCell sx={{...cellStyle, fontWeight: 'bold', width: '20%'}}>{row.examination}</TableCell>
-                          <TableCell sx={{...cellStyle, width: '20%'}}><input value={row.boardUniversity} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "boardUniversity", e.target.value)} style={inputStyle} /></TableCell>
-                          <TableCell sx={{...cellStyle, width: '15%'}}><input value={row.rollNo} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "rollNo", e.target.value)} style={inputStyle} /></TableCell>
-                          <TableCell sx={{...cellStyle, width: '10%'}}><input value={row.marksObtain} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "marksObtain", e.target.value)} style={inputStyle} /></TableCell>
-                          <TableCell sx={{...cellStyle, width: '10%'}}><input value={row.maxMarks} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "maxMarks", e.target.value)} style={inputStyle} /></TableCell>
-                          <TableCell sx={{...cellStyle, width: '10%'}}><input value={row.percentage} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "percentage", e.target.value)} style={inputStyle} /></TableCell>
-                          <TableCell sx={{...cellStyle, width: '15%'}}><input value={row.yearOfPassing} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "yearOfPassing", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, fontWeight: 'bold', width: '20%' }}>{row.examination}</TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '20%' }}><input value={row.boardUniversity} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "boardUniversity", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '15%' }}><input value={row.rollNo} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "rollNo", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '10%' }}><input value={row.marksObtain} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "marksObtain", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '10%' }}><input value={row.maxMarks} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "maxMarks", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '10%' }}><input value={row.percentage} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "percentage", e.target.value)} style={inputStyle} /></TableCell>
+                          <TableCell sx={{ ...cellStyle, width: '15%' }}><input value={row.yearOfPassing} onChange={(e) => handleArrayChange("academicDetailsAg2", i, "yearOfPassing", e.target.value)} style={inputStyle} /></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -326,45 +326,45 @@ const Admissiontemplateag2 = () => {
             {/* STEP 5: DOCUMENTS & OFFICE USE BOTTOM */}
             {step === 5 && (
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                 <Typography variant="subtitle1" fontWeight="bold">Documents List</Typography>
-                 <FormGroup row>
-                    {documentOptions.map((doc) => (
-                      <FormControlLabel
-                        key={doc}
-                        control={<Checkbox checked={formData.documentsList.includes(doc)} onChange={(e) => handleCheckboxChange("documentsList", doc, e.target.checked)} />}
-                        label={doc}
-                        sx={{ width: '45%' }}
-                      />
-                    ))}
-                 </FormGroup>
-
-                 <Divider sx={{ my: 1 }} />
-                 <Typography variant="subtitle1" fontWeight="bold">Office Use Only Section</Typography>
-                 <Grid container spacing={2}>
-                    <Grid item xs={6}><FormField label="Counselor Name" name="counselorName" value={formData.counselorName} onChange={handleChange} /></Grid>
-                    <Grid item xs={6}><FormField label="Reference Name" name="referenceName" value={formData.referenceName} onChange={handleChange} /></Grid>
-                 </Grid>
-                 
-                 <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 1 }}>Source:</Typography>
-                 <FormGroup row>
-                    {sourceOptions.map((src) => (
-                      <FormControlLabel
-                        key={src}
-                        control={<Checkbox checked={formData.sourceOfInquiry.includes(src)} onChange={(e) => handleCheckboxChange("sourceOfInquiry", src, e.target.checked)} />}
-                        label={src}
-                        sx={{ width: '25%' }}
-                      />
-                    ))}
+                <Typography variant="subtitle1" fontWeight="bold">Documents List</Typography>
+                <FormGroup row>
+                  {documentOptions.map((doc) => (
                     <FormControlLabel
-                      control={<Checkbox checked={formData.sourceOfInquiry.includes("Other")} onChange={(e) => handleCheckboxChange("sourceOfInquiry", "Other", e.target.checked)} />}
-                      label={
-                        <Box display="flex" alignItems="center">
-                          Other <input style={{ marginLeft: "8px", borderBottom: "1px solid #000", border: 'none', borderBottom: '1px solid black', outline: 'none' }} placeholder="(Specify)" value={formData.otherSourceText} name="otherSourceText" onChange={handleChange} disabled={!formData.sourceOfInquiry.includes("Other")} />
-                        </Box>
-                      }
+                      key={doc}
+                      control={<Checkbox checked={formData.documentsList.includes(doc)} onChange={(e) => handleCheckboxChange("documentsList", doc, e.target.checked)} />}
+                      label={doc}
                       sx={{ width: '45%' }}
                     />
-                 </FormGroup>
+                  ))}
+                </FormGroup>
+
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="subtitle1" fontWeight="bold">Office Use Only Section</Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}><FormField label="Counselor Name" name="counselorName" value={formData.counselorName} onChange={handleChange} /></Grid>
+                  <Grid item xs={6}><FormField label="Reference Name" name="referenceName" value={formData.referenceName} onChange={handleChange} /></Grid>
+                </Grid>
+
+                <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 1 }}>Source:</Typography>
+                <FormGroup row>
+                  {sourceOptions.map((src) => (
+                    <FormControlLabel
+                      key={src}
+                      control={<Checkbox checked={formData.sourceOfInquiry.includes(src)} onChange={(e) => handleCheckboxChange("sourceOfInquiry", src, e.target.checked)} />}
+                      label={src}
+                      sx={{ width: '25%' }}
+                    />
+                  ))}
+                  <FormControlLabel
+                    control={<Checkbox checked={formData.sourceOfInquiry.includes("Other")} onChange={(e) => handleCheckboxChange("sourceOfInquiry", "Other", e.target.checked)} />}
+                    label={
+                      <Box display="flex" alignItems="center">
+                        Other <input style={{ marginLeft: "8px", border: 'none', borderBottom: '1px solid black', outline: 'none' }} placeholder="(Specify)" value={formData.otherSourceText} name="otherSourceText" onChange={handleChange} disabled={!formData.sourceOfInquiry.includes("Other")} />
+                      </Box>
+                    }
+                    sx={{ width: '45%' }}
+                  />
+                </FormGroup>
               </Box>
             )}
 
@@ -383,18 +383,18 @@ const Admissiontemplateag2 = () => {
             PDF PRINT TEMPLATES
         ═══════════════════════════════════════════ */}
         <Box sx={{ position: "absolute", left: "-9999px", top: 0 }}>
-          
+
           {/* PAGE 1: ADMISSION FORM */}
           <div ref={page1Ref} style={{ ...pageStyle, display: "none" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
               <div style={{ width: "80%" }}>
-                 <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "16px", letterSpacing: "1px" }}>CHAMELI DEVI GROUP OF INSTITUTIONS</div>
-                 <div style={{ textAlign: "center", fontSize: "10px", marginBottom: "5px" }}>Gram Umrikheda, Khandwa Road, Indore - 452020 (Madhya Pradesh) • Phone: 0731-4243600</div>
-                 <div style={{ display: "flex", justifyContent: "space-between", padding: "0 20px" }}>
-                   <div>S.No. - CD/ <strong>2435</strong></div>
-                   <div style={{ fontWeight: "bold", fontSize: "14px", backgroundColor: "#000", color: "#fff", padding: "2px 10px", borderRadius: "2px" }}>ADMISSION FORM</div>
-                   <div>Date: {new Date().toLocaleDateString()}</div>
-                 </div>
+                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "16px", letterSpacing: "1px" }}>CHAMELI DEVI GROUP OF INSTITUTIONS</div>
+                <div style={{ textAlign: "center", fontSize: "10px", marginBottom: "5px" }}>Gram Umrikheda, Khandwa Road, Indore - 452020 (Madhya Pradesh) • Phone: 0731-4243600</div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "0 20px" }}>
+                  <div>S.No. - CD/ <strong>2435</strong></div>
+                  <div style={{ fontWeight: "bold", fontSize: "14px", backgroundColor: "#000", color: "#fff", padding: "2px 10px", borderRadius: "2px" }}>ADMISSION FORM</div>
+                  <div>Date: {new Date().toLocaleDateString()}</div>
+                </div>
               </div>
               <div style={{ width: "20%", border: "1px solid #000", height: "80px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 Photograph
@@ -403,100 +403,100 @@ const Admissiontemplateag2 = () => {
 
             <div style={{ fontWeight: "bold", backgroundColor: "#d9d9d9", border: "1px solid #000", padding: "2px 5px", fontSize: "10px" }}>OFFICE USE ONLY</div>
             <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000", marginBottom: "15px", fontSize: "10px" }}>
-               <tbody>
-                  <tr style={{ backgroundColor: "#f0f0f0", fontWeight: "bold", textAlign: "center" }}>
-                     <td style={cellStyle}>Fee Details</td>
-                     <td style={cellStyle}>Amount</td>
-                     <td style={cellStyle}>Receipt No</td>
-                     <td style={cellStyle}>Date</td>
-                     <td style={cellStyle} colSpan={2}>Course Details</td>
-                  </tr>
-                  <tr>
-                     <td style={cellStyle}>Admission Fee</td>
-                     <td style={cellStyle}>{formData.admissionFeeAmount}</td>
-                     <td style={cellStyle}>{formData.admissionFeeReceiptNo}</td>
-                     <td style={cellStyle}>{formData.admissionFeeDate}</td>
-                     <td style={cellStyle}>Course</td>
-                     <td style={cellStyle}>{formData.courseApplied}</td>
-                  </tr>
-                  <tr>
-                     <td style={cellStyle}>College Fee</td>
-                     <td style={cellStyle}>{formData.collegeFeeAmount}</td>
-                     <td style={cellStyle}>{formData.collegeFeeReceiptNo}</td>
-                     <td style={cellStyle}>{formData.collegeFeeDate}</td>
-                     <td style={cellStyle}>Branch Preference</td>
-                     <td style={cellStyle}>1. {formData.branchPreference1} 2. {formData.branchPreference2}</td>
-                  </tr>
-                  <tr>
-                     <td style={cellStyle}>Counseling Fee</td>
-                     <td style={cellStyle}>{formData.counselingFeeAmount}</td>
-                     <td style={cellStyle}>{formData.counselingFeeReceiptNo}</td>
-                     <td style={cellStyle}>{formData.counselingFeeDate}</td>
-                     <td style={cellStyle}>Institute Name</td>
-                     <td style={cellStyle}>{formData.instituteName}</td>
-                  </tr>
-                  <tr style={{ backgroundColor: "#f0f0f0", fontWeight: "bold", textAlign: "center" }}>
-                     <td style={cellStyle} colSpan={6}>Counseling Details</td>
-                  </tr>
-                  <tr>
-                     <td style={cellStyle} colSpan={2}>Registration No.</td>
-                     <td style={cellStyle} colSpan={2}>{formData.counselingRegistrationNo}</td>
-                     <td style={cellStyle}>DOB</td>
-                     <td style={cellStyle}>{formData.counselingDOB}</td>
-                  </tr>
-                  <tr>
-                     <td style={cellStyle} colSpan={2}>Registered Mobile</td>
-                     <td style={cellStyle} colSpan={2}>{formData.counselingRegisteredMobile}</td>
-                     <td style={cellStyle}>Other</td>
-                     <td style={cellStyle}>{formData.counselingOther}</td>
-                  </tr>
-               </tbody>
+              <tbody>
+                <tr style={{ backgroundColor: "#f0f0f0", fontWeight: "bold", textAlign: "center" }}>
+                  <td style={cellStyle}>Fee Details</td>
+                  <td style={cellStyle}>Amount</td>
+                  <td style={cellStyle}>Receipt No</td>
+                  <td style={cellStyle}>Date</td>
+                  <td style={cellStyle} colSpan={2}>Course Details</td>
+                </tr>
+                <tr>
+                  <td style={cellStyle}>Admission Fee</td>
+                  <td style={cellStyle}>{formData.admissionFeeAmount}</td>
+                  <td style={cellStyle}>{formData.admissionFeeReceiptNo}</td>
+                  <td style={cellStyle}>{formData.admissionFeeDate}</td>
+                  <td style={cellStyle}>Course</td>
+                  <td style={cellStyle}>{formData.courseApplied}</td>
+                </tr>
+                <tr>
+                  <td style={cellStyle}>College Fee</td>
+                  <td style={cellStyle}>{formData.collegeFeeAmount}</td>
+                  <td style={cellStyle}>{formData.collegeFeeReceiptNo}</td>
+                  <td style={cellStyle}>{formData.collegeFeeDate}</td>
+                  <td style={cellStyle}>Branch Preference</td>
+                  <td style={cellStyle}>1. {formData.branchPreference1} 2. {formData.branchPreference2}</td>
+                </tr>
+                <tr>
+                  <td style={cellStyle}>Counseling Fee</td>
+                  <td style={cellStyle}>{formData.counselingFeeAmount}</td>
+                  <td style={cellStyle}>{formData.counselingFeeReceiptNo}</td>
+                  <td style={cellStyle}>{formData.counselingFeeDate}</td>
+                  <td style={cellStyle}>Institute Name</td>
+                  <td style={cellStyle}>{formData.instituteName}</td>
+                </tr>
+                <tr style={{ backgroundColor: "#f0f0f0", fontWeight: "bold", textAlign: "center" }}>
+                  <td style={cellStyle} colSpan={6}>Counseling Details</td>
+                </tr>
+                <tr>
+                  <td style={cellStyle} colSpan={2}>Registration No.</td>
+                  <td style={cellStyle} colSpan={2}>{formData.counselingRegistrationNo}</td>
+                  <td style={cellStyle}>DOB</td>
+                  <td style={cellStyle}>{formData.counselingDOB}</td>
+                </tr>
+                <tr>
+                  <td style={cellStyle} colSpan={2}>Registered Mobile</td>
+                  <td style={cellStyle} colSpan={2}>{formData.counselingRegisteredMobile}</td>
+                  <td style={cellStyle}>Other</td>
+                  <td style={cellStyle}>{formData.counselingOther}</td>
+                </tr>
+              </tbody>
             </table>
 
             <div style={{ fontWeight: "bold", backgroundColor: "#d9d9d9", border: "1px solid #000", padding: "2px 5px", fontSize: "10px", marginTop: "10px" }}>PERSONAL DETAILS</div>
             <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000", marginBottom: "15px", fontSize: "10px" }}>
-               <tbody>
-                  <tr><td style={{ ...labelStyle, width: "25%" }}>Student's Full Name:</td><td style={cellStyle} colSpan={3}>{formData.firstName} {formData.middleName} {formData.lastName}</td></tr>
-                  <tr><td style={labelStyle}>Father's Name:</td><td style={cellStyle} colSpan={3}>{formData.fatherName}</td></tr>
-                  <tr><td style={labelStyle}>Mother's Name:</td><td style={cellStyle} colSpan={3}>{formData.motherName}</td></tr>
-                  <tr><td style={labelStyle}>Students What's App No. 1:</td><td style={cellStyle}>{formData.studentWhatsApp1}</td><td style={labelStyle}>2:</td><td style={cellStyle}>{formData.studentWhatsApp2}</td></tr>
-                  <tr><td style={labelStyle}>Mobile No. (Father):</td><td style={cellStyle}>{formData.fatherWhatsApp}</td><td style={labelStyle}>Mobile No. (Mother):</td><td style={cellStyle}>{formData.motherPhone}</td></tr>
-                  <tr><td style={labelStyle}>Aadhaar Card No.:</td><td style={cellStyle}>{formData.aadhaarNumber}</td><td style={labelStyle}>Date of Birth:</td><td style={cellStyle}>{formData.dateOfBirth}</td></tr>
-                  
-                  <tr><td style={labelStyle} colSpan={4}>Permanent Address: {formData.permanentAddress}</td></tr>
-                  <tr><td style={labelStyle} colSpan={4}>Distt: {formData.permanentDistrict} &nbsp;&nbsp;&nbsp;&nbsp; State: {formData.permanentState} &nbsp;&nbsp;&nbsp;&nbsp; Pin Code: {formData.permanentPinCode}</td></tr>
-                  
-                  <tr><td style={labelStyle} colSpan={4}>Correspondence Address: {formData.correspondenceAddress}</td></tr>
-                  <tr><td style={labelStyle} colSpan={4}>Distt: {formData.correspondenceDistrict} &nbsp;&nbsp;&nbsp;&nbsp; State: {formData.correspondenceState} &nbsp;&nbsp;&nbsp;&nbsp; Pin Code: {formData.correspondencePinCode}</td></tr>
+              <tbody>
+                <tr><td style={{ ...labelStyle, width: "25%" }}>Student's Full Name:</td><td style={cellStyle} colSpan={3}>{formData.firstName} {formData.middleName} {formData.lastName}</td></tr>
+                <tr><td style={labelStyle}>Father's Name:</td><td style={cellStyle} colSpan={3}>{formData.fatherName}</td></tr>
+                <tr><td style={labelStyle}>Mother's Name:</td><td style={cellStyle} colSpan={3}>{formData.motherName}</td></tr>
+                <tr><td style={labelStyle}>Students What's App No. 1:</td><td style={cellStyle}>{formData.studentWhatsApp1}</td><td style={labelStyle}>2:</td><td style={cellStyle}>{formData.studentWhatsApp2}</td></tr>
+                <tr><td style={labelStyle}>Mobile No. (Father):</td><td style={cellStyle}>{formData.fatherWhatsApp}</td><td style={labelStyle}>Mobile No. (Mother):</td><td style={cellStyle}>{formData.motherPhone}</td></tr>
+                <tr><td style={labelStyle}>Aadhaar Card No.:</td><td style={cellStyle}>{formData.aadhaarNumber}</td><td style={labelStyle}>Date of Birth:</td><td style={cellStyle}>{formData.dateOfBirth}</td></tr>
 
-                  <tr><td style={labelStyle}>Email (Student):</td><td style={cellStyle} colSpan={2}>{formData.studentEmail}</td><td style={cellStyle}>Gender: {formData.gender}</td></tr>
-                  <tr><td style={labelStyle}>Email (Parent):</td><td style={cellStyle} colSpan={2}>{formData.parentEmail}</td><td style={cellStyle}>Category: {formData.category}</td></tr>
-                  
-                  <tr><td style={labelStyle} colSpan={4}>
-                    Caste: {formData.caste} &nbsp;&nbsp;&nbsp;&nbsp; Blood Group: {formData.bloodGroup} &nbsp;&nbsp;&nbsp;&nbsp; Religion: {formData.religion} &nbsp;&nbsp;&nbsp;&nbsp; Hostel Required(Y/N): {formData.hostelRequired}
-                  </td></tr>
-                  <tr><td style={labelStyle} colSpan={4}>
-                    Father's Occupation: {formData.fatherOccupation} &nbsp;&nbsp;&nbsp;&nbsp; Annual Income: {formData.annualIncome} &nbsp;&nbsp;&nbsp;&nbsp; SSSM ID: {formData.sssmId}
-                  </td></tr>
-               </tbody>
+                <tr><td style={labelStyle} colSpan={4}>Permanent Address: {formData.permanentAddress}</td></tr>
+                <tr><td style={labelStyle} colSpan={4}>Distt: {formData.permanentDistrict} &nbsp;&nbsp;&nbsp;&nbsp; State: {formData.permanentState} &nbsp;&nbsp;&nbsp;&nbsp; Pin Code: {formData.permanentPinCode}</td></tr>
+
+                <tr><td style={labelStyle} colSpan={4}>Correspondence Address: {formData.correspondenceAddress}</td></tr>
+                <tr><td style={labelStyle} colSpan={4}>Distt: {formData.correspondenceDistrict} &nbsp;&nbsp;&nbsp;&nbsp; State: {formData.correspondenceState} &nbsp;&nbsp;&nbsp;&nbsp; Pin Code: {formData.correspondencePinCode}</td></tr>
+
+                <tr><td style={labelStyle}>Email (Student):</td><td style={cellStyle} colSpan={2}>{formData.studentEmail}</td><td style={cellStyle}>Gender: {formData.gender}</td></tr>
+                <tr><td style={labelStyle}>Email (Parent):</td><td style={cellStyle} colSpan={2}>{formData.parentEmail}</td><td style={cellStyle}>Category: {formData.category}</td></tr>
+
+                <tr><td style={labelStyle} colSpan={4}>
+                  Caste: {formData.caste} &nbsp;&nbsp;&nbsp;&nbsp; Blood Group: {formData.bloodGroup} &nbsp;&nbsp;&nbsp;&nbsp; Religion: {formData.religion} &nbsp;&nbsp;&nbsp;&nbsp; Hostel Required(Y/N): {formData.hostelRequired}
+                </td></tr>
+                <tr><td style={labelStyle} colSpan={4}>
+                  Father's Occupation: {formData.fatherOccupation} &nbsp;&nbsp;&nbsp;&nbsp; Annual Income: {formData.annualIncome} &nbsp;&nbsp;&nbsp;&nbsp; SSSM ID: {formData.sssmId}
+                </td></tr>
+              </tbody>
             </table>
 
             <div style={{ fontWeight: "bold", backgroundColor: "#d9d9d9", border: "1px solid #000", padding: "2px 5px", fontSize: "10px", marginTop: "10px" }}>EDUCATIONAL DETAILS</div>
             <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000", marginBottom: "15px", fontSize: "10px" }}>
-               <thead style={{ backgroundColor: "#f0f0f0", textAlign: "center" }}>
-                  <tr>
-                    <td style={labelStyle}>Examination</td><td style={labelStyle}>Board/University</td><td style={labelStyle}>Roll No</td>
-                    <td style={labelStyle}>Marks Obtain</td><td style={labelStyle}>Max. Marks</td><td style={labelStyle}>%</td><td style={labelStyle}>Year of Passing</td>
+              <thead style={{ backgroundColor: "#f0f0f0", textAlign: "center" }}>
+                <tr>
+                  <td style={labelStyle}>Examination</td><td style={labelStyle}>Board/University</td><td style={labelStyle}>Roll No</td>
+                  <td style={labelStyle}>Marks Obtain</td><td style={labelStyle}>Max. Marks</td><td style={labelStyle}>%</td><td style={labelStyle}>Year of Passing</td>
+                </tr>
+              </thead>
+              <tbody style={{ textAlign: "center" }}>
+                {formData.academicDetailsAg2.map((row, i) => (
+                  <tr key={i}>
+                    <td style={cellStyle}>{row.examination}</td><td style={cellStyle}>{row.boardUniversity}</td><td style={cellStyle}>{row.rollNo}</td>
+                    <td style={cellStyle}>{row.marksObtain}</td><td style={cellStyle}>{row.maxMarks}</td><td style={cellStyle}>{row.percentage}</td><td style={cellStyle}>{row.yearOfPassing}</td>
                   </tr>
-               </thead>
-               <tbody style={{ textAlign: "center" }}>
-                  {formData.academicDetailsAg2.map((row, i) => (
-                    <tr key={i}>
-                      <td style={cellStyle}>{row.examination}</td><td style={cellStyle}>{row.boardUniversity}</td><td style={cellStyle}>{row.rollNo}</td>
-                      <td style={cellStyle}>{row.marksObtain}</td><td style={cellStyle}>{row.maxMarks}</td><td style={cellStyle}>{row.percentage}</td><td style={cellStyle}>{row.yearOfPassing}</td>
-                    </tr>
-                  ))}
-               </tbody>
+                ))}
+              </tbody>
             </table>
 
           </div>
@@ -504,12 +504,12 @@ const Admissiontemplateag2 = () => {
           {/* PAGE 2: ADMISSION INQUIRY FORM */}
           <div ref={page2Ref} style={{ ...pageStyle, display: "none" }}>
             <div style={{ textAlign: "center", border: "1px solid #000", padding: "5px", marginBottom: "10px", fontWeight: "bold" }}>
-               ADMISSION INQUIRY FORM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date: {new Date().toLocaleDateString()}
+              ADMISSION INQUIRY FORM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date: {new Date().toLocaleDateString()}
             </div>
-            
+
             {/* The pre-printed matrix for courses would be hard to hardcode perfectly, so we just summarize the preferences */}
             <div style={{ border: "1px solid #000", padding: "5px", marginBottom: "10px" }}>
-               <b>Branch/Course Preference :</b> 1. {formData.branchPreference1} &nbsp;&nbsp;&nbsp; 2. {formData.branchPreference2} &nbsp;&nbsp;&nbsp; 3. {formData.branchPreference3}
+              <b>Branch/Course Preference :</b> 1. {formData.branchPreference1} &nbsp;&nbsp;&nbsp; 2. {formData.branchPreference2} &nbsp;&nbsp;&nbsp; 3. {formData.branchPreference3}
             </div>
 
             <table style={{ width: "100%", tableLayout: "fixed" }}>
@@ -532,12 +532,12 @@ const Admissiontemplateag2 = () => {
                     <div style={{ marginBottom: "3px" }}>Distt: <u>{formData.permanentDistrict}</u> &nbsp;&nbsp; State: <u>{formData.permanentState}</u> &nbsp;&nbsp; Pin Code: <u>{formData.permanentPinCode}</u></div>
                   </td>
                   <td style={{ verticalAlign: "top", width: "40%" }}>
-                     <div style={{ fontWeight: "bold", marginBottom: "5px" }}>Documents List:</div>
-                     {documentOptions.map((doc) => (
-                        <div key={doc} style={{ marginBottom: "3px" }}>
-                          [{formData.documentsList.includes(doc) ? "X" : " "}] {doc}
-                        </div>
-                     ))}
+                    <div style={{ fontWeight: "bold", marginBottom: "5px" }}>Documents List:</div>
+                    {documentOptions.map((doc) => (
+                      <div key={doc} style={{ marginBottom: "3px" }}>
+                        [{formData.documentsList.includes(doc) ? "X" : " "}] {doc}
+                      </div>
+                    ))}
                   </td>
                 </tr>
               </tbody>
@@ -545,38 +545,38 @@ const Admissiontemplateag2 = () => {
 
             <div style={{ fontWeight: "bold", marginTop: "15px", marginBottom: "5px" }}>Academic Details:</div>
             <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000", marginBottom: "15px", fontSize: "10px" }}>
-               <thead style={{ backgroundColor: "#f0f0f0", textAlign: "center" }}>
-                  <tr>
-                    <td style={labelStyle}>Examination</td><td style={labelStyle}>Board/University</td><td style={labelStyle}>Roll No</td>
-                    <td style={labelStyle}>Marks Obtain</td><td style={labelStyle}>Max. Marks</td><td style={labelStyle}>%</td><td style={labelStyle}>Year of Passing</td>
+              <thead style={{ backgroundColor: "#f0f0f0", textAlign: "center" }}>
+                <tr>
+                  <td style={labelStyle}>Examination</td><td style={labelStyle}>Board/University</td><td style={labelStyle}>Roll No</td>
+                  <td style={labelStyle}>Marks Obtain</td><td style={labelStyle}>Max. Marks</td><td style={labelStyle}>%</td><td style={labelStyle}>Year of Passing</td>
+                </tr>
+              </thead>
+              <tbody style={{ textAlign: "center" }}>
+                {formData.academicDetailsAg2.map((row, i) => (
+                  <tr key={i}>
+                    <td style={cellStyle}>{row.examination}</td><td style={cellStyle}>{row.boardUniversity}</td><td style={cellStyle}>{row.rollNo}</td>
+                    <td style={cellStyle}>{row.marksObtain}</td><td style={cellStyle}>{row.maxMarks}</td><td style={cellStyle}>{row.percentage}</td><td style={cellStyle}>{row.yearOfPassing}</td>
                   </tr>
-               </thead>
-               <tbody style={{ textAlign: "center" }}>
-                  {formData.academicDetailsAg2.map((row, i) => (
-                    <tr key={i}>
-                      <td style={cellStyle}>{row.examination}</td><td style={cellStyle}>{row.boardUniversity}</td><td style={cellStyle}>{row.rollNo}</td>
-                      <td style={cellStyle}>{row.marksObtain}</td><td style={cellStyle}>{row.maxMarks}</td><td style={cellStyle}>{row.percentage}</td><td style={cellStyle}>{row.yearOfPassing}</td>
-                    </tr>
-                  ))}
-               </tbody>
+                ))}
+              </tbody>
             </table>
 
             <div style={{ fontWeight: "bold", backgroundColor: "#d9d9d9", border: "1px solid #000", padding: "2px 5px", fontSize: "10px", marginTop: "10px" }}>Office Use Only:</div>
             <div style={{ border: "1px solid #000", padding: "10px", fontSize: "11px" }}>
-               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
-                  <div>Counselor Name: <u>{formData.counselorName}</u></div>
-                  <div>Student's Signature: .......................................</div>
-               </div>
-               <div style={{ marginBottom: "15px" }}>Reference Name: <u>{formData.referenceName}</u></div>
-               <div>
-                 <span style={{ fontWeight: "bold", marginRight: "10px" }}>Source:</span>
-                 {sourceOptions.map((src) => (
-                    <span key={src} style={{ marginRight: "10px" }}>[{formData.sourceOfInquiry.includes(src) ? "X" : " "}] {src}</span>
-                 ))}
-                 <span>
-                    [{formData.sourceOfInquiry.includes("Other") ? "X" : " "}] Other (<u>{formData.otherSourceText}</u>)
-                 </span>
-               </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
+                <div>Counselor Name: <u>{formData.counselorName}</u></div>
+                <div>Student's Signature: .......................................</div>
+              </div>
+              <div style={{ marginBottom: "15px" }}>Reference Name: <u>{formData.referenceName}</u></div>
+              <div>
+                <span style={{ fontWeight: "bold", marginRight: "10px" }}>Source:</span>
+                {sourceOptions.map((src) => (
+                  <span key={src} style={{ marginRight: "10px" }}>[{formData.sourceOfInquiry.includes(src) ? "X" : " "}] {src}</span>
+                ))}
+                <span>
+                  [{formData.sourceOfInquiry.includes("Other") ? "X" : " "}] Other (<u>{formData.otherSourceText}</u>)
+                </span>
+              </div>
             </div>
 
           </div>

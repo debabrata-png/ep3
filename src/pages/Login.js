@@ -261,6 +261,8 @@ function Login() {
       } else if (response.data.role == 'HoD') {
         //history.replace('/dasherp1');
         return <Navigate to="/viewcourse1" />;
+      } else if (response.data.role == 'CRM') {
+        navigate('/crmh-dashboard');
       }
 
 

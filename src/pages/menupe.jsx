@@ -54,11 +54,10 @@ export function menupe() {
     const open = true;
     return (
         <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
-
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    <Typography sx={{ fontSize: 14 }}>Purchase Module</Typography>
+                    <Typography sx={{ fontSize: 14 }}>Purchase Module Old</Typography>
 
                 </AccordionSummary>
                 <AccordionDetails>
@@ -84,6 +83,43 @@ export function menupe() {
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
                     </ListItem>
                     <ListItem button component={RouterLink} to="/role/purchasing-master-data">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
+                    </ListItem>
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion>
+                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    <Typography sx={{ fontSize: 14 }}>Purchase Module</Typography>
+
+                </AccordionSummary>
+                <AccordionDetails>
+
+                    <ListItem button component={RouterLink} to="/role/oe-dashboard2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PE Dashboard" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/role/cash-approval2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/purchasing-master-data2">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
@@ -133,7 +169,7 @@ export function menupe() {
                     {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/studentprofiledsoct18">
+                    <ListItem button component={RouterLink} to="/role/staff-profile2">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>

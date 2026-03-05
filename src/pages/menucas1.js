@@ -55,7 +55,8 @@ import { menulibrary } from './menulibrary';
 import { menuspe } from './menuspe';
 import { menuhostel1 } from './menuhostel1';
 import { menualumni } from './menualumni';
-
+import { menuquality } from "./menuquality";
+import { menusecurity } from "./menusecurity"
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
@@ -236,6 +237,14 @@ export function mainListItems({ open }) {
     } else if (role1 === "Alumni") {
       <div>
         {menualumni()}
+      </div>
+    } else if (role1 === "Quality") {
+      <div>
+        {menuquality()}
+      </div>
+    } else if (role1 === "Security") {
+      <div>
+        {menusecurity()}
       </div>
     }
 

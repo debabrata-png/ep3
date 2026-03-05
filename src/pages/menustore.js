@@ -261,7 +261,7 @@ export function menustore() {
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Purchase New</Typography>}
+          {open && <Typography sx={{ fontSize: 14 }}>Purchase Old</Typography>}
         </AccordionSummary>
         <AccordionDetails>
 
@@ -281,13 +281,37 @@ export function menustore() {
         </AccordionDetails>
       </Accordion>
 
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Purchase New</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/role/store-manager-dashboard2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/delivery-dashboard2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Delivery Management" />}
+          </ListItem>
+
+        </AccordionDetails>
+      </Accordion>
+
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />
           {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
         </AccordionSummary>
         <AccordionDetails>
-          <ListItem button component={RouterLink} to="/role/staff-profile">
+          <ListItem button component={RouterLink} to="/role/staff-profile2">
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>

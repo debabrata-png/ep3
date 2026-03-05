@@ -1438,91 +1438,112 @@ export function menuitemsall() {
 
 
       <Accordion>
-        <AccordionSummary aria-controls="panel2-content" id="panel2-header">
-          <SettingsIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Fees</Typography>}
-        </AccordionSummary>
-        <AccordionDetails>
-
-
-
-
-
-          <ListItem button component={RouterLink} to="/dashmfees">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fee configuration" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/dashmledgerstud">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Ledger" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/dashmmfeescol">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees collection" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/dashmfeespay">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees payment" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/dashmmfeescolbydate">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees Datewise" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/dashfeescolaggr">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees Datewise Total" />}
-          </ListItem>
-
-
-          <ListItem button component={RouterLink} to="/studentledgerreportds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Studentwise Pending" />}
-          </ListItem>
-
-
-          <ListItem button component={RouterLink} to="/collegerepledgerreportds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Programwise Pending" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/ledgerstudpageds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Installments" />}
-          </ListItem>
-
-          <ListItem button component={RouterLink} to="/ledgerinstallmentpageds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Installments student ledger" />}
-          </ListItem>
-
-
-
-        </AccordionDetails>
-      </Accordion>
+              <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+                <SettingsIcon sx={{ marginRight: 1 }} />
+                {open && <Typography sx={{ fontSize: 14 }}>Fees</Typography>}
+              </AccordionSummary>
+              <AccordionDetails>
+      
+      
+      
+      
+      
+                <ListItem button component={RouterLink} to="/dashmfees">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fee configuration" />}
+                </ListItem>
+                <ListItem button component={RouterLink} to="/dashmledgerstud">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Ledger" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/dashmmfeescol">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees collection" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/dashmfeespay">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees payment" />}
+                </ListItem>
+      
+                 <ListItem button component={RouterLink} to="/feesummaryreport">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fee Summary report" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/studentledgerreport">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Studentwise Ledger report" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/programfeereport">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Programwise fee received" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/dashmmfeescolbydate">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees Datewise" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/dashfeescolaggr">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees Datewise Total" />}
+                </ListItem>
+      
+      
+                <ListItem button component={RouterLink} to="/studentledgerreportds">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Studentwise Pending" />}
+                </ListItem>
+      
+      
+                <ListItem button component={RouterLink} to="/collegerepledgerreportds">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Programwise Pending" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/ledgerstudpageds">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Installments" />}
+                </ListItem>
+      
+                <ListItem button component={RouterLink} to="/ledgerinstallmentpageds">
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Installments student ledger" />}
+                </ListItem>
+      
+      
+      
+              </AccordionDetails>
+            </Accordion>
 
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
