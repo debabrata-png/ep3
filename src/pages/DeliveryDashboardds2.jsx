@@ -26,12 +26,6 @@ const DeliveryDashboardds2 = () => {
     const [billDate, setBillDate] = useState('');
 
     useEffect(() => {
-        // Restore global1 if missing
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-        }
         fetchApprovedPOs();
     }, []);
 
@@ -144,16 +138,31 @@ const DeliveryDashboardds2 = () => {
     };
 
     const handlePrintGRN = (po, fromDialog = false) => {
-        // Generate GRN Number: YYYY-MM-DD-Random
-        const date = new Date();
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-        const random = Math.floor(1000 + Math.random() * 9000);
-        // Prefix matching the example image somewhat or default
-        const grnNumber = `GRNCSPU/ ${yyyy}${mm}${dd}${random}`;
+        // Generate sequential GRN Number: GRN-{YYYY}{MM}{seq}
+        const grnGenerate = async () => {
+            const date = new Date();
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const grnBase = `GRN-${yyyy}${mm}`;
+            let seq = 1;
+            try {
+                const seqRes = await ep1.get(`/api/v2/getallpgrnds2?colid=${global1.colid}`);
+                const allGRNs = seqRes.data.data?.grns || seqRes.data.data || [];
+                const matching = allGRNs.filter(g => g.grnNo && g.grnNo.startsWith(grnBase));
+                if (matching.length > 0) {
+                    const maxSeq = Math.max(...matching.map(g => {
+                        const parts = g.grnNo.split('-');
+                        return parseInt(parts[parts.length - 1], 10) || 0;
+                    }));
+                    seq = maxSeq + 1;
+                }
+            } catch (e) { console.error('Error fetching GRNs for sequence:', e); }
+            return `${grnBase}-${String(seq).padStart(3, '0')}`;
+        };
+        const grnNumber_placeholder = null; // replaced by async grnGenerate
 
         const printProcess = async () => {
+            const grnNumber = await grnGenerate();
             let itemsToPrint = [];
 
             if (fromDialog) {

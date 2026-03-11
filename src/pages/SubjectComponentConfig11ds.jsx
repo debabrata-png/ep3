@@ -37,9 +37,11 @@ const SubjectComponentConfig11ds = () => {
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const [semester, setSemester] = useState('11'); // Default to 11
     const [academicyear, setAcademicyear] = useState('2025-2026'); // Default
+    const [section, setSection] = useState(''); // Section = Stream (A=Science, B=Commerce, C=Arts)
 
     const [availableSemesters, setAvailableSemesters] = useState([]);
     const [availableYears, setAvailableYears] = useState([]);
+    const [availableSections, setAvailableSections] = useState([]);
 
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -64,7 +66,14 @@ const SubjectComponentConfig11ds = () => {
         if (semester && academicyear) {
             fetchSubjects();
         }
-    }, [semester, academicyear]);
+    }, [semester, academicyear, section]);
+
+    // Re-fetch sections from User table whenever semester changes
+    useEffect(() => {
+        if (semester) {
+            fetchSectionsBySemester(semester);
+        }
+    }, [semester]);
 
     const fetchSemestersAndYears = async () => {
         try {
@@ -74,13 +83,33 @@ const SubjectComponentConfig11ds = () => {
             if (response.data.success) {
                 setAvailableSemesters(response.data.semesters || []);
                 setAvailableYears(response.data.admissionyears || []);
-                // Set defaults if available and not set
-                if (!semester && response.data.semesters.length > 0) setSemester(response.data.semesters[0]);
+                const sem = response.data.semesters?.[0] || semester;
+                if (!semester && sem) setSemester(sem);
                 if (!academicyear && response.data.admissionyears.length > 0) setAcademicyear(response.data.admissionyears[0]);
+                // sections will be fetched by the semester useEffect
             }
         } catch (error) {
             console.error('Error fetching semesters/years:', error);
             showSnackbar('Failed to fetch filter data', 'error');
+        }
+    };
+
+    // Fetch sections from User table filtered by the selected semester
+    const fetchSectionsBySemester = async (sem) => {
+        try {
+            const response = await ep1.get('/api/v2/getdistinctsectionsbyclass9ds', {
+                params: { colid: global1.colid, semester: sem }
+            });
+            if (response.data.success) {
+                const secs = response.data.sections || [];
+                setAvailableSections(secs);
+                // Auto-select first section if current selection not in list
+                if (secs.length > 0 && !secs.includes(section)) {
+                    setSection(secs[0]);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching sections:', error);
         }
     };
 
@@ -91,7 +120,8 @@ const SubjectComponentConfig11ds = () => {
                 params: {
                     colid: global1.colid,
                     semester,
-                    academicyear
+                    academicyear,
+                    section  // Pass section to get stream-specific subjects
                 }
             });
             if (response.data.success) {
@@ -157,8 +187,9 @@ const SubjectComponentConfig11ds = () => {
                 user: global1.user,
                 semester,
                 academicyear,
+                section,  // Include section/stream
                 ...formData,
-                name: formData.subjectname // Mapping name to subjectname if required by schema
+                name: formData.subjectname
             };
 
             if (editMode && selectedSubjectId) {
@@ -208,7 +239,7 @@ const SubjectComponentConfig11ds = () => {
             <Card sx={{ mb: 3 }}>
                 <CardContent>
                     <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <TextField
                                 select
                                 fullWidth
@@ -221,7 +252,7 @@ const SubjectComponentConfig11ds = () => {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <TextField
                                 select
                                 fullWidth
@@ -234,12 +265,25 @@ const SubjectComponentConfig11ds = () => {
                                 ))}
                             </TextField>
                         </Grid>
+                        <Grid item xs={12} md={2}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Section (Stream)"
+                                value={section}
+                                onChange={(e) => setSection(e.target.value)}
+                            >
+                                {availableSections.map((sec) => (
+                                    <MenuItem key={sec} value={sec}>{sec}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
                         <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
                             <Button
                                 variant="contained"
                                 startIcon={<Add />}
                                 onClick={() => handleOpenDialog()}
-                                disabled={!semester || !academicyear}
+                                disabled={!semester || !academicyear || !section}
                             >
                                 Add Subject
                             </Button>
@@ -254,6 +298,7 @@ const SubjectComponentConfig11ds = () => {
                         <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
                             <TableCell>Subject Code</TableCell>
                             <TableCell>Subject Name</TableCell>
+                            <TableCell align="center">Section</TableCell>
                             <TableCell align="center">Unit (Pre+Post)</TableCell>
                             <TableCell align="center">Half Yearly (Th+Pr)</TableCell>
                             <TableCell align="center">Annual (Th+Pr)</TableCell>
@@ -267,6 +312,7 @@ const SubjectComponentConfig11ds = () => {
                             <TableRow key={subject._id}>
                                 <TableCell>{subject.subjectcode}</TableCell>
                                 <TableCell>{subject.subjectname}</TableCell>
+                                <TableCell align="center">{subject.section || '-'}</TableCell>
                                 <TableCell align="center">{subject.unitpremid} + {subject.unitpostmid}</TableCell>
                                 <TableCell align="center">{subject.halfyearlyth} + {subject.halfyearlypractical}</TableCell>
                                 <TableCell align="center">{subject.annualth} + {subject.annualpractical}</TableCell>

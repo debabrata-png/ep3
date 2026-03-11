@@ -84,13 +84,6 @@ const PurchasingMasterDatads2 = () => {
 
     useEffect(() => {
         setLoading(true);
-        // Restore global1 if missing (on reload)
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-            global1.department = localStorage.getItem('department');
-        }
 
         const fetchData = async () => {
             const page = paginationModel.page + 1;
@@ -463,7 +456,7 @@ const PurchasingMasterDatads2 = () => {
                 <>
                     <FormControl fullWidth margin="dense">
                         <Autocomplete
-                            options={vendors}
+                            options={[...vendors].sort((a, b) => (a.vendorname || a.name || "").localeCompare(b.vendorname || b.name || ""))}
                             getOptionLabel={(option) => option.vendorname || option.name || ""}
                             value={vendors.find(v => v._id === currentItem.vendorid) || null}
                             onChange={(event, newValue) => setCurrentItem({ ...currentItem, vendorid: newValue ? newValue._id : '' })}
@@ -472,7 +465,7 @@ const PurchasingMasterDatads2 = () => {
                     </FormControl>
                     <FormControl fullWidth margin="dense">
                         <Autocomplete
-                            options={items}
+                            options={[...items].sort((a, b) => (a.itemname || a.name || "").localeCompare(b.itemname || b.name || ""))}
                             getOptionLabel={(option) => option.itemname || option.name || ""}
                             value={items.find(i => i._id === currentItem.itemid) || null}
                             onChange={(event, newValue) => setCurrentItem({ ...currentItem, itemid: newValue ? newValue._id : '' })}

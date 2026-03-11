@@ -48,11 +48,14 @@ function ViewPage() {
   const link5 = "https://campustechnology1.netlify.app/admissiontemplateann1/" + colid;
   const link6 = "https://campustechnology1.netlify.app/admissiontemplateann2/" + colid;
   const link7 = "https://campustechnology1.netlify.app/admissiontemplateann3/" + colid;
-  const link8 = "https://campustechnology1.netlify.app/admission/1/" + colid;
-  const link9 = "https://campustechnology1.netlify.app/admission/2/" + colid;
-  const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
+  // const link8 = "https://campustechnology1.netlify.app/admission/1/" + colid;
+  // const link9 = "https://campustechnology1.netlify.app/admission/2/" + colid;
+  // const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
   const link11 = "https://campustechnology1.netlify.app/admissionag/1/" + colid;
   const link12 = "https://campustechnology1.netlify.app/admissionag/2/" + colid;
+  const link8 = "http://localhost:3000/admission/1/" + colid;
+  const link9 = "http://localhost:3000/admission/2/" + colid;
+  const link10 = "http://localhost:3000/admission/3/" + colid;
 
   const keywordsref = useRef();
   const policyref = useRef();

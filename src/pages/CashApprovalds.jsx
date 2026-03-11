@@ -161,12 +161,12 @@ const generatePDF = (request) => {
 const CashApprovalds = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        colid: global1.colid || localStorage.getItem('colid'),
-        user: global1.user || localStorage.getItem('user'),
-        name: global1.student || localStorage.getItem('name'), // Assuming name comes from student or similar field in global1
+        colid: global1.colid,
+        user: global1.user,
+        name: global1.name,
         approvalNo: "",
         date: new Date().toISOString().split("T")[0],
-        dept: global1.department || localStorage.getItem('department') || "",
+        dept: global1.department || "",
         supplierName: "",
         supplierId: "", // Added
         subject: "",
@@ -210,22 +210,13 @@ const CashApprovalds = () => {
     const [vendorItems, setVendorItems] = useState([]);
 
     useEffect(() => {
-        // Restore global1 if missing (on reload)
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-            global1.department = localStorage.getItem('department');
-        }
-
         fetchHistory();
         fetchMasterData();
-        // Set default user info if available
         setFormData((prev) => ({
             ...prev,
             colid: global1.colid,
-            user: global1.user, // email
-            name: global1.student || global1.name || "User",
+            user: global1.user,
+            name: global1.name || "User",
             dept: global1.department || prev.dept
         }));
     }, []);

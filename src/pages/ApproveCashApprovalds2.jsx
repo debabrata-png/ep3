@@ -87,7 +87,7 @@ const ApproveCashApprovalds2 = () => {
 
         let y = 40;
         doc.text(`No.: ${request.approvalNo || "N/A"}`, 15, y);
-        doc.text(`Date: ${new Date(request.date).toLocaleDateString()}`, 150, y);
+        doc.text(`Date: ${new Date(request.date).toLocaleDateString('en-GB')}`, 150, y);
 
         y += 10;
         doc.text(`Department: ${request.dept || "N/A"}`, 15, y);
@@ -203,7 +203,7 @@ const ApproveCashApprovalds2 = () => {
                         ) : (
                             requests.map((req) => (
                                 <TableRow key={req._id}>
-                                    <TableCell>{new Date(req.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(req.date).toLocaleDateString('en-GB')}</TableCell>
                                     <TableCell>{req.name || req.user}</TableCell>
                                     <TableCell>{req.subject}</TableCell>
                                     <TableCell>{req.grandTotal}</TableCell>
@@ -247,7 +247,7 @@ const ApproveCashApprovalds2 = () => {
                             <Typography variant="h5" gutterBottom>{selectedRequest.subject}</Typography>
                             <Divider sx={{ mb: 2 }} />
                             <Grid container spacing={2} mb={2}>
-                                <Grid item xs={6}><Typography><strong>Date:</strong> {new Date(selectedRequest.date).toLocaleDateString()}</Typography></Grid>
+                                <Grid item xs={6}><Typography><strong>Date:</strong> {new Date(selectedRequest.date).toLocaleDateString('en-GB')}</Typography></Grid>
                                 <Grid item xs={6}><Typography><strong>Department:</strong> {selectedRequest.dept}</Typography></Grid>
                                 <Grid item xs={6}><Typography><strong>Supplier:</strong> {selectedRequest.supplierName}</Typography></Grid>
                                 <Grid item xs={6}><Typography><strong>Status:</strong> {selectedRequest.status}</Typography></Grid>

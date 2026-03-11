@@ -37,6 +37,12 @@ const Dashboardds = () => {
       route: "/categoryds",
     },
     {
+      title: "Category Management",
+      description: "Manage system categories and education qualifications",
+      icon: <CategoryIcon sx={{ fontSize: 48, color: "#9c27b0" }} />,
+      route: "/categoryag1",
+    },
+    {
       title: "Leads Management",
       description: "View and manage all leads",
       icon: <LeadsIcon sx={{ fontSize: 48, color: "#2e7d32" }} />,

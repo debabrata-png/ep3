@@ -17,12 +17,6 @@ const StoreUserAccessds2 = () => {
     const [selectedStore, setSelectedStore] = useState(null);
 
     useEffect(() => {
-        // Restore global context if needed
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-        }
-
         fetchData();
     }, []);
 
@@ -47,6 +41,8 @@ const StoreUserAccessds2 = () => {
             // 3. Fetch Existing Mappings
             const mapRes = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
             setMappings(mapRes.data.data.storeUsers || []);
+            console.log(mapRes.data.data.storeUsers);
+
 
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -67,7 +63,7 @@ const StoreUserAccessds2 = () => {
                 userid: selectedUser._id, // Optional but good for ref
                 store: selectedStore.storename,
                 storeid: selectedStore._id,
-                colid: global1.colid,
+                colid: Number(global1.colid),
 
                 // Fields required by model but maybe redundant for logic
                 storeuser: selectedUser.username || selectedUser.email,

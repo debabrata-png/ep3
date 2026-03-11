@@ -48,8 +48,10 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
     const [approvalConfig, setApprovalConfig] = useState([]);
     const [poConfig, setPoConfig] = useState({ notes: '', terms: '' });
 
-    const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-    const [rowCount, setRowCount] = useState(0);
+    const [prPaginationModel, setPrPaginationModel] = useState({ page: 0, pageSize: 10 });
+    const [poPaginationModel, setPoPaginationModel] = useState({ page: 0, pageSize: 10 });
+    const [prRowCount, setPrRowCount] = useState(0);
+    const [poRowCount, setPoRowCount] = useState(0);
     const [loading, setLoading] = useState(false);
 
     // Add-to-PO Modal State
@@ -73,31 +75,27 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
     const [deliveryTypes, setDeliveryTypes] = useState([]);
 
     useEffect(() => {
-        setPaginationModel({ page: 0, pageSize: 10 });
-    }, [tabValue]);
-
-    useEffect(() => {
         setLoading(true);
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-            global1.department = localStorage.getItem('department');
-        }
 
         const fetchData = async () => {
-            const page = paginationModel.page + 1;
-            const limit = paginationModel.pageSize;
-            if (tabValue === 0) await fetchStoreRequests(page, limit);
+            if (tabValue === 0) {
+                const page = prPaginationModel.page + 1;
+                const limit = prPaginationModel.pageSize;
+                await fetchStoreRequests(page, limit);
+            }
             if (tabValue === 1) {
                 await fetchStoreRequests();
                 fetchVendors(); fetchAllItems(); fetchVendorItems(); fetchPoConfig(); fetchDeliveryTypes();
             }
-            if (tabValue === 2) { await fetchPOs(page, limit); fetchApprovalConfig(); fetchPoConfig(); fetchDeliveryTypes(); }
+            if (tabValue === 2) {
+                const page = poPaginationModel.page + 1;
+                const limit = poPaginationModel.pageSize;
+                await fetchPOs(page, limit); fetchApprovalConfig(); fetchPoConfig(); fetchDeliveryTypes();
+            }
             setLoading(false);
         };
         fetchData();
-    }, [tabValue, paginationModel]);
+    }, [tabValue, prPaginationModel, poPaginationModel]);
 
     const fetchPoConfig = async () => {
         try {
@@ -115,14 +113,15 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
 
     const fetchStoreRequests = async (page, limit) => {
         try {
+            const cacheBuster = `_t=${new Date().getTime()}`;
             let url;
             // Always use global1.role — never the static 'OE' prop from OEDashboardds2
             if (currentRole === 'OE' || currentRole === 'PE' || currentRole === 'SPE') {
-                url = page ? `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&page=${page}&limit=${limit}&user=${global1.user}`
-                    : `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&user=${global1.user}`;
+                url = page ? `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&page=${page}&limit=${limit}&user=${global1.user}&${cacheBuster}`
+                    : `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&user=${global1.user}&${cacheBuster}`;
             } else {
-                url = page ? `/api/v2/getallstorerequisationds2?colid=${global1.colid}&page=${page}&limit=${limit}`
-                    : `/api/v2/getallstorerequisationds2?colid=${global1.colid}`;
+                url = page ? `/api/v2/getallstorerequisationds2?colid=${global1.colid}&page=${page}&limit=${limit}&${cacheBuster}`
+                    : `/api/v2/getallstorerequisationds2?colid=${global1.colid}&${cacheBuster}`;
             }
             const response = await ep1.get(url);
             let reqs = response.data.data.requisitions || [];
@@ -144,7 +143,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             }
 
             setStoreRequests(reqs);
-            if (page) setRowCount(response.data.total || response.data.count || 0);
+            if (page) setPrRowCount(response.data.total || response.data.count || 0);
         } catch (error) { console.error(error); }
     };
 
@@ -171,11 +170,14 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
 
     const fetchPOs = async (page, limit) => {
         try {
-            const url = page ? `/api/v2/getallstorepoorderds2?colid=${global1.colid}&page=${page}&limit=${limit}` : `/api/v2/getallstorepoorderds2?colid=${global1.colid}`;
+            const cacheBuster = `_t=${new Date().getTime()}`;
+            const url = page
+                ? `/api/v2/getallstorepoorderds2?colid=${global1.colid}&page=${page}&limit=${limit}&${cacheBuster}`
+                : `/api/v2/getallstorepoorderds2?colid=${global1.colid}&${cacheBuster}`;
             const response = await ep1.get(url);
             const orders = response.data.data.poOrders || [];
             setPurchaseOrders(orders.map(p => ({ ...p, id: p._id })));
-            if (page) setRowCount(response.data.total || response.data.count || 0);
+            if (page) setPoRowCount(response.data.total || response.data.count || 0);
         } catch (error) { console.error(error); }
     };
 
@@ -350,12 +352,31 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             let targetPOId = selectedDraftPO;
 
             if (poCreationMode === 'NEW') {
+                // Generate sequential PO number: PO-{YYYY}{MM}{seq}
+                const poDate = new Date();
+                const poYYYY = poDate.getFullYear();
+                const poMM = String(poDate.getMonth() + 1).padStart(2, '0');
+                const poBase = `PO-${poYYYY}${poMM}`;
+                let poSeq = 1;
+                try {
+                    const seqRes = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
+                    const allPOs = seqRes.data.data.poOrders || seqRes.data.data.pos || [];
+                    const matching = allPOs.filter(p => p.poid && p.poid.startsWith(poBase));
+                    if (matching.length > 0) {
+                        const maxSeq = Math.max(...matching.map(p => {
+                            const parts = p.poid.split('-');
+                            return parseInt(parts[parts.length - 1], 10) || 0;
+                        }));
+                        poSeq = maxSeq + 1;
+                    }
+                } catch (e) { console.error('Error fetching POs for sequence:', e); }
+                const newPOId = `${poBase}-${String(poSeq).padStart(3, '0')}`;
                 const poPayload = {
-                    name: `PO-${Date.now()}`,
+                    name: newPOId,
                     vendorid: poModalVendor,
                     vendor: vendorObj?.vendorname,
                     year: new Date().getFullYear().toString(),
-                    poid: `PO-${Date.now()}`,
+                    poid: newPOId,
                     postatus: 'Draft',
                     deliveryType: selectedPODeliveryType,
                     poType: 'Standard',
@@ -413,7 +434,8 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
 
             alert('Added to PO successfully! View in Manage POs → Draft.');
             setOpenPOModal(false);
-            fetchStoreRequests(paginationModel.page + 1, paginationModel.pageSize);
+            setPoPaginationModel({ page: 0, pageSize: 10 });
+            setTabValue(2); // Auto-switch to Manage POs tab to see the new PO
         } catch (err) {
             console.error(err);
             alert('Failed: ' + (err.response?.data?.message || err.message));
@@ -469,7 +491,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
         try {
             await ep1.post('/api/v2/requestpoedit2', { id: poId, user: global1.user });
             alert("Edit Request sent to Manager");
-            fetchPOs(paginationModel.page + 1, paginationModel.pageSize);
+            fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize);
         } catch (e) {
             console.error(e);
             alert("Failed to request edit");
@@ -480,7 +502,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
         try {
             await ep1.post(`/api/v2/updatestorepoorderds2?id=${poId}`, { postatus: 'Submitted' });
             alert("PO Submitted Successfully");
-            fetchPOs(paginationModel.page + 1, paginationModel.pageSize);
+            fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize);
         } catch (e) {
             console.error(e);
             alert("Failed to submit PO");
@@ -491,7 +513,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
         try {
             await ep1.post('/api/v2/approvepoedit2', { id: poId, user: global1.user, approved });
             alert(`Edit Request ${approved ? 'Approved' : 'Rejected'}.`);
-            fetchPOs(paginationModel.page + 1, paginationModel.pageSize);
+            fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize);
         } catch (e) {
             console.error(e);
             alert("Failed to review edit request");
@@ -511,12 +533,31 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             const totalAmount = poItems.reduce((sum, item) => sum + (Number(item.total || 0)), 0);
 
             if (!isEditMode) {
+                // Generate sequential PO number: PO-{YYYY}{MM}{seq}
+                const poDate = new Date();
+                const poYYYY = poDate.getFullYear();
+                const poMM = String(poDate.getMonth() + 1).padStart(2, '0');
+                const poBase = `PO-${poYYYY}${poMM}`;
+                let poSeq = 1;
+                try {
+                    const seqRes = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
+                    const allPOs = seqRes.data.data.poOrders || seqRes.data.data.pos || [];
+                    const matching = allPOs.filter(p => p.poid && p.poid.startsWith(poBase));
+                    if (matching.length > 0) {
+                        const maxSeq = Math.max(...matching.map(p => {
+                            const parts = p.poid.split('-');
+                            return parseInt(parts[parts.length - 1], 10) || 0;
+                        }));
+                        poSeq = maxSeq + 1;
+                    }
+                } catch (e) { console.error('Error fetching POs for sequence:', e); }
+                const newPOId = `${poBase}-${String(poSeq).padStart(3, '0')}`;
                 const poPayload = {
-                    name: `PO-${Date.now()}`,
+                    name: newPOId,
                     vendorid: selectedVendor,
                     vendor: vendorObj?.vendorname,
                     year: new Date().getFullYear().toString(),
-                    poid: `PO-${Date.now()}`,
+                    poid: newPOId,
                     postatus: 'Draft',
                     deliveryType: selectedPODeliveryType || 'Physical Delivery',
                     colid: global1.colid,
@@ -579,8 +620,9 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             setIsEditMode(false);
             setEditingPOId(null);
             setEditingPOObj(null);
+            setPoPaginationModel({ page: 0, pageSize: poPaginationModel.pageSize });
             setTabValue(2);
-            fetchPOs();
+            // fetchPOs is handled by useEffect when tabValue or poPaginationModel changes
         } catch (error) {
             console.error('Error saving PO:', error);
             alert('Failed to save PO');
@@ -594,7 +636,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                 user_email: global1.user
             });
             alert('Step Verified Successfully');
-            fetchPOs();
+            fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize);
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || 'Failed to verify step');
@@ -728,7 +770,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             setSelectedReqForAssign(null);
             setSelectedOEUser('');
             setIsReassigningReq(false);
-            fetchStoreRequests(paginationModel.page + 1, paginationModel.pageSize);
+            fetchStoreRequests(prPaginationModel.page + 1, prPaginationModel.pageSize);
         } catch (error) {
             console.error(error);
             alert("Failed to assign");
@@ -899,7 +941,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                                     <Button variant="outlined" color="warning" size="small" onClick={() => {
                                         const remarks = prompt('Reason for sending back (optional):') || 'Sent back for revisions';
                                         ep1.post('/api/v2/sendBackDynamicStep2', { id: po._id, user_email: global1.user, remarks })
-                                            .then(() => { alert('Sent back one step.'); fetchPOs(paginationModel.page + 1, paginationModel.pageSize); })
+                                            .then(() => { alert('Sent back one step.'); fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize); })
                                             .catch(e => alert(e.response?.data?.message || e.message));
                                     }}>
                                         Send Back
@@ -957,15 +999,30 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
         { field: 'deliveryType', headerName: 'Delivery Type', width: 150 },
         { field: 'year', headerName: 'Year', width: 80 },
         {
-            field: 'price', headerName: 'Total (₹)', width: 120,
-            valueFormatter: (value) => value ? `₹${Number(value).toFixed(2)}` : '₹0.00'
+            field: 'price', headerName: 'Total (₹)', width: 130,
+            renderCell: (params) => {
+                const v = parseFloat(params.value);
+                return `₹${isNaN(v) ? '0.00' : v.toFixed(2)}`;
+            }
         },
         {
-            field: 'updatedate', headerName: 'Date', width: 110,
-            valueFormatter: (value) => {
-                if (!value) return 'N/A';
-                const d = new Date(value);
-                return isNaN(d) ? value : `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+            field: 'netprice', headerName: 'Net Price (₹)', width: 130,
+            renderCell: (params) => {
+                const v = parseFloat(params.value);
+                return `₹${isNaN(v) ? '0.00' : v.toFixed(2)}`;
+            }
+        },
+        { field: 'storename', headerName: 'Store', width: 140 },
+        { field: 'poType', headerName: 'PO Type', width: 110 },
+        { field: 'creatorName', headerName: 'Created By', width: 150 },
+        {
+            field: 'updatedate', headerName: 'Date', width: 120,
+            renderCell: (params) => {
+                const raw = params.row.updatedate || params.row.createdAt;
+                if (!raw) return 'N/A';
+                const d = new Date(raw);
+                if (isNaN(d.getTime())) return String(raw);
+                return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
             }
         },
         {
@@ -1006,7 +1063,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                                 <Button variant="outlined" color="warning" size="small" onClick={() => {
                                     const remarks = prompt('Reason for sending back:') || 'Sent back for revisions';
                                     ep1.post('/api/v2/sendBackDynamicStep2', { id: po._id, user_email: global1.user, remarks })
-                                        .then(() => { alert('Sent back.'); fetchPOs(paginationModel.page + 1, paginationModel.pageSize); })
+                                        .then(() => { alert('Sent back.'); fetchPOs(poPaginationModel.page + 1, poPaginationModel.pageSize); })
                                         .catch(e => alert(e.message));
                                 }}>Send Back</Button>
                             )}
@@ -1034,10 +1091,10 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                         rows={storeRequests}
                         columns={storeReqColumns}
                         pageSizeOptions={[10, 25, 50]}
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={setPaginationModel}
+                        paginationModel={prPaginationModel}
+                        onPaginationModelChange={setPrPaginationModel}
                         paginationMode="server"
-                        rowCount={rowCount}
+                        rowCount={prRowCount}
                         loading={loading}
                         disableSelectionOnClick
                     />
@@ -1236,10 +1293,10 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                         rows={purchaseOrders}
                         columns={poColumns}
                         pageSizeOptions={[10, 25, 50]}
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={setPaginationModel}
+                        paginationModel={poPaginationModel}
+                        onPaginationModelChange={setPoPaginationModel}
                         paginationMode="server"
-                        rowCount={rowCount}
+                        rowCount={poRowCount}
                         loading={loading}
                         disableSelectionOnClick
                     />

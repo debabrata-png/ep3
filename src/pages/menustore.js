@@ -261,30 +261,6 @@ export function menustore() {
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Purchase Old</Typography>}
-        </AccordionSummary>
-        <AccordionDetails>
-
-          <ListItem button component={RouterLink} to="/role/store-manager-dashboard">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/delivery-dashboard">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Delivery Management" />}
-          </ListItem>
-
-        </AccordionDetails>
-      </Accordion>
-
-
-      <Accordion>
-        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-          <BusinessIcon sx={{ marginRight: 1 }} />
           {open && <Typography sx={{ fontSize: 14 }}>Purchase New</Typography>}
         </AccordionSummary>
         <AccordionDetails>
@@ -301,6 +277,7 @@ export function menustore() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Delivery Management" />}
           </ListItem>
+
 
         </AccordionDetails>
       </Accordion>

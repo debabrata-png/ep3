@@ -86,7 +86,13 @@ const Admissiontemplate1 = () => {
   });
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "aadhaarNumber") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 12);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTableChange = (index, field, value) => {

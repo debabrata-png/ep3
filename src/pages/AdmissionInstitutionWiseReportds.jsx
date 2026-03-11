@@ -30,8 +30,7 @@ const AdmissionInstitutionWiseReportds = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Get colid from global1 or localStorage as fallback
-                const colid = global1.colid || localStorage.getItem('colid');
+                const colid = global1.colid;
 
                 if (!colid) {
                     setError('College ID (colid) not found. Please log in again.');

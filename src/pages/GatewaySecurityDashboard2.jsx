@@ -12,11 +12,13 @@ const GatewaySecurityDashboard2 = () => {
     const [approvedPOs, setApprovedPOs] = useState([]);
     const [gatewayPasses, setGatewayPasses] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [returnsList, setReturnsList] = useState([]); // Pending Returns
     const [openPassModal, setOpenPassModal] = useState(false);
 
     // Gateway Pass Form State
     const [selectedPO, setSelectedPO] = useState(null);
     const [poItems, setPoItems] = useState([]);
+    const [passDirection, setPassDirection] = useState('Inward'); // 'Inward' or 'Outdoor'
     const [passType, setPassType] = useState('Inward');
     const [vehicleNo, setVehicleNo] = useState('');
     const [lrNo, setLrNo] = useState('');
@@ -26,14 +28,9 @@ const GatewaySecurityDashboard2 = () => {
     const [remarks, setRemarks] = useState('');
 
     useEffect(() => {
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name') || 'Security Guard';
-        }
-
         if (tabValue === 0) fetchApprovedPOs();
-        if (tabValue === 1) fetchGatewayPasses();
+        if (tabValue === 1) fetchReturns();
+        if (tabValue === 2) fetchGatewayPasses();
     }, [tabValue]);
 
     const fetchApprovedPOs = async () => {
@@ -62,9 +59,85 @@ const GatewaySecurityDashboard2 = () => {
         setLoading(false);
     };
 
-    const handleOpenGatePassGeneration = async (po) => {
+    const fetchReturns = async () => {
+        try {
+            const [delRes, qcRes, passRes] = await Promise.all([
+                ep1.get(`/api/v2/getalldeliverydsds2?colid=${global1.colid}`),
+                ep1.get(`/api/v2/getallqualitycheckds2?colid=${global1.colid}`),
+                ep1.get(`/api/v2/getallgatewaypasses2?colid=${global1.colid}`)
+            ]);
+
+            const deliveries = delRes.data?.data?.deliveries || [];
+            const qualityChecks = qcRes.data?.data || [];
+            const outdoorPasses = passRes.data?.data?.filter(p => p.passType === 'Outdoor') || [];
+
+            // Group deliveries with returns by PO
+            const groupedReturns = {};
+            deliveries.forEach(d => {
+                const returnedQty = Number(d.return || d.returned || 0);
+                if (returnedQty > 0) {
+                    if (!groupedReturns[d.poid]) {
+                        groupedReturns[d.poid] = { poid: d.poid, items: [] };
+                    }
+                    // Aggregate returns if multiple deliveries for same item
+                    const extItem = groupedReturns[d.poid].items.find(i => i.item === d.item);
+                    if (extItem) {
+                        extItem.returnQty += returnedQty;
+                    } else {
+                        groupedReturns[d.poid].items.push({ item: d.item, itemcode: d.itemcode, returnQty: returnedQty });
+                    }
+                }
+            });
+
+            // Add rejected items from Quality Check phase
+            qualityChecks.forEach(qc => {
+                if (!qc.items) return;
+                qc.items.forEach(i => {
+                    const rejectedQty = Number(i.rejectedQuantity || 0);
+                    if (rejectedQty > 0) {
+                        if (!groupedReturns[qc.poid]) {
+                            groupedReturns[qc.poid] = { poid: qc.poid, items: [] };
+                        }
+                        const extItem = groupedReturns[qc.poid].items.find(existing => existing.item === i.itemname);
+                        if (extItem) {
+                            extItem.returnQty += rejectedQty;
+                        } else {
+                            // Map the items correctly based on quality checks
+                            groupedReturns[qc.poid].items.push({ item: i.itemname, itemcode: i.itemid, returnQty: rejectedQty });
+                        }
+                    }
+                });
+            });
+
+            // Adjust by already shipped outdoor passes
+            outdoorPasses.forEach(pass => {
+                if (groupedReturns[pass.poid]) {
+                    pass.items?.forEach(passItem => {
+                        const rec = groupedReturns[pass.poid].items.find(i => i.item === passItem.itemname || i.itemcode === passItem.itemid);
+                        if (rec) {
+                            rec.returnQty -= Number(passItem.deliveredQuantity || passItem.expectedQuantity || 0);
+                        }
+                    });
+                }
+            });
+
+            // Filter out POs where all returns are shipped
+            const finalReturns = [];
+            Object.values(groupedReturns).forEach(grp => {
+                const pendingItems = grp.items.filter(i => i.returnQty > 0);
+                if (pendingItems.length > 0) {
+                    finalReturns.push({ ...grp, items: pendingItems, id: grp.poid });
+                }
+            });
+
+            setReturnsList(finalReturns);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleOpenGatePassGeneration = async (po, isOutward = false) => {
         setSelectedPO(po);
-        setPassType('Inward');
+        setPassDirection(isOutward ? 'Outdoor' : 'Inward');
+        setPassType(isOutward ? 'Outdoor' : 'Inward');
         setVehicleNo('');
         setLrNo('');
         setDeliveryPersonName('');
@@ -72,21 +145,55 @@ const GatewaySecurityDashboard2 = () => {
         setDcInvoiceNo('');
         setRemarks('');
 
-        try {
-            const res = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}`);
-            const allItems = res.data.data.poItems || [];
-            const myItems = allItems.filter(i => i.poid === po.poid).map(i => ({
-                itemid: i.itemid,
-                itemname: i.itemname,
-                unit: i.unit,
-                expectedQuantity: i.quantity,
-                deliveredQuantity: 0 // Default for UI input
+        if (isOutward) {
+            const items = po.items.map(i => ({
+                itemid: i.itemcode,
+                itemname: i.item,
+                unit: 'Nos',
+                expectedQuantity: i.returnQty,
+                deliveredQuantity: i.returnQty
             }));
-            setPoItems(myItems);
+            setPoItems(items);
             setOpenPassModal(true);
-        } catch (error) {
-            console.error("Error fetching PO items for Pass", error);
-            alert("Could not load PO items.");
+        } else {
+            try {
+                const res = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}`);
+                const rawItems = res.data.data.poItems || [];
+
+                const aggregatedItems = {};
+                rawItems.filter(i => i.poid === po.poid).forEach(item => {
+                    const key = item.itemid || item.itemname;
+                    if (!aggregatedItems[key]) {
+                        aggregatedItems[key] = {
+                            itemid: item.itemid,
+                            itemname: item.itemname,
+                            unit: item.unit,
+                            quantity: Number(item.quantity || 0),
+                            gateReceivedQuantity: Number(item.gateReceivedQuantity || 0)
+                        };
+                    } else {
+                        aggregatedItems[key].quantity += Number(item.quantity || 0);
+                        aggregatedItems[key].gateReceivedQuantity += Number(item.gateReceivedQuantity || 0);
+                    }
+                });
+
+                const myItems = Object.values(aggregatedItems).map(i => {
+                    const pendingQty = Math.max(0, i.quantity - i.gateReceivedQuantity);
+                    return {
+                        itemid: i.itemid,
+                        itemname: i.itemname,
+                        unit: i.unit,
+                        expectedQuantity: pendingQty,
+                        deliveredQuantity: 0 // Default for UI input
+                    };
+                }).filter(i => i.expectedQuantity > 0);
+
+                setPoItems(myItems);
+                setOpenPassModal(true);
+            } catch (error) {
+                console.error("Error fetching PO items for Pass", error);
+                alert("Could not load PO items.");
+            }
         }
     };
 
@@ -102,8 +209,28 @@ const GatewaySecurityDashboard2 = () => {
             return;
         }
 
+        // Generate sequential Gate Pass number: GP-{YYYY}{MM}{seq}
+        const gpDate = new Date();
+        const gpYYYY = gpDate.getFullYear();
+        const gpMM = String(gpDate.getMonth() + 1).padStart(2, '0');
+        const gpBase = `GP-${gpYYYY}${gpMM}`;
+        let gpSeq = 1;
+        try {
+            const seqRes = await ep1.get(`/api/v2/getallgatewaypasses2?colid=${global1.colid}`);
+            const allPasses = seqRes.data.data || [];
+            const matching = allPasses.filter(p => p.passNumber && p.passNumber.startsWith(gpBase));
+            if (matching.length > 0) {
+                const maxSeq = Math.max(...matching.map(p => {
+                    const parts = p.passNumber.split('-');
+                    return parseInt(parts[parts.length - 1], 10) || 0;
+                }));
+                gpSeq = maxSeq + 1;
+            }
+        } catch (e) { console.error('Error fetching Gate Passes for sequence:', e); }
+        const newPassNumber = `${gpBase}-${String(gpSeq).padStart(3, '0')}`;
+
         const payload = {
-            passNumber: `GP-${Date.now()}`,
+            passNumber: newPassNumber,
             passType,
             colid: global1.colid,
             poid: selectedPO.poid,
@@ -117,8 +244,13 @@ const GatewaySecurityDashboard2 = () => {
             dcInvoiceNo,
             billAmount: selectedPO.netprice || selectedPO.price,
             remarks,
-            items: poItems
+            items: poItems.filter(i => Number(i.deliveredQuantity) > 0) // Only include items with actual delivery
         };
+
+        if (payload.items.length === 0) {
+            alert('Please enter at least one item with a delivery quantity greater than 0.');
+            return;
+        }
 
         try {
             await ep1.post('/api/v2/addgatewaypass2', payload);
@@ -138,7 +270,7 @@ const GatewaySecurityDashboard2 = () => {
         { field: 'postatus', headerName: 'Status', width: 150 },
         {
             field: 'actions', headerName: 'Actions', width: 200, renderCell: (params) => (
-                <Button variant="contained" color="primary" size="small" onClick={() => handleOpenGatePassGeneration(params.row)}>
+                <Button variant="contained" color="primary" size="small" onClick={() => handleOpenGatePassGeneration(params.row, false)}>
                     Generate Inward Pass
                 </Button>
             )
@@ -158,8 +290,9 @@ const GatewaySecurityDashboard2 = () => {
     return (
         <Box p={3} sx={{ height: '85vh', width: '100%' }}>
             <Typography variant="h4" gutterBottom>Gateway Security Station</Typography>
-            <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
+            <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }} textColor="secondary" indicatorColor="secondary">
                 <Tab label="Incoming Approved POs" />
+                <Tab label="Outgoing Deliveries (Returns)" />
                 <Tab label="Gateway Pass History" />
             </Tabs>
 
@@ -171,12 +304,40 @@ const GatewaySecurityDashboard2 = () => {
 
             {tabValue === 1 && (
                 <Paper sx={{ height: 600, width: '100%' }}>
+                    <DataGrid
+                        rows={returnsList}
+                        columns={[
+                            { field: 'poid', headerName: 'PO #', width: 180 },
+                            {
+                                field: 'itemsDesc', headerName: 'Pending Return Items', width: 400,
+                                valueGetter: (params) => {
+                                    if (!params.row || !params.row.items) return '';
+                                    return params.row.items.map(i => `${i.item} (Qty: ${i.returnQty})`).join(', ');
+                                }
+                            },
+                            {
+                                field: 'actions', headerName: 'Action', width: 250,
+                                renderCell: (params) => (
+                                    <Button variant="contained" color="warning" size="small" onClick={() => handleOpenGatePassGeneration(params.row, true)}>
+                                        Generate Outward Pass
+                                    </Button>
+                                )
+                            }
+                        ]}
+                        pageSizeOptions={[10, 25]}
+                        disableSelectionOnClick
+                    />
+                </Paper>
+            )}
+
+            {tabValue === 2 && (
+                <Paper sx={{ height: 600, width: '100%' }}>
                     <DataGrid rows={gatewayPasses} columns={passCols} loading={loading} />
                 </Paper>
             )}
 
             <Dialog open={openPassModal} onClose={() => setOpenPassModal(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Generate Gateway Inward Pass</DialogTitle>
+                <DialogTitle>Generate Gateway {passDirection === 'Inward' ? 'Inward' : 'Outward'} Pass</DialogTitle>
                 <DialogContent dividers>
                     <Grid container spacing={2}>
                         <Grid item xs={6}><Typography variant="subtitle2">PO No:</Typography> <Typography>{selectedPO?.poid}</Typography></Grid>
@@ -194,10 +355,10 @@ const GatewaySecurityDashboard2 = () => {
                                 <Box key={index} display="flex" gap={2} alignItems="center" mb={1} p={1} border="1px solid #ccc" borderRadius={1}>
                                     <Box flexGrow={1}>
                                         <Typography variant="body2"><b>{item.itemname}</b></Typography>
-                                        <Typography variant="caption" color="textSecondary">Expected: {item.expectedQuantity} {item.unit}</Typography>
+                                        <Typography variant="caption" color="textSecondary">{passDirection === 'Inward' ? 'Expected' : 'Pending Return'}: {item.expectedQuantity} {item.unit}</Typography>
                                     </Box>
                                     <TextField
-                                        label="Actual Delivered Qty"
+                                        label={passDirection === 'Inward' ? "Actual Delivered Qty" : "Actual Returned Qty"}
                                         type="number"
                                         size="small"
                                         value={item.deliveredQuantity}

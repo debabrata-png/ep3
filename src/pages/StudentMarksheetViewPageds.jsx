@@ -261,7 +261,7 @@ const StudentMarksheetViewPageds = () => {
     if (pdfData.school) {
       doc.setFontSize(22);
       doc.setFont("times", "bold");
-      doc.setTextColor(128, 0, 0); // Maroon - Cambria Bold approximation
+      doc.setTextColor(211, 35, 45); // Red to match school logo
       doc.text((pdfData.school.schoolname || 'SCHOOL NAME').toUpperCase(), 297.5, 90, { align: 'center' });
       doc.setTextColor(0, 0, 0); // Reset to black
 
@@ -439,8 +439,8 @@ const StudentMarksheetViewPageds = () => {
     drawSplitRow("Roll No.", pdfData.profile.rollNo, "Date of Birth", pdfData.profile.dob, currentY);
     currentY += lineGap;
 
-    // Admission No. & Contact No.
-    drawSplitRow("Admission No.", pdfData.profile.admissionNo, "Contact No.", pdfData.profile.contact, currentY);
+    // Scholastic No. & Contact No.
+    drawSplitRow("Scholastic No.", pdfData.profile.admissionNo, "Contact No.", pdfData.profile.contact, currentY);
     currentY += lineGap;
 
     // CBSE Reg. No.
@@ -973,15 +973,20 @@ const StudentMarksheetViewPageds = () => {
     drawText("New Session begins on :", 30, promotionY, 12, true);
     drawLine(180, promotionY + 3, 550, promotionY + 3, 1);
 
-    // Format Date to DD/MM/YYYY
-    let sessionDate = pdfData.newSessionDate || "";
-    if (sessionDate && sessionDate.includes('-')) {
-      const [yyyy, mm, dd] = sessionDate.split('-');
-      if (yyyy && mm && dd && yyyy.length === 4) {
-        sessionDate = `${dd}/${mm}/${yyyy}`;
-      }
-    }
-    drawText(sessionDate, 190, promotionY, 12);
+    // Format Date to DD/MM/YYYY & Day
+    const formatDateObj = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayName = daysOfWeek[date.getDay()];
+      return `${day}/${month}/${year}, ${dayName}`;
+    };
+    const sessionDate = formatDateObj(pdfData.newSessionDate);
+    drawText(`Date & Day:   ${sessionDate}`, 190, promotionY, 12);
 
     // Signature section
     drawText("Exam I/C Signature", 50, 800, 12, true);

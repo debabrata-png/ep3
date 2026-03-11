@@ -68,7 +68,7 @@ const OEPRAssignmentsds2 = () => {
             field: 'createdAt',
             headerName: 'Assigned Date',
             width: 150,
-            valueFormatter: (params) => new Date(params.value).toLocaleDateString()
+            valueFormatter: (params) => new Date(params.value).toLocaleDateString('en-GB')
         },
         {
             field: 'actions',

@@ -17,12 +17,6 @@ const StoreUserAccessds = () => {
     const [selectedStore, setSelectedStore] = useState(null);
 
     useEffect(() => {
-        // Restore global context if needed
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-        }
-
         fetchData();
     }, []);
 

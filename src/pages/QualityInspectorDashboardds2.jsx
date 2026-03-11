@@ -144,16 +144,16 @@ const QualityInspectorDashboardds2 = () => {
             <h2>Quality Inspection Report</h2>
             <p class="subtitle">Inspection ID: ${qc.inspectionId || 'N/A'}</p>
             <div class="grid2">
-                <div class="field"><span class="label">Inspection Date</span><span class="value">${qc.inspectionDate ? new Date(qc.inspectionDate).toLocaleDateString() : ''}</span></div>
+                <div class="field"><span class="label">Inspection Date</span><span class="value">${qc.inspectionDate ? new Date(qc.inspectionDate).toLocaleDateString('en-GB') : ''}</span></div>
                 <div class="field"><span class="label">Inspector</span><span class="value">${qc.inspectorName}</span></div>
                 <div class="field"><span class="label">GRN No</span><span class="value">${qc.grnNo}</span></div>
-                <div class="field"><span class="label">GRN Date</span><span class="value">${qc.grnDate ? new Date(qc.grnDate).toLocaleDateString() : ''}</span></div>
+                <div class="field"><span class="label">GRN Date</span><span class="value">${qc.grnDate ? new Date(qc.grnDate).toLocaleDateString('en-GB') : ''}</span></div>
                 <div class="field"><span class="label">W.O / P.O No</span><span class="value">${qc.woPoNo || qc.poid || ''}</span></div>
                 <div class="field"><span class="label">Party Name</span><span class="value">${qc.partyName || ''}</span></div>
                 <div class="field"><span class="label">Bill No</span><span class="value">${qc.billNo || ''}</span></div>
-                <div class="field"><span class="label">Bill Date</span><span class="value">${qc.billDate ? new Date(qc.billDate).toLocaleDateString() : ''}</span></div>
+                <div class="field"><span class="label">Bill Date</span><span class="value">${qc.billDate ? new Date(qc.billDate).toLocaleDateString('en-GB') : ''}</span></div>
                 <div class="field"><span class="label">Challan No</span><span class="value">${qc.challanNo || ''}</span></div>
-                <div class="field"><span class="label">Challan Date</span><span class="value">${qc.challanDate ? new Date(qc.challanDate).toLocaleDateString() : ''}</span></div>
+                <div class="field"><span class="label">Challan Date</span><span class="value">${qc.challanDate ? new Date(qc.challanDate).toLocaleDateString('en-GB') : ''}</span></div>
                 <div class="field"><span class="label">Gate Pass No</span><span class="value">${qc.gatePassNumber || ''}</span></div>
                 <div class="field"><span class="label">Status</span><span class="value">${qc.status}</span></div>
             </div>
@@ -197,7 +197,7 @@ const QualityInspectorDashboardds2 = () => {
         { field: 'gatePassNumber', headerName: 'Gate Pass', width: 140 },
         { field: 'poid', headerName: 'PO ID', width: 140 },
         { field: 'vendorName', headerName: 'Vendor', width: 160 },
-        { field: 'grnDate', headerName: 'GRN Date', width: 110, valueFormatter: (v) => v ? new Date(v).toLocaleDateString() : '' },
+        { field: 'grnDate', headerName: 'GRN Date', width: 110, valueFormatter: (v) => v ? new Date(v).toLocaleDateString('en-GB') : '' },
         { field: 'status', headerName: 'Status', width: 110, renderCell: (p) => <Chip label={p.value} color="warning" size="small" /> },
         {
             field: 'actions', headerName: 'Action', width: 140,

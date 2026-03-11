@@ -68,6 +68,7 @@ const FacultyCreateRequestds2 = () => {
         }
 
         const storeObj = stores.find(s => s._id === selectedStore);
+
         const newItem = {
             id: Date.now(), // Local key for DataGrid
             faculty: global1.name,
@@ -82,7 +83,7 @@ const FacultyCreateRequestds2 = () => {
             year: new Date().getFullYear().toString(),
             colid: global1.colid,
             user: global1.user,
-            name: `REQ-${Date.now()}` // System required name
+            name: global1.name
         };
 
         setCartItems([...cartItems, newItem]);

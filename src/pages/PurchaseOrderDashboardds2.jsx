@@ -91,14 +91,6 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     useEffect(() => {
         setLoading(true);
 
-        // Restore global1 if missing (on reload)
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-            global1.department = localStorage.getItem('department');
-        }
-
         const fetchData = async () => {
             const page = paginationModel.page + 1;
             const limit = paginationModel.pageSize;
@@ -414,17 +406,36 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             const totalAmount = poItems.reduce((sum, item) => sum + (Number(item.total || 0)), 0);
 
             if (!isEditMode) {
+                // Generate sequential PO number: PO-{YYYY}{MM}{seq}
+                const poDate = new Date();
+                const poYYYY = poDate.getFullYear();
+                const poMM = String(poDate.getMonth() + 1).padStart(2, '0');
+                const poBase = `PO-${poYYYY}${poMM}`;
+                let poSeq = 1;
+                try {
+                    const seqRes = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
+                    const allPOs = seqRes.data.data.poOrders || seqRes.data.data.pos || [];
+                    const matching = allPOs.filter(p => p.poid && p.poid.startsWith(poBase));
+                    if (matching.length > 0) {
+                        const maxSeq = Math.max(...matching.map(p => {
+                            const parts = p.poid.split('-');
+                            return parseInt(parts[parts.length - 1], 10) || 0;
+                        }));
+                        poSeq = maxSeq + 1;
+                    }
+                } catch (e) { console.error('Error fetching POs for sequence:', e); }
+                const newPOId = `${poBase}-${String(poSeq).padStart(3, '0')}`;
                 // Create New PO Header
                 const poPayload = {
-                    name: `PO-${Date.now()}`,
+                    name: newPOId,
                     vendorid: selectedVendor,
                     vendor: vendorObj?.vendorname,
                     year: new Date().getFullYear().toString(),
-                    poid: `PO-${Date.now()}`,
+                    poid: newPOId,
                     postatus: 'Draft',
                     colid: global1.colid,
                     user: global1.user,
-                    price: totalAmount, // This is now Grand Total
+                    price: totalAmount,
                     netprice: totalAmount,
                     returnamount: 0,
                     creatorName: global1.name || global1.user,
@@ -769,12 +780,31 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             let targetPOIdStr = selectedDraftPO;
 
             if (poCreationMode === 'NEW') {
+                // Generate sequential PO number: PO-{YYYY}{MM}{seq}
+                const poDate = new Date();
+                const poYYYY = poDate.getFullYear();
+                const poMM = String(poDate.getMonth() + 1).padStart(2, '0');
+                const poBase = `PO-${poYYYY}${poMM}`;
+                let poSeq = 1;
+                try {
+                    const seqRes = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
+                    const allPOs = seqRes.data.data.poOrders || seqRes.data.data.pos || [];
+                    const matching = allPOs.filter(p => p.poid && p.poid.startsWith(poBase));
+                    if (matching.length > 0) {
+                        const maxSeq = Math.max(...matching.map(p => {
+                            const parts = p.poid.split('-');
+                            return parseInt(parts[parts.length - 1], 10) || 0;
+                        }));
+                        poSeq = maxSeq + 1;
+                    }
+                } catch (e) { console.error('Error fetching POs for sequence:', e); }
+                const newPOId = `${poBase}-${String(poSeq).padStart(3, '0')}`;
                 const poPayload = {
-                    name: `PO-${Date.now()}`,
+                    name: newPOId,
                     vendorid: poModalVendor,
                     vendor: vendorObj?.vendorname,
                     year: new Date().getFullYear().toString(),
-                    poid: `PO-${Date.now()}`,
+                    poid: newPOId,
                     postatus: 'Draft',
                     colid: global1.colid,
                     user: global1.user,
@@ -858,7 +888,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                     colDef.valueFormatter = (params) => {
                         if (!params.value) return 'N/A';
                         const date = new Date(params.value);
-                        return isNaN(date.getTime()) ? params.value : date.toLocaleDateString();
+                        return isNaN(date.getTime()) ? params.value : date.toLocaleDateString('en-GB');
                     };
                 }
 

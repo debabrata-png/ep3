@@ -85,7 +85,7 @@ const ProgramCounselords = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await ep1.get("/api/v2/getallcategoriesds", {
+            const res = await ep1.get("/api/v2/getallcategoriesag1", {
                 params: { colid: global1.colid },
             });
             setCategories(res.data.data);

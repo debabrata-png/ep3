@@ -11,9 +11,9 @@ const Admissiontemplate2 = () => {
   const { colId } = useParams();
 
   // Refs for PDF Generation
-  const page1Ref = useRef();
-  const page2Ref = useRef();
-  const printRef = useRef();
+  const pdfPage1Ref = useRef();
+  const pdfPage2Ref = useRef();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     colId: colId,
@@ -40,26 +40,72 @@ const Admissiontemplate2 = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "aadhaarNumber") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 12);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: name === "name" ? value.toUpperCase() : value,
     }));
   };
 
   const handleDownloadPDF = async () => {
-    const page1 = page1Ref.current;
-    const page2 = page2Ref.current;
+    const page1 = pdfPage1Ref.current;
+    const page2 = pdfPage2Ref.current;
 
     // Hide buttons during capture so they don't appear in the PDF
     const buttons = document.getElementById("submit-section");
-    buttons.style.visibility = "hidden";
+    if (buttons) buttons.style.visibility = "hidden";
+
+    // Fix for html2canvas not capturing input values
+    const prepareCanvas = (element) => {
+      if (!element) return;
+      const inputs = element.querySelectorAll("input, textarea");
+      inputs.forEach((input) => {
+        if (input.tagName === "TEXTAREA") {
+          input.innerHTML = input.value;
+        } else {
+          input.setAttribute("value", input.value);
+        }
+      });
+    };
+
+    prepareCanvas(page1);
+    prepareCanvas(page2);
 
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
 
+    const canvasOptions = {
+      scale: 2,
+      useCORS: true,
+      onclone: (clonedDoc) => {
+        const inputs = clonedDoc.querySelectorAll("input, textarea");
+        inputs.forEach((input) => {
+          const value = input.getAttribute("value") || input.innerHTML || input.value || "";
+          const parent = input.parentNode;
+          if (parent) {
+            const div = clonedDoc.createElement("div");
+            div.innerText = value;
+            div.style.fontFamily = "inherit";
+            div.style.fontSize = "15px";
+            div.style.color = "#000";
+            div.style.padding = "8.5px 14px";
+            div.style.width = "100%";
+            div.style.boxSizing = "border-box";
+            div.style.whiteSpace = "pre-wrap";
+            parent.replaceChild(div, input);
+          }
+        });
+      }
+    };
+
     try {
       // Capture Page 1 (Personal Details)
-      const canvas1 = await html2canvas(page1, { scale: 2 });
+      const canvas1 = await html2canvas(page1, canvasOptions);
       const imgData1 = canvas1.toDataURL("image/png");
       const imgProps1 = pdf.getImageProperties(imgData1);
       const pdfHeight1 = (imgProps1.height * pdfWidth) / imgProps1.width;
@@ -67,7 +113,7 @@ const Admissiontemplate2 = () => {
 
       // Add Page 2 (Declaration & Office Use)
       pdf.addPage();
-      const canvas2 = await html2canvas(page2, { scale: 2 });
+      const canvas2 = await html2canvas(page2, canvasOptions);
       const imgData2 = canvas2.toDataURL("image/png");
       const imgProps2 = pdf.getImageProperties(imgData2);
       const pdfHeight2 = (imgProps2.height * pdfWidth) / imgProps2.width;
@@ -83,10 +129,18 @@ const Admissiontemplate2 = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ADM_016: Field validation
+    if (!formData.name || !formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+      alert("Please enter a valid Name and 12-digit Aadhar Number.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await ep1.post("/api/v2/createApplicationForm", {
         ...formData,
-        templateType: "template2", // Change to template2 or template3 accordingly
+        templateType: "template2",
       });
 
       if (res.status === 201) {
@@ -96,18 +150,20 @@ const Admissiontemplate2 = () => {
           applicationNo: serverData.applicationNo,
         }));
 
-        // 1. Give React a moment to render the Serial Number on screen
         setTimeout(async () => {
-          // 2. Call the function (Ensure this name matches: downloadPDF / generatePDF)
           await handleDownloadPDF();
-
-          // 3. ONLY navigate after the download process is triggered
-          navigate("/success");
+          navigate("/success", {
+            state: {
+              formData: { ...formData, applicationNo: serverData.applicationNo }
+            }
+          });
         }, 1000);
       }
     } catch (err) {
       console.error("Submission failed:", err);
       alert("Submission Failed: " + (err.response?.data?.error || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,7 +172,7 @@ const Admissiontemplate2 = () => {
       <form onSubmit={handleSubmit}>
         {/* PAGE 1: STUDENT DATA ENTRY */}
         <Paper
-          ref={page1Ref}
+          ref={pdfPage1Ref}
           elevation={3}
           sx={{
             maxWidth: 850,
@@ -175,14 +231,17 @@ const Admissiontemplate2 = () => {
                 <Box
                   sx={{
                     border: "1px solid #000",
-                    px: 4,
+                    px: 2,
                     py: 0.5,
-                    minWidth: "120px",
+                    minWidth: "200px",
                     textAlign: "center",
+                    textTransform: "uppercase",
+                    letterSpacing: "2px",
+                    fontWeight: "bold",
+                    fontSize: "1.2rem",
                   }}
                 >
                   {formData.applicationNo}
-                  {/* This stays empty for manual filling or you can map a variable here */}
                 </Box>
               </Box>
             </Box>
@@ -380,7 +439,7 @@ const Admissiontemplate2 = () => {
 
         {/* PAGE 2: DECLARATION & OFFICE USE (Visible in UI) */}
         <Paper
-          ref={page2Ref}
+          ref={pdfPage2Ref}
           elevation={3}
           sx={{
             maxWidth: 850,
@@ -549,7 +608,7 @@ const Admissiontemplate2 = () => {
             type="submit"
             sx={{ px: 10, py: 2, fontWeight: "bold", fontSize: "1.1rem" }}
           >
-            Submit Application & Download PDF
+            {loading ? "Submitting..." : "Submit Application & Download PDF"}
           </Button>
         </Box>
       </form>

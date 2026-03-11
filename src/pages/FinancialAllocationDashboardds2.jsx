@@ -27,11 +27,6 @@ const FinancialAllocationDashboardds2 = () => {
     const [cashAmount, setCashAmount] = useState('');
 
     useEffect(() => {
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-        }
-
         fetchData();
         fetchStores();
     }, [tabValue]);
@@ -52,7 +47,7 @@ const FinancialAllocationDashboardds2 = () => {
 
     const fetchStores = async () => {
         try {
-            const res = await ep1.get(`/api/v2/getallstoredesi2?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getallstoremasterds2?colid=${global1.colid}`);
             const data = res.data.data.stores || res.data.data || [];
             setStores(data);
         } catch (e) { console.error("Error fetching stores", e); }
@@ -107,7 +102,7 @@ const FinancialAllocationDashboardds2 = () => {
     const cashCols = [
         { field: 'storeName', headerName: 'Store Name', width: 250 },
         { field: 'balance', headerName: 'Current Balance (Local Cash)', width: 250 },
-        { field: 'lastRefillDate', headerName: 'Last Refill', width: 200, valueFormatter: (p) => new Date(p.value).toLocaleString() },
+        { field: 'lastRefillDate', headerName: 'Last Refill', width: 200, valueFormatter: (p) => new Date(p.value).toLocaleString('en-GB') },
     ];
 
     return (

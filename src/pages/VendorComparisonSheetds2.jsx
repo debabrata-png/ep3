@@ -126,7 +126,7 @@ const VendorComparisonSheetds2 = () => {
                                             <TableRow key={vi._id}>
                                                 <TableCell>{vi.vendorName || vi.vendor}</TableCell>
                                                 <TableCell>{vi.price}</TableCell>
-                                                <TableCell>{vi.updatedAt ? new Date(vi.updatedAt).toLocaleDateString() : '-'}</TableCell>
+                                                <TableCell>{vi.updatedAt ? new Date(vi.updatedAt).toLocaleDateString('en-GB') : '-'}</TableCell>
                                                 <TableCell>
                                                     <Button variant="outlined" size="small">Select</Button>
                                                 </TableCell>

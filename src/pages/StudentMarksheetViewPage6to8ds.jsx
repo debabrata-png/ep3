@@ -53,18 +53,14 @@ const StudentMarksheetViewPage6to8ds = () => {
     const [colid, setColid] = useState(null);
 
     useEffect(() => {
-        const storedColid = localStorage.getItem('colid');
-        const globalColid = global1.colid;
-        const finalColid = storedColid || globalColid;
-
-        console.log("Colid Debug:", { storedColid, globalColid, finalColid }); // DEBUG
+        const finalColid = global1.colid;
 
         if (finalColid) {
             setColid(finalColid);
             fetchSchoolConfig(finalColid);
             fetchInitialData(finalColid);
         } else {
-            console.warn("No colid found in localStorage or global1");
+            console.warn("No colid found in global1");
             showSnackbar("System Error: Institution ID missing. Please login again.", "error");
         }
     }, []);
@@ -258,7 +254,7 @@ const StudentMarksheetViewPage6to8ds = () => {
 
         doc.setFontSize(22);
         doc.setFont("times", "bold");
-        doc.setTextColor(128, 0, 0); // Maroon
+        doc.setTextColor(211, 35, 45); // Red to match school logo
         doc.text(schoolName.toUpperCase(), centerX, headY, { align: 'center' });
         doc.setTextColor(0, 0, 0); // Reset
 
@@ -392,13 +388,19 @@ const StudentMarksheetViewPage6to8ds = () => {
         const endLineX = 570;
 
         // Helper to format date dd/mm/yyyy
-        const formatDate = (dateString) => {
+        const formatDate = (dateString, includeDay = false) => {
             if (!dateString) return "";
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString;
+            if (isNaN(date.getTime())) return dateString; // Return as is if invalid
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
+
+            if (includeDay) {
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const dayName = daysOfWeek[date.getDay()];
+                return `${day}/${month}/${year}, ${dayName}`;
+            }
             return `${day}/${month}/${year}`;
         };
 
@@ -411,7 +413,7 @@ const StudentMarksheetViewPage6to8ds = () => {
         };
 
         drawLineItem("Roll No.", pdfData.profile.rollNo);
-        drawLineItem("Admission No.", pdfData.profile.admissionNo);
+        drawLineItem("Scholastic No.", pdfData.profile.admissionNo);
         drawLineItem("Student's Name", pdfData.profile.name);
 
         // Class / Section
@@ -828,7 +830,8 @@ const StudentMarksheetViewPage6to8ds = () => {
             ? pdfData.compartmentSubjects
             : [];
 
-        if (failedSubjects.length > 0) {
+        // Always show the compartment table, even if empty
+        if (true) {
             cy += 40;
             drawRect(cX, cy, cW, 25, { lineWidth: 1, fillColor: [240, 240, 240] });
             drawCenteredText("DETAILS OF COMPARTMENT EXAMINATION", cX, cy, cW, 25, 12, true);
@@ -885,8 +888,8 @@ const StudentMarksheetViewPage6to8ds = () => {
 
         cy += 30;
         drawText("New Session Begins on:", 30, cy, 12);
-        const sessionDate = formatDate(pdfParams.newSessionDate);
-        drawText(`Date:   ${sessionDate}`, 240, cy, 12, true);
+        const sessionDate = formatDate(pdfParams.newSessionDate, true);
+        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
         drawLine(280, cy + 2, 550, cy + 2, 1);
 
         // Signatures

@@ -237,66 +237,6 @@ export function menupurchasepu() {
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
           <BusinessIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Purchase old</Typography>}
-        </AccordionSummary>
-        <AccordionDetails>
-
-
-
-          <ListItem button component={RouterLink} to="/role/purchase-order-dashboard">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PO Dashboard" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/cash-approval">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Approve Cash Request" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/purchasing-master-data">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/ApprovalConfigurationds">
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Approval Configuration" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/vendor-comparison">
-            <ListItemIcon><PersonIcon /></ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Comparison" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/ItemCategoryds">
-            <ListItemIcon><PersonIcon /></ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Categories" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/ItemTypeds">
-            <ListItemIcon><PersonIcon /></ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Types" />}
-          </ListItem>
-          <ListItem button component={RouterLink} to="/role/ItemUnitds">
-            <ListItemIcon><PersonIcon /></ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Units" />}
-          </ListItem>
-
-        </AccordionDetails>
-      </Accordion>
-
-
-      <Accordion>
-        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-          <BusinessIcon sx={{ marginRight: 1 }} />
           {open && <Typography sx={{ fontSize: 14 }}>Purchase New</Typography>}
         </AccordionSummary>
         <AccordionDetails>

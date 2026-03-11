@@ -148,7 +148,13 @@ const Admissiontemplate1 = () => {
   });
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "aadhaarNumber" || name === "nomineeAadhar") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 12);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleArrayChange = (arrayName, index, field, value) => {
@@ -205,7 +211,7 @@ const Admissiontemplate1 = () => {
         // Update form data state with the application number returned by the server
         setFormData((prev) => {
           const updatedData = { ...prev, applicationNo: serverData.applicationNo };
-          
+
           // Using a small timeout to allow state to settle before PDF generation
           // is sometimes needed, but the navigation MUST wait for PDF generation.
           setTimeout(async () => {
@@ -770,7 +776,7 @@ const Admissiontemplate1 = () => {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
               <tbody>
                 <tr style={{ backgroundColor: "#f0f0f0" }}>
-                  {["Name of Examination","Name of Board","Name of school/College","Date of Passing","Examination Seat Number","Passing certificate No.","Grade/Total Marks","Obt. Marks","% CGPA"].map(h => (
+                  {["Name of Examination", "Name of Board", "Name of school/College", "Date of Passing", "Examination Seat Number", "Passing certificate No.", "Grade/Total Marks", "Obt. Marks", "% CGPA"].map(h => (
                     <td key={h} style={{ border: "1px solid #000", padding: "2px 4px", fontWeight: "bold" }}>{h}</td>
                   ))}
                 </tr>
@@ -794,7 +800,7 @@ const Admissiontemplate1 = () => {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
               <tbody>
                 <tr style={{ backgroundColor: "#f0f0f0" }}>
-                  {["College/School Attended","Board/university","Admission Year","Passing Year","Marks Obt","Total Marks","Percentage","Place","Arts/Com/Sci","Education Gap"].map(h => (
+                  {["College/School Attended", "Board/university", "Admission Year", "Passing Year", "Marks Obt", "Total Marks", "Percentage", "Place", "Arts/Com/Sci", "Education Gap"].map(h => (
                     <td key={h} style={{ border: "1px solid #000", padding: "2px 4px", fontWeight: "bold" }}>{h}</td>
                   ))}
                 </tr>

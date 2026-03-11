@@ -26,7 +26,7 @@ const Success = () => {
           No data found
         </Typography>
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(-1)}
           variant="contained"
           sx={{ mt: 2 }}
         >
@@ -52,7 +52,7 @@ const Success = () => {
           </Typography>
           <Typography color="text.secondary" mb={4}>
             Thank you, <strong>{formData.name}</strong>.<br />
-            Your application has been submitted successfully.
+            Your application {formData.applicationNo ? `(${formData.applicationNo})` : ""} has been submitted successfully.
           </Typography>
           <Button
             variant="contained"

@@ -60,6 +60,13 @@ const StudentMarksheetViewPageKGds = () => {
     promotedToClass: '',
     newSessionDate: '',
   });
+  // Attendance override — pre-filled from API, editable before PDF generation
+  const [attendanceOverride, setAttendanceOverride] = useState({
+    term1Working: '',
+    term1Present: '',
+    term2Working: '',
+    term2Present: '',
+  });
 
   // Fetch semesters and years on component mount
   useEffect(() => {
@@ -126,7 +133,16 @@ const StudentMarksheetViewPageKGds = () => {
       if (response.data.success) {
         if (response.data.data && response.data.data.subjects) {
           setMarks(response.data.data.subjects);
-          setFullPdfData(response.data.data);
+          const pdfData = response.data.data;
+          setFullPdfData(pdfData);
+          // Pre-fill attendance override from API data
+          const att = pdfData.attendance || {};
+          setAttendanceOverride({
+            term1Working: att.term1?.working || '',
+            term1Present: att.term1?.present || '',
+            term2Working: att.term2?.working || '',
+            term2Present: att.term2?.present || '',
+          });
         } else {
           setMarks([]);
           setFullPdfData(null);
@@ -169,6 +185,17 @@ const StudentMarksheetViewPageKGds = () => {
       remarksTerm2: pdfParams.remarksTerm2 || fullPdfData.remarksTerm2,
       promotedToClass: pdfParams.promotedToClass || fullPdfData.promotedToClass,
       newSessionDate: pdfParams.newSessionDate || fullPdfData.newSessionDate,
+      // Apply attendance overrides (user-editable before PDF generation)
+      attendance: {
+        term1: {
+          working: attendanceOverride.term1Working !== '' ? Number(attendanceOverride.term1Working) : (fullPdfData.attendance?.term1?.working || 0),
+          present: attendanceOverride.term1Present !== '' ? Number(attendanceOverride.term1Present) : (fullPdfData.attendance?.term1?.present || 0),
+        },
+        term2: {
+          working: attendanceOverride.term2Working !== '' ? Number(attendanceOverride.term2Working) : (fullPdfData.attendance?.term2?.working || 0),
+          present: attendanceOverride.term2Present !== '' ? Number(attendanceOverride.term2Present) : (fullPdfData.attendance?.term2?.present || 0),
+        },
+      },
     };
 
     handleCloseDialog();
@@ -275,7 +302,7 @@ const StudentMarksheetViewPageKGds = () => {
 
     doc.setFontSize(22);
     doc.setFont("times", "bold");
-    doc.setTextColor(128, 0, 0); // Maroon - Cambria Bold approximation
+    doc.setTextColor(211, 35, 45); // Red to match school logo
     doc.text(schoolName.toUpperCase(), centerX, headY, { align: 'center' });
     doc.setTextColor(0, 0, 0); // Reset to black
 
@@ -406,13 +433,19 @@ const StudentMarksheetViewPageKGds = () => {
     const endLineX = 570;
 
     // Helper to format date dd/mm/yyyy
-    const formatDate = (dateString) => {
+    const formatDate = (dateString, includeDay = false) => {
       if (!dateString) return "";
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return dateString; // Return as is if invalid
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
+
+      if (includeDay) {
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = daysOfWeek[date.getDay()];
+        return `${day}/${month}/${year}, ${dayName}`;
+      }
       return `${day}/${month}/${year}`;
     };
 
@@ -425,7 +458,7 @@ const StudentMarksheetViewPageKGds = () => {
     };
 
     drawLineItem("Roll No.", pdfData.profile.rollNo);
-    drawLineItem("Admission No.", pdfData.profile.admissionNo);
+    drawLineItem("Scholastic No.", pdfData.profile.admissionNo);
     drawLineItem("Student's Name", pdfData.profile.name);
 
     // Split Row for Class / Section
@@ -814,8 +847,8 @@ const StudentMarksheetViewPageKGds = () => {
 
     cy += 30;
     drawText("New Session Begins on:", 30, cy, 12);
-    const sessionDate = formatDate(pdfData.newSessionDate);
-    drawText(`Date:   ${sessionDate}`, 240, cy, 12, true);
+    const sessionDate = formatDate(pdfData.newSessionDate, true);
+    drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
     drawLine(280, cy + 2, 550, cy + 2, 1);
 
     // Signatures (Bottom of Page 3)
@@ -1049,6 +1082,59 @@ const StudentMarksheetViewPageKGds = () => {
               value={pdfParams.newSessionDate}
               onChange={(e) => setPdfParams({ ...pdfParams, newSessionDate: e.target.value })}
             />
+
+            {/* Attendance Section */}
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 1 }}>
+              Attendance (verify / correct before generating)
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Term I – Total Working Days"
+                  value={attendanceOverride.term1Working}
+                  onChange={(e) => setAttendanceOverride({ ...attendanceOverride, term1Working: e.target.value })}
+                  inputProps={{ min: 0, step: 1 }}
+                  helperText={fullPdfData?.attendance?.term1?.working > 0 ? `Saved in DB: ${fullPdfData.attendance.term1.working}` : 'Not set in DB'}
+                  error={attendanceOverride.term1Working === '' || Number(attendanceOverride.term1Working) <= 0}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Term I – Days Present"
+                  value={attendanceOverride.term1Present}
+                  onChange={(e) => setAttendanceOverride({ ...attendanceOverride, term1Present: e.target.value })}
+                  inputProps={{ min: 0, step: 1 }}
+                  helperText={fullPdfData?.attendance?.term1?.present > 0 ? `Saved in DB: ${fullPdfData.attendance.term1.present}` : 'Not set in DB'}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Term II – Total Working Days"
+                  value={attendanceOverride.term2Working}
+                  onChange={(e) => setAttendanceOverride({ ...attendanceOverride, term2Working: e.target.value })}
+                  inputProps={{ min: 0, step: 1 }}
+                  helperText={fullPdfData?.attendance?.term2?.working > 0 ? `Saved in DB: ${fullPdfData.attendance.term2.working}` : 'Not set in DB'}
+                  error={attendanceOverride.term2Working === '' || Number(attendanceOverride.term2Working) <= 0}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Term II – Days Present"
+                  value={attendanceOverride.term2Present}
+                  onChange={(e) => setAttendanceOverride({ ...attendanceOverride, term2Present: e.target.value })}
+                  inputProps={{ min: 0, step: 1 }}
+                  helperText={fullPdfData?.attendance?.term2?.present > 0 ? `Saved in DB: ${fullPdfData.attendance.term2.present}` : 'Not set in DB'}
+                />
+              </Grid>
+            </Grid>
           </Box>
         </DialogContent>
         <DialogActions>

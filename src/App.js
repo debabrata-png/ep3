@@ -258,7 +258,7 @@ import StaffProfileds from './pages/StaffProfileds'; // Added
 
 import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
-
+import CategoryManagementag1 from './pages/CategoryManagementag1';
 
 
 import Dashmclassnewc from './pages/Dashmclassnewc';
@@ -314,6 +314,7 @@ import ORGate2 from './pages/ORGate2';
 
 // ... existing imports
 import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
+import FeesGenerationds from './pages/FeesGenerationds';
 
 // ... inside Routes
 
@@ -1427,6 +1428,7 @@ import DeliveryDashboardds2 from './pages/DeliveryDashboardds2';
 import GatewaySecurityDashboard2 from './pages/GatewaySecurityDashboard2';
 import FinancialAllocationDashboardds2 from './pages/FinancialAllocationDashboardds2';
 import QualityInspectorDashboardds2 from './pages/QualityInspectorDashboardds2';
+import LocalPurchaseManagerds2 from './pages/LocalPurchaseManagerds2';
 import ApprovalConfigurationds2 from './pages/ApprovalConfigurationds2';
 import PurchaseCellInventoryds2 from './pages/PurchaseCellInventoryds2';
 import DashboardPurchaseds2 from './pages/DashboardPurchaseds2';
@@ -1448,7 +1450,20 @@ import ProgramFeeReport from './pages/ProgramFeeReport';
 import StudentLedgerReport from './pages/StudentLedgerReport';
 
 import CrmhDashboard from "./pages/CrmhDashboard";
+import RevenueDashboard from "./pages/RevenueDashboard";
+import FeeCReport from "./pages/FeeCReport";
+import Oicrmrep2 from "./pages/Oicrmrep2";
 
+import CrmdsReportsPage from './pages/crmdsReportsPage.jsx';
+import CrmdsOverdueLeadsPage from './pages/crmdsOverdueLeadsPage.jsx';
+import CrmdsCounsellorWiseLeadsReport from './pages/crmdsCounsellorWiseLeadsReport.jsx';
+import CrmdsPipelineStageWiseReport from './pages/crmdsPipelineStageWiseReport.jsx';
+import CrmdsSourceWiseLeadsReport from './pages/crmdsSourceWiseLeadsReport.jsx';
+import CrmdsDateWiseNewLeads from './pages/crmdsDateWiseNewLeads.jsx';
+
+import Crmreports2 from './pages/Crmreports2';
+
+import Dailyfeesreport1 from './pages/Dailyfeesreport1';
 
 
 
@@ -1459,12 +1474,28 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
+
+                                        <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
+
+                                        <Route path="/crmreports2" element={<Crmreports2 />} />
+                                        <Route path="/crmupcommingfollowup" element={<CrmdsReportsPage />} />
                                         <Route path="/crmh-dashboard" element={<CrmhDashboard />} />
+                                        <Route path="/crmds-overdue-leads" element={<CrmdsOverdueLeadsPage />} />
+                                        <Route path="/crmds-counsellor-wise-leads" element={<CrmdsCounsellorWiseLeadsReport />} />
+                                        <Route path="/crmds-pipeline-stage-wise" element={<CrmdsPipelineStageWiseReport />} />
+                                        <Route path="/crmds-source-wise-leads" element={<CrmdsSourceWiseLeadsReport />} />
+                                        <Route path="/crmdatewisenewleads" element={<CrmdsDateWiseNewLeads />} />
 
                                         <Route path="/programfeereport" element={<ProgramFeeReport />} />
                                         <Route path="/studentledgerreport" element={<StudentLedgerReport />} />
 
                                         <Route path="/feesummaryreport" element={<FeeSummaryReport />} />
+
+                                        <Route path="/oicrmrep2" element={<Oicrmrep2 />} />
+
+                                        <Route path="/feecreport" element={<FeeCReport />} />
+
+                                        <Route path="/revenuedashboard" element={<RevenueDashboard />} />
 
                                         {/* Purchasing Module Routes */}
                                         <Route path="/role/purchase-order-dashboard2" element={<RoleLayout><PurchaseOrderDashboardds2 /></RoleLayout>} />
@@ -1486,6 +1517,7 @@ function App() {
                                         <Route path="/role/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
                                         <Route path="/role/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/quality-inspector2" element={<RoleLayout><QualityInspectorDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/local-purchase-manager2" element={<LocalPurchaseManagerds2 />} />
                                         <Route path="/role/staff-profile2" element={<RoleLayout><StaffProfileds2 /></RoleLayout>} />
                                         <Route path="/role/delivery-type-master2" element={<RoleLayout><DeliveryTypeMasterds2 /></RoleLayout>} />
 
@@ -2952,6 +2984,7 @@ function App() {
                                         <Route path="/communicationsettings" element={<CommunicationSettings />} />
                                         <Route path="/sourceds" element={<Sourceds />} />
                                         <Route path="/leadsag" element={<Leadsag />} />
+                                        <Route path="/categoryag1" element={<CategoryManagementag1 />} />
                                         <Route path="/unifiedlandingpageds" element={<UnifiedLandingPageds />} />
                                         <Route path="/unified-landing/:slug" element={<PublicUnifiedLandingPageds />} />
 
@@ -2979,6 +3012,7 @@ function App() {
                                         <Route path="/studentmarksheetviewpage6to8ds" element={<StudentMarksheetViewPage6to8ds />} />
                                         <Route path="/studentmarksheetviewpage9to10ds" element={<StudentMarksheetViewPage9to10ds />} />
                                         <Route path="/rankreportds" element={<RankReportds />} />
+                                        <Route path="/feesgenerationds" element={<FeesGenerationds />} />
 
                                         {/* Compartment / Supplementary Exam Marks Entry */}
                                         <Route path="/compartmentmarks9ds" element={<CompartmentMarksEntryds classGroup="9ds" />} />

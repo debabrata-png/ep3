@@ -57,43 +57,6 @@ export function menupe() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    <Typography sx={{ fontSize: 14 }}>Purchase Module Old</Typography>
-
-                </AccordionSummary>
-                <AccordionDetails>
-
-                    <ListItem button component={RouterLink} to="/role/oe-dashboard">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PE Dashboard" />}
-                    </ListItem>
-
-                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
-                    </ListItem>
-
-                    <ListItem button component={RouterLink} to="/role/cash-approval">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Cash Approval" />}
-                    </ListItem>
-                    <ListItem button component={RouterLink} to="/role/purchasing-master-data">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Master Data" />}
-                    </ListItem>
-                </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
                     <Typography sx={{ fontSize: 14 }}>Purchase Module</Typography>
 
                 </AccordionSummary>

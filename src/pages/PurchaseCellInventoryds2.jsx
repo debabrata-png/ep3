@@ -22,33 +22,21 @@ const PurchaseCellInventoryds2 = () => {
     const [selectedStore, setSelectedStore] = useState('All');
 
     useEffect(() => {
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            // Replaced global1.user2 with global1.user
-            if (!global1.user) {
-                global1.user = localStorage.getItem('user');
-            }
-            global1.name = localStorage.getItem('name');
-            global1.department = localStorage.getItem('department');
-            global1.role = localStorage.getItem('role');
-        }
         fetchStores();
         fetchInventory();
     }, []);
 
     const fetchStores = async () => {
         try {
-            const colid = global1.colid || localStorage.getItem('colid') || sessionStorage.getItem('colid') || 1;
-            const res = await ep1.get(`/api/v2/getallstoremasterds2?colid=${colid}`);
+            const res = await ep1.get(`/api/v2/getallstoremasterds2?colid=${global1.colid}`);
             setStores(res.data.data.stores || []);
         } catch (error) { console.error("Error fetching stores", error); }
     };
 
     const fetchInventory = async () => {
         try {
-            const colid = global1.colid || localStorage.getItem('colid') || sessionStorage.getItem('colid') || 1;
-            const res = await ep1.get(`/api/v2/getallstoreitemds2?colid=${colid}`);
-            console.log("Purchase Cell API Response:", res.data); // Debug trace
+            const res = await ep1.get(`/api/v2/getallstoreitemds2?colid=${global1.colid}`);
+            console.log("Purchase Cell API Response:", res.data);
             const items = res.data.data?.storeItems || res.data.data || [];
 
             // Handle if data is returned directly in an array vs nested

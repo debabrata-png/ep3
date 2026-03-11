@@ -51,10 +51,10 @@ const Admissiontemplate1 = () => {
     fatherEducation: "",
     motherAddress: "",
     fatherAddress: "",
-    motherPhone: "",
-    fatherPhone: "",
     motherEmail: "",
     fatherEmail: "",
+    motherPhone: "",
+    fatherPhone: "",
     motherOccupation: "",
     fatherOccupation: "",
     motherOfficialAddress: "",
@@ -89,7 +89,14 @@ const Admissiontemplate1 = () => {
   });
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "aadhaarNumber") {
+      // ADM_001/ADM_016: Only numeric, max 12 digits
+      const numericValue = value.replace(/\D/g, "").slice(0, 12);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTableChange = (index, field, value) => {
@@ -152,9 +159,23 @@ const Admissiontemplate1 = () => {
     // 2. Safety Check: Only run if we are actually on the final step
     if (step !== 6) return;
 
-    // 3. Validation: Don't submit if TC details are missing
-    if (!formData.transfercertificateNum || !formData.dateOfissue) {
-      return;
+    // 3. Validation: ADM_002/003/012
+    const mandatoryFields = [
+      { key: "name", label: "Student Full Name" },
+      { key: "aadhaarNumber", label: "Aadhar Number", length: 12 },
+      { key: "transfercertificateNum", label: "TC Number" },
+      { key: "dateOfissue", label: "TC Date of Issue" },
+    ];
+
+    for (const field of mandatoryFields) {
+      if (!formData[field.key] || String(formData[field.key]).trim() === "") {
+        alert(`${field.label} is required.`);
+        return;
+      }
+      if (field.length && String(formData[field.key]).length !== field.length) {
+        alert(`${field.label} must be exactly ${field.length} digits.`);
+        return;
+      }
     }
 
     try {
@@ -173,10 +194,10 @@ const Admissiontemplate1 = () => {
         // 1. Give React a moment to render the Serial Number on screen
         setTimeout(async () => {
           // 2. Call the function (Ensure this name matches: downloadPDF / generatePDF)
-          const success = await downloadPDF();
+          await downloadPDF();
 
           // 3. ONLY navigate after the download process is triggered
-          navigate("/success");
+          navigate("/success", { state: { formData: { ...formData, applicationNo: serverData.applicationNo } } });
         }, 1000);
       }
     } catch (err) {
@@ -284,6 +305,12 @@ const Admissiontemplate1 = () => {
                         m: "motherEducation",
                         f: "fatherEducation",
                       },
+                      {
+                        l: "Residential Address",
+                        m: "motherAddress",
+                        f: "fatherAddress",
+                      },
+                      { l: "Email", m: "motherEmail", f: "fatherEmail" },
                       {
                         l: "Occupation",
                         m: "motherOccupation",
@@ -446,9 +473,20 @@ const Admissiontemplate1 = () => {
                   {["CBSE", "ICSE", "IB", "State Board"].map((aff) => (
                     <Button
                       key={aff}
-                      onClick={() =>
-                        setFormData({ ...formData, lastSchoolAffiliation: aff })
-                      }
+                      onClick={() => {
+                        const subjectCount = aff === "ICSE" ? 12 : aff === "CBSE" ? 10 : 6;
+                        setFormData({
+                          ...formData,
+                          lastSchoolAffiliation: aff,
+                          results: Array(subjectCount).fill({
+                            subject: "",
+                            maxMarks: "",
+                            marksObtained: "",
+                            percentage: "",
+                            remarks: "",
+                          })
+                        });
+                      }}
                       variant={
                         formData.lastSchoolAffiliation === aff
                           ? "contained"
@@ -649,23 +687,6 @@ const Admissiontemplate1 = () => {
             }}
           >
             <Box sx={{ textAlign: "center", position: "relative", mb: 2 }}>
-              <Box
-                sx={{
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
-                  width: 60,
-                  height: 60,
-                  border: "1px solid #000",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "10px",
-                }}
-              >
-                LOGO
-              </Box>
               <Typography sx={{ fontSize: "14px" }}>
                 Mahajana Education Society (R.)
               </Typography>
@@ -917,11 +938,11 @@ const Admissiontemplate1 = () => {
             }}
           >
             <Box sx={{ fontSize: "13px" }}>
-              <Box sx={{ display: "flex", gap: 4, mb: 1 }}>
+              <Box sx={{ mb: 1 }}>
                 <Typography>
                   13. Class Last Attended : <b>{formData.classLastattended}</b>
                 </Typography>
-                <Typography>
+                <Typography sx={{ mt: 1 }}>
                   14. Dise code / STS No. : <b>{formData.diseCode}</b>
                 </Typography>
               </Box>
@@ -966,13 +987,15 @@ const Admissiontemplate1 = () => {
               <Typography sx={{ mt: 2, fontWeight: "bold" }}>
                 Transfer Certificate Details :
               </Typography>
-              <Typography>
-                17. Transfer Certificate No. :{" "}
-                <b>{formData.transfercertificateNum}</b>
-              </Typography>
-              <Typography sx={{ ml: 4 }}>
-                18. Date of Issue : <b>{formData.dateOfissue}</b>
-              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Typography>
+                  17. Transfer Certificate No. :{" "}
+                  <b>{formData.transfercertificateNum}</b>
+                </Typography>
+                <Typography sx={{ mt: 1 }}>
+                  18. Date of Issue : <b>{formData.dateOfissue}</b>
+                </Typography>
+              </Box>
 
               <Typography sx={{ mt: 2 }}>
                 19. Details of Siblings (if any)
@@ -1047,7 +1070,7 @@ const Admissiontemplate1 = () => {
                 </Box>
               </Box>
 
-              <Box sx={{ mt: 6, borderTop: "1px dashed #000", pt: 2 }}>
+              <Box sx={{ mt: 10, borderTop: "1px dashed #000", pt: 2 }}>
                 <Typography sx={{ fontSize: "11px" }}>
                   Correct entries from the Admission Forms to Admission and
                   Withdrawal Register have been made on page no

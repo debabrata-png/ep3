@@ -75,6 +75,16 @@ const Admissiontemplate3 = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "aadhaarNumber") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 12);
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    if (name === "twelfthRegNo") {
+      const numericValue = value.replace(/\D/g, "");
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -103,7 +113,30 @@ const Admissiontemplate3 = () => {
     const element = printRef.current;
     element.style.display = "block";
     try {
-      const canvas = await html2canvas(element, { scale: 3, useCORS: true });
+      const canvasOptions = {
+        scale: 3,
+        useCORS: true,
+        onclone: (clonedDoc) => {
+          const inputs = clonedDoc.querySelectorAll("input, textarea");
+          inputs.forEach((input) => {
+            const value = input.getAttribute("value") || input.innerHTML || input.value || "";
+            const parent = input.parentNode;
+            if (parent) {
+              const div = clonedDoc.createElement("div");
+              div.innerText = value;
+              div.style.fontFamily = "inherit";
+              div.style.fontSize = "15px";
+              div.style.color = "#000";
+              div.style.padding = "8.5px 14px";
+              div.style.width = "100%";
+              div.style.boxSizing = "border-box";
+              div.style.whiteSpace = "pre-wrap";
+              parent.replaceChild(div, input);
+            }
+          });
+        }
+      };
+      const canvas = await html2canvas(element, canvasOptions);
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -147,8 +180,9 @@ const Admissiontemplate3 = () => {
       if (res.status === 201) {
         setFormData((prev) => ({
           ...prev,
-          applicationNo: res.data.data.applicationNo,
+          applicationNo: res.data.data.applicationNo || res.data.data._id,
         }));
+        alert("Application submitted successfully! Generating PDF...");
         setIsProcessingPdf(true);
       }
     } catch (err) {
@@ -165,7 +199,7 @@ const Admissiontemplate3 = () => {
         // Webpack cache invalidation
 
         setIsProcessingPdf(false);
-        navigate("/success");
+        navigate("/success", { state: { formData: { ...formData, applicationNo: formData.applicationNo } } });
       }
     };
     processPdfDownload();
@@ -183,7 +217,8 @@ const Admissiontemplate3 = () => {
 
           // Reset and navigate
           setIsProcessingPdf(false);
-          navigate("/success");
+          const dataToPass = { ...formData, applicationNo: formData.applicationNo };
+          navigate("/success", { state: { formData: dataToPass } });
         } catch (error) {
           console.error("PDF generation error:", error);
           setIsProcessingPdf(false);
@@ -207,6 +242,8 @@ const Admissiontemplate3 = () => {
         }
       } catch (err) {
         console.error("Error fetching form metadata:", err);
+        // Fallback or alert if metadata fails to load
+        alert("Failed to load program options. Please refresh the page.");
       }
     };
 
@@ -243,7 +280,8 @@ const Admissiontemplate3 = () => {
           await generatePDF();
 
           setIsProcessingPdf(false);
-          navigate("/success");
+          const dataToPass = { ...formData, applicationNo: formData.applicationNo };
+          navigate("/success", { state: { formData: dataToPass } });
         } catch (error) {
           console.error("PDF generation failed", error);
           setIsProcessingPdf(false);
@@ -759,10 +797,11 @@ const Admissiontemplate3 = () => {
                 <Grid item xs={4}>
                   <FormField
                     label="PUC Reg No"
-                    name=" twelfthRegNo"
+                    name="twelfthRegNo"
                     value={formData.twelfthRegNo}
                     onChange={handleChange}
                     fullWidth
+                    required
                   />
                 </Grid>
                 <Grid item xs={4}>

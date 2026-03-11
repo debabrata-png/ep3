@@ -119,6 +119,7 @@ export const adminMenuData = [
             { label: "Vendor Management", path: "/admin/purchase-vendors" },
             { label: "Purchase Orders", path: "/admin/purchase-orders" },
             { label: "Delivery Dashboard", path: "/admin/purchase-delivery" },
+            { label: "Cash & Budget Authority", path: "/role/local-purchase-manager2" },
         ],
     },
     {

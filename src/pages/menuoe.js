@@ -58,37 +58,6 @@ export function menuoe() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    {open && <Typography sx={{ fontSize: 14 }}>Officer Executive Old</Typography>}
-                </AccordionSummary>
-                <AccordionDetails>
-
-                    <ListItem button component={RouterLink} to="/role/oe-dashboard">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="OE Dashboard" />}
-                    </ListItem>
-
-                    <ListItem button component={RouterLink} to="/role/purchase-order-dashboard">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Purchase Orders" />}
-                    </ListItem>
-
-                    <ListItem button component={RouterLink} to="/role/PurchaseCellInventoryds">
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Inventory" />}
-                    </ListItem>
-
-                </AccordionDetails>
-            </Accordion>
-
-            <Accordion>
-                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>Officer Executive</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>

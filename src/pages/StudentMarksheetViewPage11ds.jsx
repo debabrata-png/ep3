@@ -175,13 +175,20 @@ const StudentMarksheetViewPage11ds = () => {
             }
         };
 
-        const formatDate = (dateString) => {
+        // Helper to format date dd/mm/yyyy
+        const formatDate = (dateString, includeDay = false) => {
             if (!dateString) return "";
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString;
+            if (isNaN(date.getTime())) return dateString; // Return as is if invalid
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
+
+            if (includeDay) {
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const dayName = daysOfWeek[date.getDay()];
+                return `${day}/${month}/${year}, ${dayName}`;
+            }
             return `${day}/${month}/${year}`;
         };
 
@@ -240,7 +247,7 @@ const StudentMarksheetViewPage11ds = () => {
         // School Name
         doc.setFontSize(22);
         doc.setFont("times", "bold");
-        doc.setTextColor(128, 0, 0); // Maroon - Cambria Bold approximation
+        doc.setTextColor(211, 35, 45); // Red to match school logo
         doc.text(schoolName.toUpperCase(), centerX, headY, { align: 'center' });
         doc.setTextColor(0, 0, 0); // Reset to black
 
@@ -393,7 +400,8 @@ const StudentMarksheetViewPage11ds = () => {
         };
 
         drawLineItem("Roll No.", data.profile.rollNo || data.profile.rollno);
-        drawLineItem("Admission No.", data.profile.admissionNo || data.profile.regno);
+        drawLineItem("Scholastic No.", data.profile.admissionNo || data.profile.regno);
+        drawLineItem("CBSE Reg. No.", data.profile.cbseRegNo || '');
         drawLineItem("Student's Name", data.profile.name);
 
         drawText("Class", labelX, currentY, 12, true);
@@ -414,7 +422,6 @@ const StudentMarksheetViewPage11ds = () => {
         drawLineItem("Father's Name", data.profile.father);
         drawLineItem("Address", data.profile.address);
         drawLineItem("Contact No.", data.profile.contact || data.profile.phone || '');
-        drawLineItem("CBSE Reg. No.", data.profile.cbseRegNo || '');
 
         // Attendance
         const attY = 650;
@@ -593,7 +600,8 @@ const StudentMarksheetViewPage11ds = () => {
             return { ...sub, calculatedTotal: finalTot };
         });
 
-        subjectsWithTotal.sort((a, b) => b.calculatedTotal - a.calculatedTotal);
+        // Display subjects in the order they were provided by the backend (which is sorted by createdAt)
+        // subjectsWithTotal.sort((a, b) => b.calculatedTotal - a.calculatedTotal);
 
         let mainSubjects = [];
         let additionalSubjects = [];
@@ -623,6 +631,11 @@ const StudentMarksheetViewPage11ds = () => {
             doc.setFont("helvetica", "normal"); // reset
         };
 
+        // Variables for Marks Obtained Sums
+        let sumUnitPre = 0, sumUnitPost = 0, sumUnitTot = 0, sumUnit20 = 0;
+        let sumHyTh = 0, sumHyPr = 0, sumHyTot = 0, sumHy30 = 0;
+        let sumAnnTh = 0, sumAnnPr = 0, sumAnnTot = 0, sumAnn50 = 0;
+
         mainSubjects.forEach((sub, idx) => {
             // Sr
             drawRect(xSr, dy, wSr, drH);
@@ -641,24 +654,24 @@ const StudentMarksheetViewPage11ds = () => {
                 drawCenteredText(String(val || ''), x, dy, w, drH, 8);
             };
 
-            // Unit
-            drawMarkCell(sub.unitpremid, xUnit, wU);
-            drawMarkCell(sub.unitpostmid, xUnit + wU, wU);
-            drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU);
-            drawMarkCell(sub.unit20, xUnit + (3 * wU), wU);
+            // Unit sums & cells
+            const hyEnrich = sub.subjectEnrichment || sub.hyPr;
+            drawMarkCell(sub.unitpremid, xUnit, wU); sumUnitPre += parseFloat(sub.unitpremid || 0);
+            drawMarkCell(sub.unitpostmid, xUnit + wU, wU); sumUnitPost += parseFloat(sub.unitpostmid || 0);
+            drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU); sumUnitTot += parseFloat(sub.unitTotal || 0);
+            drawMarkCell(sub.unit20, xUnit + (3 * wU), wU); sumUnit20 += parseFloat(sub.unit20 || 0);
 
-            // HY
-            const hyEnrich = sub.subjectEnrichment || sub.hyPr; // Assumption from previous code
-            drawMarkCell(sub.hyTh, xHY, wH);
-            drawMarkCell(hyEnrich, xHY + wH, wH);
-            drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH);
-            drawMarkCell(sub.hy30, xHY + (3 * wH), wH);
+            // HY sums & cells
+            drawMarkCell(sub.hyTh, xHY, wH); sumHyTh += parseFloat(sub.hyTh || 0);
+            drawMarkCell(hyEnrich, xHY + wH, wH); sumHyPr += parseFloat(hyEnrich || 0);
+            drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH); sumHyTot += parseFloat(sub.hyTotal || 0);
+            drawMarkCell(sub.hy30, xHY + (3 * wH), wH); sumHy30 += parseFloat(sub.hy30 || 0);
 
-            // Ann
-            drawMarkCell(sub.annTh, xAnn, wA);
-            drawMarkCell(sub.annPr, xAnn + wA, wA);
-            drawMarkCell(sub.annTotal, xAnn + (2 * wA), wA);
-            drawMarkCell(sub.ann50, xAnn + (3 * wA), wA);
+            // Ann sums & cells
+            drawMarkCell(sub.annTh, xAnn, wA); sumAnnTh += parseFloat(sub.annTh || 0);
+            drawMarkCell(sub.annPr, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
+            drawMarkCell(sub.annTotal, xAnn + (2 * wA), wA); sumAnnTot += parseFloat(sub.annTotal || 0);
+            drawMarkCell(sub.ann50, xAnn + (3 * wA), wA); sumAnn50 += parseFloat(sub.ann50 || 0);
 
             // Total
             const subTot = sub.calculatedTotal.toFixed(0);
@@ -675,30 +688,63 @@ const StudentMarksheetViewPage11ds = () => {
         });
 
         // --- FOOTER SECTION (Ref Look) ---
+
+        const count = mainSubjects.length;
+        const fmtStr = (val) => val ? String(val) : '-';
+        const fmtNum = (val) => String(Number(val.toFixed(1)).toString());
+
+        const drawCell = (val, x, w) => {
+            drawRect(x, dy, w, drH);
+            drawCenteredText(val, x, dy, w, drH, 9, true);
+        };
+
         // Max Marks
         drawRect(sTableX, dy, wSr + wSub, drH);
         drawText("Max Marks", sTableX + 5, dy + (drH / 2) + 3, 9, true);
-        // Blank cells for columns
-        for (let i = 0; i < 4; i++) drawRect(xUnit + (i * wU), dy, wU, drH);
-        for (let i = 0; i < 4; i++) drawRect(xHY + (i * wH), dy, wH, drH);
-        for (let i = 0; i < 4; i++) drawRect(xAnn + (i * wA), dy, wA, drH);
-        drawRect(xTot, dy, wTot, drH);
-        drawRect(xGrd, dy, wGrd, drH);
+
+        drawCell(fmtStr(50 * count), xUnit, wU);
+        drawCell(fmtStr(50 * count), xUnit + wU, wU);
+        drawCell(fmtStr(100 * count), xUnit + (2 * wU), wU);
+        drawCell(fmtStr(20 * count), xUnit + (3 * wU), wU);
+
+        drawCell("-", xHY, wH);
+        drawCell("-", xHY + wH, wH);
+        drawCell(fmtStr(100 * count), xHY + (2 * wH), wH);
+        drawCell(fmtStr(30 * count), xHY + (3 * wH), wH);
+
+        drawCell("-", xAnn, wA);
+        drawCell("-", xAnn + wA, wA);
+        drawCell(fmtStr(100 * count), xAnn + (2 * wA), wA);
+        drawCell(fmtStr(50 * count), xAnn + (3 * wA), wA);
+
+        drawCell(fmtStr(100 * count), xTot, wTot);
+        drawCell("", xGrd, wGrd);
         dy += drH;
 
         // Marks Obtained
         drawRect(sTableX, dy, wSr + wSub, drH);
         drawText("Marks Obtained", sTableX + 5, dy + (drH / 2) + 3, 9, true);
-        // Blanks
-        for (let i = 0; i < 4; i++) drawRect(xUnit + (i * wU), dy, wU, drH);
-        for (let i = 0; i < 4; i++) drawRect(xHY + (i * wH), dy, wH, drH);
-        for (let i = 0; i < 4; i++) drawRect(xAnn + (i * wA), dy, wA, drH);
+
+        drawCell(fmtNum(sumUnitPre), xUnit, wU);
+        drawCell(fmtNum(sumUnitPost), xUnit + wU, wU);
+        drawCell(fmtNum(sumUnitTot), xUnit + (2 * wU), wU);
+        drawCell(fmtNum(sumUnit20), xUnit + (3 * wU), wU);
+
+        drawCell(fmtNum(sumHyTh), xHY, wH);
+        drawCell(fmtNum(sumHyPr), xHY + wH, wH);
+        drawCell(fmtNum(sumHyTot), xHY + (2 * wH), wH);
+        drawCell(fmtNum(sumHy30), xHY + (3 * wH), wH);
+
+        drawCell(fmtNum(sumAnnTh), xAnn, wA);
+        drawCell(fmtNum(sumAnnPr), xAnn + wA, wA);
+        drawCell(fmtNum(sumAnnTot), xAnn + (2 * wA), wA);
+        drawCell(fmtNum(sumAnn50), xAnn + (3 * wA), wA);
 
         // Grand Total Cell
-        drawRect(xTot, dy, wTot, drH);
-        drawCenteredText(grandTot.toFixed(0), xTot, dy, wTot, drH, 9, true);
+        drawCell(grandTot.toFixed(0), xTot, wTot);
+
         // Grade Blank
-        drawRect(xGrd, dy, wGrd, drH);
+        drawCell("", xGrd, wGrd);
         dy += drH;
 
         // Percentage
@@ -757,8 +803,8 @@ const StudentMarksheetViewPage11ds = () => {
 
                 // HY
                 const hyEnrich = sub.subjectEnrichment || sub.hyPr;
-                drawMarkCell(sub.hyTh, xHY, wH);
                 drawMarkCell(hyEnrich, xHY + wH, wH);
+                drawMarkCell(sub.hyTh, xHY, wH);
                 drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH);
                 drawMarkCell(sub.hy30, xHY + (3 * wH), wH);
 
@@ -858,7 +904,8 @@ const StudentMarksheetViewPage11ds = () => {
             ? data.compartmentSubjects
             : [];
 
-        if (failedSubjects.length > 0) {
+        // Always show the compartment table, even if empty
+        if (true) {
             drawCenteredText("DETAILS OF COMPARTMENT EXAMINATION", 20, cy, 555, 30, 12, true);
             cy += 30;
 
@@ -910,8 +957,8 @@ const StudentMarksheetViewPage11ds = () => {
         cy += 30;
 
         drawText("New Session Begins on:", 30, cy, 12);
-        const sessionDate = formatDate(pdfParams.newSessionDate);
-        drawText(sessionDate, 200, cy, 12, true);
+        const sessionDate = formatDate(pdfParams.newSessionDate, true);
+        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
         drawLine(180, cy + 2, 400, cy + 2, 1);
         cy += 30;
 

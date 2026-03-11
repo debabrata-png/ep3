@@ -22,6 +22,7 @@ import ApiIcon from '@mui/icons-material/Api';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SourceIcon from '@mui/icons-material/Source';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import { List, Typography } from '@mui/material';
 import global1 from './global1';
 
@@ -84,18 +85,12 @@ export function menuitemscrm() {
           {open && <Typography sx={{ fontSize: 14 }}>CRM</Typography>}
         </AccordionSummary>
         <AccordionDetails>
-          <ListItem button component={RouterLink} to="/crmh-dashboard">
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="CRM Dashboard" />}
-          </ListItem>
 
           <ListItem button component={RouterLink} to="/dashboardcrmds">
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="CRM Dashboard New" />}
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="CRM Dashboard" />}
           </ListItem>
 
           <ListItem button component={RouterLink} to="/leadsds">
@@ -118,6 +113,50 @@ export function menuitemscrm() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Sources" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/oicrmrep2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="CRM reports 1" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/crmupcommingfollowup">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Upcomming Followups" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crmds-overdue-leads">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Overdue Leads" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crmds-counsellor-wise-leads">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counsellor Wise Leads" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crmds-pipeline-stage-wise">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Pipeline Stage Wise" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crmds-source-wise-leads">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Source Wise Leads" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crmdatewisenewleads">
+            <ListItemIcon>
+              <EventNoteIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Date Wise New Leads" />}
+          </ListItem>
+
         </AccordionDetails>
       </Accordion>
 

@@ -48,10 +48,12 @@ const BulkMarksEntryPageds = () => {
   const [availableYears, setAvailableYears] = useState([]);
   const [availableSections, setAvailableSections] = useState([]);
 
-  // Working Days Dialog State
+  // Working Days State
   const [openWorkingDaysDialog, setOpenWorkingDaysDialog] = useState(false);
   const [workingDaysInput, setWorkingDaysInput] = useState('');
   const [existingWorkingDays, setExistingWorkingDays] = useState(0);
+  // Inline editable working days (shown in filter bar when attendance component selected)
+  const [workingDaysValue, setWorkingDaysValue] = useState('');
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -162,8 +164,11 @@ const BulkMarksEntryPageds = () => {
             });
           }
           setExistingWorkingDays(maxWorking);
+          // Pre-fill inline field with existing value
+          setWorkingDaysValue(maxWorking > 0 ? String(maxWorking) : '');
         } else {
           setExistingWorkingDays(0);
+          setWorkingDaysValue('');
         }
       }
     } catch (error) {
@@ -183,9 +188,18 @@ const BulkMarksEntryPageds = () => {
   };
 
   const handleSaveMarks = async () => {
-    // Check if we need working days
-    if (componentname.includes('presentdays') && existingWorkingDays === 0) {
-      setOpenWorkingDaysDialog(true);
+    // For attendance components, always include working days in payload
+    if (componentname.includes('presentdays')) {
+      const wdVal = Number(workingDaysValue);
+      if (!workingDaysValue || wdVal <= 0) {
+        // Fallback to dialog if inline field is empty
+        setWorkingDaysInput('');
+        setOpenWorkingDaysDialog(true);
+        return;
+      }
+      const isTerm1 = componentname.includes('term1');
+      const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
+      await submitMarks({ [workingDaysField]: wdVal });
       return;
     }
 
@@ -244,6 +258,7 @@ const BulkMarksEntryPageds = () => {
           const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
           if (extraData[workingDaysField]) {
             setExistingWorkingDays(extraData[workingDaysField]);
+            setWorkingDaysValue(String(extraData[workingDaysField]));
           }
         }
         fetchData();
@@ -263,6 +278,8 @@ const BulkMarksEntryPageds = () => {
     }
 
     setOpenWorkingDaysDialog(false);
+    // Sync the inline field with the dialog value
+    setWorkingDaysValue(workingDaysInput);
 
     const isTerm1 = componentname.includes('term1');
     const workingDaysField = isTerm1 ? 'term1totalworkingdays' : 'term2totalworkingdays';
@@ -419,6 +436,22 @@ const BulkMarksEntryPageds = () => {
                 ))}
               </TextField>
             </Grid>
+
+            {/* Inline Working Days field — visible only for attendance components */}
+            {componentname.includes('presentdays') && (
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Total Working Days"
+                  type="number"
+                  value={workingDaysValue}
+                  onChange={(e) => setWorkingDaysValue(e.target.value)}
+                  inputProps={{ min: 1, step: 1 }}
+                  helperText={existingWorkingDays > 0 ? `Currently set: ${existingWorkingDays}` : 'Required'}
+                  error={!workingDaysValue || Number(workingDaysValue) <= 0}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={3}>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button

@@ -26,12 +26,6 @@ const DeliveryDashboardds = () => {
     const [billDate, setBillDate] = useState('');
 
     useEffect(() => {
-        // Restore global1 if missing
-        if (!global1.colid && localStorage.getItem('colid')) {
-            global1.colid = localStorage.getItem('colid');
-            global1.user = localStorage.getItem('user');
-            global1.name = localStorage.getItem('name');
-        }
         fetchApprovedPOs();
     }, []);
 

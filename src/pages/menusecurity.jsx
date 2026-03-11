@@ -6,11 +6,13 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 import { Link as RouterLink } from 'react-router-dom';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
 import { Typography } from '@mui/material';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 const Accordion = styled((props) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -82,6 +84,32 @@ export function menusecurity() {
                     </ListItem>
                 </AccordionDetails>
             </Accordion>
+        </div>
+    );
+}
+
+export function secondaryListItems({ open }) {
+    return (
+        <div>
+            <ListSubheader inset>Saved reports</ListSubheader>
+            <ListItem button>
+                <ListItemIcon>
+                    <AssignmentIcon />
+                </ListItemIcon>
+                {open && <ListItemText primary="Current month" />}
+            </ListItem>
+            <ListItem button>
+                <ListItemIcon>
+                    <AssignmentIcon />
+                </ListItemIcon>
+                {open && <ListItemText primary="Last quarter" />}
+            </ListItem>
+            <ListItem button>
+                <ListItemIcon>
+                    <AssignmentIcon />
+                </ListItemIcon>
+                {open && <ListItemText primary="Year-end sale" />}
+            </ListItem>
         </div>
     );
 }

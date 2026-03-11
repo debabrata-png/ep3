@@ -215,8 +215,16 @@ const Signup = () => {
         // return <Navigate to="/viewcourse1" />;
       } else if (response.data.role == 'HoD') {
         // return <Navigate to="/viewcourse1" />;
-      } else if (response.data.role == "CRM") {
-        navigate('/crmh-dashboard');
+      } else if (response.data.role === "Security") {
+        navigate("/role/gateway-security2")
+      } else if (response.data.role === "Purchasepu") {
+        navigate("/role/purchase-order-dashboard2")
+      } else if (response.data.role === "PE" || response.data.role === "SPE") {
+        navigate("/role/oe-dashboard2")
+      } else if (response.data.role === "Store") {
+        navigate("/role/store-manager-dashboard2")
+      } else if (response.data.role === "Quality") {
+        navigate("/role/quality-inspector2")
       } else {
         //navigate('/dashmmfaccourses');
         navigate('/dashdashfacnew');

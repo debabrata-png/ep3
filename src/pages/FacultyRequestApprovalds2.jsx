@@ -67,7 +67,7 @@ const FacultyRequestApprovalds2 = () => {
             valueFormatter: (params) => {
                 if (!params.value) return 'N/A';
                 const date = new Date(params.value);
-                return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+                return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString('en-GB');
             }
         },
         { field: 'storename', headerName: 'Store', width: 150 },

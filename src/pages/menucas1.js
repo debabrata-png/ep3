@@ -231,21 +231,29 @@ export function mainListItems({ open }) {
         </div>
       )
     } else if (role1 === 'Hostel1') {
-      <div>
-        {menuhostel1()}
-      </div>
+      return (
+        <div>
+          {menuhostel1()}
+        </div>
+      )
     } else if (role1 === "Alumni") {
-      <div>
-        {menualumni()}
-      </div>
+      return (
+        <div>
+          {menualumni()}
+        </div>
+      )
     } else if (role1 === "Quality") {
-      <div>
-        {menuquality()}
-      </div>
+      return (
+        <div>
+          {menuquality()}
+        </div>
+      )
     } else if (role1 === "Security") {
-      <div>
-        {menusecurity()}
-      </div>
+      return (
+        <div>
+          {menusecurity()}
+        </div>
+      )
     }
 
   }

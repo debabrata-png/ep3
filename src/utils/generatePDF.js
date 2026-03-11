@@ -92,14 +92,18 @@ const generatePDF = (data) => {
   addRow("Language 1", data.language1, "Language 2", data.language2);
 
   sectionTitle("10th Subjects");
-  data.tenthSubjects.forEach((s, i) => {
-    addRow(`Subject ${i + 1}`, s.subjectName, "Marks", s.marksObtained);
-  });
+  if (data.tenthSubjects && Array.isArray(data.tenthSubjects)) {
+    data.tenthSubjects.forEach((s, i) => {
+      addRow(`Subject ${i + 1}`, s.subjectName, "Marks", s.marksObtained);
+    });
+  }
 
   sectionTitle("12th Subjects");
-  data.twelfthSubjects.forEach((s, i) => {
-    addRow(`Subject ${i + 1}`, s.subjectName, "Marks", s.marksObtained);
-  });
+  if (data.twelfthSubjects && Array.isArray(data.twelfthSubjects)) {
+    data.twelfthSubjects.forEach((s, i) => {
+      addRow(`Subject ${i + 1}`, s.subjectName, "Marks", s.marksObtained);
+    });
+  }
 
   doc.save("application_form.pdf");
 };

@@ -82,7 +82,7 @@ const FacultyCreateRequestds = () => {
             year: new Date().getFullYear().toString(),
             colid: global1.colid,
             user: global1.user,
-            name: `REQ-${Date.now()}` // System required name
+            name: global1.name // Using the user's name not a PR number
         };
 
         setCartItems([...cartItems, newItem]);
