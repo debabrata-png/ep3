@@ -157,7 +157,8 @@ const ApplicationReviewPage = () => {
       };
 
       const userRes = await ep1.post("/api/v2/createuser", userPayload);
-      if (!userRes?.data?.data) throw new Error("User creation failed");
+      const studentId = userRes?.data?.data?._id;
+      if (!studentId) throw new Error("User creation failed: " + (userRes?.data?.message || "Unknown error"));
 
       /* Create ledger entry */
       const fee = feeData;
@@ -183,7 +184,7 @@ const ApplicationReviewPage = () => {
         classdate: new Date(),
         status: "unpaid",
         programcode: app.programOptingFor,
-        admissionyear: new Date().getFullYear(),
+        admissionyear: (filters.academicyear || "").split("-")[0] || new Date().getFullYear().toString(),
       };
 
       await ep1.post("/api/v2/createledgerstud", ledgerPayload);
@@ -282,8 +283,8 @@ const ApplicationReviewPage = () => {
                         app.status === "Approved"
                           ? "success"
                           : app.status === "Rejected"
-                          ? "error"
-                          : "warning"
+                            ? "error"
+                            : "warning"
                       }
                       size="small"
                     />
@@ -296,7 +297,7 @@ const ApplicationReviewPage = () => {
                         size="small"
                       >
                         <MenuItem value="Pending">Pending</MenuItem>
-                        {feeAmount ? <MenuItem value="Approved">Approve</MenuItem> : null}
+                        {feeAmount !== null ? <MenuItem value="Approved">Approve</MenuItem> : null}
                         <MenuItem value="Rejected">Reject</MenuItem>
                       </Select>
                     ) : (

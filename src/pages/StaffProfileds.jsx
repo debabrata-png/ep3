@@ -9,7 +9,8 @@ import {
     Grid,
     Alert,
     Divider,
-    Avatar
+    Avatar,
+    MenuItem
 } from "@mui/material";
 import { Save, Person, Download } from "@mui/icons-material";
 import ep1 from "../api/ep1";
@@ -164,35 +165,27 @@ const StaffProfileds = () => {
                 addSection("Basic Information", {
                     "Email": readOnlyData.email,
                     "Department": readOnlyData.department,
-                    "Program Code": readOnlyData.programcode,
                     "UUID": readOnlyData.semester,
-                    "Employee No": readOnlyData.regno,
-                    "Joining Year": readOnlyData.admissionyear,
-                    "Section": readOnlyData.section
+                    "Employee No": readOnlyData.regno
                 });
 
                 // Personal Info
                 addSection("Personal Information", {
+                    "Designation": formData.designation,
                     "Phone": formData.phone,
                     "Gender": formData.gender,
                     "Date of Birth": formData.dob,
                     "Category": formData.category,
+                    "Differently Abled": formData.isdisabled,
                     "Blood Group": formData.bloodgroup,
                     "Address": formData.address
                 });
 
                 // Official Info
                 addSection("Official & Identity", {
-                    "Designation": formData.designation,
                     "Aadhaar No": formData.adhaarno,
                     "WhatsApp No": formData.wpno,
                     "Joining Date": formData.joiningdate
-                });
-
-                // Family Info
-                addSection("Family Information", {
-                    "Father's Name": formData.fathername,
-                    "Mother's Name": formData.mothername
                 });
 
                 doc.save(`${readOnlyData.name || "Staff"}_Profile.pdf`);
@@ -243,16 +236,10 @@ const StaffProfileds = () => {
                         <TextField fullWidth label="Department" value={readOnlyData.department} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <TextField fullWidth label="Program Code" value={readOnlyData.programcode} InputProps={{ readOnly: true }} />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
                         <TextField fullWidth label="UUID" value={readOnlyData.semester} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <TextField fullWidth label="Employee No" value={readOnlyData.regno} InputProps={{ readOnly: true }} />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField fullWidth label="Joining Year" value={readOnlyData.admissionyear} InputProps={{ readOnly: true }} />
                     </Grid>
                 </Grid>
 
@@ -297,12 +284,17 @@ const StaffProfileds = () => {
                         <Grid item xs={12} md={6}>
                             <TextField
                                 fullWidth
+                                select
                                 label="Gender"
                                 name="gender"
                                 value={formData.gender}
                                 onChange={handleChange}
                                 disabled={!isEditing}
-                            />
+                            >
+                                <MenuItem value="Male">Male</MenuItem>
+                                <MenuItem value="Female">Female</MenuItem>
+                                <MenuItem value="Other">Other</MenuItem>
+                            </TextField>
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <TextField
@@ -319,12 +311,32 @@ const StaffProfileds = () => {
                         <Grid item xs={12} md={6}>
                             <TextField
                                 fullWidth
+                                select
                                 label="Category"
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
                                 disabled={!isEditing}
-                            />
+                            >
+                                <MenuItem value="SC">SC</MenuItem>
+                                <MenuItem value="ST">ST</MenuItem>
+                                <MenuItem value="OBC">OBC</MenuItem>
+                                <MenuItem value="GEN">GEN</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                select
+                                label="Differently Abled"
+                                name="isdisabled"
+                                value={formData.isdisabled}
+                                onChange={handleChange}
+                                disabled={!isEditing}
+                            >
+                                <MenuItem value="Yes">Yes</MenuItem>
+                                <MenuItem value="No">No</MenuItem>
+                            </TextField>
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <TextField
@@ -385,117 +397,6 @@ const StaffProfileds = () => {
                                 onChange={handleChange}
                                 disabled={!isEditing}
                                 InputLabelProps={{ shrink: true }}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    {/* Family Information */}
-                    <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, fontWeight: "bold" }}>
-                        Family Information
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Father's Name"
-                                name="fathername"
-                                value={formData.fathername}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Mother's Name"
-                                name="mothername"
-                                value={formData.mothername}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    {/* Academic Information */}
-                    <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, fontWeight: "bold" }}>
-                        Academic Information
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Eligibility Name"
-                                name="eligibilityname"
-                                value={formData.eligibilityname}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Degree"
-                                name="degree"
-                                value={formData.degree}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Minor Subject"
-                                name="minorsub"
-                                value={formData.minorsub}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Vocational Subject"
-                                name="vocationalsub"
-                                value={formData.vocationalsub}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    {/* Merit & Scholarship */}
-                    <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, fontWeight: "bold" }}>
-                        Merit & Scholarship
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Merit"
-                                name="merit"
-                                value={formData.merit}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Scholarship"
-                                name="scholarship"
-                                value={formData.scholarship}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Quota"
-                                name="quota"
-                                value={formData.quota}
-                                onChange={handleChange}
-                                disabled={!isEditing}
                             />
                         </Grid>
                     </Grid>

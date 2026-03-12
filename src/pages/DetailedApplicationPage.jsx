@@ -142,7 +142,7 @@ const DetailedApplicationPage = () => {
         name: application.name,
         phone: application.phone,
         password: application.password,
-        role: "student",
+        role: "Student",
         regno,
         programcode: application.programOptingFor,
         admissionyear: filters.academicyear,
@@ -155,8 +155,8 @@ const DetailedApplicationPage = () => {
       };
 
       const { data: userData } = await ep1.post("/api/v2/createuser", userPayload);
-      const userId = userData?.data?._id;
-      if (!userId) throw new Error("User creation failed");
+      const studentId = userData?.data?._id;
+      if (!studentId) throw new Error("User creation failed: " + (userData?.message || "Unknown error"));
 
       /* use cached fee row – never fetch again */
       const fee = feeData;
@@ -164,7 +164,7 @@ const DetailedApplicationPage = () => {
 
       await ep1.post("/api/v2/createledgerstud", {
         name: fee.name,
-        user: userId,
+        user: studentId,
         feegroup: fee.feegroup,
         regno,
         student: application.name,

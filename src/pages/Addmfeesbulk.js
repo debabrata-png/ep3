@@ -88,7 +88,8 @@ f1=f1 + 'row ' + rownumber + '-' + 'Student col id' + ',';
 return;
 }
 
-                searchapi(rownumber,row[0],row[1],row[2],row[3],row[4],row[5],status1);
+                // searchapi(rownumber,row[0],row[1],row[2],row[3],row[4],row[5],status1);
+                searchapi(rownumber,row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],status1);
                
             });
 
@@ -99,7 +100,7 @@ return;
     };
 
 
-  const searchapi = async (rownumber,academicyear,programcode,feegroup,semester,feeeitem,feecategory,classdate,amount,status,status1) => {
+  const searchapi = async (rownumber,academicyear,programcode,feegroup,semester,feeeitem,feecategory,classdate,amount,status,studtype,domicile,feetype,status1) => {
        
 
 //     const coursetitle=coursetitleref.current.value;
@@ -145,6 +146,9 @@ feecategory:feecategory,
 classdate:classdate,
 amount:amount,
 status:status,
+studtype:studtype,
+domicile:domicile,
+feetype:feetype,
 status1:'Submitted',
             comments:''
 
@@ -214,9 +218,20 @@ if(!row[8]){
 f1=f1 + 'row ' + rownumber + '-' + 'Status' + ',';
 return;
 }
+if(!row[9]){
+f1=f1 + 'row ' + rownumber + '-' + 'Student type' + ',';
+return;
+}
+if(!row[10]){
+f1=f1 + 'row ' + rownumber + '-' + 'Domicile' + ',';
+return;
+}
+if(!row[11]){
+f1=f1 + 'row ' + rownumber + '-' + 'Fee type' + ',';
+return;
+}
 
-
-            searchapi(rownumber,row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],status1);
+            searchapi(rownumber,row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],status1);
            
         });
 

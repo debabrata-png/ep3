@@ -315,6 +315,13 @@ import ORGate2 from './pages/ORGate2';
 // ... existing imports
 import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
 import FeesGenerationds from './pages/FeesGenerationds';
+import CrmdsLeadStatusStageReport from './pages/crmdsLeadStatusStageReport';
+import CrmdsCounsellorPerformanceReport from './pages/crmdsCounsellorPerformanceReport';
+import CrmdsDailyCallingReport from './pages/crmdsDailyCallingReport';
+import CrmdsUntouchedLeadReport from './pages/crmdsUntouchedLeadReport';
+import CrmdsFollowUpDueReport from './pages/crmdsFollowUpDueReport';
+import CrmdsSourceWiseEnhancedReport from './pages/crmdsSourceWiseEnhancedReport';
+import CrmdsConversionReport from './pages/crmdsConversionReport';
 
 // ... inside Routes
 
@@ -1464,6 +1471,11 @@ import CrmdsDateWiseNewLeads from './pages/crmdsDateWiseNewLeads.jsx';
 import Crmreports2 from './pages/Crmreports2';
 
 import Dailyfeesreport1 from './pages/Dailyfeesreport1';
+import StockReportds from './pages/StockReportds';
+import VendorsMasterds2 from './pages/VendorsMasterds2';
+import VendorCatalogds2 from './pages/VendorCatalogds2';
+
+import Dashmfeespayl from './pages/Dashmfeespayl';
 
 
 
@@ -1474,6 +1486,8 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
+
+                                        <Route path="/dashmfeespayl" element={<Dashmfeespayl />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
@@ -1520,6 +1534,9 @@ function App() {
                                         <Route path="/role/local-purchase-manager2" element={<LocalPurchaseManagerds2 />} />
                                         <Route path="/role/staff-profile2" element={<RoleLayout><StaffProfileds2 /></RoleLayout>} />
                                         <Route path="/role/delivery-type-master2" element={<RoleLayout><DeliveryTypeMasterds2 /></RoleLayout>} />
+                                        <Route path="/role/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
+                                        <Route path="/role/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
+                                        <Route path="/role/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
 
                                         {/* Purchasing Module Routes - Standard Routes */}
                                         <Route path="/faculty-create-request2" element={<RoleLayout><FacultyCreateRequestds2 /></RoleLayout>} />
@@ -1537,6 +1554,9 @@ function App() {
                                         <Route path="/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
                                         <Route path="/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
                                         <Route path="/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
+                                        <Route path="/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
+                                        <Route path="/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
+                                        <Route path="/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
                                         {/* ----------------------------------------------------------------------- */}
                                         {/* NEW ROLE-BASED ROUTES (Sticky Sidebar) */}
                                         {/* ----------------------------------------------------------------------- */}
@@ -3017,6 +3037,16 @@ function App() {
                                         {/* Compartment / Supplementary Exam Marks Entry */}
                                         <Route path="/compartmentmarks9ds" element={<CompartmentMarksEntryds classGroup="9ds" />} />
                                         <Route path="/compartmentmarks11ds" element={<CompartmentMarksEntryds classGroup="11ds" />} />
+
+                                        {/* New CRM Reports V2 */}
+                                        <Route path="/crm-lead-status-stage-report" element={<CrmdsLeadStatusStageReport />} />
+                                        <Route path="/crm-counsellor-performance-report" element={<CrmdsCounsellorPerformanceReport />} />
+                                        <Route path="/crm-daily-calling-report" element={<CrmdsDailyCallingReport />} />
+                                        <Route path="/crm-untouched-leads-report" element={<CrmdsUntouchedLeadReport />} />
+                                        <Route path="/crm-follow-up-due-report" element={<CrmdsFollowUpDueReport />} />
+                                        <Route path="/crm-sourcewise-enhanced-report" element={<CrmdsSourceWiseEnhancedReport />} />
+                                        <Route path="/crm-conversion-report" element={<CrmdsConversionReport />} />
+                                
                                 </Routes>
                         </React.Suspense>
                 </Router>

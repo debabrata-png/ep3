@@ -277,10 +277,40 @@ export function menustore() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Delivery Management" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/role/vendors-masterds2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendors Master" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/vendor-catalogds2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Catalog" />}
+          </ListItem>
 
 
         </AccordionDetails>
       </Accordion>
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Store & Stock Report</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/role/stock-reportds2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Stock Report" />}
+          </ListItem>
+
+        </AccordionDetails>
+      </Accordion>
+
 
       <Accordion>
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">

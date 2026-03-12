@@ -160,6 +160,57 @@ export function menuitemscrm() {
         </AccordionDetails>
       </Accordion>
 
+      <Accordion>
+        <AccordionSummary aria-controls="panel-crm-content" id="panel-crm-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>CRM Report</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/crm-lead-status-stage-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Lead Status Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-counsellor-performance-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counsellor Performance" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-daily-calling-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Daily Calling Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-untouched-leads-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Untouched Lead Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-follow-up-due-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Follow-Up Due Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-sourcewise-enhanced-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Source Wise Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crm-conversion-report">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Conversion Report" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
+
       {/* Programs Section */}
       <Accordion>
         <AccordionSummary aria-controls="panel-programs-content" id="panel-programs-header">

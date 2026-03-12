@@ -349,7 +349,7 @@ const ConfirmAdmissionds = () => {
                             onChange={(e) => setAdmissionFormData({ ...admissionFormData, programcode: e.target.value })}
                             fullWidth
                             required
-                            helperText={!admissionFormData.programcode ? "Ensure Program Master has codes or enter manually" : ""}
+                            helperText={!admissionFormData.programcode ? "Required: Enter the course code (e.g., BSC-CS)" : ""}
                         />
                         <TextField
                             label="Admission Year"

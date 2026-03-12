@@ -1519,6 +1519,13 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees payment" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/dashmfeespayl">
+                      <ListItemIcon>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counter Fees payment" />}
+                    </ListItem>
+
           <ListItem button component={RouterLink} to="/feesummaryreport">
             <ListItemIcon>
               <PersonIcon />

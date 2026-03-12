@@ -20,6 +20,7 @@ import ep1 from '../api/ep1';
 import global1 from './global1';
 
 import PRTemplate2 from './PRTemplate2';
+import GRNTemplate2 from './GRNTemplate2';
 import { createRoot } from 'react-dom/client';
 
 const StoreManagerDashboardds2 = () => {
@@ -837,6 +838,7 @@ const StoreManagerDashboardds2 = () => {
                 itemid: newStock.itemid,
                 itemcode: selectedItem?.itemcode,
                 itemname: selectedItem?.itemname,
+                category: selectedItem?.category,
                 quantity: Number(newStock.quantity),
                 type: selectedItem?.itemtype,
                 status: 'Available'
@@ -1073,8 +1075,6 @@ const StoreManagerDashboardds2 = () => {
                 <Tab label="Local Purchases (Cash)" />
                 <Tab label="Configuration" />
                 <Tab label="GRN" />
-                <Tab label="Vendors" />
-                <Tab label="Vendor Catalog" />
             </Tabs>
 
             {tabValue === 0 && (
@@ -1100,6 +1100,8 @@ const StoreManagerDashboardds2 = () => {
                             rows={inventory}
                             columns={[
                                 { field: 'itemname', headerName: 'Item Name', width: 200 },
+                                { field: 'category', headerName: 'Category', width: 150 },
+                                { field: 'type', headerName: 'Type', width: 120 },
                                 { field: 'itemcode', headerName: 'Item Code', width: 130 },
                                 { field: 'quantity', headerName: 'Quantity', width: 110 },
                                 { field: 'storename', headerName: 'Store', width: 180 },
@@ -1810,31 +1812,30 @@ const StoreManagerDashboardds2 = () => {
                     };
 
                     const handlePrintGRN = (grn) => {
-                        const w = window.open('', '_blank');
-                        w.document.write(`<html><head><title>GRN - ${grn.grnNo}</title>
-                    <style>body{font-family:Arial,sans-serif;padding:20px;font-size:13px}h2{text-align:center}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px 8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.label{font-size:11px;color:#555}.value{font-weight:600;border-bottom:1px solid #333;min-height:18px}</style></head>
-                    <body><h2>Goods Receipt Note</h2>
-                    <div class="grid">
-                        <div><div class="label">GRN No</div><div class="value">${grn.grnNo}</div></div>
-                        <div><div class="label">Date</div><div class="value">${grn.grnDate ? new Date(grn.grnDate).toLocaleDateString('en-GB') : ''}</div></div>
-                        <div><div class="label">PO No</div><div class="value">${grn.poid}</div></div>
-                        <div><div class="label">Gate Pass No</div><div class="value">${grn.gatePassNumber}</div></div>
-                        <div><div class="label">Vendor</div><div class="value">${grn.vendorName || ''}</div></div>
-                        <div><div class="label">Received By</div><div class="value">${grn.receivedBy || ''}</div></div>
-                        <div><div class="label">Vehicle No</div><div class="value">${grn.vehicleNo || ''}</div></div>
-                        <div><div class="label">LR No</div><div class="value">${grn.lrNo || ''}</div></div>
-                        <div><div class="label">DC/Invoice No</div><div class="value">${grn.dcInvoiceNo || ''}</div></div>
-                        <div><div class="label">Bill Amount</div><div class="value">₹${grn.billAmount || 0}</div></div>
-                    </div>
-                    <table><thead><tr><th>Sr.No</th><th>Item Description</th><th>Unit</th><th>Expected Qty</th><th>Delivered Qty</th><th>GRN Qty</th><th>Remarks</th></tr></thead>
-                    <tbody>${(grn.items || []).map((it, i) => `<tr><td>${i + 1}</td><td>${it.itemname}</td><td>${it.unit}</td><td>${it.expectedQuantity}</td><td>${it.deliveredQuantity}</td><td>${it.grnQuantity}</td><td>${it.remarks || ''}</td></tr>`).join('')}</tbody></table>
-                    <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;text-align:center">
-                        <div style="border-top:1px solid #333;padding-top:4px">Store Incharge</div>
-                        <div style="border-top:1px solid #333;padding-top:4px">SO Signature</div>
-                        <div style="border-top:1px solid #333;padding-top:4px">Vendor / Remarks</div>
-                    </div>
-                    <script>window.print();</script></body></html>`);
-                        w.document.close();
+                        const printWindow = window.open('', '', 'height=900,width=900');
+                        printWindow.document.write('<html><head><title>GRN - ' + (grn.grnNo || '') + '</title></head><body><div id="grn-print-root"></div></body></html>');
+                        printWindow.document.close();
+                        const root = createRoot(printWindow.document.getElementById('grn-print-root'));
+                        root.render(
+                            <GRNTemplate2
+                                poData={grn}
+                                items={grn.items || []}
+                                grnNumber={grn.grnNo}
+                                instituteName={prConfigData.institutionname}
+                                instituteAddress={prConfigData.address}
+                                institutePhone={prConfigData.phone}
+                                extraData={{
+                                    gatePassNumber: grn.gatePassNumber,
+                                    receivedBy: grn.receivedBy,
+                                    vehicleNo: grn.vehicleNo,
+                                    lrNo: grn.lrNo,
+                                    dcInvoiceNo: grn.dcInvoiceNo,
+                                    billAmount: grn.billAmount,
+                                    remarks: grn.remarks
+                                }}
+                            />
+                        );
+                        setTimeout(() => { printWindow.focus(); printWindow.print(); }, 1000);
                     };
 
                     const openPassesFiltered = gatePasses.filter(p => p.status !== 'GRN Created');
@@ -1916,52 +1917,6 @@ const StoreManagerDashboardds2 = () => {
                 })()
             }
 
-            {/* Vendors Tab */}
-            {tabValue === 7 && (
-                <Box sx={{ height: 600, width: '100%', mt: 3 }}>
-                    <Typography variant="h6" gutterBottom>Vendors Master</Typography>
-                    <DataGrid
-                        rows={vendors.map(v => ({ ...v, id: v._id }))}
-                        columns={[
-                            { field: 'vendorname', headerName: 'Vendor Name', width: 250 },
-                            { field: 'code', headerName: 'Vendor Code', width: 150 },
-                            { field: 'contactPerson', headerName: 'Contact Person', width: 180 },
-                            { field: 'phone', headerName: 'Phone', width: 150 },
-                            { field: 'email', headerName: 'Email', width: 250 },
-                            { field: 'status', headerName: 'Status', width: 120 }
-                        ]}
-                        pageSizeOptions={[10, 25, 50]}
-                        disableRowSelectionOnClick
-                    />
-                </Box>
-            )}
-
-            {/* Vendor Catalog Tab */}
-            {
-                tabValue === 8 && (
-                    <Box sx={{ height: 600, width: '100%', mt: 3 }}>
-                        <Typography variant="h6" gutterBottom>Vendor Item Catalog</Typography>
-                        <DataGrid
-                            rows={vendorItems.map((vi, index) => ({
-                                ...vi,
-                                id: vi._id,
-                                vendorNameStr: vendors.find(v => v._id === vi.vendorid)?.vendorname || vi.vendorid || '',
-                                itemNameStr: allItems.find(i => i._id === vi.itemid)?.itemname || vi.itemid || ''
-                            }))}
-                            columns={[
-                                { field: 'vendorNameStr', headerName: 'Vendor Name', width: 250 },
-                                { field: 'itemNameStr', headerName: 'Item Name', width: 250 },
-                                { field: 'price', headerName: 'Unit Price (₹)', width: 150 },
-                                { field: 'taxes', headerName: 'Applicable Taxes', width: 150 },
-                                { field: 'netprice', headerName: 'Net Price (₹)', width: 150 },
-                                { field: 'leadTime', headerName: 'Lead Time (Days)', width: 150 }
-                            ]}
-                            pageSizeOptions={[10, 25, 50]}
-                            disableRowSelectionOnClick
-                        />
-                    </Box>
-                )
-            }
 
         </Box >
     );

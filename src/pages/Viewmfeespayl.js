@@ -1,7 +1,7 @@
 import ep1 from '../api/ep1';
 import React, { useEffect, useState, useRef } from 'react';
 import global1 from './global1';
-import { Button, Box, Paper, Container, Grid } from '@mui/material';
+import { Button, Box, Paper, Container, Grid, TextField, Select, InputLabel,MenuItem } from '@mui/material';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import AddUserModal from './Addmfees';
@@ -42,6 +42,25 @@ function ViewPage() {
       coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '',studentsenrolled:'',
       price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '', dateadded: ''
     });
+
+      const keywordsref=useRef();
+            const policyref=useRef();
+            const paymoderef=useRef();
+            const payrefref=useRef();
+            const concessionref=useRef();
+            const doclinkref=useRef();
+            const paidref=useRef();
+            
+    
+        const [regno, setRegno] = useState('');
+        const [password, setPassword] = useState('');
+        const [username, setUsername] = useState('');
+        const [role, setRole] = useState('');
+        const [lastlogin, setLastlogin] = useState('');
+        const [status1, setStatus1] = useState('');
+        const [programcode, setProgramcode] = useState('');
+        const [admissionyear, setAdmissionyear] = useState('');
+        const [category, setCategory] = useState('');
 
      const [file, setFile] = useState();
     const [dialogopen, setDialogopen] = React.useState(false);
@@ -86,6 +105,124 @@ function ViewPage() {
             }
 
         });
+        alert(response.data.status);
+        const a = await fetchViewPage();
+    };
+
+    const onButtonClicken = async(e, row) => {
+        e.stopPropagation();
+        //do whatever you want with the row
+        //alert(row._id);
+        // const response = await ep1.get('/api/v2/deletefeesbyfac', {
+        //     params: {
+        //         id: row._id,
+        //         token: token,
+        //         user: user
+        //     }
+
+        // });
+
+        const paymode=paymoderef.current.value;
+            const payref=payrefref.current.value;
+            const concession=parseInt(concessionref.current.value);
+            const doclink=doclinkref.current.value;
+            const paid=parseInt(paidref.current.value);
+
+
+            
+
+
+            var amount=parseInt(row.amount);
+            if(concession>amount) {
+              alert('Concession cannot be greater than fees');
+              return;
+            }
+            var total1=paid + concession;
+            if(total1>amount) {
+              alert('Concession + Paid cannot be greater than fees');
+              return;
+            }
+            if(paid==0) {
+              paid=amount - concession;
+            }
+            var newamount=amount-concession;
+            var balance=amount-concession-paid;
+            var cash=0;
+            var neft=0;
+            var pg=0;
+            var cheque=0;
+            var upi=0;
+
+            if(paymode=='Cash') {
+              cash=paid;
+            }
+            if(paymode=='Cheque') {
+              cheque=paid;
+            }
+            if(paymode=='UPI') {
+              upi=paid;
+            }
+            if(paymode=='NEFT') {
+              neft=paid;
+            }
+
+        const response = await ep1.get('/api/v2/createmfeescolbyfac', {
+                params: {
+                    user: user,
+                    token: token,
+                    colid: colid,
+                    name: name,
+                   year:row.academicyear,
+        programcode:programcode,
+        student:username,
+        regno:regno,
+        feegroup:row.feegroup,
+        feeitem:row.feeeitem,
+        semester:row.semester,
+        feecategory:row.feecategory,
+        paydate:new Date(),
+        amount:paid,
+        paymode:paymode,
+        payref:payref,
+        paystatus:'Paid',
+        
+        status1:'Submitted',
+                    comments:''
+        
+                }
+            });
+
+            
+
+          const response1 =await ep1.get('/api/v2/updateledgerstud', {
+                      params: {
+                      id: user._id,
+                      user: user.user,
+                      token:token,
+                      name: user.name,
+                      colid: colid,
+          //             academicyear:row.academicyear,
+          // student:row.student,
+          // regno:regno,
+          // feegroup:row.feegroup,
+          // semester:row.semester,
+          // feeitem:row.feeitem,
+          // feecategory:row.feecategory,
+          // classdate:row.classdate,
+          // amount:row.amount,
+          paid:row.amount,
+          concession:concession,
+          balance: balance,
+          paymode:paymode,
+          paydetails:payref,
+          installment:'NA',
+          status:'Paid',
+          
+                      status1:'Submitted',
+                      comments:''
+                      
+                      }
+                      });
         alert(response.data.status);
         const a = await fetchViewPage();
     };
@@ -150,7 +287,7 @@ return '';
 }
  },
 {
-field:'feeeitem',
+field:'feeitem',
 headerName:'Fee item',
 type:'text',
 width:200,
@@ -166,48 +303,6 @@ return '';
 {
 field:'feecategory',
 headerName:'Fee category',
-type:'text',
-width:200,
-editable:true,
-valueFormatter: (params) => {
-if (params.value) {
-return params.value;
-} else {
-return '';
-}
-}
- },
- {
-field:'studtype',
-headerName:'Student type',
-type:'text',
-width:200,
-editable:true,
-valueFormatter: (params) => {
-if (params.value) {
-return params.value;
-} else {
-return '';
-}
-}
- },
- {
-field:'domicile',
-headerName:'Domicile',
-type:'text',
-width:200,
-editable:true,
-valueFormatter: (params) => {
-if (params.value) {
-return params.value;
-} else {
-return '';
-}
-}
- },
- {
-field:'feetype',
-headerName:'Fee type',
 type:'text',
 width:200,
 editable:true,
@@ -267,21 +362,28 @@ return '';
             return (
              <table>
                 <tr>
-                  <td>
+                  {/* <td>
                   <Button
                 onClick={(e) => onButtonClick(e, params.row)}
                 variant="contained"
               >
                 Delete
               </Button>
-                  </td>
+                  </td> */}
                   <td width="10px"></td>
                   <td>
-                  <Button
+                  {/* <Button
                 onClick={(e) => onButtonClickgo(e, params.row)}
                 variant="contained"
               >
                 Check document
+                
+              </Button> */}
+               <Button
+                onClick={(e) => onButtonClicken(e, params.row)}
+                variant="contained"
+              >
+                Pay fees
                 
               </Button>
                   </td>
@@ -296,11 +398,16 @@ return '';
     const coursetitleref = useRef();
   
     const fetchViewPage = async () => {
-      const response = await ep1.get('/api/v2/getfeesbyfac', {
+        if(!programcode) {
+            alert('Please enter student user name and get details');
+            return;
+        }
+      const response = await ep1.get('/api/v2/getfeesbycatyrpl', {
         params: {
           token: token,
           colid: colid,
-          user: user
+          status: 'Active',
+          regno: regno
         }
       });
       setRows(response.data.data.classes);
@@ -330,12 +437,12 @@ return '';
 
     const refreshpage=async()=> {
       fetchViewPage();
-      // getgraphdata();
-      // getgraphdatasecond();
+      getgraphdata();
+      getgraphdatasecond();
     }
   
     useEffect(() => {
-      fetchViewPage();
+      //fetchViewPage();
       // getgraphdata();
       // getgraphdatasecond();
     }, []);
@@ -401,9 +508,6 @@ const feecategory=user.feecategory;
 const classdate=new Date(user.classdate);
 const amount=user.amount;
 const status=user.status;
-const studtype=user.studtype;
-const domicile=user.domicile;
-const feetype=user.feetype;
 
             //alert(coursetitle + ' - ' + studentscompleted);
              
@@ -424,9 +528,6 @@ feecategory:feecategory,
 classdate:classdate,
 amount:amount,
 status:status,
-studtype:studtype,
-feetype:feetype,
-domicile:domicile,
 
             status1:'Submitted',
             comments:''
@@ -562,13 +663,107 @@ domicile:domicile,
     const handleDialogclose = () => {
       setDialogopen(false);
     };
+
+    const getdetails = async () => {
+            const policy=policyref.current.value;
+            if(!policy) {
+                alert('Please enter username');
+                return;
+            }
+            setOpen(true);
+          const response = await ep1.get('/api/v2/logindetails', {
+            params: {
+              token: token,
+              colid: colid,
+              email: policy
+            }
+          });
+          //setRows(response.data.data.classes);
+          setUsername(response.data.name);
+          setPassword(response.data.password);
+          setRegno(response.data.regno);
+          setLastlogin(response.data.lastlogin);
+          setStatus1(response.data.status1);
+          setRole(response.data.role);
+          setProgramcode(response.data.programcode);
+          setCategory(response.data.category);
+          setAdmissionyear(response.data.admissionyear);
+
+          setOpen(false);
+
+    
+        };
   
     return (
       <React.Fragment>
         <Container maxWidth="100%" sx={{ mt: 4, mb: 4 }}>
+
+              <TextField id="outlined-basic"  type="text" sx={{ width: "100%"}} label="Student user name"  variant="outlined" inputRef={policyref} />
+                             <br /><br />
+                             <Box>
+                                 <Button onClick={getdetails}
+                                          variant="contained"
+                                          color="secondary"
+                                          style={{  fontSize: '12px', height: '40px', width: '160px' }}
+                                        >
+                                          Get User details
+                                        </Button>
+                                        <Button onClick={fetchViewPage}
+                                          variant="contained"
+                                          color="secondary"
+                                          style={{  fontSize: '12px', height: '40px', marginLeft: '10px', width: '160px' }}
+                                        >
+                                          Load fees
+                                        </Button>
+                                        
+            
+                             </Box>
+                            
+                                        <br /><br />
+                                        Program code : {programcode} &nbsp; &nbsp; Admission year : {admissionyear} &nbsp; &nbsp; Category : {category}
+                                        <br />
+                                        Name : {username} &nbsp; &nbsp; Reg no : {regno} &nbsp; &nbsp; Role : {role} &nbsp; &nbsp; Last login : {lastlogin} &nbsp; &nbsp; Status : {status1}
+                                        <br /><br />
+
+         <Box display="flex" spacing={4}>
+                                <InputLabel id="year">Pay mode</InputLabel>
+                                <Select labelId="year"
+                                // onChange={handleyearchange}
+                         id="year"
+                         inputRef={paymoderef}
+                         sx={{ width: '200px', height: '40px', marginLeft: 3}}
+                         >
+                         <MenuItem value="Cash">Cash</MenuItem>
+                         <MenuItem value="UPI">UPI</MenuItem>
+                         <MenuItem value="Cheque">Cheque</MenuItem>
+                         <MenuItem value="NEFT">NEFT</MenuItem>
+                         <MenuItem value="PG">PG</MenuItem>
+                         
+                         
+                         </Select>
+                         </Box>
+                         <br /><br />
+                         <Box display="flex" spacing={4}>
+
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Payment reference"  variant="outlined" inputRef={payrefref} />
+
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Paid (0 for full)" value="0"  variant="outlined" inputRef={paidref} />
+
+                         </Box>
+                         <br /><br />
+                          <Box display="flex" spacing={4}>
+
+                         <TextField id="outlined-basic"  type="number" sx={{ width: "100%", marginLeft: 3}} label="Concession amount" value="0"  variant="outlined" inputRef={concessionref} />
+
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Document link"  variant="outlined" inputRef={doclinkref} />
+
+                         </Box>
+                         <br /><br />
+
+
         <Box display="flex" marginBottom={4} marginTop={2}>
            
-           <Button
+           {/* <Button
              variant="contained"
              color="success"
              style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '80px' }}
@@ -583,7 +778,7 @@ domicile:domicile,
              onClick={handleOpenAddBulk}
            >
              Bulk
-           </Button>
+           </Button> */}
            <Button
              variant="contained"
              color="primary"
