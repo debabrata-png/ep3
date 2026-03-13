@@ -1520,11 +1520,11 @@ export function menuitemsall() {
           </ListItem>
 
           <ListItem button component={RouterLink} to="/dashmfeespayl">
-                      <ListItemIcon>
-                        <PersonIcon />
-                      </ListItemIcon>
-                      {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counter Fees payment" />}
-                    </ListItem>
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counter Fees payment" />}
+          </ListItem>
 
           <ListItem button component={RouterLink} to="/feesummaryreport">
             <ListItemIcon>
@@ -1603,6 +1603,20 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Fees" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/studentledgerdaterangereportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Student Ledger by Paymode" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/feesstructurereportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Fees Structure Report" />}
           </ListItem>
 
 

@@ -23,6 +23,8 @@ const CrmdsSourceWiseEnhancedReport = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [summary, setSummary] = useState([]);
+    const [allStages, setAllStages] = useState([]);
+    const [finalStageNames, setFinalStageNames] = useState([]);
     const [loading, setLoading] = useState(false);
     const chartRef = useRef();
     const colid = global1.colid;
@@ -31,7 +33,11 @@ const CrmdsSourceWiseEnhancedReport = () => {
         setLoading(true);
         try {
             const res = await ep1.post("/api/v2/crmds/sourcewise-enhanced-report", { startDate, endDate, colid });
-            if (res.data.success) setSummary(res.data.summary || []);
+            if (res.data.success) {
+                setSummary(res.data.summary || []);
+                setAllStages(res.data.allStages || []);
+                setFinalStageNames(res.data.finalStageNames || []);
+            }
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
     };
@@ -42,12 +48,18 @@ const CrmdsSourceWiseEnhancedReport = () => {
 
     const exportExcel = () => {
         if (!summary.length) return alert("No data");
-        const exportData = summary.map(d => ({
-            "Source": d.source,
-            "Leads": d.leads,
-            "Connected": d.connected,
-            "Admissions": d.admissions
-        }));
+        const exportData = summary.map(d => {
+            const row = {
+                "Source": d.source,
+                "Total Leads": d.leads,
+                "Admissions": d.admissions,
+                "Conversion %": d.conversionPercent + "%"
+            };
+            allStages.forEach(stage => {
+                row[stage] = d.stageCounts?.[stage] || 0;
+            });
+            return row;
+        });
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Source Wise Enhanced");
@@ -75,18 +87,47 @@ const CrmdsSourceWiseEnhancedReport = () => {
         }
         autoTable(pdf, {
             startY: currentY,
-            head: [["Source", "Leads", "Connected", "Admissions"]],
-            body: summary.map(r => [r.source, r.leads, r.connected, r.admissions]),
-            headStyles: { fillColor: [245, 158, 11] }
+            head: [["Source", "Total Leads", "Admissions", "Conversion %", ...allStages]],
+            body: summary.map(r => [
+                r.source, 
+                r.leads, 
+                r.admissions, 
+                r.conversionPercent + "%",
+                ...allStages.map(stage => r.stageCounts?.[stage] || 0)
+            ]),
+            headStyles: { fillColor: [245, 158, 11] },
+            styles: { fontSize: 8 }
         });
         pdf.save("Source_Wise_Leads.pdf");
     };
 
+    const admissionLabel = finalStageNames.length
+        ? `Admissions (${finalStageNames.join(", ")})`
+        : "Admissions";
+
     const columns = [
-        { field: "source", headerName: "Source", flex: 1.5 },
-        { field: "leads", headerName: "Leads", flex: 1, type: 'number' },
-        { field: "connected", headerName: "Connected", flex: 1, type: 'number' },
-        { field: "admissions", headerName: "Admissions", flex: 1, type: 'number' }
+        { field: "source", headerName: "Source", flex: 1.5, minWidth: 150 },
+        { field: "leads", headerName: "Total Leads", flex: 1, type: 'number', minWidth: 100 },
+        { field: "admissions", headerName: admissionLabel, flex: 1.2, type: 'number', minWidth: 150 },
+        {
+            field: "conversionPercent",
+            headerName: "Conversion %",
+            flex: 1,
+            type: 'number',
+            minWidth: 120,
+            valueFormatter: (params) => (params?.value ?? 0) + "%"
+        },
+        ...allStages.map(stage => ({
+            field: `stage_${stage}`,
+            headerName: stage,
+            flex: 1,
+            minWidth: 110,
+            type: 'number',
+            valueGetter: (params) => {
+                const row = params?.row || params;
+                return row?.stageCounts?.[stage] || 0;
+            }
+        }))
     ];
 
     return (
@@ -122,7 +163,6 @@ const CrmdsSourceWiseEnhancedReport = () => {
                         <Tooltip />
                         <Legend />
                         <Bar dataKey="leads" name="Total Leads" fill="#6366f1" radius={[4, 4, 0, 0]} isAnimationActive={false} />
-                        <Bar dataKey="connected" name="Connected" fill="#10b981" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                         <Bar dataKey="admissions" name="Admissions" fill="#f43f5e" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                     </BarChart>
                 </ResponsiveContainer>

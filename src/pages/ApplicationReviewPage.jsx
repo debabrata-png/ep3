@@ -106,7 +106,8 @@ const ApplicationReviewPage = () => {
     }
     // Approved – open dialog
     setCurrentApp(app);
-    setCustomRegno(generateRegno(app.programOptingFor, filters.academicyear));
+    let programcodereg = app.programOptingFor ? app.programOptingFor : filters.programcode;
+    setCustomRegno(generateRegno(programcodereg, filters.academicyear));
     setShowRegnoDialog(true);
   };
 
@@ -146,14 +147,15 @@ const ApplicationReviewPage = () => {
         password: app.password,
         role: "Student",
         regno,
-        programcode: app.programOptingFor,
+        programcode: app.programOptingFor || filters.programcode,
         admissionyear: filters.academicyear,
         semester: filters.semester,
         section: "A",
         gender: "",
-        department: app.programOptingFor,
+        department: app.programOptingFor || filters.programcode,
         colid: Number(global1.colid),
         status: 1,
+        lastlogin: "2040-03-05T16:48:19+05:30"
       };
 
       const userRes = await ep1.post("/api/v2/createuser", userPayload);

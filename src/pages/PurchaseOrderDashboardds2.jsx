@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import {
     Box,
     Typography,
@@ -26,6 +27,7 @@ import ep1 from '../api/ep1';
 import global1 from './global1';
 import POInvoiceTemplate2 from './POInvoiceTemplate2';
 import ImprestManagerds2 from './ImprestManagerds2';
+import PRTemplate2 from './PRTemplate2';
 
 const PurchaseOrderDashboardds2 = ({ role }) => {
     const currentRole = global1.role;
@@ -53,16 +55,25 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     const [viewPOItems, setViewPOItems] = useState([]);
     const [viewVendorData, setViewVendorData] = useState(null);
 
+    // PR Preview and History State
+    const [openPreviewModal, setOpenPreviewModal] = useState(false);
+    const [previewPRData, setPreviewPRData] = useState(null);
+    const [historyTabStatus, setHistoryTabStatus] = useState('All');
+    const [historyRequests, setHistoryRequests] = useState([]);
+    const [historyRowCount, setHistoryRowCount] = useState(0);
+    const [historyPaginationModel, setHistoryPaginationModel] = useState({ page: 0, pageSize: 10 });
+    const [historyLoading, setHistoryLoading] = useState(false);
+
     // Add Item to PO Form
     const [selectedItem, setSelectedItem] = useState(''); // This will be vendoritemds2._id
     const [newItemQty, setNewItemQty] = useState('');
     const [newItemPrice, setNewItemPrice] = useState('');
 
     // Dynamic Institution Details for PO View
-    const [instName, setInstName] = useState("PEOPLE'S PUBLIC SCHOOL");
-    const [instAddress, setInstAddress] = useState("BHANPUR, KAROND BYPASS ROAD, BHOPAL (M.P.) - 462010");
-    const [instPhone, setInstPhone] = useState("(0755) 4005170");
-    const [instShortName, setInstShortName] = useState("PPS");
+    const [instName, setInstName] = useState("");
+    const [instAddress, setInstAddress] = useState("");
+    const [instPhone, setInstPhone] = useState("");
+    const [instShortName, setInstShortName] = useState("");
     const [isAmendment, setIsAmendment] = useState(false);
 
     // Add to PO / Open PO Modal State
@@ -95,7 +106,10 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             const page = paginationModel.page + 1;
             const limit = paginationModel.pageSize;
 
-            if (tabValue === 0) await fetchStoreRequests(page, limit);
+            if (tabValue === 0) {
+                await fetchStoreRequests(page, limit);
+                await fetchPrConfig();
+            }
 
             if (tabValue === 1) {
                 await fetchStoreRequests(); // Fetch PRs for the dropdown
@@ -104,12 +118,59 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
 
             if (tabValue === 2) { await fetchPOs(page, limit); fetchApprovalConfig(); fetchPoConfig(); }
 
-            // Tab 3 (Imprest) handles its own fetching inside the component
+            if (tabValue === 4) {
+                await fetchHistoryRequests();
+                await fetchPrConfig();
+            }
 
             setLoading(false);
         };
         fetchData();
     }, [tabValue, paginationModel]);
+
+    useEffect(() => {
+        if (tabValue === 4) fetchHistoryRequests();
+    }, [historyTabStatus, historyPaginationModel]);
+
+    const fetchHistoryRequests = async () => {
+        setHistoryLoading(true);
+        try {
+            const page = historyPaginationModel.page + 1;
+            const limit = historyPaginationModel.pageSize;
+            const statusFilter = historyTabStatus !== 'All' ? `&reqstatus=${historyTabStatus}` : '';
+
+            let url;
+            const currentRole = role || global1.role;
+            if (currentRole === 'OE' || currentRole === 'PE') {
+                url = `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&page=${page}&limit=${limit}&user=${global1.user}${statusFilter}`;
+            } else {
+                url = `/api/v2/getallstorerequisationds2?colid=${global1.colid}&page=${page}&limit=${limit}${statusFilter}`;
+            }
+
+            const response = await ep1.get(url);
+            const reqs = response.data.data.requisitions || [];
+            setHistoryRequests(reqs.map(r => ({ ...r, id: r._id })));
+            setHistoryRowCount(response.data.total || response.data.count || 0);
+        } catch (error) {
+            console.error("Error fetching history requests", error);
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
+    const fetchPrConfig = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
+            if (res.data.data) {
+                setInstName(res.data.data.institutionname || "");
+                setInstAddress(res.data.data.address || "");
+                setInstPhone(res.data.data.phone || "");
+                setInstShortName(res.data.data.prshort || "");
+            }
+        } catch (e) {
+            console.error("Error fetching PR config:", e);
+        }
+    };
 
     const fetchPoConfig = async () => {
         try {
@@ -125,18 +186,20 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
         } catch (error) { console.error('Error fetching config:', error); }
     };
 
-    const fetchStoreRequests = async (page, limit) => {
+    const fetchStoreRequests = async (page, limit, status) => {
         try {
             let url;
             const currentRole = role || global1.role;
+            const statusFilter = status ? `&reqstatus=${status}` : '';
+
             if (currentRole === 'OE' || currentRole === 'PE') {
                 // Fetch assigned requests for this OE/PE user
-                url = page ? `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&page=${page}&limit=${limit}&user=${global1.user}`
-                    : `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&user=${global1.user}`;
+                url = page ? `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&page=${page}&limit=${limit}&user=${global1.user}${statusFilter}`
+                    : `/api/v2/getAssignedRequisitions2?colid=${global1.colid}&user=${global1.user}${statusFilter}`;
             } else {
                 // Fetch all requests (for Manager / Admin)
-                url = page ? `/api/v2/getallstorerequisationds2?colid=${global1.colid}&page=${page}&limit=${limit}`
-                    : `/api/v2/getallstorerequisationds2?colid=${global1.colid}`;
+                url = page ? `/api/v2/getallstorerequisationds2?colid=${global1.colid}&page=${page}&limit=${limit}${statusFilter}`
+                    : `/api/v2/getallstorerequisationds2?colid=${global1.colid}${statusFilter}`;
             }
 
             const response = await ep1.get(url);
@@ -618,6 +681,47 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
         }
     };
 
+    const handlePreviewPR = (row) => {
+        setPreviewPRData(row);
+        setOpenPreviewModal(true);
+    };
+
+    const handleHoldPR = async (row) => {
+        if (!window.confirm("Are you sure you want to put this PR on Hold?")) return;
+        try {
+            await ep1.post(`/api/v2/updatestorerequisationds2?id=${row._id}`, { reqstatus: 'Hold' });
+            alert("PR Status updated to Hold");
+            fetchStoreRequests(paginationModel.page + 1, paginationModel.pageSize);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update status");
+        }
+    };
+
+    const handleRejectPR = async (row) => {
+        if (!window.confirm("Are you sure you want to Reject this PR?")) return;
+        try {
+            await ep1.post(`/api/v2/updatestorerequisationds2?id=${row._id}`, { reqstatus: 'Rejected' });
+            alert("PR Status updated to Rejected");
+            fetchStoreRequests(paginationModel.page + 1, paginationModel.pageSize);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update status");
+        }
+    };
+
+    const handleResumePR = async (row) => {
+        if (!window.confirm("Are you sure you want to Resume/Un-hold this PR?")) return;
+        try {
+            await ep1.post(`/api/v2/updatestorerequisationds2?id=${row._id}`, { reqstatus: 'Approved' });
+            alert("PR Status updated to Approved. You can now Assign or add it to PO.");
+            fetchStoreRequests(paginationModel.page + 1, paginationModel.pageSize);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update status");
+        }
+    };
+
     // ... (keep handleSavePO etc.)
 
     // Assignment State (for Managers/Admins)
@@ -914,20 +1018,27 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             cols.push({
                 field: 'actions',
                 headerName: 'Actions',
-                width: 250,
+                width: 550,
                 renderCell: (params) => {
                     const isManager = currentRole === 'Purchasepu' || currentRole === 'Admin';
                     const isAssigned = params.row.reqstatus === 'Assigned';
                     const isCompleted = params.row.reqstatus === 'Completed';
 
-                    // Purchasepu sees Assign / Reassign
-                    const canAssign = isManager && !isCompleted;
+                    const isRejected = params.row.reqstatus === 'Rejected';
+                    const isHold = params.row.reqstatus === 'Hold';
+
+                    // Purchasepu sees Assign / Reassign if not completed, rejected, or on hold
+                    const canAssign = isManager && !isCompleted && !isRejected && !isHold;
 
                     // The execution roles ONLY see Add To PO. Managers also see it.
-                    const canAddToPO = !isCompleted && (isAssigned || isManager);
+                    // Only allowed if not completed, rejected, or on hold, and is assigned (or is manager)
+                    const canAddToPO = !isCompleted && !isRejected && !isHold && (isAssigned || isManager);
 
                     return (
                         <Box display="flex" gap={1} alignItems="center">
+                            <Button variant="contained" color="info" size="small" onClick={() => handlePreviewPR(params.row)}>
+                                Preview
+                            </Button>
                             {canAssign && (
                                 <Button variant="contained" size="small" onClick={() => handleOpenAssignDialog(params.row)}>
                                     {isAssigned ? 'Reassign' : 'Assign'}
@@ -944,13 +1055,29 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                                     </Button>
                                 </>
                             )}
+
+                            {!['Completed', 'Rejected', 'Hold', 'Delivered'].includes(params.row.reqstatus) && (
+                                <>
+                                    <Button variant="contained" color="warning" size="small" onClick={() => handleHoldPR(params.row)}>
+                                        Hold
+                                    </Button>
+                                    <Button variant="contained" color="error" size="small" onClick={() => handleRejectPR(params.row)}>
+                                        Reject
+                                    </Button>
+                                </>
+                            )}
+
+                            {(params.row.reqstatus === 'Hold' || params.row.reqstatus === 'Rejected') && (
+                                <Button variant="contained" color="success" size="small" onClick={() => handleResumePR(params.row)}>
+                                    Resume
+                                </Button>
+                            )}
                         </Box>
                     );
                 }
             });
         }
 
-        // ... (keep poItems actions)
         if (context === 'poItems') {
             cols.push({
                 field: 'actions',
@@ -1083,6 +1210,19 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             });
         }
 
+        if (context === 'historyRequests') {
+            cols.push({
+                field: 'actions',
+                headerName: 'Actions',
+                width: 150,
+                renderCell: (params) => (
+                    <Button variant="contained" color="info" size="small" onClick={() => handlePreviewPR(params.row)}>
+                        Preview
+                    </Button>
+                )
+            });
+        }
+
         return cols;
     };
 
@@ -1098,6 +1238,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                 <Tab label={isEditMode ? "Edit PO" : "Create Empty Draft PO"} />
                 <Tab label="Manage POs" />
                 {(global1.role === 'Purchase' || global1.role === 'Admin' || global1.role === 'Purchasepu') && <Tab label="Imprest Approval" />}
+                <Tab label="PR Status & History" />
             </Tabs>
 
             {tabValue === 0 && (
@@ -1247,6 +1388,44 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
 
             {tabValue === 3 && (
                 <ImprestManagerds2 />
+            )}
+
+            {tabValue === 4 && (
+                <Box>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                        <Typography variant="h6">PR Status & History</Typography>
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>Filter by Status</InputLabel>
+                            <Select
+                                value={historyTabStatus}
+                                label="Filter by Status"
+                                onChange={(e) => setHistoryTabStatus(e.target.value)}
+                                size="small"
+                            >
+                                <MenuItem value="All">All</MenuItem>
+                                <MenuItem value="Approved">Approved</MenuItem>
+                                <MenuItem value="Assigned">Assigned</MenuItem>
+                                <MenuItem value="Hold">Hold</MenuItem>
+                                <MenuItem value="Rejected">Rejected</MenuItem>
+                                <MenuItem value="Completed">Completed</MenuItem>
+                                <MenuItem value="Delivered">Delivered</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Paper sx={{ height: 600, width: '100%' }}>
+                        <DataGrid
+                            rows={historyRequests}
+                            columns={generateColumns(historyRequests, 'historyRequests')}
+                            pageSizeOptions={[10, 25, 50]}
+                            paginationModel={historyPaginationModel}
+                            onPaginationModelChange={setHistoryPaginationModel}
+                            paginationMode="server"
+                            rowCount={historyRowCount}
+                            loading={historyLoading}
+                            disableSelectionOnClick
+                        />
+                    </Paper>
+                </Box>
             )}
 
             {/* View PO Modal */}
@@ -1457,6 +1636,48 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                     <Button variant="contained" disabled={!selectedItem || (!poModalVendor) || (poCreationMode === 'EXISTING' && !selectedDraftPO)} onClick={submitAddPRToPO}>
                         Submit / Save to Draft
                     </Button>
+                </DialogActions>
+            </Dialog>
+            {/* PR Preview Modal */}
+            <Dialog open={openPreviewModal} onClose={() => setOpenPreviewModal(false)} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>PR Preview</span>
+                    <Button variant="contained" color="secondary" onClick={() => {
+                        const printWindow = window.open('', '', 'height=800,width=800');
+                        printWindow.document.write('<html><head><title>Print PR</title>');
+                        printWindow.document.write('</head><body><div id="print-root"></div></body></html>');
+                        printWindow.document.close();
+                        const root = createRoot(printWindow.document.getElementById('print-root'));
+                        root.render(
+                            <PRTemplate2
+                                requestData={previewPRData}
+                                prNumber={previewPRData?.prnumber}
+                                instituteName={instName}
+                                instituteAddress={instAddress}
+                                institutePhone={instPhone}
+                                createdByName={previewPRData?.user}
+                            />
+                        );
+                        setTimeout(() => {
+                            printWindow.focus();
+                            printWindow.print();
+                        }, 1000);
+                    }}>
+                        Print
+                    </Button>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <PRTemplate2
+                        requestData={previewPRData}
+                        prNumber={previewPRData?.prnumber}
+                        instituteName={instName}
+                        instituteAddress={instAddress}
+                        institutePhone={instPhone}
+                        createdByName={previewPRData?.user}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenPreviewModal(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box>

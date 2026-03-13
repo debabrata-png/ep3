@@ -21,6 +21,7 @@ const CrmdsDailyCallingReport = () => {
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]);
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
     const [summary, setSummary] = useState([]);
+    const [activeStages, setActiveStages] = useState([]);
     const [loading, setLoading] = useState(false);
     const chartRef = useRef();
     const colid = global1.colid;
@@ -35,6 +36,7 @@ const CrmdsDailyCallingReport = () => {
             });
             if (res.data.success) {
                 setSummary(res.data.summary || []);
+                setActiveStages(res.data.activeStages || []);
             }
         } catch (err) {
             console.error(err);
@@ -49,14 +51,18 @@ const CrmdsDailyCallingReport = () => {
 
     const exportExcel = () => {
         if (!summary.length) return alert("No data to export");
-        const exportData = summary.map(d => ({
-            "Date": d.date,
-            "Counsellor": d.counsellor,
-            "New Leads Assigned": d.newLeadsAssigned,
-            "Calls Done": d.callsDone,
-            "Connected": d.connected,
-            "Follow Up": d.followUp
-        }));
+        const exportData = summary.map(d => {
+            const row = {
+                "Date": d.date,
+                "Counsellor": d.counsellor,
+                "New Leads Assigned": d.newLeadsAssigned,
+                "Calls Done": d.callsDone
+            };
+            activeStages.forEach(stage => {
+                row[stage] = d.stageCounts ? d.stageCounts[stage] : 0;
+            });
+            return row;
+        });
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Calling Report");
@@ -85,11 +91,17 @@ const CrmdsDailyCallingReport = () => {
             currentY += imgHeight + 10;
         }
 
+        const headers = ["Date", "Counsellor", "New Leads", "Calls Done", ...activeStages];
+        const rows = summary.map(r => [
+            r.date, r.counsellor, r.newLeadsAssigned, r.callsDone,
+            ...activeStages.map(s => r.stageCounts ? r.stageCounts[s] : 0)
+        ]);
+
         autoTable(pdf, {
             startY: currentY,
-            head: [["Date", "Counsellor", "New Leads", "Calls Done", "Connected", "Follow Up"]],
-            body: summary.map(r => [r.date, r.counsellor, r.newLeadsAssigned, r.callsDone, r.connected, r.followUp]),
-            styles: { fontSize: 10 },
+            head: [headers],
+            body: rows,
+            styles: { fontSize: 8 },
             headStyles: { fillColor: [5, 150, 105] },
             alternateRowStyles: { fillColor: [240, 253, 244] }
         });
@@ -102,20 +114,31 @@ const CrmdsDailyCallingReport = () => {
         { field: "counsellor", headerName: "Counsellor", flex: 1.5 },
         { field: "newLeadsAssigned", headerName: "New Leads Assigned", flex: 1.2, type: 'number' },
         { field: "callsDone", headerName: "Calls Done", flex: 1, type: 'number' },
-        { field: "connected", headerName: "Connected", flex: 1, type: 'number' },
-        { field: "followUp", headerName: "Follow Up", flex: 1, type: 'number' }
+        ...activeStages.map(stage => ({
+            field: `stage_${stage}`,
+            headerName: stage,
+            flex: 1,
+            type: 'number',
+            valueGetter: (params) => params.row.stageCounts ? params.row.stageCounts[stage] : 0
+        }))
     ];
 
     // Prepare chart data (agg by date)
     const chartDataMap = {};
     summary.forEach(item => {
         if (!chartDataMap[item.date]) {
-            chartDataMap[item.date] = { date: item.date, calls: 0, connected: 0 };
+            chartDataMap[item.date] = { date: item.date, calls: 0 };
+            activeStages.forEach(s => chartDataMap[item.date][s] = 0);
         }
         chartDataMap[item.date].calls += item.callsDone;
-        chartDataMap[item.date].connected += item.connected;
+        activeStages.forEach(s => {
+            chartDataMap[item.date][s] += (item.stageCounts ? item.stageCounts[s] : 0);
+        });
     });
     const chartData = Object.values(chartDataMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    // Colors for dynamic lines
+    const COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#ec4899", "#06b6d4", "#84cc16"];
 
     return (
         <Box sx={{ p: { xs: 2, md: 4 }, minHeight: '100vh', background: '#f8fafc' }}>
@@ -131,7 +154,7 @@ const CrmdsDailyCallingReport = () => {
                         Daily Calling Report
                     </Typography>
                     <Typography variant="subtitle1" sx={{ opacity: 0.8 }}>
-                        Monitor daily counselor activities and lead engagement
+                        Monitor daily counselor activities and lead engagement across pipeline stages
                     </Typography>
                 </Box>
             </Box>
@@ -178,7 +201,18 @@ const CrmdsDailyCallingReport = () => {
                             <Tooltip contentStyle={{ borderRadius: 12 }} />
                             <Legend />
                             <Line type="monotone" dataKey="calls" name="Total Calls" stroke="#3b82f6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-                            <Line type="monotone" dataKey="connected" name="Connected" stroke="#10b981" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
+                            {activeStages.map((stage, index) => (
+                                <Line 
+                                    key={stage}
+                                    type="monotone" 
+                                    dataKey={stage} 
+                                    name={stage} 
+                                    stroke={COLORS[index % COLORS.length]} 
+                                    strokeWidth={2} 
+                                    dot={{ r: 4 }} 
+                                    activeDot={{ r: 6 }} 
+                                />
+                            ))}
                         </LineChart>
                     </ResponsiveContainer>
                 </Box>
@@ -194,6 +228,7 @@ const CrmdsDailyCallingReport = () => {
                     />
                 </Box>
             </Paper>
+
         </Box>
     );
 };

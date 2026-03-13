@@ -315,6 +315,8 @@ import ORGate2 from './pages/ORGate2';
 // ... existing imports
 import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
 import FeesGenerationds from './pages/FeesGenerationds';
+import StudentLedgerDateRangeReportds from './pages/StudentLedgerDateRangeReportds';
+import FeesStructureReportds from './pages/FeesStructureReportds';
 import CrmdsLeadStatusStageReport from './pages/crmdsLeadStatusStageReport';
 import CrmdsCounsellorPerformanceReport from './pages/crmdsCounsellorPerformanceReport';
 import CrmdsDailyCallingReport from './pages/crmdsDailyCallingReport';
@@ -3046,6 +3048,8 @@ function App() {
                                         <Route path="/crm-follow-up-due-report" element={<CrmdsFollowUpDueReport />} />
                                         <Route path="/crm-sourcewise-enhanced-report" element={<CrmdsSourceWiseEnhancedReport />} />
                                         <Route path="/crm-conversion-report" element={<CrmdsConversionReport />} />
+                                        <Route path="/studentledgerdaterangereportds" element={<StudentLedgerDateRangeReportds />} />
+                                        <Route path="/feesstructurereportds" element={<FeesStructureReportds />} />
                                 
                                 </Routes>
                         </React.Suspense>

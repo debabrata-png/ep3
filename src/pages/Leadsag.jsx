@@ -101,6 +101,9 @@ const Leadsag = () => {
   const [counselorOptions, setCounselorOptions] = useState([]);
   const [counselorLoading, setCounselorLoading] = useState(false);
 
+  // Dynamic pipeline stages from model
+  const [pipelineStages, setPipelineStages] = useState([]);
+
   // State for cascading dropdowns
   const [institutions, setInstitutions] = useState([]);
   const [programTypes, setProgramTypes] = useState([]);
@@ -209,7 +212,21 @@ const Leadsag = () => {
     fetchSources();
     fetchCategories();
     fetchInstitutions();
+    fetchPipelineStages();
   }, []);
+
+  const fetchPipelineStages = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallpipelinestageag", {
+        params: { colid: global1.colid }
+      });
+      if (res.data.status === "Success") {
+        setPipelineStages(res.data.data.filter(item => item.isactive));
+      }
+    } catch (err) {
+      console.error("Error fetching pipeline stages:", err);
+    }
+  };
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -661,45 +678,8 @@ const Leadsag = () => {
       width: 160,
       editable: false,
       type: 'singleSelect',
-      valueOptions: [
-        'New Lead',
-        'Contacted',
-        'Qualified',
-        'Counselling Scheduled',
-        'Campus Visited',
-        'Application Sent',
-        'Application Submitted',
-        'Fee Paid',
-        'Admitted',
-        'Lost',
-        'Prospect',
-        'Contact Attempted',
-        'Phone Conversation',
-        'WhatsApp Conversation',
-        'Follow Up',
-        'General Enquiry',
-        'Call Reschedule',
-        'Interested',
-        'Not Interested',
-        'Seat Booked',
-        'ePravesh Done',
-        'Admission Done',
-        'Admission Cancelled',
-        'Admited in Another College',
-        'Consultancy Services',
-        'Enquiry for 2nd year',
-        'Enquiry for 3rd year',
-        'Enquiry for 4th year Hons.',
-        'Existing Student',
-        'Hospital Enquiry',
-        'Junk Lead / Wrong Number',
-        'Not Done Enquiry',
-        'Not Eligible',
-        'Offer Letter Issued',
-        'Other Courses',
-        'Prospect for next academic year',
-        'ERP Done'
-      ],
+      valueOptions: pipelineStages.map(s => s.stagename || s.name),
+
       renderCell: (params) => (
         <Chip
           label={params.value}
@@ -1521,40 +1501,16 @@ const Leadsag = () => {
                 select
                 fullWidth
                 label="Pipeline Stage"
-                value={["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(editFormData.pipeline_stage) ? editFormData.pipeline_stage : "Other"}
-                onChange={(e) => {
-                  if (e.target.value === "Other") {
-                    setEditFormData({ ...editFormData, pipeline_stage: "" });
-                  } else {
-                    setEditFormData({ ...editFormData, pipeline_stage: e.target.value });
-                  }
-                }}
+                value={editFormData.pipeline_stage}
+                onChange={(e) => setEditFormData({ ...editFormData, pipeline_stage: e.target.value })}
               >
-                <MenuItem value="New Lead">New Lead</MenuItem>
-                <MenuItem value="Contacted">Contacted</MenuItem>
-                <MenuItem value="Qualified">Qualified</MenuItem>
-                <MenuItem value="Counselling Scheduled">Counselling Scheduled</MenuItem>
-                <MenuItem value="Campus Visited">Campus Visited</MenuItem>
-                <MenuItem value="Application Sent">Application Sent</MenuItem>
-                <MenuItem value="Application Submitted">Application Submitted</MenuItem>
-                <MenuItem value="Fee Paid">Fee Paid</MenuItem>
-                <MenuItem value="Admitted">Admitted</MenuItem>
-                <MenuItem value="Lost">Lost</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
+                {pipelineStages.map((s) => (
+                  <MenuItem key={s._id} value={s.stagename || s.name}>
+                    {s.stagename || s.name}
+                  </MenuItem>
+                ))}
               </TextField>
             </Grid>
-
-            {!["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(editFormData.pipeline_stage) && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Custom Stage Name"
-                  value={editFormData.pipeline_stage === "Other" ? "" : editFormData.pipeline_stage}
-                  onChange={(e) => setEditFormData({ ...editFormData, pipeline_stage: e.target.value })}
-                  placeholder="Enter custom stage..."
-                />
-              </Grid>
-            )}
 
             <Grid item xs={12} sm={6}>
               <TextField

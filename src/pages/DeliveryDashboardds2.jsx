@@ -25,8 +25,32 @@ const DeliveryDashboardds2 = () => {
     const [billNo, setBillNo] = useState('');
     const [billDate, setBillDate] = useState('');
 
+    // Institute Config for Print
+    const [prConfigData, setPrConfigData] = useState({
+        institutionname: "People's Group",
+        address: "Karond Bhanpur By Pass Road, Bhopal-462037",
+        phone: "+91-0755-4005013"
+    });
+
+    const fetchPRConfig = async () => {
+        try {
+            const response = await ep1.get(`/api/v2/getprconfigds?colid=${global1.colid}`);
+            if (response.data.data) {
+                const data = response.data.data;
+                setPrConfigData({
+                    institutionname: data.institutionname || "People's Group",
+                    address: data.address || "Karond Bhanpur By Pass Road, Bhopal-462037",
+                    phone: data.phone || "+91-0755-4005013"
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching PR Config:', error);
+        }
+    };
+
     useEffect(() => {
         fetchApprovedPOs();
+        fetchPRConfig();
     }, []);
 
     const fetchApprovedPOs = async () => {
@@ -208,7 +232,17 @@ const DeliveryDashboardds2 = () => {
             printWindow.document.close();
 
             const root = createRoot(printWindow.document.getElementById('print-root'));
-            root.render(<GRNTemplate2 poData={po} items={itemsToPrint} grnNumber={grnNumber} extraData={extraData} />);
+            root.render(
+                <GRNTemplate2 
+                    poData={po} 
+                    items={itemsToPrint} 
+                    grnNumber={grnNumber} 
+                    extraData={extraData} 
+                    instituteName={prConfigData.institutionname}
+                    instituteAddress={prConfigData.address}
+                    institutePhone={prConfigData.phone}
+                />
+            );
 
             setTimeout(() => {
                 printWindow.focus();
