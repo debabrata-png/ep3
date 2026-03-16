@@ -23,9 +23,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText
+  DialogContentText,
+  TableSortLabel,
+  InputAdornment
 } from '@mui/material';
-import { Save, Download, Upload } from '@mui/icons-material';
+import { Save, Download, Upload, Search } from '@mui/icons-material';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 import * as XLSX from 'xlsx';
@@ -54,6 +56,20 @@ const BulkMarksEntryPageds = () => {
   const [existingWorkingDays, setExistingWorkingDays] = useState(0);
   // Inline editable working days (shown in filter bar when attendance component selected)
   const [workingDaysValue, setWorkingDaysValue] = useState('');
+
+  // Search and Sort State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'regno', direction: 'asc' });
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -92,7 +108,7 @@ const BulkMarksEntryPageds = () => {
     if (semester && academicyear && term && componentname) {
       fetchData();
     }
-  }, [semester, academicyear, term, componentname, section]);
+  }, [semester, academicyear, term, componentname, section, debouncedSearchQuery]);
 
   const fetchSemestersAndYears = async () => {
     try {
@@ -129,7 +145,8 @@ const BulkMarksEntryPageds = () => {
           academicyear,
           section,
           term,
-          componentname
+          componentname,
+          search: debouncedSearchQuery
         }
       });
 
@@ -178,6 +195,33 @@ const BulkMarksEntryPageds = () => {
       setLoading(false);
     }
   };
+
+  const handleRequestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedStudents = React.useMemo(() => {
+    let result = [...students];
+
+    // Sort
+    result.sort((a, b) => {
+      let valA = a[sortConfig.key] || '';
+      let valB = b[sortConfig.key] || '';
+
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [students, searchQuery, sortConfig]);
 
   const handleMarkChange = (regno, subjectcode, value) => {
     const key = `${regno}_${subjectcode}`;
@@ -452,7 +496,24 @@ const BulkMarksEntryPageds = () => {
                 />
               </Grid>
             )}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Search Students"
+                placeholder="Search by Name, Reg No, or Roll No"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
                   variant="outlined"
@@ -512,11 +573,23 @@ const BulkMarksEntryPageds = () => {
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', minWidth: 100, position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 3 }}>
-                  Reg No
+                <TableCell sx={{ fontWeight: 'bold', minWidth: 120, position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 3 }}>
+                  <TableSortLabel
+                    active={sortConfig.key === 'regno'}
+                    direction={sortConfig.key === 'regno' ? sortConfig.direction : 'asc'}
+                    onClick={() => handleRequestSort('regno')}
+                  >
+                    Reg No
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', minWidth: 150, position: 'sticky', left: 100, bgcolor: 'background.paper', zIndex: 3 }}>
-                  Student Name
+                <TableCell sx={{ fontWeight: 'bold', minWidth: 200, position: 'sticky', left: 120, bgcolor: 'background.paper', zIndex: 3 }}>
+                  <TableSortLabel
+                    active={sortConfig.key === 'name'}
+                    direction={sortConfig.key === 'name' ? sortConfig.direction : 'asc'}
+                    onClick={() => handleRequestSort('name')}
+                  >
+                    Student Name
+                  </TableSortLabel>
                 </TableCell>
                 {subjects.map(subject => (
                   <TableCell key={subject.subjectcode} sx={{ fontWeight: 'bold', minWidth: 120 }}>
@@ -527,12 +600,12 @@ const BulkMarksEntryPageds = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {students.map(student => (
+              {filteredAndSortedStudents.map(student => (
                 <TableRow key={student.regno}>
                   <TableCell sx={{ position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 }}>
                     {student.regno}
                   </TableCell>
-                  <TableCell sx={{ position: 'sticky', left: 100, bgcolor: 'background.paper', zIndex: 1 }}>
+                  <TableCell sx={{ position: 'sticky', left: 120, bgcolor: 'background.paper', zIndex: 1 }}>
                     {student.name}
                   </TableCell>
                   {subjects.map(subject => {

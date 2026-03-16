@@ -559,27 +559,27 @@ const GenerateQuestionsAIDialog = ({ open, onClose, section, questionbankcode, o
   const cleanJSONResponse = (text) => {
     // Remove markdown code blocks
     text = text.replace(/``````\s*/g, '');
-    
+
     // Remove any text before the first [ or {
     const jsonStart = Math.min(
       text.indexOf('[') !== -1 ? text.indexOf('[') : Infinity,
       text.indexOf('{') !== -1 ? text.indexOf('{') : Infinity
     );
-    
+
     if (jsonStart !== Infinity) {
       text = text.substring(jsonStart);
     }
-    
+
     // Remove any text after the last ] or }
     const jsonEnd = Math.max(
       text.lastIndexOf(']'),
       text.lastIndexOf('}')
     );
-    
+
     if (jsonEnd !== -1) {
       text = text.substring(0, jsonEnd + 1);
     }
-    
+
     return text.trim();
   };
 
@@ -596,8 +596,8 @@ const GenerateQuestionsAIDialog = ({ open, onClose, section, questionbankcode, o
     try {
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash',
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.7,
           topK: 40,
@@ -606,8 +606,8 @@ const GenerateQuestionsAIDialog = ({ open, onClose, section, questionbankcode, o
       });
 
       // Build options string for MCQ
-      const optionsFormat = section.questiontype === 'MCQ' 
-        ? ',\n    "options": ["option1", "option2", "option3", "option4"]' 
+      const optionsFormat = section.questiontype === 'MCQ'
+        ? ',\n    "options": ["option1", "option2", "option3", "option4"]'
         : '';
 
       // STRICT PROMPT - Forces pure JSON output
@@ -645,7 +645,7 @@ OUTPUT FORMAT (copy exactly):
 Generate ${section.totalquestions} questions now:`;
 
       setProgress('Sending request to AI (this may take 90 seconds)...');
-      
+
       // Add 90 second delay before API call
       await sleep(90000);
 
@@ -655,10 +655,10 @@ Generate ${section.totalquestions} questions now:`;
       let text = response.text();
 
       setProgress('Cleaning and parsing JSON...');
-      
+
       // Clean the response
       text = cleanJSONResponse(text);
-      
+
       console.log('Cleaned Response:', text); // Debug log
 
       // Try to parse JSON with error handling
@@ -668,10 +668,10 @@ Generate ${section.totalquestions} questions now:`;
       } catch (parseError) {
         // If initial parse fails, try more aggressive cleaning
         console.error('Initial parse failed, trying aggressive cleaning...');
-        
+
         // Remove any remaining special characters
         text = text.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-        
+
         // Try parsing again
         questions = JSON.parse(text);
       }
@@ -690,7 +690,7 @@ Generate ${section.totalquestions} questions now:`;
         if (!q.question || !q.questiontype || !q.marks || !q.answer) {
           throw new Error(`Question ${index + 1} is missing required fields`);
         }
-        
+
         // Validate MCQ has options
         if (section.questiontype === 'MCQ' && (!q.options || q.options.length !== 4)) {
           throw new Error(`Question ${index + 1} must have exactly 4 options`);
@@ -702,7 +702,12 @@ Generate ${section.totalquestions} questions now:`;
       setError('');
     } catch (err) {
       console.error('AI Generation Error:', err);
-      setError('Failed to generate questions: ' + err.message);
+      const errorMessage = err.message || '';
+      if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('quota')) {
+        setError('Daily AI request limit reached. Please try again tomorrow or contact your IT administrator.');
+      } else {
+        setError('Failed to generate questions: ' + errorMessage);
+      }
       setProgress('');
     }
     setLoading(false);
@@ -765,9 +770,9 @@ Generate ${section.totalquestions} questions now:`;
               <Divider sx={{ my: 2 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="h6">Preview Generated Questions</Typography>
-                <Chip 
-                  label={`${generatedQuestions.length} questions generated`} 
-                  color="success" 
+                <Chip
+                  label={`${generatedQuestions.length} questions generated`}
+                  color="success"
                   size="small"
                 />
               </Box>

@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.nav-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  padding: 2rem;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  height: 100%;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.card-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background: var(--primary-gradient);
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.glass-card:hover .card-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.card-title {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem !important;
+}
+
+.card-subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.back-button {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(5px) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: #475569 !important;
+  border-radius: 12px !important;
+  padding: 0.6rem 1.2rem !important;
+  margin-bottom: 2rem !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.back-button:hover {
+  background: #fff !important;
+  transform: translateX(-4px);
+}
+
+.page-header {
+  font-weight: 800 !important;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2.5rem !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}

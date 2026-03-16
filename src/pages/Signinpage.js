@@ -225,6 +225,8 @@ const Signup = () => {
         navigate("/role/store-manager-dashboard2")
       } else if (response.data.role === "Quality") {
         navigate("/role/quality-inspector2")
+      } else if (response.data.role === "HOI") {
+        navigate("/menugrouppage");
       } else {
         //navigate('/dashmmfaccourses');
         navigate('/dashdashfacnew');

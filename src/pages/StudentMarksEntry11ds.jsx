@@ -22,9 +22,11 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    TableSortLabel,
+    InputAdornment
 } from '@mui/material';
-import { Save } from '@mui/icons-material';
+import { Save, Search } from '@mui/icons-material';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
@@ -49,6 +51,20 @@ const StudentMarksEntry11ds = () => {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+    // Search and Sort State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+
+    // Debounce search query
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     // Dynamic options
     const [availableSemesters, setAvailableSemesters] = useState([]);
@@ -102,7 +118,7 @@ const StudentMarksEntry11ds = () => {
         if (semester && academicyear && section) {
             fetchData();
         }
-    }, [semester, academicyear, section]);
+    }, [semester, academicyear, section, debouncedSearchQuery]);
 
     const fetchSemestersAndYears = async () => {
         try {
@@ -134,7 +150,8 @@ const StudentMarksEntry11ds = () => {
                     semester,
                     academicyear,
                     section,
-                    term // Pass term to backend
+                    term, // Pass term to backend
+                    search: debouncedSearchQuery
                 }
             });
 
@@ -159,6 +176,40 @@ const StudentMarksEntry11ds = () => {
             setLoading(false);
         }
     };
+
+    const handleRequestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const filteredAndSortedStudents = React.useMemo(() => {
+        let result = [...students];
+
+        // Sort
+        result.sort((a, b) => {
+            let valA = a[sortConfig.key] || '';
+            let valB = b[sortConfig.key] || '';
+
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+
+            // Special handling for rollno if it's numeric in string form
+            if (sortConfig.key === 'rollno') {
+                const numA = parseInt(valA) || 0;
+                const numB = parseInt(valB) || 0;
+                if (numA !== numB) return sortConfig.direction === 'asc' ? numA - numB : numB - numA;
+            }
+
+            if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return result;
+    }, [students, searchQuery, sortConfig]);
 
     const handleMarkChange = (regno, subject, value) => {
         const key = `${regno}-${subject.subjectcode}`;
@@ -366,7 +417,25 @@ const StudentMarksEntry11ds = () => {
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} md={2} sx={{ textAlign: 'right' }}>
+                        <Grid item xs={12} md={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label="Search Students"
+                                placeholder="Search Name/Reg No/Roll No"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
                             <Button
                                 variant="contained"
                                 startIcon={<Save />}
@@ -390,7 +459,39 @@ const StudentMarksEntry11ds = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ backgroundColor: '#e0e0e0', zIndex: 10, minWidth: 200, fontWeight: 'bold' }}>
-                                    Student Info
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'name'}
+                                        direction={sortConfig.key === 'name' ? sortConfig.direction : 'asc'}
+                                        onClick={() => handleRequestSort('name')}
+                                    >
+                                        Student Info (Name)
+                                    </TableSortLabel>
+                                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                cursor: 'pointer',
+                                                color: sortConfig.key === 'rollno' ? 'primary.main' : 'text.secondary',
+                                                fontWeight: sortConfig.key === 'rollno' ? 'bold' : 'normal',
+                                                '&:hover': { textDecoration: 'underline' }
+                                            }}
+                                            onClick={() => handleRequestSort('rollno')}
+                                        >
+                                            Sort by Roll No
+                                        </Typography>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                cursor: 'pointer',
+                                                color: sortConfig.key === 'regno' ? 'primary.main' : 'text.secondary',
+                                                fontWeight: sortConfig.key === 'regno' ? 'bold' : 'normal',
+                                                '&:hover': { textDecoration: 'underline' }
+                                            }}
+                                            onClick={() => handleRequestSort('regno')}
+                                        >
+                                            Sort by Reg No
+                                        </Typography>
+                                    </Box>
                                 </TableCell>
                                 {columns.map((subject) => (
                                     <TableCell
@@ -412,7 +513,7 @@ const StudentMarksEntry11ds = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {students.map((student) => (
+                            {filteredAndSortedStudents.map((student) => (
                                 <TableRow key={student.regno} hover>
                                     <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: '#fff', zIndex: 5, borderRight: '1px solid #eee' }}>
                                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{student.name}</Typography>

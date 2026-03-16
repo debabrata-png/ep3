@@ -422,6 +422,13 @@ export function menuitemshostel() {
 {open && <ListItemText primaryTypographyProps={{fontSize: "14px"}} primary="Hostel" />}
 </ListItem>
 
+<ListItem button component={RouterLink} to="/hostelstudremarksds">
+<ListItemIcon>
+<PersonIcon />
+</ListItemIcon>
+{open && <ListItemText primaryTypographyProps={{fontSize: "14px"}} primary="Student Remarks" />}
+</ListItem>
+
 
 
         </AccordionDetails>

@@ -76,7 +76,13 @@ const DashboardPage = () => {
       path: "/mess-applications",
       color: "#5d4037",
     },
-   
+    {
+      title: "Student Remarks",
+      description: "Student remarks and Red flag",
+      icon: <Restaurant sx={{ fontSize: 40 }} />,
+      path: "/hostelstudremarksds",
+      color: "#5d4037",
+    },
   ];
 
   return (

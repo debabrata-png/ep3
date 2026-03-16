@@ -34,7 +34,6 @@ import global1 from "./global1";
 const ProgramCounselords = () => {
     const navigate = useNavigate();
     const [programs, setPrograms] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentProgram, setCurrentProgram] = useState(null);
@@ -64,11 +63,11 @@ const ProgramCounselords = () => {
         placement_highlights: "",
         faculty_info: "",
         accreditation: "",
+        education_qualification: "",
     });
 
     useEffect(() => {
         fetchPrograms();
-        fetchCategories();
     }, []);
 
     const fetchPrograms = async () => {
@@ -83,16 +82,7 @@ const ProgramCounselords = () => {
         }
     };
 
-    const fetchCategories = async () => {
-        try {
-            const res = await ep1.get("/api/v2/getallcategoriesag1", {
-                params: { colid: global1.colid },
-            });
-            setCategories(res.data.data);
-        } catch (err) {
-            console.error("Error fetching categories:", err);
-        }
-    };
+
 
     const handleSearchUsers = async (query) => {
         if (!query) {
@@ -115,6 +105,7 @@ const ProgramCounselords = () => {
         const templateData = [
             {
                 "Category": "Engineering",
+                "Education Qualification": "12th",
                 "Program Code": "CSE101",
                 "Program Name": "B.Tech Computer Science",
                 "Institution": "ABC Institute",
@@ -168,6 +159,7 @@ const ProgramCounselords = () => {
                     course_code: row["Program Code"],
                     course_name: row["Program Name"],
                     institution: row["Institution"],
+                    education_qualification: row["Education Qualification"],
                     program_type: row["Program Type"],
                     counsellor_name: row["Counselor Name"],
                     counsellor_email: row["Counselor Email"],
@@ -215,6 +207,7 @@ const ProgramCounselords = () => {
             setCurrentProgram(program);
             setFormData({
                 category: program.category,
+                education_qualification: program.education_qualification || "",
                 course_code: program.course_code,
                 course_name: program.course_name,
                 institution: program.institution || "",
@@ -242,6 +235,7 @@ const ProgramCounselords = () => {
             setCurrentProgram(null);
             setFormData({
                 category: "",
+                education_qualification: "",
                 course_code: "",
                 course_name: "",
                 institution: "",
@@ -273,6 +267,7 @@ const ProgramCounselords = () => {
         try {
             const payload = {
                 category: formData.category,
+                education_qualification: formData.education_qualification,
                 course_code: formData.course_code,
                 course_name: formData.course_name,
                 institution: formData.institution,
@@ -317,7 +312,7 @@ const ProgramCounselords = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this program?")) {
             try {
-                await ep1.get(`/ api / v2 / deleteprogramcounselords / ${id} `);
+                await ep1.get(`/api/v2/deleteprogramcounselords/${id} `);
                 showSnackbar("Program deleted successfully", "success");
                 fetchPrograms();
             } catch (err) {
@@ -333,6 +328,7 @@ const ProgramCounselords = () => {
 
     const columns = [
         { field: "category", headerName: "Category", width: 150 },
+        { field: "education_qualification", headerName: "Qualification", width: 130 },
         { field: "course_code", headerName: "Program Code", width: 120 },
         { field: "course_name", headerName: "Program Name", width: 200 },
         { field: "counsellor_name", headerName: "Counselor Name", width: 150 },
@@ -471,19 +467,19 @@ const ProgramCounselords = () => {
                 <DialogContent>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
                         <TextField
-                            select
                             fullWidth
                             label="Category"
                             value={formData.category}
                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                             required
-                        >
-                            {categories.map((cat) => (
-                                <MenuItem key={cat._id} value={cat.category_name}>
-                                    {cat.category_name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                        />
+
+                        <TextField
+                            fullWidth
+                            label="Education Qualification"
+                            value={formData.education_qualification}
+                            onChange={(e) => setFormData({ ...formData, education_qualification: e.target.value })}
+                        />
                         <TextField
                             fullWidth
                             label="Program Code"

@@ -28,7 +28,7 @@ const StaffProfileds = () => {
         vocationalsub: "", mdcsub: "", othersub: "", merit: "", obtain: "",
         bonus: "", weightage: "", ncctype: "", isdisabled: "", scholarship: "",
         designation: "", adhaarno: "", wpno: "", bloodgroup: "", cbseno: "",
-        abcid: "", income: "", joiningdate: ""
+        abcid: "", income: "", joiningdate: "", ews: ""
     });
 
     const [readOnlyData, setReadOnlyData] = useState({
@@ -92,7 +92,8 @@ const StaffProfileds = () => {
                 cbseno: userData.cbseno || "",
                 abcid: userData.abcid || "",
                 income: userData.income || "",
-                joiningdate: userData.joiningdate ? userData.joiningdate.split('T')[0] : ""
+                joiningdate: userData.joiningdate ? userData.joiningdate.split('T')[0] : "",
+                ews: userData.ews || ""
             });
         } catch (err) {
             setError("Error fetching profile");
@@ -177,6 +178,7 @@ const StaffProfileds = () => {
                     "Date of Birth": formData.dob,
                     "Category": formData.category,
                     "Differently Abled": formData.isdisabled,
+                    "EWS Status": formData.ews,
                     "Blood Group": formData.bloodgroup,
                     "Address": formData.address
                 });
@@ -347,6 +349,20 @@ const StaffProfileds = () => {
                                 onChange={handleChange}
                                 disabled={!isEditing}
                             />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                select
+                                label="EWS Status"
+                                name="ews"
+                                value={formData.ews}
+                                onChange={handleChange}
+                                disabled={!isEditing}
+                            >
+                                <MenuItem value="Yes">Yes</MenuItem>
+                                <MenuItem value="No">No</MenuItem>
+                            </TextField>
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <TextField

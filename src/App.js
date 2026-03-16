@@ -316,6 +316,7 @@ import ORGate2 from './pages/ORGate2';
 import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
 import FeesGenerationds from './pages/FeesGenerationds';
 import StudentLedgerDateRangeReportds from './pages/StudentLedgerDateRangeReportds';
+import ProgramWiseCashbookReportDS from './pages/ProgramWiseCashbookReportDS';
 import FeesStructureReportds from './pages/FeesStructureReportds';
 import CrmdsLeadStatusStageReport from './pages/crmdsLeadStatusStageReport';
 import CrmdsCounsellorPerformanceReport from './pages/crmdsCounsellorPerformanceReport';
@@ -1479,6 +1480,16 @@ import VendorCatalogds2 from './pages/VendorCatalogds2';
 
 import Dashmfeespayl from './pages/Dashmfeespayl';
 
+import Viewcrmstagepivot2 from './pages/Viewcrmstagepivot2';
+import Crompipedrill from './pages/Crompipedrill';
+
+import MenuGroupPage from "./pages/MenuGroupsPage";
+import MenuItemsPage from "./pages/MenuItemsPage";
+
+import HostelStudentRemarksds from "./pages/HostelStudentRemarksds.jsx";
+
+import Pucadmissionform from "./pages/Pucadmissionform";
+
 
 
 
@@ -1488,7 +1499,11 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
-
+                                        <Route path='/pucadmissionform' element={<Pucadmissionform />} />
+                                        <Route path='/menugrouppage' element={<MenuGroupPage />} />
+                                        <Route path='/menu/:groupId' element={<MenuItemsPage />} />
+                                        <Route path="/crompipedrill" element={<Crompipedrill />} />
+                                        <Route path="/viewcrmstagepivot2" element={<Viewcrmstagepivot2 />} />
                                         <Route path="/dashmfeespayl" element={<Dashmfeespayl />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
@@ -2333,6 +2348,7 @@ function App() {
                                         <Route path='/application/:id' element={<DetailedApplicationPage />} />
 
                                         <Route path='/hostelbuldingmanager' element={< HostelBuildingPage />} />
+                                        <Route path="/hostelstudremarksds" element={<HostelStudentRemarksds />} />
                                         <Route path='/rooms/:buildingname' element={<HostelRoomPage />} />
 
                                         <Route path='/studadmitcard' element={<Studadmitcard />} />
@@ -3049,8 +3065,9 @@ function App() {
                                         <Route path="/crm-sourcewise-enhanced-report" element={<CrmdsSourceWiseEnhancedReport />} />
                                         <Route path="/crm-conversion-report" element={<CrmdsConversionReport />} />
                                         <Route path="/studentledgerdaterangereportds" element={<StudentLedgerDateRangeReportds />} />
+                                        <Route path="/programwisecashbookreportds" element={<ProgramWiseCashbookReportDS />} />
                                         <Route path="/feesstructurereportds" element={<FeesStructureReportds />} />
-                                
+
                                 </Routes>
                         </React.Suspense>
                 </Router>

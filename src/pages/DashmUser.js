@@ -19,9 +19,9 @@ import { mainListItems, secondaryListItems } from './menucasadmin1';
 import { useState } from 'react';
 // import Chart from './Charts';
 // import Deposits from './Deposits';
-// import ViewPage from './ViewmUser';
-// import UserManagementdsoct18 from './UserManagementdsoct18';
-import UserManagementdsnov17 from './UserManagementdsnov17';
+import ViewPage from './ViewmUser';
+//import UserManagementdsoct18 from './UserManagementdsoct18';
+//import UserManagementdsnov17 from './UserManagementdsnov17';
 // import Login from './Login';
 import global1 from './global1';
 
@@ -168,7 +168,7 @@ function DashboardContent() {
                     <Toolbar />
                     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                            <UserManagementdsnov17 />
+                            <ViewPage />
                         </Paper>
                     </Container>
                 </Box>

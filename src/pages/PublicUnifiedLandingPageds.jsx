@@ -129,14 +129,14 @@ const PublicUnifiedLandingPageds = () => {
     };
 
     // Handle Category Change
-    const handleCategoryChange = async (category) => {
+    const handleCategoryChange = async (category, education_qualification) => {
         setFormData(prev => ({ ...prev, category, programId: "" }));
         setPrograms([]);
         if (!category || !decryptedData?.colid) return;
 
         try {
             const res = await ep1.get('/api/v2/getallprogramcounselords', {
-                params: { colid: decryptedData.colid, category, is_active: 'Yes' }
+                params: { colid: decryptedData.colid, category, is_active: 'Yes', education_qualification: education_qualification }
             });
             setPrograms(res.data.data || []);
         } catch (err) {
@@ -167,13 +167,21 @@ const PublicUnifiedLandingPageds = () => {
 
             // Get counselor from explicitly selected program, fallback to category
             const selectedProg = programs.find(p => p._id === formData.programId);
-            const selectedCat = categories.find(c => c.category_name === formData.category);
 
             let assignedCounselor = null;
             if (selectedProg?.counsellor_email) {
                 assignedCounselor = selectedProg.counsellor_email;
-            } else if (selectedCat?.counsellors?.length > 0) {
-                const activeCounsellors = selectedCat.counsellors.filter(c => c.is_active === 'Yes');
+            } else if (formData.category) {
+                const res = await ep1.get("/api/v2/getcounselorbyedpds", {
+                    params: {
+                        colid: decryptedData.colid,
+                        category_name: formData.category,
+                        education_qualification: formData.qualification
+                    }
+                })
+                const allCounsellors = res.data.data.counsellors || [];
+                const activeCounsellors = allCounsellors.filter(c => c.is_active === 'Yes');
+
                 if (activeCounsellors.length > 0) {
                     const randomIndex = Math.floor(Math.random() * activeCounsellors.length);
                     assignedCounselor = activeCounsellors[randomIndex].counsellor_email;
@@ -193,6 +201,7 @@ const PublicUnifiedLandingPageds = () => {
                 program: selectedProg?.course_name || "",
                 program_type: selectedProg?.program_type || "",
                 source: leadSource,
+                institution: selectedProg.institution,
                 colid: decryptedData.colid,
                 user: decryptedData.user,
                 landing_page_id: landingPage._id,
@@ -309,9 +318,9 @@ const PublicUnifiedLandingPageds = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField fullWidth select label="Select Category" required value={formData.category} disabled={!formData.qualification}
-                                    onChange={(e) => handleCategoryChange(e.target.value)}
+                                    onChange={(e) => handleCategoryChange(e.target.value, formData.qualification)}
                                     InputProps={{ startAdornment: <CategoryIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
-                                    {categories.map((cat) => (<MenuItem key={cat._id} value={cat.category_name}>{cat.category_name}</MenuItem>))}
+                                    {categories.map((cat, idx) => (<MenuItem key={idx} value={cat}>{cat}</MenuItem>))}
                                 </TextField>
                             </Grid>
                             <Grid item xs={12} sm={6}>

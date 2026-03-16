@@ -337,7 +337,7 @@ const CarousalCard = ({ heading, subheading, image }) => {
 
     return (
         <Container>
-            <Grid container spacing={2} sx={{ display: "flex", alignItems: "center", gap: isMobile ?"100px": "50px", color: isMobile ?"black": "white", padding: "20px", paddingTop: "40px", height: "auto", position: "relative", zIndex: 10 }}>
+            <Grid container spacing={2} sx={{ display: "flex", alignItems: "center", gap: isMobile ? "100px" : "50px", color: isMobile ? "black" : "white", padding: "20px", paddingTop: "40px", height: "auto", position: "relative", zIndex: 10 }}>
                 <Grid item xs={12} md={5} sx={{ order: { xs: 2, md: 1 } }}>
                     <Typography variant="h4" component="h4" sx={{ fontSize: { xs: "24px", md: "32px" }, fontWeight: 600 }}>
                         {heading}
@@ -345,7 +345,7 @@ const CarousalCard = ({ heading, subheading, image }) => {
                     <Typography variant="subtitle1" component="p" sx={{ fontSize: { xs: "16px", md: "20px" } }}>
                         {subheading}
                     </Typography>
-                     <Typography variant="subtitle1" component="p" sx={{ fontSize: { xs: "16px", md: "20px" }, marginTop: "10px" }}>
+                    <Typography variant="subtitle1" component="p" sx={{ fontSize: { xs: "16px", md: "20px" }, marginTop: "10px" }}>
                         With Guidance from experienced consulting team having worked with more than 30 A/A+/A++ institutions.
                     </Typography>
                     <Typography variant="subtitle1" component="p" sx={{ fontSize: { xs: "16px", md: "20px" }, marginTop: "10px" }}>
@@ -428,7 +428,7 @@ const ClientPage = () => {
     return (
         // <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: 6, padding: 6, marginBlock: "80px" }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: 6, padding: 6, marginTop: "80px" }}>
-            
+
 
             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
@@ -443,7 +443,7 @@ const ClientPage = () => {
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
 
-             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
@@ -456,14 +456,14 @@ const ClientPage = () => {
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
 
-             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
-           
-         
 
-            
+
+
+
         </Box>
     );
 };
@@ -473,7 +473,7 @@ const ClientPage2 = () => {
     return (
         // <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: 6, padding: 6, marginBlock: "80px" }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: 6, padding: 6, marginTop: "0px" }}>
-            
+
 
             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
@@ -488,7 +488,7 @@ const ClientPage2 = () => {
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
 
-             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
@@ -501,14 +501,14 @@ const ClientPage2 = () => {
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
 
-             <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: "150px", display: 'flex', justifyContent: 'center' }}>
                 <img src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-10-5255-h2.jpg"
                     alt='img1' style={{ width: '150px', height: '150px' }} />
             </Box>
-           
-         
 
-            
+
+
+
         </Box>
     );
 };
@@ -564,7 +564,7 @@ const AboutPage2 = () => {
                     Upload data only once, reports may be exported for multiple accreditation and ranking frameworks.
                 </Typography>
                 <Box sx={{ mt: 2 }}>
-                <a href='/Login' style={{ backgroundColor: '#c811ed', color: '#fff', display: 'block', padding: 15, width: 150, fontSize: 16, textDecoration: 'none' }}>GET STARTED</a>
+                    <a href='/Login' style={{ backgroundColor: '#c811ed', color: '#fff', display: 'block', padding: 15, width: 150, fontSize: 16, textDecoration: 'none' }}>GET STARTED</a>
                     {/* <Button variant="contained" color="success" sx={{ mr: 2 }}>
                         About Us
                     </Button>
@@ -604,7 +604,7 @@ const AboutPage3 = () => {
                     If any documentation is missing, use Generative AI to create contextual documents as per accreditation requirements as per your data. Generate various documentation such as circular, brochure, reports, annual reports, declarations, mapping, sanction letters, policies, answers to qualitative questions, SWOC analysis and many more.
                 </Typography>
                 <Box sx={{ mt: 2 }}>
-                <a href='/Login' style={{ backgroundColor: '#c811ed', color: '#fff', display: 'block', padding: 15, width: 150, fontSize: 16, textDecoration: 'none' }}>GET STARTED</a>
+                    <a href='/Login' style={{ backgroundColor: '#c811ed', color: '#fff', display: 'block', padding: 15, width: 150, fontSize: 16, textDecoration: 'none' }}>GET STARTED</a>
                     {/* <Button variant="contained" color="success" sx={{ mr: 2 }}>
                         About Us
                     </Button>
@@ -761,278 +761,278 @@ const PricingPage = () => {
     return (
         <Box sx={{ width: "100%" }}>
 
-<Typography
-                                    variant="h4"
-                                    component="h4"
-                                    sx={{
-                                        fontWeight: 700,
-                                        textAlign: "center",
-                                        mb: 2,
-                                        color: "#444",
-                                        marginTop: 20
-                                    }}
-                                >
-                                    Pricing Per User
-                                </Typography>
+            <Typography
+                variant="h4"
+                component="h4"
+                sx={{
+                    fontWeight: 700,
+                    textAlign: "center",
+                    mb: 2,
+                    color: "#444",
+                    marginTop: 20
+                }}
+            >
+                Pricing Per User
+            </Typography>
 
 
             {isMobile ? (
                 <div className="slider-container">
                     <Slider {...settings}>
                         <Box sx={{ width: "90vw", display: "flex", justifyContent: "center", padding: "30px", overflow: "hidden" }}>
-                        <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
-                        <CardContent sx={{ padding: 0 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
-                                <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                                    <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
-                                        Subscription
-                                    </Typography>
-                                    <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
-                                        ₹399
-                                    </Typography>
-                                    <Typography gutterBottom variant="subtitle2" component="p">
-                                        per month
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Advanced LMS" />
+                            <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
+                                <CardContent sx={{ padding: 0 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
+                                        <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                                            <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
+                                                Subscription
+                                            </Typography>
+                                            <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
+                                                ₹399
+                                            </Typography>
+                                            <Typography gutterBottom variant="subtitle2" component="p">
+                                                per month
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Accreditation management" />
-                                    </Box>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="CO PO attainment" />
-                                    </Box>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="AI Video creator" />
-                                    </Box>
-                                </ListItem>
-                              
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Student access" />
-                                    </Box>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Generative AI" />
-                                    </Box>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Document validation" />
-                                    </Box>
-                                </ListItem>
-                            </List>
-                        </CardContent>
-                        {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
+                                    <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Advanced LMS" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Accreditation management" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="CO PO attainment" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="AI Video creator" />
+                                            </Box>
+                                        </ListItem>
+
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Student access" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Generative AI" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Document validation" />
+                                            </Box>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                                {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
                             <Link to="#" ><Button size="small" variant='contained'>Choose Plan</Button></Link>
                         </CardActions> */}
-                    </Card>
+                            </Card>
                         </Box>
                         <Box sx={{ width: "90vw", display: "flex", justifyContent: "center", padding: "30px", overflow: "hidden" }}>
-                        <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
-                        <CardContent sx={{ padding: 0 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
-                                <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                                    <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
-                                        Starter
-                                    </Typography>
-                                    <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
-                                        ₹150
-                                    </Typography>
-                                    <Typography gutterBottom variant="subtitle2" component="p">
-                                        per month
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <List sx={{ width: "300px", height: "600px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="All items in Free version" />
+                            <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
+                                <CardContent sx={{ padding: 0 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
+                                        <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                                            <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
+                                                Starter
+                                            </Typography>
+                                            <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
+                                                ₹150
+                                            </Typography>
+                                            <Typography gutterBottom variant="subtitle2" component="p">
+                                                per month
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </ListItem>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="50 Generative AI credits" />
-                                    </Box>
-                                </ListItem>
-                              
-                            
-                            
-                              
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Accreditation documentation with Generative AI" />
-                                    </Box>
-                                </ListItem>
+                                    <List sx={{ width: "300px", height: "600px", padding: " 30px", overflowY: "scroll" }}>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="All items in Free version" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="50 Generative AI credits" />
+                                            </Box>
+                                        </ListItem>
 
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="₹3 per additional AI credit" />
-                                    </Box>
-                                </ListItem>
-                            </List>
-                        </CardContent>
-                        {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
+
+
+
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Accreditation documentation with Generative AI" />
+                                            </Box>
+                                        </ListItem>
+
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="₹3 per additional AI credit" />
+                                            </Box>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                                {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
                             <Link to="#" ><Button size="small" variant='contained'>Choose Plan</Button></Link>
                         </CardActions> */}
-                    </Card>
+                            </Card>
                         </Box>
                         <Box sx={{ width: "90vw", display: "flex", justifyContent: "center", padding: "30px", overflow: "hidden" }}>
-                        <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
-                        <CardContent sx={{ padding: 0 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
-                                <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                                    <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
-                                        Standard
-                                    </Typography>
-                                    <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
-                                        ₹500
-                                    </Typography>
-                                    <Typography gutterBottom variant="subtitle2" component="p">
-                                        per month
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="All items in Free version" />
+                            <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
+                                <CardContent sx={{ padding: 0 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
+                                        <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                                            <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
+                                                Standard
+                                            </Typography>
+                                            <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
+                                                ₹500
+                                            </Typography>
+                                            <Typography gutterBottom variant="subtitle2" component="p">
+                                                per month
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </ListItem>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="200 Generative AI credits" />
-                                    </Box>
-                                </ListItem>
-                              
-                              
-                             
-                            
-                              
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Accreditation documentation with Generative AI" />
-                                    </Box>
-                                </ListItem>
-
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="₹2 per additional AI credit" />
-                                    </Box>
-                                </ListItem>
-
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Online technical support" />
-                                    </Box>
-                                </ListItem>
+                                    <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="All items in Free version" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="200 Generative AI credits" />
+                                            </Box>
+                                        </ListItem>
 
 
 
 
 
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Accreditation documentation with Generative AI" />
+                                            </Box>
+                                        </ListItem>
+
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="₹2 per additional AI credit" />
+                                            </Box>
+                                        </ListItem>
+
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Online technical support" />
+                                            </Box>
+                                        </ListItem>
 
 
 
-                            </List>
-                        </CardContent>
-                        {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
+
+
+
+
+
+                                    </List>
+                                </CardContent>
+                                {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
                             <Link to="#" ><Button size="small" variant='contained'>Choose Plan</Button></Link>
                         </CardActions> */}
-                    </Card>
+                            </Card>
                         </Box>
                         <Box sx={{ width: "90vw", display: "flex", justifyContent: "center", padding: "30px", overflow: "hidden" }}>
-                        <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
-                        <CardContent sx={{ padding: 0 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
-                                <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                                    <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
-                                        Premium
-                                    </Typography>
-                                    <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
-                                        ₹1200
-                                    </Typography>
-                                    <Typography gutterBottom variant="subtitle2" component="p">
-                                        per month
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Minimum 10 users" />
+                            <Card className={`${styles.pricingCardMobile}`} sx={{ height: "500px" }}>
+                                <CardContent sx={{ padding: 0 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#1343c7", borderRadius: "0px 0px 100% 100% ", height: "200px", width: "100%", }}>
+                                        <Box sx={{ color: "white", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                                            <Typography gutterBottom variant="h5" component="h5" fontWeight="bold" textTransform="uppercase">
+                                                Premium
+                                            </Typography>
+                                            <Typography gutterBottom variant="h4" component="h4" fontWeight="bold">
+                                                ₹1200
+                                            </Typography>
+                                            <Typography gutterBottom variant="subtitle2" component="p">
+                                                per month
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </ListItem>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="All items in Free version" />
-                                    </Box>
-                                </ListItem>
-                            <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="500 Generative AI credits" />
-                                    </Box>
-                                </ListItem>
-                              
-                              
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Two online Accreditation Consulting meetings" />
-                                    </Box>
-                                </ListItem>
-                            
-                              
-                                <ListItem disablePadding>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                        <CheckCircleOutlineIcon sx={{ color: "grey" }} />
-                                        <ListItemText primary="Accreditation documentation with Generative AI" />
-                                    </Box>
-                                </ListItem>
+                                    <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Minimum 10 users" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="All items in Free version" />
+                                            </Box>
+                                        </ListItem>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="500 Generative AI credits" />
+                                            </Box>
+                                        </ListItem>
 
-                                
-                             
 
-                              
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Two online Accreditation Consulting meetings" />
+                                            </Box>
+                                        </ListItem>
 
-                            
 
-                            </List>
-                        </CardContent>
-                        {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
+                                        <ListItem disablePadding>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                                <CheckCircleOutlineIcon sx={{ color: "grey" }} />
+                                                <ListItemText primary="Accreditation documentation with Generative AI" />
+                                            </Box>
+                                        </ListItem>
+
+
+
+
+
+
+
+
+                                    </List>
+                                </CardContent>
+                                {/* <CardActions sx={{ display: "flex", justifyContent: "center" }}>
                             <Link to="#" ><Button size="small" variant='contained'>Choose Plan</Button></Link>
                         </CardActions> */}
-                    </Card>
+                            </Card>
                         </Box>
                     </Slider>
                 </div>
@@ -1078,7 +1078,7 @@ const PricingPage = () => {
                                         <ListItemText primary="AI Video creator" />
                                     </Box>
                                 </ListItem>
-                              
+
                                 <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
@@ -1120,21 +1120,21 @@ const PricingPage = () => {
                                 </Box>
                             </Box>
                             <List sx={{ width: "300px", height: "600px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="1 credit required for 1 document" />
                                     </Box>
                                 </ListItem>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="Minimum purchase 100 credits" />
                                     </Box>
                                 </ListItem>
-                              
-                            
-{/*                             
+
+
+                                {/*                             
                               
                                 <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
@@ -1172,23 +1172,23 @@ const PricingPage = () => {
                                 </Box>
                             </Box>
                             <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="All items in Free version" />
                                     </Box>
                                 </ListItem>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="200 Generative AI credits" />
                                     </Box>
                                 </ListItem>
-                              
-                              
-                             
-                            
-                              
+
+
+
+
+
                                 <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
@@ -1239,34 +1239,34 @@ const PricingPage = () => {
                                 </Box>
                             </Box>
                             <List sx={{ width: "300px", height: "250px", padding: " 30px", overflowY: "scroll" }}>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="Minimum 10 users" />
                                     </Box>
                                 </ListItem>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="All items in Free version" />
                                     </Box>
                                 </ListItem>
-                            <ListItem disablePadding>
+                                <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="500 Generative AI credits" />
                                     </Box>
                                 </ListItem>
-                              
-                              
+
+
                                 <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
                                         <ListItemText primary="Two online Accreditation Consulting meetings" />
                                     </Box>
                                 </ListItem>
-                            
-                              
+
+
                                 <ListItem disablePadding>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                         <CheckCircleOutlineIcon sx={{ color: "grey" }} />
@@ -1274,12 +1274,12 @@ const PricingPage = () => {
                                     </Box>
                                 </ListItem>
 
-                                
-                             
 
-                              
 
-                            
+
+
+
+
 
                             </List>
                         </CardContent>
@@ -1306,57 +1306,57 @@ function CampusWebsite(props) {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     // const [scrolled, setScrolled] = useState(false);
 
-     const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
-   const [anchorElai, setAnchorElai] = useState(null);
-  const openai = Boolean(anchorElai);
+    const [anchorElai, setAnchorElai] = useState(null);
+    const openai = Boolean(anchorElai);
 
-  const handleClickai = (event) => {
-    setAnchorElai(event.currentTarget);
-  };
+    const handleClickai = (event) => {
+        setAnchorElai(event.currentTarget);
+    };
 
-  const handleCloseai = () => {
-    setAnchorElai(null);
-  };
+    const handleCloseai = () => {
+        setAnchorElai(null);
+    };
 
-  const [anchorElau, setAnchorElau] = useState(null);
-  const openau = Boolean(anchorElau);
+    const [anchorElau, setAnchorElau] = useState(null);
+    const openau = Boolean(anchorElau);
 
-  const handleClickau = (event) => {
-    setAnchorElau(event.currentTarget);
-  };
+    const handleClickau = (event) => {
+        setAnchorElau(event.currentTarget);
+    };
 
-  const handleCloseau = () => {
-    setAnchorElau(null);
-  };
+    const handleCloseau = () => {
+        setAnchorElau(null);
+    };
 
-  const links = [
-    { label: 'Faculty login', url: '/Login' },
-    { label: 'Student login', url: '/loginstud' },
-    { label: 'Company login', url: '/logincompany' },
-    // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
-  ];
+    const links = [
+        { label: 'Staff login', url: '/Login' },
+        { label: 'Student login', url: '/loginstud' },
+        { label: 'Company login', url: '/logincompany' },
+        // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
+    ];
 
-  const linksai = [
-    { label: 'Internship', url: '/Internselect' },
-    { label: 'Certification', url: '/Courseall' },
-    // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
-  ];
+    const linksai = [
+        { label: 'Internship', url: '/Internselect' },
+        { label: 'Certification', url: '/Courseall' },
+        // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
+    ];
 
-  const linksau = [
-    { label: 'Academic and Administrative Audit', url: '/AcademicAuditInfo' },
-    { label: 'Green Audit', url: '/GreenAudit' },
-    // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
-  ];
+    const linksau = [
+        { label: 'Academic and Administrative Audit', url: '/AcademicAuditInfo' },
+        { label: 'Green Audit', url: '/GreenAudit' },
+        // { label: 'Stack Overflow', url: 'https://stackoverflow.com' },
+    ];
 
     // State for subscribe button
     const [subscribeVal, setSubscribeVal] = useState();
@@ -1392,16 +1392,16 @@ function CampusWebsite(props) {
     };
 
     const onButtonClickregister = async () => {
-      navigate('/SignupAdmin');
-  };
+        navigate('/SignupAdmin');
+    };
 
-  const onButtonClickpricing = async () => {
-      navigate('/campuspricing');
-  };
+    const onButtonClickpricing = async () => {
+        navigate('/campuspricing');
+    };
 
-  const onButtonClickloginstud = async () => {
-    navigate('/loginstud');
-};
+    const onButtonClickloginstud = async () => {
+        navigate('/loginstud');
+    };
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
@@ -1481,7 +1481,7 @@ function CampusWebsite(props) {
                                 {item}
                             </Button>
                         ))} */}
-                         {/* <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '250px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClicktalent}>
+                        {/* <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '250px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClicktalent}>
                             Competency Assessment
                         </Button> */}
                         {/* <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClicklogin}>
@@ -1501,15 +1501,15 @@ function CampusWebsite(props) {
                             Start free
                         </Button>
 
-                         <Button
+                        <Button
                             variant="contained"
                             color="secondary"
                             style={{ padding: '5px 10px', marginLeft: 3, fontSize: '12px', height: '30px', width: '150px' }}
                             onClick={onButtonClickpricing}
                         >
-                            Pricing 
+                            Pricing
                         </Button>
-                         {/* <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClickintern}>
+                        {/* <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClickintern}>
                             Internship
                         </Button>
                          <Button variant="outlined" color="secondary" sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }} onClick={onButtonClickexam}>
@@ -1518,86 +1518,86 @@ function CampusWebsite(props) {
 
 
                         <Button
-        variant="outlined"  
-        // color="secondary" 
-        sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
-        onClick={handleClick}
-      >
-        Login
-      </Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
-        {links.map((link, index) => (
-          <MenuItem
-            key={index}
-            component="a"
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleClose}
-          >
-            {link.label}
-          </MenuItem>
-        ))}
-      </Menu>
+                            variant="outlined"
+                            // color="secondary" 
+                            sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
+                            onClick={handleClick}
+                        >
+                            Login
+                        </Button>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            {links.map((link, index) => (
+                                <MenuItem
+                                    key={index}
+                                    component="a"
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={handleClose}
+                                >
+                                    {link.label}
+                                </MenuItem>
+                            ))}
+                        </Menu>
 
-        <Button
-        variant="outlined"  
-        // color="secondary" 
-        sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
-        onClick={handleClickai}
-      >
-        AI Mentor
-      </Button>
-      <Menu
-        anchorEl={anchorElai}
-        open={openai}
-        onClose={handleCloseai}
-      >
-        {linksai.map((link, index) => (
-          <MenuItem
-            key={index}
-            component="a"
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleCloseai}
-          >
-            {link.label}
-          </MenuItem>
-        ))}
-      </Menu>
+                        <Button
+                            variant="outlined"
+                            // color="secondary" 
+                            sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
+                            onClick={handleClickai}
+                        >
+                            AI Mentor
+                        </Button>
+                        <Menu
+                            anchorEl={anchorElai}
+                            open={openai}
+                            onClose={handleCloseai}
+                        >
+                            {linksai.map((link, index) => (
+                                <MenuItem
+                                    key={index}
+                                    component="a"
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={handleCloseai}
+                                >
+                                    {link.label}
+                                </MenuItem>
+                            ))}
+                        </Menu>
 
 
-         <Button
-        variant="outlined"  
-        // color="secondary" 
-        sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
-        onClick={handleClickau}
-      >
-        Audit
-      </Button>
-      <Menu
-        anchorEl={anchorElau}
-        open={openau}
-        onClose={handleCloseau}
-      >
-        {linksau.map((link, index) => (
-          <MenuItem
-            key={index}
-            component="a"
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleCloseau}
-          >
-            {link.label}
-          </MenuItem>
-        ))}
-      </Menu>
+                        <Button
+                            variant="outlined"
+                            // color="secondary" 
+                            sx={{ color: "#000", padding: '5px 10px', fontSize: '12px', height: '30px', width: '150px', marginLeft: '5px', marginRight: '5px' }}
+                            onClick={handleClickau}
+                        >
+                            Audit
+                        </Button>
+                        <Menu
+                            anchorEl={anchorElau}
+                            open={openau}
+                            onClose={handleCloseau}
+                        >
+                            {linksau.map((link, index) => (
+                                <MenuItem
+                                    key={index}
+                                    component="a"
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={handleCloseau}
+                                >
+                                    {link.label}
+                                </MenuItem>
+                            ))}
+                        </Menu>
 
 
 
@@ -1674,7 +1674,7 @@ function CampusWebsite(props) {
                                     alt="about_img"
                                     className={styles.aboutImage}
                                 />
-                                
+
                                 <Typography
                                     variant="h4"
                                     component="h4"
@@ -1691,10 +1691,10 @@ function CampusWebsite(props) {
                                 </Typography>
                                 <br /><br />
                                 <Typography variant='h6' component="h6" sx={{ px: 6 }}>
-                                    Our extended IQAC team works with you online along with your IQAC team. Reporting to IQAC coordinator, 
+                                    Our extended IQAC team works with you online along with your IQAC team. Reporting to IQAC coordinator,
                                     they assist with the process of data collection, validation, follow up, assisting with documentation, reports etc.
                                 </Typography>
-                                    <br /><br />
+                                <br /><br />
                                 <Typography variant='h6' component="h6" sx={{ px: 6 }}>
                                     We also have consulting team comprising of senior consultants assisting you with overall Institutional Development and streamlining operation.
                                 </Typography>
@@ -1721,7 +1721,7 @@ function CampusWebsite(props) {
                                     Pricing Per Student for AI Mentor app
                                 </Typography> */}
 
-                              {/* <div style={{ textAlign: 'center'}}>
+                                {/* <div style={{ textAlign: 'center'}}>
                                 <Typography variant='h6' component="h6" sx={{ px: 6, marginTop: 10, marginBottom: 10, alignSelf: 'center' }}>
                                     Rs. 50 per student per month
                                 </Typography>
@@ -1858,18 +1858,18 @@ function CampusWebsite(props) {
                             >
                                 Office
                                 <Typography sx={{ mt: 1, textTransform: "none" }}>
-                                2JJJ+56G, Service Rd, HBR Layout 4th Block, HBR Layout, Bengaluru, Karnataka 560048
+                                    2JJJ+56G, Service Rd, HBR Layout 4th Block, HBR Layout, Bengaluru, Karnataka 560048
                                 </Typography>
                                 {/* <Typography sx={{ mt: 1, textTransform: "none" }}>
                                 196 Block B Bangur Avenue Kolkata 700055
                                 </Typography> */}
                                 <Typography sx={{ mt: 1, textTransform: "none" }}>
-                                Contact: support@campus.technology
+                                    Contact: support@campus.technology
                                 </Typography>
                                 <Typography sx={{ mt: 1, textTransform: "none" }}>
-                                Copyright @ 2025 Campus Technology - All rights reserved
+                                    Copyright @ 2025 Campus Technology - All rights reserved
                                 </Typography>
-                                
+
                             </Grid>
                             {/* <Grid
                                 item

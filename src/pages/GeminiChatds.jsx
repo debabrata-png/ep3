@@ -31,7 +31,7 @@ const GeminiChatds = () => {
   const fetchApiKey = async () => {
     try {
       const response = await ep1.get('/api/v2/getactiveapikeyds', {
-        params: { colid: global1.colid, user: global1.user},
+        params: { colid: global1.colid, user: global1.user },
       });
       if (response.data.success) {
         setApiKey(response.data.data.geminiApiKey);
@@ -73,7 +73,7 @@ const GeminiChatds = () => {
       // Import Gemini SDK dynamically
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       // Create chat session with conversation history
       const chat = model.startChat({
@@ -108,7 +108,12 @@ const GeminiChatds = () => {
         },
       ]);
     } catch (err) {
-      setError(err.message || 'Failed to get response from Gemini');
+      const errorMessage = err.message || '';
+      if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('quota')) {
+        setError('Daily AI request limit reached. Please try again tomorrow or contact your IT administrator.');
+      } else {
+        setError(errorMessage || 'Failed to get response from Gemini');
+      }
       console.error('Gemini API Error:', err);
     } finally {
       setLoading(false);

@@ -157,6 +157,19 @@ export function menuitemscrm() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Date Wise New Leads" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/viewcrmstagepivot2">
+            <ListItemIcon>
+              <EventNoteIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counsellot stage pivot 2" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/crompipedrill">
+            <ListItemIcon>
+              <EventNoteIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="pipeline stage drilldown" />}
+          </ListItem>
+
         </AccordionDetails>
       </Accordion>
 

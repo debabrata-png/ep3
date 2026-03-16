@@ -53,9 +53,10 @@ function ViewPage() {
   // const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
   const link11 = "https://campustechnology1.netlify.app/admissionag/1/" + colid;
   const link12 = "https://campustechnology1.netlify.app/admissionag/2/" + colid;
-  const link8 = "http://localhost:3000/admission/1/" + colid;
-  const link9 = "http://localhost:3000/admission/2/" + colid;
-  const link10 = "http://localhost:3000/admission/3/" + colid;
+  const link8 = "https://campustechnology1.netlify.app/admission/1/" + colid;
+  const link9 = "https://campustechnology1.netlify.app/admission/2/" + colid;
+  const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
+  const link13 = "https://campustechnology1.netlify.app/pucadmissionform" + colid
 
   const keywordsref = useRef();
   const policyref = useRef();
@@ -518,6 +519,8 @@ function ViewPage() {
               <a href={link11} target='blank'>Admission form template 11</a>
               <br />
               <a href={link12} target="blank">Admission form Template 12</a>
+              <br />
+              <a href={link13} target="blank">Admission form Template 13</a>
               <br />
               {/* <Button onClick={onButtonClickm}
              variant="contained"
