@@ -107,10 +107,33 @@ const BulkMarksEntryPageds = () => {
   }, [term]);
 
   useEffect(() => {
+    if (semester) {
+      fetchSections();
+    }
+  }, [semester]);
+
+  useEffect(() => {
     if (semester && academicyear && term && componentname) {
       fetchData();
     }
   }, [semester, academicyear, term, componentname, section, debouncedSearchQuery]);
+
+  const fetchSections = async () => {
+    try {
+      const response = await ep1.get('/api/v2/getdistinctsectionsbyclass9ds', {
+        params: { colid: global1.colid, semester }
+      });
+      if (response.data.success) {
+        setAvailableSections(response.data.sections || []);
+        // Reset section if not in new list
+        if (section && !response.data.sections.includes(section)) {
+          setSection('');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching sections:', error);
+    }
+  };
 
   const fetchSemestersAndYears = async () => {
     try {
@@ -121,7 +144,7 @@ const BulkMarksEntryPageds = () => {
       if (response.data.success) {
         setAvailableSemesters(response.data.semesters);
         setAvailableYears(response.data.admissionyears);
-        setAvailableSections(response.data.sections || []);
+        // Sections will be fetched by the useEffect on semester change
 
         // Set default values
         if (response.data.semesters.length > 0) {

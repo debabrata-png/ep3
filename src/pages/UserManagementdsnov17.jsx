@@ -528,9 +528,9 @@ const UserManagementdsnov17 = () => {
               onChange={(e) => setSemesterFilter(e.target.value)}
             >
               <MenuItem value="">All</MenuItem>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                <MenuItem key={sem} value={sem.toString()}>
-                  {sem}
+              {(filterOptions.semesters || []).map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label} ({option.count})
                 </MenuItem>
               ))}
             </Select>
