@@ -1,18 +1,16 @@
 import React, { useState } from "react"
 import { Grid, TextField, Paper, Typography, Button } from "@mui/material"
+import { useParams } from "react-router-dom"
 import axios from "axios"
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
 
 export default function AdmissionForm() {
-
-    const params = new URLSearchParams(window.location.search)
-
-    const cid = params.get("colid")
+    const { colId } = useParams()
 
     const [form, setForm] = useState({
-        colid: cid
+        colid: colId
     })
 
     const handleChange = (e) => {

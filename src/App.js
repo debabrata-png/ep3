@@ -318,6 +318,8 @@ import ORGate2 from './pages/ORGate2';
 
 // ... existing imports
 import ConfirmAdmissionds from './pages/ConfirmAdmissionds';
+import ConfirmPucAdmissionds from './pages/ConfirmPucAdmissionds';
+import PucAdmissionsListds from './pages/PucAdmissionsListds';
 import FeesGenerationds from './pages/FeesGenerationds';
 import StudentLedgerDateRangeReportds from './pages/StudentLedgerDateRangeReportds';
 import ProgramWiseCashbookReportDS from './pages/ProgramWiseCashbookReportDS';
@@ -1507,7 +1509,7 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
-                                        <Route path='/pucadmissionform' element={<Pucadmissionform />} />
+                                         <Route path='/pucadmissionform/:colId' element={<Pucadmissionform />} />
                                         <Route path='/menugrouppage' element={<MenuGroupPage />} />
                                         <Route path='/menu/:groupId' element={<MenuItemsPage />} />
                                         <Route path="/crompipedrill" element={<Crompipedrill />} />
@@ -1802,6 +1804,8 @@ function App() {
                                         <Route path="/admin/merit-list-all" element={<NewDashmappmodel2 />} />
                                         <Route path="/admin/merit-list-cat" element={<NewDashmappmodel2cat />} />
                                         <Route path="/admin/confirm-admission" element={<NewApplicationReviewPage />} />
+                                        <Route path="/confirm-puc-admission/:id" element={<ConfirmPucAdmissionds />} />
+                                        <Route path="/admin/puc-admissions-list" element={<PucAdmissionsListds />} />
 
                                         {/* Fees Routes */}
                                         <Route path="/admin/fee-config" element={<NewDashmfeesadmin />} />
