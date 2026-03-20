@@ -56,7 +56,7 @@ function ViewPage() {
   const link8 = "https://campustechnology1.netlify.app/admission/1/" + colid;
   const link9 = "https://campustechnology1.netlify.app/admission/2/" + colid;
   const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
-  const link13 = "https://campustechnology1.netlify.app/pucadmissionform" + colid
+  const link13 = "https://campustechnology1.netlify.app/pucadmissionform/" + colid
 
   const keywordsref = useRef();
   const policyref = useRef();
