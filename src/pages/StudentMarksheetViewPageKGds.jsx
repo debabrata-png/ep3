@@ -603,6 +603,7 @@ const StudentMarksheetViewPageKGds = () => {
       const t2Ann = sub.term2AnnualExam || 0;
       const t2Tot = (parseFloat(t2PT) + parseFloat(t2NB) + parseFloat(t2Enr) + parseFloat(t2Ann)).toFixed(1);
       const t2Grade = sub.term2Grade;
+      const isGrace = sub.isgrace || false;
 
       // Check for Failure (Grade E)
       if ((t1Grade && t1Grade.toUpperCase() === 'E') || (t2Grade && t2Grade.toUpperCase() === 'E')) {
@@ -613,9 +614,12 @@ const StudentMarksheetViewPageKGds = () => {
       gT1Obt += parseFloat(t1Tot);
       gT2Obt += parseFloat(t2Tot);
 
+      const t2AnnDisplay = isGrace ? `${t2Ann}*` : t2Ann;
+      const t2TotDisplay = isGrace ? `${t2Tot}*` : t2Tot;
+
       const rowVals = [
         t1PT, t1NB, t1Enr, t1Mid, t1Tot, t1Grade,
-        t2PT, t2NB, t2Enr, t2Ann, t2Tot, t2Grade
+        t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
       ];
 
       drawRect(tableX, dy, subColW, dRowH, { lineWidth: 1 });
@@ -842,14 +846,14 @@ const StudentMarksheetViewPageKGds = () => {
 
     // Promotion Info
     drawText("Congratulations, Promoted to class:", 30, cy, 12);
-    drawLine(240, cy + 2, 550, cy + 2, 1);
-    drawText(pdfData.promotedToClass || "", 250, cy, 12, true);
+    drawLine(220, cy + 2, 550, cy + 2, 1);
+    drawText(pdfData.promotedToClass || "", 230, cy, 12, true);
 
     cy += 30;
     drawText("New Session Begins on:", 30, cy, 12);
     const sessionDate = formatDate(pdfData.newSessionDate, true);
-    drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
-    drawLine(280, cy + 2, 550, cy + 2, 1);
+    drawText(`Date & Day:   ${sessionDate}`, 180, cy, 12, true);
+    drawLine(220, cy + 2, 550, cy + 2, 1);
 
     // Signatures (Bottom of Page 3)
     drawText("Exam I/C Signature", 50, 780, 12, true);
@@ -918,11 +922,15 @@ const StudentMarksheetViewPageKGds = () => {
       gY += gH;
     });
 
+    // Legend for grace marks
+    iy = gY + 20;
+    drawText("* - Passes by grace", centerX, iy, 12, true, [0, 0, 0], 'center');
+
     // FOOTER QUOTE
     doc.setFontSize(14);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(128, 0, 128); // Purple quote
-    drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
+    drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 780, 555, 30, 14, true);
 
     return doc;
   };
@@ -1018,6 +1026,42 @@ const StudentMarksheetViewPageKGds = () => {
             <Alert severity="info" sx={{ mb: 2 }}>
               PDF Generation ready for Nursery-KG Format. Click "Generate Report" to preview/download.
             </Alert>
+
+            {/* Preview Table */}
+            <Typography variant="h6" sx={{ mb: 2 }}>Marks Preview</Typography>
+            <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+              <Table size="small">
+                <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableRow>
+                    <TableCell><strong>Subject</strong></TableCell>
+                    <TableCell align="center"><strong>Term I PT</strong></TableCell>
+                    <TableCell align="center"><strong>Term I Mid</strong></TableCell>
+                    <TableCell align="center"><strong>Term I Grade</strong></TableCell>
+                    <TableCell align="center"><strong>Term II PT</strong></TableCell>
+                    <TableCell align="center"><strong>Term II Annual</strong></TableCell>
+                    <TableCell align="center"><strong>Term II Grade</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {marks.filter(s => !s.isAdditional || s.isAdditional === 'false').map((sub, index) => {
+                    const isGrace = sub.isgrace || false;
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{sub.subjectname}</TableCell>
+                        <TableCell align="center">{sub.term1PeriodicTest || '-'}</TableCell>
+                        <TableCell align="center">{sub.term1MidExam || '-'}</TableCell>
+                        <TableCell align="center"><strong>{sub.term1Grade || '-'}</strong></TableCell>
+                        <TableCell align="center">{sub.term2PeriodicTest || '-'}</TableCell>
+                        <TableCell align="center">
+                          {sub.term2AnnualExam || '-'}{isGrace ? '*' : ''}
+                        </TableCell>
+                        <TableCell align="center"><strong>{sub.term2Grade || '-'}</strong></TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
             {/* Actions */}
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>

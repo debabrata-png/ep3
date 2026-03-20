@@ -43,6 +43,16 @@ export const menuGroups = [
       { name: "Work Flow Config", path: "/workflowconfigds", icon: <SettingsIcon /> },
     ]
   },
+
+  {
+    id: "profile-page",
+    title: "Profile",
+    icon: <GroupIcon />,
+    description: "Manage yoyr Profile",
+    items: [
+      { name: "Profile Page", path: "/staffprofileds", icon: <PersonIcon /> }
+    ]
+  },
   {
     id: "user-management",
     title: "User Management",

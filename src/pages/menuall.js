@@ -1627,6 +1627,13 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Program wise Cash Book" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/dcrreportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="DCR Reports 2" />}
+          </ListItem>
+
 
         </AccordionDetails>
       </Accordion>

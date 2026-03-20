@@ -22,6 +22,10 @@ import {
     CardContent,
     Autocomplete,
     CircularProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Divider,
 } from "@mui/material";
 import {
     Add as AddIcon,
@@ -77,6 +81,8 @@ const ConfirmAdmissionds = () => {
     // Admission Dialog State
     const [openAdmissionDialog, setOpenAdmissionDialog] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
+    const [fetchedFees, setFetchedFees] = useState([]);
+    const [fetchingFees, setFetchingFees] = useState(false);
     const [admissionFormData, setAdmissionFormData] = useState({
         name: "",
         email: "",
@@ -85,6 +91,13 @@ const ConfirmAdmissionds = () => {
         city: "",
         state: "",
         course_interested: "",
+        regno: "",
+        department: "",
+        programcode: "",
+        admissionyear: new Date().getFullYear().toString(),
+        semester: "1",
+        section: "A",
+        concession: 0,
     });
 
     const [programs, setPrograms] = useState([]);
@@ -99,6 +112,39 @@ const ConfirmAdmissionds = () => {
             fetchLeads();
         }
     }, [finalStages]);
+
+    // NEW: Function to fetch applicable fees based on form criteria
+    const fetchApplicableFees = async () => {
+        if (!admissionFormData.programcode || !admissionFormData.admissionyear || !admissionFormData.semester) {
+            showSnackbar("Please ensure Program, Year, and Semester are filled", "warning");
+            return;
+        }
+        setFetchingFees(true);
+        try {
+            const res = await ep1.post("/api/v2/getfeesprovds", {
+                colid: global1.colid,
+                programcode: admissionFormData.programcode,
+                academicyear: admissionFormData.admissionyear,
+                semester: admissionFormData.semester,
+            });
+            if (res.data.success) {
+                // Filter client side for strict matching
+                const filtered = res.data.data.filter(f => 
+                    f.programcode === admissionFormData.programcode &&
+                    f.academicyear === admissionFormData.admissionyear &&
+                    f.semester === admissionFormData.semester
+                );
+                setFetchedFees(filtered);
+                if (filtered.length === 0) {
+                    showSnackbar("No fee records found for this criteria", "info");
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching fees:", err);
+            showSnackbar("Failed to fetch applicable fees", "error");
+        }
+        setFetchingFees(false);
+    };
 
     const fetchPrograms = async () => {
         try {
@@ -144,7 +190,10 @@ const ConfirmAdmissionds = () => {
             const res = await ep1.get("/api/v2/getallleadsadmin", { params });
 
             const allLeads = res.data.data;
-            const admittedLeads = allLeads.filter(lead => finalStages.includes(lead.pipeline_stage));
+            const admittedLeads = allLeads.filter(lead => 
+                finalStages.includes(lead.pipeline_stage) && 
+                lead.leadstatus !== "Converted"
+            );
 
             setLeads(admittedLeads);
         } catch (err) {
@@ -156,34 +205,35 @@ const ConfirmAdmissionds = () => {
 
     const handleOpenAdmissionDialog = (lead) => {
         setSelectedLead(lead);
-        // Auto-populate program details if possible
-        const matchedProgram = programs.find(p => p.course_name === lead.program);
-
+        const matchedProgram = programs.find(p => p.course_name === lead.program || p.course_name === lead.course_interested);
+        setFetchedFees([]); // Reset fees list
         setAdmissionFormData({
             name: lead.name || "",
             email: lead.email || "",
             phone: lead.phone || "",
-            address: lead.address || "", // Assuming lead has address or use custom fields
+            address: lead.address || "",
             city: lead.city || "",
             state: lead.state || "",
             course_interested: lead.course_interested || "",
-
-            // New Fields
             regno: "",
-            department: lead.course_interested || "", // Defaulting to course_interested if available
+            department: lead.course_interested || "",
             programcode: matchedProgram ? matchedProgram.course_code : "",
             admissionyear: new Date().getFullYear().toString(),
             semester: "1",
             section: "A",
+            concession: 0,
         });
         setOpenAdmissionDialog(true);
     };
 
     const handleConfirmAdmission = async () => {
-        // Basic validation
         if (!admissionFormData.regno || !admissionFormData.department || !admissionFormData.programcode) {
-            showSnackbar("Please fill all required fields (Reg No, Department, Program Code)", "warning");
+            showSnackbar("Please fill all required fields", "warning");
             return;
+        }
+
+        if (fetchedFees.length === 0) {
+            if (!window.confirm("No fees have been processed for this student. Are you sure you want to proceed?")) return;
         }
 
         try {
@@ -192,13 +242,11 @@ const ConfirmAdmissionds = () => {
                 colid: global1.colid,
                 ...admissionFormData
             };
-
             const res = await ep1.post("/api/v2/confirmadmissionds", payload);
-
             if (res.data.success) {
-                showSnackbar("Admission Confirmed! Student account created.", "success");
+                showSnackbar("Admission Confirmed!", "success");
                 setOpenAdmissionDialog(false);
-                fetchLeads(); // Refresh list
+                fetchLeads();
             } else {
                 showSnackbar(res.data.message || "Failed to confirm admission", "error");
             }
@@ -369,6 +417,74 @@ const ConfirmAdmissionds = () => {
                             onChange={(e) => setAdmissionFormData({ ...admissionFormData, section: e.target.value })}
                             fullWidth
                         />
+                        <TextField
+                            label="Concession Amount (Discount)"
+                            type="number"
+                            value={admissionFormData.concession}
+                            onChange={(e) => setAdmissionFormData({ ...admissionFormData, concession: e.target.value })}
+                            fullWidth
+                            helperText="Enter the discount amount to be applied to the total fee."
+                        />
+
+                        <Divider sx={{ my: 2 }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                                Fee Processing
+                            </Typography>
+                            <Button 
+                                variant="outlined" 
+                                color="secondary" 
+                                size="small" 
+                                onClick={fetchApplicableFees}
+                                disabled={fetchingFees}
+                                startIcon={fetchingFees ? <CircularProgress size={16} /> : <RefreshIcon />}
+                            >
+                                Process Fees
+                            </Button>
+                        </Box>
+
+                        <Paper variant="outlined" sx={{ p: 1.5, mt: 1, backgroundColor: "#f8fafc" }}>
+                            {fetchedFees.length > 0 ? (
+                                <Box>
+                                    <List dense>
+                                        {fetchedFees.map((fee, idx) => (
+                                            <ListItem key={idx} sx={{ px: 0 }}>
+                                                <ListItemText 
+                                                    primary={fee.feeeitem} 
+                                                    secondary={`${fee.feegroup} | ${fee.feecategory}`} 
+                                                />
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    ₹{fee.amount}
+                                                </Typography>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                    <Divider sx={{ my: 1 }} />
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="body2" color="text.secondary">Total Basic Fee:</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                            ₹{fetchedFees.reduce((acc, curr) => acc + curr.amount, 0)}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="body2" color="error">Applied Concession:</Typography>
+                                        <Typography variant="body2" color="error" sx={{ fontWeight: 600 }}>
+                                            -₹{admissionFormData.concession}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Net Payable:</Typography>
+                                        <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 800 }}>
+                                            ₹{Math.max(0, fetchedFees.reduce((acc, curr) => acc + curr.amount, 0) - admissionFormData.concession)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            ) : (
+                                <Typography variant="body2" color="text.secondary" align="center">
+                                    Click "Process Fees" to see the applicable fee structure for this student.
+                                </Typography>
+                            )}
+                        </Paper>
                     </Box>
 
                 </DialogContent>

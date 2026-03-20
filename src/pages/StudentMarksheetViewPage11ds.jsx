@@ -654,6 +654,8 @@ const StudentMarksheetViewPage11ds = () => {
                 drawCenteredText(String(val || ''), x, dy, w, drH, 8);
             };
 
+            const isGrace = sub.isgrace || false;
+
             // Unit sums & cells
             const hyEnrich = sub.subjectEnrichment || sub.hyPr;
             drawMarkCell(sub.unitpremid, xUnit, wU); sumUnitPre += parseFloat(sub.unitpremid || 0);
@@ -668,13 +670,18 @@ const StudentMarksheetViewPage11ds = () => {
             drawMarkCell(sub.hy30, xHY + (3 * wH), wH); sumHy30 += parseFloat(sub.hy30 || 0);
 
             // Ann sums & cells
-            drawMarkCell(sub.annTh, xAnn, wA); sumAnnTh += parseFloat(sub.annTh || 0);
+            const annThDisplay = isGrace ? `${sub.annTh}*` : sub.annTh;
+            const annTotalDisplay = isGrace ? `${sub.annTotal}*` : sub.annTotal;
+            const ann50Display = isGrace ? `${sub.ann50}*` : sub.ann50;
+
+            drawMarkCell(annThDisplay, xAnn, wA); sumAnnTh += parseFloat(sub.annTh || 0);
             drawMarkCell(sub.annPr, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
-            drawMarkCell(sub.annTotal, xAnn + (2 * wA), wA); sumAnnTot += parseFloat(sub.annTotal || 0);
-            drawMarkCell(sub.ann50, xAnn + (3 * wA), wA); sumAnn50 += parseFloat(sub.ann50 || 0);
+            drawMarkCell(annTotalDisplay, xAnn + (2 * wA), wA); sumAnnTot += parseFloat(sub.annTotal || 0);
+            drawMarkCell(ann50Display, xAnn + (3 * wA), wA); sumAnn50 += parseFloat(sub.ann50 || 0);
 
             // Total
-            const subTot = sub.calculatedTotal.toFixed(0);
+            const subTotRaw = sub.calculatedTotal.toFixed(0);
+            const subTot = isGrace ? `${subTotRaw}*` : subTotRaw;
             grandTot += parseFloat(sub.calculatedTotal);
 
             drawRect(xTot, dy, wTot, drH);
@@ -952,14 +959,14 @@ const StudentMarksheetViewPage11ds = () => {
 
         // Promotion & Session
         drawText("Congratulations, Promoted to class:", 30, cy, 12);
-        drawLine(240, cy + 2, 550, cy + 2, 1);
-        drawText(pdfParams.promotedToClass || "", 250, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
+        drawText(pdfParams.promotedToClass || "", 230, cy, 12, true);
         cy += 30;
 
         drawText("New Session Begins on:", 30, cy, 12);
         const sessionDate = formatDate(pdfParams.newSessionDate, true);
-        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
-        drawLine(180, cy + 2, 400, cy + 2, 1);
+        drawText(`Date & Day:   ${sessionDate}`, 180, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
         cy += 30;
 
 
@@ -1023,11 +1030,15 @@ const StudentMarksheetViewPage11ds = () => {
             gY += 25;
         });
 
+        // Legend for grace marks
+        gY += 20;
+        drawText("* - Passes by grace", centerX, gY, 12, true, [0, 0, 0], 'center');
+
         // Footer Quote
         doc.setFontSize(14);
         doc.setFont("helvetica", "italic");
         doc.setTextColor(128, 0, 128);
-        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
+        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 780, 555, 30, 14, true);
 
         doc.save(`${data.profile.regno}_ReportCard_11_12.pdf`);
     };

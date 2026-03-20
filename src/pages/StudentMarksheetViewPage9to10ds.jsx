@@ -578,13 +578,17 @@ const StudentMarksheetViewPage9to10ds = () => {
             const t2Ann = parseFloat(sub.term2AnnualExam || 0);
             const t2Tot = (t2PT + t2NB + t2Enr + t2Ann);
             const t2Grade = sub.term2Grade;
+            const isGrace = sub.isgrace || false;
 
             gT1Obt += t1Tot;
             gT2Obt += t2Tot;
 
+            const t2AnnDisplay = isGrace ? `${t2Ann.toFixed(0)}*` : t2Ann.toFixed(0);
+            const t2TotDisplay = isGrace ? `${t2Tot.toFixed(0)}*` : t2Tot.toFixed(0);
+
             const rowVals = [
                 t1PT, t1NB, t1Enr, t1Mid, t1Tot.toFixed(0), t1Grade,
-                t2PT, t2NB, t2Enr, t2Ann, t2Tot.toFixed(0), t2Grade
+                t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
             ];
 
             drawRect(sTableX, dy, subW, dRH, { lineWidth: 1 });
@@ -666,10 +670,14 @@ const StudentMarksheetViewPage9to10ds = () => {
                 const t2Ann = parseFloat(sub.term2AnnualExam || 0);
                 const t2Tot = (t2PT + t2NB + t2Enr + t2Ann);
                 const t2Grade = sub.term2Grade;
+                const isGrace = sub.isgrace || false;
+
+                const t2AnnDisplay = isGrace ? `${t2Ann.toFixed(0)}*` : t2Ann.toFixed(0);
+                const t2TotDisplay = isGrace ? `${t2Tot.toFixed(0)}*` : t2Tot.toFixed(0);
 
                 const rowVals = [
                     t1PT, t1NB, t1Enr, t1Mid, t1Tot.toFixed(0), t1Grade,
-                    t2PT, t2NB, t2Enr, t2Ann, t2Tot.toFixed(0), t2Grade
+                    t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
                 ];
 
                 drawRect(sTableX, dy, subW, dRH, { lineWidth: 1 });
@@ -880,8 +888,8 @@ const StudentMarksheetViewPage9to10ds = () => {
         cy += 30;
         drawText("New Session Begins on:", 30, cy, 12);
         const sessionDate = formatDate(pdfParams.newSessionDate, true);
-        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
-        drawLine(280, cy + 2, 550, cy + 2, 1);
+        drawText(`Date & Day:   ${sessionDate}`, 180, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
 
         // Exam I/C & Principal Slgnatures (Bottom of Page 3)
         cy = 750;
@@ -943,11 +951,15 @@ const StudentMarksheetViewPage9to10ds = () => {
             gY += 30;
         });
 
+        // Legend for grace marks
+        iy = gY + 20;
+        drawText("* - Passes by grace", centerX, iy, 12, true, [0, 0, 0], 'center');
+
         // Footer Quote
         doc.setFontSize(14);
         doc.setFont("helvetica", "italic");
         doc.setTextColor(128, 0, 128);
-        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
+        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 780, 555, 30, 14, true);
 
         doc.save(`Marksheet_${pdfData.profile.rollNo || 'Student'}.pdf`);
     };

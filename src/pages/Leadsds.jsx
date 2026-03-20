@@ -94,6 +94,11 @@ const Leadsds = () => {
     city: "",
     state: "",
     assignedto: "",
+    provissionalfeepaid: "No",
+    countercounserloername: "",
+    countercounserloeremail: "",
+    dateofvisit: "",
+    location: "",
     custom_fields: [],
   });
 
@@ -182,7 +187,13 @@ const Leadsds = () => {
     city: "",
     state: "",
     pipeline_stage: "",
+    leadstatus: "",
     next_followup_date: "",
+    provissionalfeepaid: "",
+    countercounserloername: "",
+    countercounserloeremail: "",
+    dateofvisit: "",
+    location: "",
     custom_fields: []
   });
 
@@ -452,7 +463,12 @@ const Leadsds = () => {
       custom_fields: lead.custom_fields ? lead.custom_fields.map(f => ({ ...f })) : [],
       institution: lead.institution || "",
       program_type: lead.program_type || "",
-      program: lead.program || ""
+      program: lead.program || "",
+      provissionalfeepaid: lead.provissionalfeepaid || "No",
+      countercounserloername: lead.countercounserloername || "",
+      countercounserloeremail: lead.countercounserloeremail || "",
+      dateofvisit: lead.dateofvisit ? dayjs(lead.dateofvisit).format("YYYY-MM-DD") : "",
+      location: lead.location || ""
     });
 
     // Pre-fetch keys to populate dropdowns if values exist
@@ -594,6 +610,14 @@ const Leadsds = () => {
     if (["Admitted", "Fee Paid"].includes(stage)) return "success";
     if (["Lost"].includes(stage)) return "error";
     return "primary";
+  };
+
+  const handleKommunoCall = (lead) => {
+    if (!lead.phone) {
+      showSnackbar("Lead does not have a phone number", "error");
+      return;
+    }
+    navigate("/calldialerds", { state: { lead } });
   };
 
   const handleProcessRowUpdate = async (newRow, oldRow) => {
@@ -854,6 +878,20 @@ const Leadsds = () => {
               }}
             >
               <NoteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Click to Call">
+            <IconButton
+              size="small"
+              onClick={() => handleKommunoCall(params.row)}
+              sx={{
+                color: "#16a34a",
+                bgcolor: "rgba(22, 163, 74, 0.1)",
+                "&:hover": { bgcolor: "rgba(22, 163, 74, 0.2)" },
+              }}
+            >
+              <PhoneIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
@@ -1415,6 +1453,52 @@ const Leadsds = () => {
                 )}
               </Box>
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Provisional Fee Paid"
+                value={formData.provissionalfeepaid}
+                onChange={(e) => setFormData({ ...formData, provissionalfeepaid: e.target.value })}
+              >
+                <MenuItem value="Yes">Yes</MenuItem>
+                <MenuItem value="No">No</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Date of Visit"
+                type="date"
+                value={formData.dateofvisit}
+                onChange={(e) => setFormData({ ...formData, dateofvisit: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Location"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Counter Counsellor Name"
+                value={formData.countercounserloername}
+                onChange={(e) => setFormData({ ...formData, countercounserloername: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Counter Counsellor Email"
+                value={formData.countercounserloeremail}
+                onChange={(e) => setFormData({ ...formData, countercounserloeremail: e.target.value })}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 3, borderTop: "1px solid #eee" }}>
@@ -1595,12 +1679,48 @@ const Leadsds = () => {
 
             <Grid item xs={12} sm={6}>
               <TextField
+                select
                 fullWidth
-                label="Next Follow-up Date"
+                label="Provisional Fee Paid"
+                value={editFormData.provissionalfeepaid}
+                onChange={(e) => setEditFormData({ ...editFormData, provissionalfeepaid: e.target.value })}
+              >
+                <MenuItem value="Yes">Yes</MenuItem>
+                <MenuItem value="No">No</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Date of Visit"
                 type="date"
-                value={editFormData.next_followup_date}
-                onChange={(e) => setEditFormData({ ...editFormData, next_followup_date: e.target.value })}
+                value={editFormData.dateofvisit}
+                onChange={(e) => setEditFormData({ ...editFormData, dateofvisit: e.target.value })}
                 InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Location"
+                value={editFormData.location}
+                onChange={(e) => setEditFormData({ ...editFormData, location: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Counter Counsellor Name"
+                value={editFormData.countercounserloername}
+                onChange={(e) => setEditFormData({ ...editFormData, countercounserloername: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Counter Counsellor Email"
+                value={editFormData.countercounserloeremail}
+                onChange={(e) => setEditFormData({ ...editFormData, countercounserloeremail: e.target.value })}
               />
             </Grid>
 

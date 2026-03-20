@@ -558,21 +558,25 @@ const StudentMarksheetViewPage6to8ds = () => {
             const t1Grade = sub.term1Grade;
 
             // Term 2
-            const t2PT = parseFloat(sub.term2PeriodicTest || 0);
-            const t2NB = parseFloat(sub.term2Notebook || 0);
-            const t2Enr = parseFloat(sub.term2Enrichment || 0);
-            const t2Ann = parseFloat(sub.term2AnnualExam || 0);
-            const t2Tot = (t2PT + t2NB + t2Enr + t2Ann);
+            const t2PT = sub.term2PeriodicTest || 0;
+            const t2NB = sub.term2Notebook || 0;
+            const t2Enr = sub.term2Enrichment || 0;
+            const t2Ann = sub.term2AnnualExam || 0;
+            const t2Tot = (parseFloat(t2PT) + parseFloat(t2NB) + parseFloat(t2Enr) + parseFloat(t2Ann)).toFixed(1);
             const t2Grade = sub.term2Grade;
+            const isGrace = sub.isgrace || false;
+
+            const t2AnnDisplay = isGrace ? `${t2Ann}*` : t2Ann;
+            const t2TotDisplay = isGrace ? `${t2Tot}*` : t2Tot;
 
             // Check E Grade was done before filtering
 
             gT1Obt += t1Tot;
-            gT2Obt += t2Tot;
+            gT2Obt += parseFloat(t2Tot); // Use parseFloat here as t2Tot is now a string from toFixed(1)
 
             const rowVals = [
                 t1PT, t1NB, t1Enr, t1Mid, t1Tot.toFixed(0), t1Grade,
-                t2PT, t2NB, t2Enr, t2Ann, t2Tot.toFixed(0), t2Grade
+                t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
             ];
 
             drawRect(sTableX, dy, subW, dRH, { lineWidth: 1 });
@@ -883,14 +887,14 @@ const StudentMarksheetViewPage6to8ds = () => {
 
         cy += 50;
         drawText("Congratulations, Promoted to class:", 30, cy, 12);
-        drawLine(240, cy + 2, 550, cy + 2, 1);
-        drawText(pdfParams.promotedToClass || "", 250, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
+        drawText(pdfParams.promotedToClass || "", 230, cy, 12, true);
 
         cy += 30;
         drawText("New Session Begins on:", 30, cy, 12);
         const sessionDate = formatDate(pdfParams.newSessionDate, true);
-        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
-        drawLine(280, cy + 2, 550, cy + 2, 1);
+        drawText(`Date & Day:   ${sessionDate}`, 180, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
 
         // Signatures
         drawText("Exam I/C Signature", 50, 780, 12, true);
@@ -951,11 +955,15 @@ const StudentMarksheetViewPage6to8ds = () => {
             gY += 30;
         });
 
+        // Legend for grace marks
+        iy = gY + 20;
+        drawText("* - Passes by grace", centerX, iy, 12, true, [0, 0, 0], 'center');
+
         // FOOTER QUOTE
         doc.setFontSize(14);
         doc.setFont("helvetica", "italic");
         doc.setTextColor(128, 0, 128);
-        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
+        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 780, 555, 30, 14, true);
 
         doc.save(`Marksheet_${pdfData.profile.rollNo || 'Student'}.pdf`);
     };
@@ -1058,17 +1066,20 @@ const StudentMarksheetViewPage6to8ds = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {marks[0].subjects && marks[0].subjects.filter(s => !s.isAdditional || s.isAdditional === 'false').map((sub, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>{sub.subjectname}</TableCell>
-                                            <TableCell align="center">{sub.term1PeriodicTest || '-'}</TableCell>
-                                            <TableCell align="center">{sub.term1MidExam || '-'}</TableCell>
-                                            <TableCell align="center"><strong>{sub.term1Grade || '-'}</strong></TableCell>
-                                            <TableCell align="center">{sub.term2PeriodicTest || '-'}</TableCell>
-                                            <TableCell align="center">{sub.term2AnnualExam || '-'}</TableCell>
-                                            <TableCell align="center"><strong>{sub.term2Grade || '-'}</strong></TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {marks[0].subjects && marks[0].subjects.filter(s => !s.isAdditional || s.isAdditional === 'false').map((sub, index) => {
+                                        const isGrace = sub.isgrace || false;
+                                        return (
+                                            <TableRow key={index}>
+                                                <TableCell>{sub.subjectname}</TableCell>
+                                                <TableCell align="center">{sub.term1PeriodicTest || '-'}</TableCell>
+                                                <TableCell align="center">{sub.term1MidExam || '-'}</TableCell>
+                                                <TableCell align="center"><strong>{sub.term1Grade || '-'}</strong></TableCell>
+                                                <TableCell align="center">{sub.term2PeriodicTest || '-'}</TableCell>
+                                                <TableCell align="center">{sub.term2AnnualExam || '-'}{isGrace ? '*' : ''}</TableCell>
+                                                <TableCell align="center"><strong>{sub.term2Grade || '-'}</strong></TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         </TableContainer>

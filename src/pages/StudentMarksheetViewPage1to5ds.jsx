@@ -565,6 +565,7 @@ const StudentMarksheetViewPage1to5ds = () => {
             const t2Ann = parseFloat(sub.term2AnnualExam || 0);
             const t2Tot = (t2PT + t2NB + t2Enr + t2Ann);
             const t2Grade = sub.term2Grade;
+            const isGrace = sub.isgrace || false;
 
             // Check E Grade
             if ((t1Grade && t1Grade.toUpperCase() === 'E') || (t2Grade && t2Grade.toUpperCase() === 'E')) {
@@ -574,9 +575,12 @@ const StudentMarksheetViewPage1to5ds = () => {
             gT1Obt += t1Tot;
             gT2Obt += t2Tot;
 
+            const t2AnnDisplay = isGrace ? `${t2Ann.toFixed(0)}*` : t2Ann.toFixed(0);
+            const t2TotDisplay = isGrace ? `${t2Tot.toFixed(0)}*` : t2Tot.toFixed(0);
+
             const rowVals = [
                 t1PT, t1NB, t1Enr, t1Mid, t1Tot.toFixed(0), t1Grade,
-                t2PT, t2NB, t2Enr, t2Ann, t2Tot.toFixed(0), t2Grade
+                t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
             ];
 
             drawRect(sTableX, dy, subW, dRH, { lineWidth: 1 });
@@ -829,14 +833,14 @@ const StudentMarksheetViewPage1to5ds = () => {
 
         cy += 50;
         drawText("Congratulations, Promoted to class:", 30, cy, 12);
-        drawLine(240, cy + 2, 550, cy + 2, 1);
-        drawText(pdfParams.promotedToClass || "", 250, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
+        drawText(pdfParams.promotedToClass || "", 230, cy, 12, true);
 
         cy += 30;
         drawText("New Session Begins on:", 30, cy, 12);
         const sessionDate = formatDate(pdfParams.newSessionDate, true);
-        drawText(`Date & Day:   ${sessionDate}`, 240, cy, 12, true);
-        drawLine(280, cy + 2, 550, cy + 2, 1);
+        drawText(`Date & Day:   ${sessionDate}`, 180, cy, 12, true);
+        drawLine(220, cy + 2, 550, cy + 2, 1);
 
         // Signatures
         drawText("Exam I/C Signature", 50, 780, 12, true);
@@ -897,11 +901,15 @@ const StudentMarksheetViewPage1to5ds = () => {
             gY += 30;
         });
 
+        // Legend for grace marks
+        iy = gY + 20;
+        drawText("* - Passes by grace", centerX, iy, 12, true, [0, 0, 0], 'center');
+
         // FOOTER QUOTE
         doc.setFontSize(14);
         doc.setFont("helvetica", "italic");
         doc.setTextColor(128, 0, 128);
-        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 750, 555, 30, 14, true);
+        drawCenteredText("“Education is the key that unlock the golden door to freedom”", 20, 780, 555, 30, 14, true);
 
         doc.save(`Marksheet_${pdfData.profile.rollNo || 'Student'}.pdf`);
     };
@@ -1009,6 +1017,7 @@ const StudentMarksheetViewPage1to5ds = () => {
                                         {marks[0]?.subjects?.filter(s => !s.isAdditional || s.isAdditional === 'false').map((sub, idx) => {
                                             const t1Tot = parseFloat(sub.term1PeriodicTest || 0) + parseFloat(sub.term1Notebook || 0) + parseFloat(sub.term1Enrichment || 0) + parseFloat(sub.term1MidExam || 0);
                                             const t2Tot = parseFloat(sub.term2PeriodicTest || 0) + parseFloat(sub.term2Notebook || 0) + parseFloat(sub.term2Enrichment || 0) + parseFloat(sub.term2AnnualExam || 0);
+                                            const isGrace = sub.isgrace || false;
                                             return (
                                                 <TableRow key={idx}>
                                                     <TableCell>{sub.subjectname}</TableCell>
@@ -1022,8 +1031,8 @@ const StudentMarksheetViewPage1to5ds = () => {
                                                     <TableCell align="center">{sub.term2PeriodicTest}</TableCell>
                                                     <TableCell align="center">{sub.term2Notebook}</TableCell>
                                                     <TableCell align="center">{sub.term2Enrichment}</TableCell>
-                                                    <TableCell align="center">{sub.term2AnnualExam}</TableCell>
-                                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>{t2Tot}</TableCell>
+                                                    <TableCell align="center">{sub.term2AnnualExam}{isGrace ? '*' : ''}</TableCell>
+                                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>{t2Tot}{isGrace ? '*' : ''}</TableCell>
                                                     <TableCell align="center">{sub.term2Grade}</TableCell>
                                                 </TableRow>
                                             )

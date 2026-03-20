@@ -25,7 +25,9 @@ import {
   DialogActions,
   DialogContentText,
   TableSortLabel,
-  InputAdornment
+  InputAdornment,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import { Save, Download, Upload, Search } from '@mui/icons-material';
 import ep1 from '../api/ep1';
@@ -160,9 +162,11 @@ const BulkMarksEntryPageds = () => {
 
         existingMarks.forEach(mark => {
           const key = `${mark.regno}_${mark.subjectcode}`;
-          marksMap[key] = mark.obtainedmarks || 0;
+          marksMap[key] = {
+            value: mark.obtainedmarks || 0,
+            isgrace: mark.isgrace || false
+          };
         });
-
 
         setMarksData(marksMap);
 
@@ -225,9 +229,19 @@ const BulkMarksEntryPageds = () => {
 
   const handleMarkChange = (regno, subjectcode, value) => {
     const key = `${regno}_${subjectcode}`;
+    const current = marksData[key] || { value: '', isgrace: false };
     setMarksData({
       ...marksData,
-      [key]: value === '' ? '' : Number(value)
+      [key]: { ...current, value: value === '' ? '' : Number(value) }
+    });
+  };
+
+  const handleGraceToggle = (regno, subjectcode) => {
+    const key = `${regno}_${subjectcode}`;
+    const current = marksData[key] || { value: '', isgrace: false };
+    setMarksData({
+      ...marksData,
+      [key]: { ...current, isgrace: !current.isgrace }
     });
   };
 
@@ -259,15 +273,16 @@ const BulkMarksEntryPageds = () => {
       students.forEach(student => {
         subjects.forEach(subject => {
           const key = `${student.regno}_${subject.subjectcode}`;
-          const obtained = marksData[key];
+          const markEntry = marksData[key];
 
-          if (obtained !== undefined && obtained !== '') {
+          if (markEntry && (markEntry.value !== undefined && markEntry.value !== '' || markEntry.isgrace)) {
             marksArray.push({
               regno: student.regno,
               studentname: student.name,
               subjectcode: subject.subjectcode,
               subjectname: subject.subjectname,
-              obtained: Number(obtained)
+              obtained: markEntry.value === '' ? 0 : Number(markEntry.value),
+              isgrace: markEntry.isgrace || false // Include grace status
             });
           }
         });
@@ -337,13 +352,15 @@ const BulkMarksEntryPageds = () => {
     students.forEach(student => {
       subjects.forEach(subject => {
         const key = `${student.regno}_${subject.subjectcode}`;
+        const markEntry = marksData[key];
         data.push({
           Regno: student.regno,
           StudentName: student.name,
           SubjectCode: subject.subjectcode,
           SubjectName: subject.subjectname,
           MaxMarks: subject.maxmarks,
-          ObtainedMarks: marksData[key] || ''
+          ObtainedMarks: markEntry?.value || '',
+          IsGrace: markEntry?.isgrace ? 'Yes' : 'No'
         });
       });
     });
@@ -372,7 +389,10 @@ const BulkMarksEntryPageds = () => {
         jsonData.forEach(row => {
           const key = `${row.Regno}_${row.SubjectCode}`;
           if (row.ObtainedMarks !== undefined && row.ObtainedMarks !== '') {
-            newMarksData[key] = Number(row.ObtainedMarks);
+            newMarksData[key] = {
+              value: Number(row.ObtainedMarks),
+              isgrace: row.IsGrace?.toLowerCase() === 'yes' || false
+            };
           }
         });
 
@@ -610,7 +630,9 @@ const BulkMarksEntryPageds = () => {
                   </TableCell>
                   {subjects.map(subject => {
                     const key = `${student.regno}_${subject.subjectcode}`;
-                    const value = marksData[key] || '';
+                    const markEntry = marksData[key] || { value: '', isgrace: false };
+                    const value = markEntry.value;
+                    const isGrace = markEntry.isgrace;
                     const maxMarks = subject.maxmarks;
                     const isInvalid = value !== '' && (Number(value) < 0 || Number(value) > maxMarks);
 
@@ -625,6 +647,23 @@ const BulkMarksEntryPageds = () => {
                           error={isInvalid}
                           sx={{ width: 100 }}
                         />
+                        {componentname === "term2annualexam" && (
+                          <Box sx={{ mt: 0.5 }}>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  size="small"
+                                  checked={isGrace}
+                                  onChange={() => handleGraceToggle(student.regno, subject.subjectcode)}
+                                  color="secondary"
+                                />
+                              }
+                              label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                              labelPlacement="end"
+                              sx={{ m: 0 }}
+                            />
+                          </Box>
+                        )}
                       </TableCell>
                     );
                   })}

@@ -41,7 +41,7 @@ import global1 from "./global1";
 import { encryptData } from "../utils/encryption";
 import QRCode from "qrcode";
 
-const UnifiedLandingPageds = () => {
+const UnifiedLandingPageds1 = () => {
     const navigate = useNavigate();
     const [landingPages, setLandingPages] = useState([]);
     const [sources, setSources] = useState([]);
@@ -125,7 +125,7 @@ const UnifiedLandingPageds = () => {
             user: global1.user
         });
 
-        let url = `${currentUrl}/unified-landing/${slug}?data=${encryptedData}`;
+        let url = `${currentUrl}/unified-landing1/${slug}?data=${encryptedData}`;
         if (source) {
             url += `&source=${encodeURIComponent(source)}`;
         }
@@ -734,4 +734,4 @@ const UnifiedLandingPageds = () => {
     );
 };
 
-export default UnifiedLandingPageds;
+export default UnifiedLandingPageds1;

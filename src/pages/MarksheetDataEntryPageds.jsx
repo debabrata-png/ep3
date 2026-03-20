@@ -23,6 +23,8 @@ import {
   Chip,
   Card,
   CardContent,
+  Switch,
+  FormControlLabel
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -74,6 +76,7 @@ function MarksheetDataEntryPageds() {
     term2Notebook: 0,
     term2Enrichment: 0,
     term2AnnualExam: 0,
+    isgrace: false,
   });
 
   useEffect(() => {
@@ -415,6 +418,7 @@ function MarksheetDataEntryPageds() {
         term2Notebook: Number(row.term2Notebook) || 0,
         term2Enrichment: Number(row.term2Enrichment) || 0,
         term2AnnualExam: Number(row.term2AnnualExam) || 0,
+        isgrace: row.isgrace?.toLowerCase() === 'yes' || row.isgrace === true || false,
       });
     });
 
@@ -806,6 +810,21 @@ function MarksheetDataEntryPageds() {
                         onChange={(e) => setSubjectForm({ ...subjectForm, term2AnnualExam: Number(e.target.value) })}
                         inputProps={{ min: 0, max: 80 }}
                       />
+                      <Box sx={{ mt: 1 }}>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              size="small"
+                              checked={subjectForm.isgrace || false}
+                              onChange={(e) => setSubjectForm({ ...subjectForm, isgrace: e.target.checked })}
+                              color="secondary"
+                            />
+                          }
+                          label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                          labelPlacement="end"
+                          sx={{ m: 0 }}
+                        />
+                      </Box>
                     </Grid>
 
                     <Grid item xs={12}>

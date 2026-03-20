@@ -534,6 +534,14 @@ const Leadsag = () => {
     }
   };
 
+  const handleKommunoCall = (lead) => {
+    if (!lead.phone) {
+      showSnackbar("Lead does not have a phone number", "error");
+      return;
+    }
+    navigate("/calldialerds", { state: { lead } });
+  };
+
   const showSnackbar = (message, severity) => {
     setSnackbar({ open: true, message, severity });
   };
@@ -817,14 +825,14 @@ const Leadsag = () => {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Call">
+          <Tooltip title="Click to Call">
             <IconButton
               size="small"
-              onClick={() => handleOpenCommDialog(params.row, "sms")}
+              onClick={() => handleKommunoCall(params.row)}
               sx={{
-                color: "#2e7d32",
-                bgcolor: "rgba(46, 125, 50, 0.1)",
-                "&:hover": { bgcolor: "rgba(46, 125, 50, 0.2)" },
+                color: "#16a34a",
+                bgcolor: "rgba(22, 163, 74, 0.1)",
+                "&:hover": { bgcolor: "rgba(22, 163, 74, 0.2)" },
               }}
             >
               <PhoneIcon fontSize="small" />

@@ -79,6 +79,12 @@ const Dashboardds = () => {
       route: "/unifiedlandingpageds",
     },
     {
+      title: "Unified Landing Page Template 2",
+      description: "Create and manage unified landing pages",
+      icon: <LandingPageIcon sx={{ fontSize: 48, color: "#7b1fa2" }} />,
+      route: "/unifiedlandingpageds1",
+    },
+    {
       title: "Drip Campaigns",
       description: "Setup automated email/SMS campaigns",
       icon: <CampaignIcon sx={{ fontSize: 48, color: "#d32f2f" }} />,

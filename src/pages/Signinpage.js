@@ -70,6 +70,7 @@ const Signup = () => {
       global1.token = response.data.token;
       global1.department = response.data.department;
       global1.programcode = response.data.programcode;
+      global1.phone = response.data.phone;
 
       const lastlogin = new Date(response.data.lastlogin);
       global1.lastlogin = lastlogin.toString();
@@ -299,9 +300,10 @@ const Signup = () => {
             <div style={{ alignItems: 'center', width: 300, marginLeft: 100 }}>
               <img
                 src="https://jadavpuruniversity.s3-ap-south-1.amazonaws.com/9-2024-11-2048-FullLogo_Transparent_NoBuffer.png"
+                //src='https://www.peoplesuniversity.edu.in/wp-content/themes/putheme/assets/images/university-logo1.png'
                 alt="ct_logo"
-                width="150"
-                height="60"
+                width="200"
+                height="70"
 
                 style={{
                   objectFit: "cover",

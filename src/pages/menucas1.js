@@ -56,7 +56,10 @@ import { menuspe } from './menuspe';
 import { menuhostel1 } from './menuhostel1';
 import { menualumni } from './menualumni';
 import { menuquality } from "./menuquality";
-import { menusecurity } from "./menusecurity"
+import { menusecurity } from "./menusecurity";
+import { menuitemsfinance } from './menufinance';
+import { menuitemsfees } from './menufees';
+import { menuitemshrms } from './menuhrms';
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
@@ -254,8 +257,25 @@ export function mainListItems({ open }) {
           {menusecurity()}
         </div>
       )
+    } else if (role1 === "Finance") {
+      return (
+        <div>
+          {menuitemsfinance()}
+        </div>
+      )
+    } else if (role1 === "Fees") {
+      return (
+        <div>
+          {menuitemsfees()}
+        </div>
+      )
+    } else if (role1 === "HRMS") {
+      return (
+        <div>
+          {menuitemshrms()}
+        </div>
+      )
     }
-
   }
 
   var content;

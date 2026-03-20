@@ -30,7 +30,7 @@ import ep1 from "../api/ep1";
 import { decryptData } from "../utils/encryption";
 import { State, City } from "country-state-city";
 
-const PublicUnifiedLandingPageds = () => {
+const PublicUnifiedLandingPageds1 = () => {
     const { slug } = useParams();
     const [searchParams] = useSearchParams();
     const [landingPage, setLandingPage] = useState(null);
@@ -310,7 +310,7 @@ const PublicUnifiedLandingPageds = () => {
                                     InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField fullWidth select label="Education Qualification" required value={formData.qualification}
+                                <TextField fullWidth select label="Level of Programme" required value={formData.qualification}
                                     onChange={(e) => handleQualificationChange(e.target.value)}
                                     InputProps={{ startAdornment: <WorkspacePremiumIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {qualifications.map((qual, idx) => (<MenuItem key={idx} value={qual}>{qual}</MenuItem>))}
@@ -377,4 +377,4 @@ const PublicUnifiedLandingPageds = () => {
     );
 };
 
-export default PublicUnifiedLandingPageds;
+export default PublicUnifiedLandingPageds1;

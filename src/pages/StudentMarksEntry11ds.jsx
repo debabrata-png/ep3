@@ -24,7 +24,9 @@ import {
     DialogContentText,
     DialogActions,
     TableSortLabel,
-    InputAdornment
+    InputAdornment,
+    Switch,
+    FormControlLabel
 } from '@mui/material';
 import { Save, Search } from '@mui/icons-material';
 import ep1 from '../api/ep1';
@@ -165,7 +167,10 @@ const StudentMarksEntry11ds = () => {
 
                 marks.forEach(m => {
                     const key = `${m.regno}-${m.subjectcode}`;
-                    newMarksMap[key] = m;
+                    newMarksMap[key] = {
+                        ...m,
+                        isgrace: m.isgrace || false // Ensure isgrace is initialized
+                    };
                 });
                 setMarksMap(newMarksMap);
             }
@@ -211,7 +216,7 @@ const StudentMarksEntry11ds = () => {
         return result;
     }, [students, searchQuery, sortConfig]);
 
-    const handleMarkChange = (regno, subject, value) => {
+    const handleMarkChange = (regno, subject, field, value) => {
         const key = `${regno}-${subject.subjectcode}`;
         const existing = marksMap[key] || {};
 
@@ -228,7 +233,7 @@ const StudentMarksEntry11ds = () => {
                 subjectcode: subject.subjectcode,
                 subjectname: subject.subjectname,
                 user: global1.user,
-                [component]: value // Update ONLY the current component field
+                [field]: value // Update the specified field (e.g., component or isgrace)
             }
         }));
     };
@@ -236,9 +241,6 @@ const StudentMarksEntry11ds = () => {
     const handleSave = async () => {
         // If Attendance, check for Working Days
         if (term === 'attendance') {
-            const workingDaysField = component === 'term1attendance' ? 'term1workingdays' : 'term2workingdays';
-            // Check if working days is set for at least one student or globally?
-            // Usually working days is same for class. 
             // We can ask user to input it once.
             setOpenWorkingDaysDialog(true);
             return;
@@ -261,9 +263,6 @@ const StudentMarksEntry11ds = () => {
                     const key = `${s.regno}-ATTENDANCE`;
                     const markObj = marksMap[key] || {};
                     const attVal = markObj[component];
-                    // Also need working days.
-                    // If we have per-student working days, use valid one, else use global.
-                    // But simpler: just send what we have.
 
                     if (attVal !== undefined && attVal !== '') {
                         const payload = {
@@ -327,9 +326,9 @@ const StudentMarksEntry11ds = () => {
     };
 
     // Helper to get value
-    const getVal = (regno, subjectcode) => {
+    const getVal = (regno, subjectcode, field = component) => {
         const key = `${regno}-${subjectcode}`;
-        return marksMap[key]?.[component] || '';
+        return marksMap[key]?.[field] || '';
     };
 
     // Determine header columns
@@ -526,7 +525,7 @@ const StudentMarksEntry11ds = () => {
                                                 type="number"
                                                 variant="outlined"
                                                 value={getVal(student.regno, subject.subjectcode)}
-                                                onChange={(e) => handleMarkChange(student.regno, subject, e.target.value)}
+                                                onChange={(e) => handleMarkChange(student.regno, subject, component, e.target.value)}
                                                 inputProps={{
                                                     style: { textAlign: 'center', padding: '5px' }
                                                 }}
@@ -537,6 +536,23 @@ const StudentMarksEntry11ds = () => {
                                                     }
                                                 }}
                                             />
+                                            {(term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) && (
+                                                <Box sx={{ mt: 1 }}>
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Switch
+                                                                size="small"
+                                                                checked={getVal(student.regno, subject.subjectcode, 'isgrace') || false}
+                                                                onChange={(e) => handleMarkChange(student.regno, subject, 'isgrace', e.target.checked)}
+                                                                color="secondary"
+                                                            />
+                                                        }
+                                                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                                                        labelPlacement="end"
+                                                        sx={{ m: 0 }}
+                                                    />
+                                                </Box>
+                                            )}
                                         </TableCell>
                                     ))}
                                 </TableRow>

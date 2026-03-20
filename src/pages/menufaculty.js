@@ -407,7 +407,7 @@ export function menuitems() {
           {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
         </AccordionSummary>
         <AccordionDetails>
-          <ListItem button component={RouterLink} to="/role/staff-profile">
+          <ListItem button component={RouterLink} to="/staffprofileds">
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>

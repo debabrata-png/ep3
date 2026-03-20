@@ -745,17 +745,17 @@ status:status,
                          <br /><br />
                          <Box display="flex" spacing={4}>
 
-                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Payment reference"  variant="outlined" inputRef={payrefref} />
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Payment reference"  variant="outlined" inputRef={payrefref} InputLabelProps={{ shrink: true }} />
 
-                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Paid (0 for full)" value="0"  variant="outlined" inputRef={paidref} />
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Paid (0 for full)" defaultValue="0"  variant="outlined" inputRef={paidref} InputLabelProps={{ shrink: true }} />
 
                          </Box>
                          <br /><br />
                           <Box display="flex" spacing={4}>
 
-                         <TextField id="outlined-basic"  type="number" sx={{ width: "100%", marginLeft: 3}} label="Concession amount" value="0"  variant="outlined" inputRef={concessionref} />
+                         <TextField id="outlined-basic"  type="number" sx={{ width: "100%", marginLeft: 3}} label="Concession amount" defaultValue="0"  variant="outlined" inputRef={concessionref} InputLabelProps={{ shrink: true }} />
 
-                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Document link"  variant="outlined" inputRef={doclinkref} />
+                         <TextField id="outlined-basic"  type="text" sx={{ width: "100%", marginLeft: 3}} label="Document link"  variant="outlined" inputRef={doclinkref} InputLabelProps={{ shrink: true }} />
 
                          </Box>
                          <br /><br />

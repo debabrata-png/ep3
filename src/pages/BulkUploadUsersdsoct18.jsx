@@ -152,7 +152,7 @@ const BulkUploadUsersdsoct18 = () => {
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Button
             startIcon={<ArrowBack />}
-            onClick={() => navigate("/usermanagementdsoct18")}
+            onClick={() => navigate("/usermanagementdsnov17")}
             sx={{ mr: 2 }}
           >
             Back

@@ -20,6 +20,8 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import {
   ArrowBack as BackIcon,
@@ -32,6 +34,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
+import dayjs from "dayjs";
 
 const Leaddetailds = () => {
   const navigate = useNavigate();
@@ -41,6 +44,7 @@ const Leaddetailds = () => {
   const [openCallDialog, setOpenCallDialog] = useState(false);
   const [openMeetingDialog, setOpenMeetingDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openVisitDialog, setOpenVisitDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const [callData, setCallData] = useState({
@@ -57,16 +61,45 @@ const Leaddetailds = () => {
     next_followup_date: "",
   });
 
-  // Dynamic Options State
   const [pipelineStages, setPipelineStages] = useState([]);
   const [outcomes, setOutcomes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [sources, setSources] = useState([]);
+
+  // Counselor search state for transfer
+  const [counselorOptions, setCounselorOptions] = useState([]);
+  const [counselorLoading, setCounselorLoading] = useState(false);
+  const [openTransferDialog, setOpenTransferDialog] = useState(false);
+  const [transferData, setTransferData] = useState({
+    new_counsellor_email: "",
+    reason: ""
+  });
+
+  const [visitData, setVisitData] = useState({
+    dateofvisit: "",
+    location: "",
+    countercounserloername: "",
+    countercounserloeremail: "",
+  });
 
   const [updateData, setUpdateData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    category: "",
+    course_interested: "",
+    source: "",
+    city: "",
+    state: "",
     pipeline_stage: "",
     lead_temperature: "",
+    leadstatus: "",
+    next_followup_date: "",
     institution: "",
     program_type: "",
     program: "",
+    provissionalfeepaid: "No",
+    comments: "",
   });
 
   // State for cascading dropdowns
@@ -81,6 +114,8 @@ const Leaddetailds = () => {
     fetchLeadDetails();
     fetchPipelineStages();
     fetchOutcomes();
+    fetchCategories();
+    fetchSources();
   }, [id]);
 
   const fetchPipelineStages = async () => {
@@ -109,6 +144,47 @@ const Leaddetailds = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallcategoriesds", {
+        params: { colid: global1.colid },
+      });
+      setCategories(res.data.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  const fetchSources = async () => {
+    try {
+      const res = await ep1.get("/api/v2/getallsourcesds", {
+        params: { colid: global1.colid },
+      });
+      setSources(res.data.data);
+    } catch (err) {
+      console.error("Error fetching sources:", err);
+    }
+  };
+
+  const handleSearchCounselors = async (query) => {
+    if (!query) {
+      setCounselorOptions([]);
+      return;
+    }
+    setCounselorLoading(true);
+    try {
+      const res = await ep1.get("/api/v2/searchusersds", {
+        params: { colid: global1.colid, query },
+      });
+      if (res.data.success) {
+        setCounselorOptions(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error searching counselors:", err);
+    }
+    setCounselorLoading(false);
+  };
+
   const fetchLeadDetails = async () => {
     try {
       const res = await ep1.get(`/api/v2/getleadbyidds/${id}`);
@@ -116,11 +192,27 @@ const Leaddetailds = () => {
       setLead(leadData);
       setActivities(res.data.data.activities);
       setUpdateData({
-        pipeline_stage: leadData.pipeline_stage,
-        lead_temperature: leadData.lead_temperature,
-        institution: leadData.institution,
-        program_type: leadData.program_type,
-        program: leadData.program,
+        name: leadData.name || "",
+        phone: leadData.phone || "",
+        email: leadData.email || "",
+        category: leadData.category || "",
+        course_interested: leadData.course_interested || "",
+        source: leadData.source || "",
+        city: leadData.city || "",
+        state: leadData.state || "",
+        pipeline_stage: leadData.pipeline_stage || "",
+        leadstatus: leadData.leadstatus || "",
+        lead_temperature: leadData.lead_temperature || "",
+        next_followup_date: leadData.next_followup_date ? dayjs(leadData.next_followup_date).format("YYYY-MM-DD") : "",
+        institution: leadData.institution || "",
+        program_type: leadData.program_type || "",
+        program: leadData.program || "",
+        provissionalfeepaid: leadData.provissionalfeepaid || "No",
+        countercounserloername: leadData.countercounserloername || "",
+        countercounserloeremail: leadData.countercounserloeremail || "",
+        dateofvisit: leadData.dateofvisit ? dayjs(leadData.dateofvisit).format("YYYY-MM-DD") : "",
+        location: leadData.location || "",
+        comments: leadData.comments || "",
       });
 
       // Pre-fetch dropdowns
@@ -246,6 +338,46 @@ const Leaddetailds = () => {
     }
   };
 
+  const handleTransferLead = async () => {
+    if (!transferData.new_counsellor_email) {
+      showSnackbar("Please select a counselor", "error");
+      return;
+    }
+    try {
+      const payload = {
+        ...transferData,
+        performed_by: global1.user,
+      };
+      await ep1.post("/api/v2/reassignleadds", payload, {
+        params: { id },
+      });
+      showSnackbar("Lead transferred successfully", "success");
+      setOpenTransferDialog(false);
+      fetchLeadDetails();
+    } catch (err) {
+      console.error("Error transferring lead:", err);
+      showSnackbar("Failed to transfer lead", "error");
+    }
+  };
+
+  const handleInstitutionVisit = async () => {
+    try {
+      const payload = {
+        ...visitData,
+        updated_by: global1.user,
+      };
+      await ep1.post("/api/v2/updateleadds", payload, {
+        params: { id },
+      });
+      showSnackbar("Institution visit details updated", "success");
+      setOpenVisitDialog(false);
+      fetchLeadDetails();
+    } catch (err) {
+      console.error("Error updating visit details:", err);
+      showSnackbar("Failed to update visit details", "error");
+    }
+  };
+
   const showSnackbar = (message, severity) => {
     setSnackbar({ open: true, message, severity });
   };
@@ -343,6 +475,32 @@ const Leaddetailds = () => {
                 onClick={() => navigate("/leadsds")}
               >
                 Send Email
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<EditIcon />}
+                onClick={() => setOpenTransferDialog(true)}
+                sx={{ textTransform: 'none' }}
+              >
+                Transfer Lead
+              </Button>
+              <Button
+                variant="contained"
+                color="info"
+                startIcon={<MeetingIcon />}
+                onClick={() => {
+                  setVisitData({
+                    dateofvisit: lead.dateofvisit || "",
+                    location: lead.location || "",
+                    countercounserloername: lead.countercounserloername || "",
+                    countercounserloeremail: lead.countercounserloeremail || "",
+                  });
+                  setOpenVisitDialog(true);
+                }}
+                sx={{ textTransform: 'none' }}
+              >
+                Institution Visit
               </Button>
             </Box>
           </Paper>
@@ -526,82 +684,185 @@ const Leaddetailds = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Update Lead Dialog */}
-      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Update Lead</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            {updateData.pipeline_stage !== undefined && updateData.pipeline_stage !== null && (
-              <>
-                <TextField
-                  select
-                  fullWidth
-                  label="Institution"
-                  value={updateData.institution || ""}
-                  onChange={(e) => {
-                    setUpdateData({ ...updateData, institution: e.target.value, program_type: "", program: "" });
-                    fetchProgramTypes(e.target.value);
-                  }}
-                  disabled={loadingInstitutions}
-                >
-                  {institutions.map((inst, index) => (
-                    <MenuItem key={index} value={inst}>
-                      {inst}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Program Type"
-                  value={updateData.program_type || ""}
-                  onChange={(e) => {
-                    setUpdateData({ ...updateData, program_type: e.target.value, program: "" });
-                    fetchPrograms(updateData.institution, e.target.value);
-                  }}
-                  disabled={!updateData.institution || loadingProgramTypes}
-                >
-                  {programTypes.map((type, index) => (
-                    <MenuItem key={index} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Program"
-                  value={updateData.program || ""}
-                  onChange={(e) => setUpdateData({ ...updateData, program: e.target.value })}
-                  disabled={!updateData.program_type || loadingPrograms}
-                >
-                  {programs.map((prog) => (
-                    <MenuItem key={prog._id} value={prog.course_name}>
-                      {prog.course_name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  select
-                  fullWidth
-                  label="Pipeline Stage"
-                  value={updateData.pipeline_stage}
-                  onChange={(e) => {
-                    setUpdateData({ ...updateData, pipeline_stage: e.target.value });
-                  }}
-                >
-                  {pipelineStages.map((option) => (
-                    <MenuItem key={option._id} value={option.stagename || option.name}>
-                      {option.stagename || option.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </>
-            )}
-
-            {updateData.comments !== undefined && (
+      {/* Update Lead Dialog - Expanded to match Leadsds */}
+      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ borderBottom: "1px solid #eee", pb: 2 }}>Update Lead</DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Full Name"
+                value={updateData.name}
+                onChange={(e) => setUpdateData({ ...updateData, name: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Phone Number"
+                value={updateData.phone}
+                onChange={(e) => setUpdateData({ ...updateData, phone: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                value={updateData.email}
+                onChange={(e) => setUpdateData({ ...updateData, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Category"
+                value={updateData.category}
+                onChange={(e) => setUpdateData({ ...updateData, category: e.target.value })}
+              >
+                {categories.map((cat) => (
+                  <MenuItem key={cat._id} value={cat.category_name}>
+                    {cat.category_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Source"
+                value={updateData.source}
+                onChange={(e) => setUpdateData({ ...updateData, source: e.target.value })}
+              >
+                {sources.map((src) => (
+                  <MenuItem key={src._id} value={src.source_name}>
+                    {src.source_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Institution"
+                value={updateData.institution || ""}
+                onChange={(e) => {
+                  setUpdateData({ ...updateData, institution: e.target.value, program_type: "", program: "" });
+                  fetchProgramTypes(e.target.value);
+                }}
+                disabled={loadingInstitutions}
+              >
+                {institutions.map((inst, index) => (
+                  <MenuItem key={index} value={inst}>
+                    {inst}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program Type"
+                value={updateData.program_type || ""}
+                onChange={(e) => {
+                  setUpdateData({ ...updateData, program_type: e.target.value, program: "" });
+                  fetchPrograms(updateData.institution, e.target.value);
+                }}
+                disabled={!updateData.institution || loadingProgramTypes}
+              >
+                {programTypes.map((type, index) => (
+                  <MenuItem key={index} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Program"
+                value={updateData.program || ""}
+                onChange={(e) => setUpdateData({ ...updateData, program: e.target.value })}
+                disabled={!updateData.program_type || loadingPrograms}
+              >
+                {programs.map((prog) => (
+                  <MenuItem key={prog._id} value={prog.course_name}>
+                    {prog.course_name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Pipeline Stage"
+                value={updateData.pipeline_stage}
+                onChange={(e) => setUpdateData({ ...updateData, pipeline_stage: e.target.value })}
+              >
+                {pipelineStages.map((option) => (
+                  <MenuItem key={option._id} value={option.stagename || option.name}>
+                    {option.stagename || option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Outcome"
+                value={updateData.leadstatus}
+                onChange={(e) => setUpdateData({ ...updateData, leadstatus: e.target.value })}
+              >
+                {outcomes.map((option) => (
+                  <MenuItem key={option._id} value={option.outcomename || option.name}>
+                    {option.outcomename || option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Temperature"
+                value={updateData.lead_temperature}
+                onChange={(e) => setUpdateData({ ...updateData, lead_temperature: e.target.value })}
+              >
+                <MenuItem value="Hot">Hot</MenuItem>
+                <MenuItem value="Warm">Warm</MenuItem>
+                <MenuItem value="Cold">Cold</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Next Follow-up Date"
+                type="date"
+                value={updateData.next_followup_date}
+                onChange={(e) => setUpdateData({ ...updateData, next_followup_date: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Provisional Fee Paid"
+                value={updateData.provissionalfeepaid}
+                onChange={(e) => setUpdateData({ ...updateData, provissionalfeepaid: e.target.value })}
+              >
+                <MenuItem value="Yes">Yes</MenuItem>
+                <MenuItem value="No">No</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Lead Notes"
@@ -609,17 +870,128 @@ const Leaddetailds = () => {
                 onChange={(e) => setUpdateData({ ...updateData, comments: e.target.value })}
                 multiline
                 rows={4}
-                placeholder="Enter lead notes here..."
               />
-            )}
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, borderTop: "1px solid #eee" }}>
+          <Button onClick={() => setOpenUpdateDialog(false)} size="large">Cancel</Button>
+          <Button onClick={handleUpdateLead} variant="contained" size="large">
+            Update Lead
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-
+      {/* Transfer Lead Dialog */}
+      <Dialog open={openTransferDialog} onClose={() => setOpenTransferDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ borderBottom: "1px solid #eee", pb: 2 }}>Transfer Lead</DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 1 }}>
+            <Autocomplete
+              options={counselorOptions}
+              loading={counselorLoading}
+              getOptionLabel={(option) => `${option.name} (${option.email})`}
+              onInputChange={(event, newInputValue) => {
+                handleSearchCounselors(newInputValue);
+              }}
+              onChange={(event, newValue) => {
+                setTransferData({ ...transferData, new_counsellor_email: newValue ? newValue.email : "" });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select New Counselor"
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {counselorLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+            <TextField
+              fullWidth
+              label="Reason for Transfer"
+              value={transferData.reason}
+              onChange={(e) => setTransferData({ ...transferData, reason: e.target.value })}
+              multiline
+              rows={3}
+            />
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenUpdateDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateLead} variant="contained">
-            Update
+        <DialogActions sx={{ p: 3, borderTop: "1px solid #eee" }}>
+          <Button onClick={() => setOpenTransferDialog(false)} size="large">Cancel</Button>
+          <Button onClick={handleTransferLead} variant="contained" color="secondary" size="large">
+            Confirm Transfer
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Institution Visit Dialog */}
+      <Dialog open={openVisitDialog} onClose={() => setOpenVisitDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ borderBottom: "1px solid #eee", pb: 2 }}>Institution Visit / Counter Counselor</DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Date of Visit"
+              type="date"
+              value={visitData.dateofvisit}
+              onChange={(e) => setVisitData({ ...visitData, dateofvisit: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              label="Location"
+              value={visitData.location}
+              onChange={(e) => setVisitData({ ...visitData, location: e.target.value })}
+            />
+            <Autocomplete
+              options={counselorOptions}
+              loading={counselorLoading}
+              getOptionLabel={(option) => `${option.name} (${option.email})`}
+              onInputChange={(event, newInputValue) => {
+                handleSearchCounselors(newInputValue);
+              }}
+              onChange={(event, newValue) => {
+                setVisitData({
+                  ...visitData,
+                  countercounserloername: newValue ? newValue.name : "",
+                  countercounserloeremail: newValue ? newValue.email : ""
+                });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search Counter Counselor"
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {counselorLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+            <Box>
+              <Typography variant="body2" color="text.secondary">Selected: {visitData.countercounserloername}</Typography>
+              <Typography variant="body2" color="text.secondary">Email: {visitData.countercounserloeremail}</Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, borderTop: "1px solid #eee" }}>
+          <Button onClick={() => setOpenVisitDialog(false)} size="large">Cancel</Button>
+          <Button onClick={handleInstitutionVisit} variant="contained" color="info" size="large">
+            Update Visit Record
           </Button>
         </DialogActions>
       </Dialog>

@@ -80,6 +80,8 @@ import Dashmcas11 from './pages/Dashmcas11';
 import Institutionsds from './pages/Institutionsds';
 import StudentMarksheetViewPageKGds from './pages/StudentMarksheetViewPageKGds';
 import BulkLeadActionsds from './pages/BulkLeadActionsds';
+import Feesprovds from './pages/Feesprovds';
+import ProvisionalFeeReportds from './pages/ProvisionalFeeReportds';
 import FacultyRequestApprovalds from './pages/FacultyRequestApprovalds';
 import DashMainAdmin from './pages/DashMainAdmin';
 import StudentMarksheetViewPage1to5ds from './pages/StudentMarksheetViewPage1to5ds';
@@ -166,6 +168,7 @@ import UnifiedLandingPageds from './pages/UnifiedLandingPageds';
 import PublicUnifiedLandingPageds from './pages/PublicUnifiedLandingPageds';
 import Dashmmattcalcadmin from './pages/Dashmmattcalcadmin';
 import Leadsag from './pages/Leadsag';
+import CallDialerds from './pages/CallDialerds';
 
 
 import Dashmmcolevels from './pages/Dashmmcolevels';
@@ -258,6 +261,7 @@ import StaffProfileds from './pages/StaffProfileds'; // Added
 
 import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
+import Kommunosettingsds from './pages/Kommunosettingsds';
 import CategoryManagementag1 from './pages/CategoryManagementag1';
 
 
@@ -806,6 +810,7 @@ import Studmarksheet from './pages/Studmarksheet';
 
 import Studbonafide from './pages/Studbonafide';
 import Studadmission from './pages/Studadmission';
+import DashFeesprovds from './pages/DashFeesprovds';
 
 import Report2 from './pages/Report2';
 import EventReport from './pages/EventReport';
@@ -1489,6 +1494,9 @@ import MenuItemsPage from "./pages/MenuItemsPage";
 import HostelStudentRemarksds from "./pages/HostelStudentRemarksds.jsx";
 
 import Pucadmissionform from "./pages/Pucadmissionform";
+import DCRReportPageds from './pages/DCRReportPageds';
+import UnifiedLandingPageds1 from './pages/UnifiedLandingPageds1.jsx';
+import PublicUnifiedLandingPageds1 from './pages/PublicUnifiedLandingPageds1.jsx';
 
 
 
@@ -1508,6 +1516,7 @@ function App() {
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
+
                                         <Route path="/crmreports2" element={<Crmreports2 />} />
                                         <Route path="/crmupcommingfollowup" element={<CrmdsReportsPage />} />
                                         <Route path="/crmh-dashboard" element={<CrmhDashboard />} />
@@ -1516,6 +1525,8 @@ function App() {
                                         <Route path="/crmds-pipeline-stage-wise" element={<CrmdsPipelineStageWiseReport />} />
                                         <Route path="/crmds-source-wise-leads" element={<CrmdsSourceWiseLeadsReport />} />
                                         <Route path="/crmdatewisenewleads" element={<CrmdsDateWiseNewLeads />} />
+                                        <Route path="/calldialerds" element={<CallDialerds />} />
+                                        <Route path="/kommunosettingsds" element={<Kommunosettingsds />} />
 
                                         <Route path="/programfeereport" element={<ProgramFeeReport />} />
                                         <Route path="/studentledgerreport" element={<StudentLedgerReport />} />
@@ -1603,6 +1614,7 @@ function App() {
                                         <Route path="/student-chat" element={<StudentChat />} />
                                         <Route path="/subject-management" element={<SubjectManagement />} />
                                         <Route path="/hostel-master" element={<HostelMasterPage />} />
+                                        <Route path="/dashfeesprovds" element={<DashFeesprovds />} />
                                         <Route path="/admission/1/:colId" element={<Admissiontemplateann1new />} />
                                         <Route path="/admissionag/2/:colId" element={<Admissiontemplateag2 />} />
                                         <Route path="/admissionag/1/:colId" element={<Admissiontemplateag1 />} />
@@ -2381,6 +2393,9 @@ function App() {
                                         <Route path="/dashfeefineds" element={<Dashfeefineds />} />
                                         <Route path="/institutionsds" element={<Institutionsds />} />
                                         <Route path="/bulkleadsds" element={<BulkLeadActionsds />} />
+                                        <Route path="/feesprovds" element={<Feesprovds />} />
+                                        <Route path="/provisionalfeereportds" element={<ProvisionalFeeReportds />} />
+                                        <Route path="/facultyrequestapprovalds" element={<FacultyRequestApprovalds />} />
                                         <Route path="/dashmfeesadmin" element={<Dashmfeesadmin />} />
                                         <Route path="/dashmledgerstud" element={<Dashmledgerstud />} />
                                         <Route path="/dashmledgerstudadmin" element={<Dashmledgerstudadmin />} />
@@ -2690,6 +2705,8 @@ function App() {
                                         <Route path="/paymenthistoryds" element={<Paymenthistoryds />} />
                                         <Route path="/paymentstatusds" element={<Paymentstatusds />} />
                                         <Route path="/paymentcallbackds" element={<Paymentcallbackds />} />
+
+                                        <Route path="/kommunosettingsds" element={<Kommunosettingsds />} />
 
                                         <Route path="/dashmmassets" element={<Dashmmassets />} />
                                         <Route path="/dashmmassetsadmin" element={<Dashmmassetsadmin />} />
@@ -3024,7 +3041,9 @@ function App() {
                                         <Route path="/leadsag" element={<Leadsag />} />
                                         <Route path="/categoryag1" element={<CategoryManagementag1 />} />
                                         <Route path="/unifiedlandingpageds" element={<UnifiedLandingPageds />} />
+                                        <Route path='/unifiedlandingpageds1' element={<UnifiedLandingPageds1 />} />
                                         <Route path="/unified-landing/:slug" element={<PublicUnifiedLandingPageds />} />
+                                        <Route path="/unified-landing1/:slug" element={<PublicUnifiedLandingPageds1 />} />
 
                                         {/* API Configuration and Chatbot */}
                                         <Route path="/apiconfig" element={<ApiConfig />} />
@@ -3045,6 +3064,7 @@ function App() {
                                         <Route path="/ItemCategoryds" element={<ItemCategoryds />} />
                                         <Route path="/ItemTypeds" element={<ItemTypeds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
+                                        <Route path="/staffprofileds" element={<StaffProfileds />} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />
                                         <Route path="/studentmarksheetviewpage1to5ds" element={<StudentMarksheetViewPage1to5ds />} />
                                         <Route path="/studentmarksheetviewpage6to8ds" element={<StudentMarksheetViewPage6to8ds />} />
@@ -3067,6 +3087,7 @@ function App() {
                                         <Route path="/studentledgerdaterangereportds" element={<StudentLedgerDateRangeReportds />} />
                                         <Route path="/programwisecashbookreportds" element={<ProgramWiseCashbookReportDS />} />
                                         <Route path="/feesstructurereportds" element={<FeesStructureReportds />} />
+                                        <Route path="/dcrreportds" element={<DCRReportPageds />} />
 
                                 </Routes>
                         </React.Suspense>

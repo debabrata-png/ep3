@@ -23,6 +23,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SourceIcon from '@mui/icons-material/Source';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import PhoneIcon from '@mui/icons-material/Phone';
 import { List, Typography } from '@mui/material';
 import global1 from './global1';
 
@@ -221,6 +222,12 @@ export function menuitemscrm() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Conversion Report" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/provisionalfeereportds">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Provisional Fee Report" />}
+          </ListItem>
         </AccordionDetails>
       </Accordion>
 
@@ -283,9 +290,24 @@ export function menuitemscrm() {
       <Accordion>
         <AccordionSummary aria-controls="panel-settings-content" id="panel-settings-header">
           <SettingsIcon sx={{ marginRight: 1 }} />
-          {open && <Typography sx={{ fontSize: 14 }}>Settings</Typography>}
+          {open && <Typography sx={{ fontSize: 14 }}>CRM Settings</Typography>}
         </AccordionSummary>
         <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/kommunosettingsds">
+            <ListItemIcon>
+              <PhoneIcon />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Call Settings" />
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/calldialerds">
+            <ListItemIcon>
+              <PhoneIcon sx={{ color: '#10b981' }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Call Dialer" />
+          </ListItem>
+
           <ListItem button component={RouterLink} to="/communicationsettings">
             <ListItemIcon>
               <SettingsIcon />

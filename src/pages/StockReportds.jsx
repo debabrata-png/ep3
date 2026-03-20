@@ -67,13 +67,13 @@ const StockReportds = () => {
         // Prepare rows
         const rows = stockData.map((item, index) => ({
             'Sr.No': index + 1,
-            'Category': item.category || '-',
+            'SectionName': item.category || '-',
             'Item Name': item.itemname || '-',
-            'Type': item.type || '-',
+            'Nature': item.type || '-',
             'Item Code': item.itemcode || '-',
             'Stock (Qty)': item.quantity ?? 0,
             'Store': item.storename || '-',
-            'Status': item.status || '-'
+            'Balance': item.status || '-'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -151,12 +151,13 @@ const StockReportds = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Sr.No</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Category</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>SectionName</TableCell>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>ItemName</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Type</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Nature</TableCell>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Item Code</TableCell>
                                         <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Stock</TableCell>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Store</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5', color: '#1976d2' }}>Balance</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -189,6 +190,7 @@ const StockReportds = () => {
                                                 {item.quantity ?? 0}
                                             </TableCell>
                                             <TableCell>{item.storename || '-'}</TableCell>
+                                            <TableCell>{item.status || '-'}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
