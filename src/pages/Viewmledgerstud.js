@@ -209,9 +209,51 @@ return new Date(params.value);
  },
 valueFormatter: params => dayjs(params?.value).format('DD/MM/YYYY'),
  },
+ {
+field:'paiddate',
+headerName:'Paid date',
+type:'date',
+width:200,
+editable:true,
+valueGetter: (params) => {
+if (!params.value) {
+return new Date();
+}
+return new Date(params.value);
+ },
+valueFormatter: params => dayjs(params?.value).format('DD/MM/YYYY'),
+ },
 {
 field:'amount',
 headerName:'Amount',
+type:'number',
+width:200,
+editable:true,
+valueFormatter: (params) => {
+if (params.value) {
+return params.value;
+} else {
+return '';
+}
+}
+ },
+ {
+field:'concession',
+headerName:'Concession',
+type:'number',
+width:200,
+editable:true,
+valueFormatter: (params) => {
+if (params.value) {
+return params.value;
+} else {
+return '';
+}
+}
+ },
+ {
+field:'balance',
+headerName:'Balance',
 type:'number',
 width:200,
 editable:true,
@@ -251,9 +293,51 @@ return '';
 }
 }
  },
+ {
+field:'feebook',
+headerName:'Fee book',
+type:'text',
+width:200,
+editable:true,
+valueFormatter: (params) => {
+if (params.value) {
+return params.value;
+} else {
+return '';
+}
+}
+ },
+ {
+field:'cashbook',
+headerName:'Cash book',
+type:'text',
+width:200,
+editable:true,
+valueFormatter: (params) => {
+if (params.value) {
+return params.value;
+} else {
+return '';
+}
+}
+ },
 {
 field:'installment',
 headerName:'Installment',
+type:'text',
+width:200,
+editable:true,
+valueFormatter: (params) => {
+if (params.value) {
+return params.value;
+} else {
+return '';
+}
+}
+ },
+ {
+field:'type',
+headerName:'Type',
 type:'text',
 width:200,
 editable:true,

@@ -146,7 +146,7 @@ return '';
 }
  },
 {
-field:'feeeitem',
+field:'feeitem',
 headerName:'Fee item',
 type:'text',
 width:200,
