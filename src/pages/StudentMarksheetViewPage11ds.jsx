@@ -103,11 +103,12 @@ const StudentMarksheetViewPage11ds = () => {
             if (response.data.success) {
                 const data = response.data.data;
                 setFullPdfData(data);
-                setPdfParams({
-                    remarks: data.remarks || '',
-                    promotedToClass: data.promotedToClass || '',
-                    newSessionDate: data.newSessionDate || ''
-                });
+                    setPdfParams(prev => ({
+                        ...prev,
+                        remarks: data.remarks || '',
+                        promotedToClass: data.promotedToClass || '',
+                        newSessionDate: data.newSessionDate || ''
+                    }));
                 setOpenDialog(true);
             } else {
                 showSnackbar('Student data not found', 'error');
@@ -120,9 +121,9 @@ const StudentMarksheetViewPage11ds = () => {
         }
     };
 
-    const handleGenerateClick = () => {
+    const handleGenerateClick = async () => {
         setDownloading(true);
-        setTimeout(() => {
+        setTimeout(async () => {
             const finalData = {
                 ...fullPdfData,
                 school: schoolConfig,
@@ -130,14 +131,24 @@ const StudentMarksheetViewPage11ds = () => {
                 promotedToClass: pdfParams.promotedToClass,
                 newSessionDate: pdfParams.newSessionDate
             };
-            createPDF(finalData);
+            await createPDF(finalData);
             setDownloading(false);
             setOpenDialog(false);
             showSnackbar('PDF generated successfully', 'success');
         }, 100);
     };
 
-    const createPDF = (data) => {
+    const loadImageAsync = (url) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+    };
+
+    const createPDF = async (data) => {
         const doc = new jsPDF('p', 'pt', 'a4');
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -220,19 +231,21 @@ const StudentMarksheetViewPage11ds = () => {
         // Implied: School Logo go to the Left side.
 
         try {
-            const schoolLogoImg = new Image();
-            schoolLogoImg.src = '/CPS.jpeg';
-            doc.addImage(schoolLogoImg, 'JPEG', 30, logoY + 15, schoolLogoWidth, schoolLogoHeight);
+            const schoolLogoImg = await loadImageAsync('/CPS.jpeg');
+            if (schoolLogoImg) {
+                doc.addImage(schoolLogoImg, 'JPEG', 30, logoY + 15, schoolLogoWidth, schoolLogoHeight);
+            }
         } catch (e) {
             console.warn("Logo error", e);
         }
 
         // Right: CBSE Logo
         try {
-            const cbseLogoImg = new Image();
-            cbseLogoImg.src = '/CBSE_logo.png';
-            // Align right margin (565) - width (65) = 500
-            doc.addImage(cbseLogoImg, 'PNG', 500, logoY, logoSize, logoSize);
+            const cbseLogoImg = await loadImageAsync('/CBSE_logo.png');
+            if (cbseLogoImg) {
+                // Align right margin (565) - width (65) = 500
+                doc.addImage(cbseLogoImg, 'PNG', 500, logoY, logoSize, logoSize);
+            }
         } catch (e) {
             // Placeholder text or circle if image missing
             // doc.circle(532, logoY + 32, 32);
@@ -376,8 +389,13 @@ const StudentMarksheetViewPage11ds = () => {
         drawRect(450, 150, 100, 120, { lineWidth: 1 });
         if (data.profile?.photo) {
             try {
-                const photoUrl = data.profile.photo.startsWith('http') ? data.profile.photo : `${ep1.defaults.baseURL}/${schoolConfig.logolink}`;
-                doc.addImage(photoUrl, 'JPEG', 451, 151, 98, 118);
+                const photoUrl = data.profile.photo.startsWith('http') ? data.profile.photo : `${ep1.defaults.baseURL}/${schoolConfig?.logolink || data.profile.photo}`;
+                const photoImg = await loadImageAsync(photoUrl);
+                if (photoImg) {
+                    doc.addImage(photoImg, 'JPEG', 451, 151, 98, 118);
+                } else {
+                    drawText("Photo", 500, 210, 10, false, [0, 0, 0], 'center');
+                }
             } catch (e) { drawText("Photo", 500, 210, 10, false, [0, 0, 0], 'center'); }
         } else {
             drawText("Photo", 500, 210, 10, false, [0, 0, 0], 'center');
@@ -400,7 +418,7 @@ const StudentMarksheetViewPage11ds = () => {
         };
 
         drawLineItem("Roll No.", data.profile.rollNo || data.profile.rollno);
-        drawLineItem("Scholastic No.", data.profile.admissionNo || data.profile.regno);
+        drawLineItem("Scholar No.", data.profile.admissionNo || data.profile.regno);
         drawLineItem("CBSE Reg. No.", data.profile.cbseRegNo || '');
         drawLineItem("Student's Name", data.profile.name);
 
@@ -600,18 +618,63 @@ const StudentMarksheetViewPage11ds = () => {
             return { ...sub, calculatedTotal: finalTot };
         });
 
-        // Display subjects in the order they were provided by the backend (which is sorted by createdAt)
-        // subjectsWithTotal.sort((a, b) => b.calculatedTotal - a.calculatedTotal);
+        // --- Data Logic: Compulsory + Best 5 Subjects ---
+        // 1. All subjects that are NOT explicitly additional
+        const scholasticSubjects = subjectsWithTotal.filter(sub => {
+            const hasMarks = [
+                sub.unitpremid, sub.unitpostmid, sub.unitTotal, sub.unit20,
+                sub.hyTh, sub.hyPr, sub.hyTotal, sub.hy30,
+                sub.annTh, sub.annPr, sub.annTotal, sub.ann50,
+                sub.calculatedTotal
+            ].some(val => val !== null && val !== undefined && val !== '') || 
+            [
+                sub.unitpremidabsent, sub.unitpostmidabsent, 
+                sub.halfyearlythabsent, sub.halfyearlypracticalabsent,
+                sub.annualthabsent, sub.annualpracticalabsent
+            ].some(abs => abs === true || abs === 'true');
 
-        let mainSubjects = [];
-        let additionalSubjects = [];
+            return (!sub.isAdditional || sub.isAdditional === 'false' || sub.isAdditional === false) && 
+                   sub.subjectname !== 'Teacher Remarks' &&
+                   hasMarks === true;
+        });
+        
+        // 2. Separate into Compulsory and Elective
+        const compulsorySubjects = scholasticSubjects.filter(sub => sub.isCompulsory === true || sub.isCompulsory === 'true');
+        const electiveSubjects = scholasticSubjects.filter(sub => !sub.isCompulsory || sub.isCompulsory === 'false' || sub.isCompulsory === false);
 
-        if (subjectsWithTotal.length > 5) {
-            mainSubjects = subjectsWithTotal.slice(0, 5);
-            additionalSubjects = subjectsWithTotal.slice(5);
+        // 3. Sort electives by marks descending
+        electiveSubjects.sort((a, b) => b.calculatedTotal - a.calculatedTotal);
+
+        let mainSubjects = [...compulsorySubjects];
+        let secondaryElectives = [];
+
+        // 4. Fill main subjects up to 5 (including all compulsory)
+        if (mainSubjects.length < 5) {
+            const needed = 5 - mainSubjects.length;
+            mainSubjects = [...mainSubjects, ...electiveSubjects.slice(0, needed)];
+            secondaryElectives = electiveSubjects.slice(needed);
         } else {
-            mainSubjects = subjectsWithTotal;
+            // If already 5 or more compulsory, all electives move to additional
+            secondaryElectives = electiveSubjects;
         }
+
+        // 5. Build additional subjects list
+        const explicitAdditional = subjectsWithTotal.filter(sub => {
+            const hasMarks = [
+                sub.unitpremid, sub.unitpostmid, sub.unitTotal, sub.unit20,
+                sub.hyTh, sub.hyPr, sub.hyTotal, sub.hy30,
+                sub.annTh, sub.annPr, sub.annTotal, sub.ann50,
+                sub.calculatedTotal
+            ].some(val => val !== null && val !== undefined && val !== '') || 
+            [
+                sub.unitpremidabsent, sub.unitpostmidabsent, 
+                sub.halfyearlythabsent, sub.halfyearlypracticalabsent,
+                sub.annualthabsent, sub.annualpracticalabsent
+            ].some(abs => abs === true || abs === 'true');
+
+            return (sub.isAdditional === true || sub.isAdditional === 'true') && hasMarks === true;
+        });
+        let additionalSubjects = [...secondaryElectives, ...explicitAdditional];
 
         let dy = sTableY + h1 + h2 + h3;
         const drH = 30; // Data Row Height
@@ -658,34 +721,34 @@ const StudentMarksheetViewPage11ds = () => {
 
             // Unit sums & cells
             const hyEnrich = sub.subjectEnrichment || sub.hyPr;
-            drawMarkCell(sub.unitpremid, xUnit, wU); sumUnitPre += parseFloat(sub.unitpremid || 0);
-            drawMarkCell(sub.unitpostmid, xUnit + wU, wU); sumUnitPost += parseFloat(sub.unitpostmid || 0);
+            drawMarkCell(sub.unitpremidabsent ? 'AB' : sub.unitpremid, xUnit, wU); sumUnitPre += parseFloat(sub.unitpremid || 0);
+            drawMarkCell(sub.unitpostmidabsent ? 'AB' : sub.unitpostmid, xUnit + wU, wU); sumUnitPost += parseFloat(sub.unitpostmid || 0);
             drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU); sumUnitTot += parseFloat(sub.unitTotal || 0);
             drawMarkCell(sub.unit20, xUnit + (3 * wU), wU); sumUnit20 += parseFloat(sub.unit20 || 0);
 
             // HY sums & cells
-            drawMarkCell(sub.hyTh, xHY, wH); sumHyTh += parseFloat(sub.hyTh || 0);
-            drawMarkCell(hyEnrich, xHY + wH, wH); sumHyPr += parseFloat(hyEnrich || 0);
+            drawMarkCell(sub.halfyearlythabsent ? 'AB' : sub.hyTh, xHY, wH); sumHyTh += parseFloat(sub.hyTh || 0);
+            drawMarkCell(sub.halfyearlypracticalabsent ? 'AB' : hyEnrich, xHY + wH, wH); sumHyPr += parseFloat(hyEnrich || 0);
             drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH); sumHyTot += parseFloat(sub.hyTotal || 0);
             drawMarkCell(sub.hy30, xHY + (3 * wH), wH); sumHy30 += parseFloat(sub.hy30 || 0);
 
             // Ann sums & cells
-            const annThDisplay = isGrace ? `${sub.annTh}*` : sub.annTh;
+            const annThDisplay = sub.annualthabsent ? 'AB' : (isGrace ? `${sub.annTh}*` : sub.annTh);
             const annTotalDisplay = isGrace ? `${sub.annTotal}*` : sub.annTotal;
             const ann50Display = isGrace ? `${sub.ann50}*` : sub.ann50;
 
             drawMarkCell(annThDisplay, xAnn, wA); sumAnnTh += parseFloat(sub.annTh || 0);
-            drawMarkCell(sub.annPr, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
+            drawMarkCell(sub.annualpracticalabsent ? 'AB' : sub.annPr, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
             drawMarkCell(annTotalDisplay, xAnn + (2 * wA), wA); sumAnnTot += parseFloat(sub.annTotal || 0);
             drawMarkCell(ann50Display, xAnn + (3 * wA), wA); sumAnn50 += parseFloat(sub.ann50 || 0);
 
             // Total
-            const subTotRaw = sub.calculatedTotal.toFixed(0);
+            const subTotRaw = Number(sub.calculatedTotal.toFixed(1));
             const subTot = isGrace ? `${subTotRaw}*` : subTotRaw;
             grandTot += parseFloat(sub.calculatedTotal);
 
             drawRect(xTot, dy, wTot, drH);
-            drawCenteredText(subTot, xTot, dy, wTot, drH, 9, true);
+            drawCenteredText(String(subTot), xTot, dy, wTot, drH, 9, true);
 
             // Grade
             drawRect(xGrd, dy, wGrd, drH);
@@ -709,20 +772,20 @@ const StudentMarksheetViewPage11ds = () => {
         drawRect(sTableX, dy, wSr + wSub, drH);
         drawText("Max Marks", sTableX + 5, dy + (drH / 2) + 3, 9, true);
 
-        drawCell(fmtStr(50 * count), xUnit, wU);
-        drawCell(fmtStr(50 * count), xUnit + wU, wU);
+        drawCell("", xUnit, wU);
+        drawCell("", xUnit + wU, wU);
         drawCell(fmtStr(100 * count), xUnit + (2 * wU), wU);
-        drawCell(fmtStr(20 * count), xUnit + (3 * wU), wU);
+        drawCell("", xUnit + (3 * wU), wU);
 
-        drawCell("-", xHY, wH);
-        drawCell("-", xHY + wH, wH);
+        drawCell("", xHY, wH);
+        drawCell("", xHY + wH, wH);
         drawCell(fmtStr(100 * count), xHY + (2 * wH), wH);
-        drawCell(fmtStr(30 * count), xHY + (3 * wH), wH);
+        drawCell("", xHY + (3 * wH), wH);
 
-        drawCell("-", xAnn, wA);
-        drawCell("-", xAnn + wA, wA);
+        drawCell("", xAnn, wA);
+        drawCell("", xAnn + wA, wA);
         drawCell(fmtStr(100 * count), xAnn + (2 * wA), wA);
-        drawCell(fmtStr(50 * count), xAnn + (3 * wA), wA);
+        drawCell("", xAnn + (3 * wA), wA);
 
         drawCell(fmtStr(100 * count), xTot, wTot);
         drawCell("", xGrd, wGrd);
@@ -732,23 +795,23 @@ const StudentMarksheetViewPage11ds = () => {
         drawRect(sTableX, dy, wSr + wSub, drH);
         drawText("Marks Obtained", sTableX + 5, dy + (drH / 2) + 3, 9, true);
 
-        drawCell(fmtNum(sumUnitPre), xUnit, wU);
-        drawCell(fmtNum(sumUnitPost), xUnit + wU, wU);
+        drawCell("", xUnit, wU);
+        drawCell("", xUnit + wU, wU);
         drawCell(fmtNum(sumUnitTot), xUnit + (2 * wU), wU);
-        drawCell(fmtNum(sumUnit20), xUnit + (3 * wU), wU);
+        drawCell("", xUnit + (3 * wU), wU);
 
-        drawCell(fmtNum(sumHyTh), xHY, wH);
-        drawCell(fmtNum(sumHyPr), xHY + wH, wH);
+        drawCell("", xHY, wH);
+        drawCell("", xHY + wH, wH);
         drawCell(fmtNum(sumHyTot), xHY + (2 * wH), wH);
-        drawCell(fmtNum(sumHy30), xHY + (3 * wH), wH);
+        drawCell("", xHY + (3 * wH), wH);
 
-        drawCell(fmtNum(sumAnnTh), xAnn, wA);
-        drawCell(fmtNum(sumAnnPr), xAnn + wA, wA);
+        drawCell("", xAnn, wA);
+        drawCell("", xAnn + wA, wA);
         drawCell(fmtNum(sumAnnTot), xAnn + (2 * wA), wA);
-        drawCell(fmtNum(sumAnn50), xAnn + (3 * wA), wA);
+        drawCell("", xAnn + (3 * wA), wA);
 
         // Grand Total Cell
-        drawCell(grandTot.toFixed(0), xTot, wTot);
+        drawCell(String(Number(grandTot.toFixed(1))), xTot, wTot);
 
         // Grade Blank
         drawCell("", xGrd, wGrd);
@@ -762,6 +825,26 @@ const StudentMarksheetViewPage11ds = () => {
         const percentage = (grandTot / (mainSubjects.length * 100)) * 100;
         drawCenteredText(`${percentage.toFixed(1)}%`, xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH, 10, true);
         // Footer blanks
+        drawRect(xTot, dy, wTot, drH);
+        drawRect(xGrd, dy, wGrd, drH);
+        dy += drH;
+
+        const calculateOverallGrade = (perc) => {
+            if (perc >= 91) return 'A1';
+            if (perc >= 81) return 'A2';
+            if (perc >= 71) return 'B1';
+            if (perc >= 61) return 'B2';
+            if (perc >= 51) return 'C1';
+            if (perc >= 41) return 'C2';
+            if (perc >= 33) return 'D';
+            return 'E';
+        };
+
+        // Overall Grade
+        drawRect(sTableX, dy, wSr + wSub, drH);
+        drawText("Overall Grade", sTableX + 5, dy + (drH / 2) + 3, 9, true);
+        drawRect(xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH);
+        drawCenteredText(calculateOverallGrade(percentage), xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH, 10, true);
         drawRect(xTot, dy, wTot, drH);
         drawRect(xGrd, dy, wGrd, drH);
         dy += drH;
@@ -802,27 +885,33 @@ const StudentMarksheetViewPage11ds = () => {
                     drawCenteredText(String(val || ''), x, dy, w, drH, 8);
                 };
 
+                const isGrace = sub.isgrace || false;
+
                 // Unit
-                drawMarkCell(sub.unitpremid, xUnit, wU);
-                drawMarkCell(sub.unitpostmid, xUnit + wU, wU);
+                drawMarkCell(sub.unitpremidabsent ? 'AB' : sub.unitpremid, xUnit, wU);
+                drawMarkCell(sub.unitpostmidabsent ? 'AB' : sub.unitpostmid, xUnit + wU, wU);
                 drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU);
                 drawMarkCell(sub.unit20, xUnit + (3 * wU), wU);
 
                 // HY
                 const hyEnrich = sub.subjectEnrichment || sub.hyPr;
-                drawMarkCell(hyEnrich, xHY + wH, wH);
-                drawMarkCell(sub.hyTh, xHY, wH);
+                drawMarkCell(sub.halfyearlythabsent ? 'AB' : sub.hyTh, xHY, wH);
+                drawMarkCell(sub.halfyearlypracticalabsent ? 'AB' : hyEnrich, xHY + wH, wH);
                 drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH);
                 drawMarkCell(sub.hy30, xHY + (3 * wH), wH);
 
                 // Ann
-                drawMarkCell(sub.annTh, xAnn, wA);
-                drawMarkCell(sub.annPr, xAnn + wA, wA);
-                drawMarkCell(sub.annTotal, xAnn + (2 * wA), wA);
-                drawMarkCell(sub.ann50, xAnn + (3 * wA), wA);
+                const annThDisplay = sub.annualthabsent ? 'AB' : (isGrace ? `${sub.annTh}*` : sub.annTh);
+                const annTotalDisplay = isGrace ? `${sub.annTotal}*` : sub.annTotal;
+                const ann50Display = isGrace ? `${sub.ann50}*` : sub.ann50;
+                
+                drawMarkCell(annThDisplay, xAnn, wA);
+                drawMarkCell(sub.annualpracticalabsent ? 'AB' : sub.annPr, xAnn + wA, wA);
+                drawMarkCell(annTotalDisplay, xAnn + (2 * wA), wA);
+                drawMarkCell(ann50Display, xAnn + (3 * wA), wA);
 
                 drawRect(xTot, dy, wTot, drH);
-                drawCenteredText(sub.calculatedTotal.toFixed(0), xTot, dy, wTot, drH, 9, true);
+                drawCenteredText(String(Number(sub.calculatedTotal.toFixed(1))), xTot, dy, wTot, drH, 9, true);
 
                 drawRect(xGrd, dy, wGrd, drH);
                 drawCenteredText(sub.grade || '-', xGrd, dy, wGrd, drH, 9, true);
@@ -1031,8 +1120,10 @@ const StudentMarksheetViewPage11ds = () => {
         });
 
         // Legend for grace marks
-        gY += 20;
-        drawText("* - Passes by grace", centerX, gY, 12, true, [0, 0, 0], 'center');
+        gY += 25; 
+        drawText("Abbreviations - ", centerX - 40, gY, 12, true, [0, 0, 0], 'left');
+        drawText("*- Passed by Grace", centerX - 40, gY + 15, 11, false, [0, 0, 0], 'left');
+        drawText("AB - Absent", centerX - 40, gY + 30, 11, false, [0, 0, 0], 'left');
 
         // Footer Quote
         doc.setFontSize(14);

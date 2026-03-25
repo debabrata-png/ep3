@@ -46,7 +46,10 @@ const PublicUnifiedLandingPageds1 = () => {
     const [qualifications, setQualifications] = useState([]);
     const [categories, setCategories] = useState([]);
     const [programs, setPrograms] = useState([]);
-    const [sources, setSources] = useState([]);
+    const [logo, setLogo] = useState("");
+
+
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -55,27 +58,44 @@ const PublicUnifiedLandingPageds1 = () => {
         stateIso: "",
         stateName: "",
         cityName: "",
-        area: "",
         qualification: "",
         category: "",
         programId: "",
-        source: "",
         declaration: false
     });
+
+    // Configuration for dropdown menu responsiveness and wrapping
+    const menuProps = {
+        PaperProps: {
+            sx: {
+                maxHeight: 400,
+                width: { xs: 'calc(100% - 32px)', sm: 'auto' }, // Responsive width
+                '& .MuiMenuItem-root': {
+                    whiteSpace: 'normal', // This enables the wrapping
+                    wordBreak: 'break-word',
+                    fontSize: { xs: '0.875rem', md: '1rem' },
+                    py: 1.5
+                },
+            },
+        },
+    };
 
     useEffect(() => {
         const encryptedData = searchParams.get('data');
         if (encryptedData) {
             const decrypted = decryptData(encryptedData);
+            console.log("Decrypted URL Data:", decrypted);
             if (decrypted) {
                 setDecryptedData(decrypted);
-                fetchInitialData(decrypted.colid);
+                if (decrypted.logo) {
+                    setLogo(decrypted.logo);
+                }
+                fetchInitialData(decrypted.colid, decrypted.logo);
             } else {
                 showSnackbar("Invalid link. Please contact support.", "error");
             }
         }
 
-        // India states by default
         setStatesList(State.getStatesOfCountry('IN'));
         fetchLandingPage();
     }, [slug]);
@@ -92,26 +112,33 @@ const PublicUnifiedLandingPageds1 = () => {
         setLoading(false);
     };
 
-    const fetchInitialData = async (colid) => {
+    const fetchInitialData = async (colid, existingLogo) => {
         try {
-            const [qualRes, sourceRes] = await Promise.all([
-                ep1.get('/api/v2/geteducationqualificationsag1', { params: { colid } }),
-                ep1.get('/api/v2/getallsourcesds', { params: { colid } })
-            ]);
-            setQualifications(qualRes.data.data || []);
-            setSources(sourceRes.data.data || []);
+            const promises = [
+                ep1.get('/api/v2/geteducationqualificationsag1', { params: { colid } })
+            ];
+
+            // Only fetch logo from API if not already provided in URL
+            if (!existingLogo) {
+                promises.push(ep1.get('/api/v2/checkinstitutionsds', { params: { colid } }));
+            }
+
+            const results = await Promise.all(promises);
+            setQualifications(results[0].data.data || []);
+
+            if (!existingLogo && results[1]?.data.data?.institutions?.[0]) {
+                setLogo(results[1].data.data.institutions[0].logo || "");
+            }
         } catch (err) {
             console.error("Error fetching initial data:", err);
         }
     };
 
-    // Handle State Change
     const handleStateChange = (stateIso, stateName) => {
         setFormData(prev => ({ ...prev, stateIso, stateName, cityName: "" }));
         setCitiesList(City.getCitiesOfState('IN', stateIso));
     };
 
-    // Handle Qualification Change
     const handleQualificationChange = async (qualification) => {
         setFormData(prev => ({ ...prev, qualification, category: "", programId: "" }));
         setCategories([]);
@@ -128,7 +155,6 @@ const PublicUnifiedLandingPageds1 = () => {
         }
     };
 
-    // Handle Category Change
     const handleCategoryChange = async (category, education_qualification) => {
         setFormData(prev => ({ ...prev, category, programId: "" }));
         setPrograms([]);
@@ -162,10 +188,10 @@ const PublicUnifiedLandingPageds1 = () => {
 
         setSubmitting(true);
         try {
-            const sourceParam = searchParams.get('source');
-            const leadSource = formData.source || sourceParam || `Unified Landing Page - ${landingPage.page_name}`;
+            const rawSource = searchParams.get('source');
+            const sourceParam = rawSource ? decodeURIComponent(rawSource) : null;
+            const leadSource = sourceParam || landingPage.source || `Unified Landing Page - ${landingPage.page_name}`;
 
-            // Get counselor from explicitly selected program, fallback to category
             const selectedProg = programs.find(p => p._id === formData.programId);
 
             let assignedCounselor = null;
@@ -194,7 +220,6 @@ const PublicUnifiedLandingPageds1 = () => {
                 phone: formData.phone,
                 state: formData.stateName,
                 city: formData.cityName,
-                address: formData.area, // Mapping area to address
                 qualification: formData.qualification,
                 category: formData.category,
                 course_interested: selectedProg?.course_name || "",
@@ -213,8 +238,8 @@ const PublicUnifiedLandingPageds1 = () => {
             showSnackbar("Thank you! We will contact you soon.", "success");
             setFormData({
                 name: "", email: "", phone: "", stateIso: "", stateName: "",
-                cityName: "", area: "", qualification: "", category: "", programId: "",
-                source: "", declaration: false
+                cityName: "", qualification: "", category: "", programId: "",
+                declaration: false
             });
             setCitiesList([]); setCategories([]); setPrograms([]);
 
@@ -241,7 +266,7 @@ const PublicUnifiedLandingPageds1 = () => {
     if (!landingPage) {
         return (
             <Container maxWidth="sm" sx={{ mt: 8, textAlign: 'center' }}>
-                <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: "#1e293b" }}>Page Not Found</Typography>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: "#1e293b", fontSize: { xs: '1.5rem', md: '2.125rem' } }}>Page Not Found</Typography>
                 <Typography variant="body1" color="text.secondary">The landing page you're looking for doesn't exist.</Typography>
             </Container>
         );
@@ -250,34 +275,66 @@ const PublicUnifiedLandingPageds1 = () => {
     if (!decryptedData) {
         return (
             <Container maxWidth="sm" sx={{ mt: 8, textAlign: 'center' }}>
-                <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: "#1e293b" }}>Invalid Link</Typography>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: "#1e293b", fontSize: { xs: '1.5rem', md: '2.125rem' } }}>Invalid Link</Typography>
                 <Typography variant="body1" color="text.secondary">This link is invalid or has expired. Please contact support.</Typography>
             </Container>
         );
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: 6 }}>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: { xs: 2, md: 6 } }}>
             <Container maxWidth="lg">
-                <Paper elevation={0} sx={{ p: 6, mb: 4, textAlign: 'center', background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', color: 'white', borderRadius: 4, boxShadow: "0 10px 30px rgba(21, 101, 192, 0.3)" }}>
-                    <Typography variant="h3" gutterBottom sx={{ fontWeight: 800 }}>{landingPage.page_content?.headline || "Welcome"}</Typography>
-                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 500, opacity: 0.9 }}>{landingPage.page_content?.subheadline || ""}</Typography>
-                    <Typography variant="body1" sx={{ mt: 2, maxWidth: 800, mx: "auto", opacity: 0.9 }}>{landingPage.page_content?.description || ""}</Typography>
+                <Paper elevation={0} sx={{
+                    p: { xs: 3, md: 6 },
+                    mb: 4,
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    color: 'white',
+                    borderRadius: { xs: 2, md: 4 },
+                    boxShadow: "0 10px 30px rgba(21, 101, 192, 0.3)"
+                }}>
+                    {logo && (
+                        <Box sx={{ mb: 3 }}>
+                            <img
+                                src={logo}
+                                alt="University Logo"
+                                style={{
+                                    height: '80px',
+                                    width: 'auto',
+                                    backgroundColor: 'rgba(255,255,255,0.9)',
+                                    padding: '8px',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                }}
+                            />
+                        </Box>
+                    )}
+                    <Typography variant="h3" gutterBottom sx={{ fontWeight: 800, fontSize: { xs: '1.75rem', md: '3rem' } }}>
+                        {landingPage.page_content?.headline || "Welcome"}
+                    </Typography>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 500, opacity: 0.9, fontSize: { xs: '1rem', md: '1.25rem' } }}>
+                        {landingPage.page_content?.subheadline || ""}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 2, maxWidth: 800, mx: "auto", opacity: 0.9, fontSize: { xs: '0.875rem', md: '1rem' } }}>
+                        {landingPage.page_content?.description || ""}
+                    </Typography>
                     {landingPage.page_content?.image_url && (
                         <Box sx={{ mt: 4 }}>
-                            <img src={landingPage.page_content.image_url} alt="Landing" style={{ maxWidth: '100%', borderRadius: '16px', boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }} />
+                            <img src={landingPage.page_content.image_url} alt="Landing" style={{ width: '100%', maxWidth: '600px', borderRadius: '16px', boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }} />
                         </Box>
                     )}
                 </Paper>
 
-                <Paper elevation={0} sx={{ p: 6, borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}>
-                    <Typography variant="h4" gutterBottom sx={{ color: "#1565c0", fontWeight: 700, textAlign: "center" }}>
-                        {landingPage.page_content?.cta_button_text || "Apply Now"}
-                    </Typography>
+                <Paper elevation={0} sx={{
+                    p: { xs: 2, sm: 4, md: 6 },
+                    borderRadius: { xs: 2, md: 4 },
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                    border: "1px solid rgba(0,0,0,0.05)"
+                }}>
                     <form onSubmit={handleSubmit}>
-                        <Grid container spacing={3}>
+                        <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
-                                <TextField fullWidth label="Full Name" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                <TextField fullWidth label="Name" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     InputProps={{ startAdornment: <PersonIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -293,6 +350,7 @@ const PublicUnifiedLandingPageds1 = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField fullWidth select label="Select State" required value={formData.stateIso}
+                                    SelectProps={{ MenuProps: menuProps }}
                                     onChange={(e) => handleStateChange(e.target.value, statesList.find(s => s.isoCode === e.target.value)?.name)}
                                     InputProps={{ startAdornment: <MapIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {statesList.map((state) => (<MenuItem key={state.isoCode} value={state.isoCode}>{state.name}</MenuItem>))}
@@ -300,24 +358,23 @@ const PublicUnifiedLandingPageds1 = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField fullWidth select label="Select City" required value={formData.cityName} disabled={!formData.stateIso}
+                                    SelectProps={{ MenuProps: menuProps }}
                                     onChange={(e) => setFormData({ ...formData, cityName: e.target.value })}
                                     InputProps={{ startAdornment: <LocationCityIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {citiesList.map((city) => (<MenuItem key={city.name} value={city.name}>{city.name}</MenuItem>))}
                                 </TextField>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField fullWidth label="Area" required value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                                    InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }} />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField fullWidth select label="Level of Programme" required value={formData.qualification}
+                                <TextField fullWidth select label="Select Level of Programme" required value={formData.qualification}
+                                    SelectProps={{ MenuProps: menuProps }}
                                     onChange={(e) => handleQualificationChange(e.target.value)}
                                     InputProps={{ startAdornment: <WorkspacePremiumIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {qualifications.map((qual, idx) => (<MenuItem key={idx} value={qual}>{qual}</MenuItem>))}
                                 </TextField>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField fullWidth select label="Select Department" required value={formData.category} disabled={!formData.qualification}
+                                <TextField fullWidth select label="Select School" required value={formData.category} disabled={!formData.qualification}
+                                    SelectProps={{ MenuProps: menuProps }}
                                     onChange={(e) => handleCategoryChange(e.target.value, formData.qualification)}
                                     InputProps={{ startAdornment: <CategoryIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {categories.map((cat, idx) => (<MenuItem key={idx} value={cat}>{cat}</MenuItem>))}
@@ -325,26 +382,19 @@ const PublicUnifiedLandingPageds1 = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField fullWidth select label="Select Program" required value={formData.programId} disabled={!formData.category}
+                                    SelectProps={{ MenuProps: menuProps }}
                                     onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
                                     InputProps={{ startAdornment: <SchoolIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
                                     {programs.map((prog) => (<MenuItem key={prog._id} value={prog._id}>{prog.course_name}</MenuItem>))}
                                 </TextField>
                             </Grid>
-                            {/* Sources Field (If desired, can be shown or hidden based on requirements. Appears it was dynamic before.) */}
-                            {landingPage.form_fields?.some(f => f.field_name === 'source') && (
-                                <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth select label="Source" required value={formData.source}
-                                        onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                                        InputProps={{ startAdornment: <CategoryIcon sx={{ color: "#64748b", mr: 1 }} />, sx: { borderRadius: 2 } }}>
-                                        {sources.filter(s => s.is_active === 'Yes').map((src) => (<MenuItem key={src._id} value={src.source_name}>{src.source_name}</MenuItem>))}
-                                    </TextField>
-                                </Grid>
-                            )}
+
+
 
                             <Grid item xs={12}>
                                 <FormControlLabel
                                     control={<Checkbox required checked={formData.declaration} onChange={(e) => setFormData({ ...formData, declaration: e.target.checked })} color="primary" />}
-                                    label="I hereby declare that the information provided is true and correct. I agree to receive communications from the institution."
+                                    label={<Typography variant="body2" color="text.secondary">I hereby declare that the information provided is true and correct. I agree to receive communications from the institution.</Typography>}
                                 />
                             </Grid>
 
@@ -358,15 +408,15 @@ const PublicUnifiedLandingPageds1 = () => {
                     </form>
                 </Paper>
 
-                <Grid container spacing={4} sx={{ mt: 4 }}>
-                    <Grid item xs={12}><Typography variant="h5" textAlign="center" gutterBottom sx={{ fontWeight: 700, color: "#1e293b" }}>Why Choose Us?</Typography></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0" }}>Expert Faculty</Typography><Typography variant="body2" color="text.secondary">Learn from industry experts with years of experience</Typography></Paper></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0" }}>100% Placement</Typography><Typography variant="body2" color="text.secondary">Guaranteed placement assistance in top companies</Typography></Paper></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0" }}>Modern Campus</Typography><Typography variant="body2" color="text.secondary">State-of-the-art facilities and infrastructure</Typography></Paper></Grid>
+                <Grid container spacing={2} sx={{ mt: 4 }}>
+                    <Grid item xs={12}><Typography variant="h5" textAlign="center" gutterBottom sx={{ fontWeight: 700, color: "#1e293b", fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Why Choose Us?</Typography></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>Expert Faculty</Typography><Typography variant="body2" color="text.secondary">Learn from industry experts with years of experience</Typography></Paper></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>100% Placement</Typography><Typography variant="body2" color="text.secondary">Guaranteed placement assistance in top companies</Typography></Paper></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>Modern Campus</Typography><Typography variant="body2" color="text.secondary">State-of-the-art facilities and infrastructure</Typography></Paper></Grid>
                 </Grid>
 
                 <Box sx={{ mt: 8, py: 4, textAlign: 'center', borderTop: '1px solid #e2e8f0' }}>
-                    <Typography variant="body2" color="text.secondary">© 2025 Career College. All rights reserved.</Typography>
+                    <Typography variant="body2" color="text.secondary">© 2026 Career College. All rights reserved.</Typography>
                 </Box>
             </Container>
 

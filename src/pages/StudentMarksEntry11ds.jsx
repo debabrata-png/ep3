@@ -35,7 +35,7 @@ import global1 from './global1';
 const StudentMarksEntry11ds = () => {
     const [semester, setSemester] = useState('11');
     const [academicyear, setAcademicyear] = useState('2025-2026');
-    const [section, setSection] = useState('A');
+    const [section, setSection] = useState('');
 
     // Filter States for Dropdown approach
     const [term, setTerm] = useState('unit');
@@ -58,6 +58,7 @@ const StudentMarksEntry11ds = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [remarksOptions, setRemarksOptions] = useState([]);
 
     // Debounce search query
     useEffect(() => {
@@ -109,18 +110,28 @@ const StudentMarksEntry11ds = () => {
         fetchSemestersAndYears();
     }, []);
 
+    // Re-fetch sections from User table whenever semester changes
+    useEffect(() => {
+        if (semester) {
+            fetchSectionsBySemester(semester);
+        }
+    }, [semester]);
+
     // Auto-select first component when term changes
     useEffect(() => {
-        if (componentOptions[term] && componentOptions[term].length > 0) {
+        if (term === 'remarks') {
+            setComponent('teacherremarks');
+        } else if (componentOptions[term] && componentOptions[term].length > 0) {
             setComponent(componentOptions[term][0].value);
         }
     }, [term]);
 
     useEffect(() => {
+        // Wait until section is fetched before fetching data
         if (semester && academicyear && section) {
             fetchData();
         }
-    }, [semester, academicyear, section, debouncedSearchQuery]);
+    }, [semester, academicyear, section, debouncedSearchQuery, term, component]); // Add term and component if they affect rendering
 
     const fetchSemestersAndYears = async () => {
         try {
@@ -130,16 +141,43 @@ const StudentMarksEntry11ds = () => {
             if (response.data.success) {
                 setAvailableSemesters(response.data.semesters || []);
                 setAvailableYears(response.data.admissionyears || []);
-                setAvailableSections(response.data.sections || []);
-
-                // Set defaults
-                if (!semester && response.data.semesters.length > 0) setSemester(response.data.semesters[0]);
-                if (!academicyear && response.data.admissionyears.length > 0) setAcademicyear(response.data.admissionyears[0]);
-                if (!section && response.data.sections.length > 0) setSection(response.data.sections[0]);
+                // Sections will be fetched dynamically via fetchSectionsBySemester
             }
         } catch (error) {
             console.error('Error fetching semesters/years:', error);
             showSnackbar('Failed to fetch filter data', 'error');
+        }
+    };
+
+    const fetchRemarks = async () => {
+        try {
+            const response = await ep1.get('/api/v2/getremarksds', {
+                params: { colid: global1.colid }
+            });
+            if (response.data.success) {
+                setRemarksOptions(response.data.remarks || []);
+            }
+        } catch (error) {
+            console.error('Error fetching remarks:', error);
+        }
+    };
+
+    // Fetch sections from User table filtered by the selected semester
+    const fetchSectionsBySemester = async (sem) => {
+        try {
+            const response = await ep1.get('/api/v2/getdistinctsectionsbyclass9ds', {
+                params: { colid: global1.colid, semester: sem }
+            });
+            if (response.data.success) {
+                const secs = response.data.sections || [];
+                setAvailableSections(secs);
+                // Auto-select first section if current selection not in list
+                if (secs.length > 0 && (!section || !secs.includes(section))) {
+                    setSection(secs[0]);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching sections:', error);
         }
     };
 
@@ -159,17 +197,66 @@ const StudentMarksEntry11ds = () => {
 
             if (response.data.success) {
                 setStudents(response.data.students || []);
-                setSubjects(response.data.subjects || []);
+                const fetchedSubjects = response.data.subjects || [];
+                setSubjects(fetchedSubjects);
 
                 // Process existing marks
                 const marks = response.data.marks || [];
                 const newMarksMap = {};
 
+                // PRE-INITIALIZE the map for all students and subjects to ensure colid/semester/etc are present
+                const fetchedStudents = response.data.students || [];
+                fetchedStudents.forEach(s => {
+                    const allCols = (term === 'attendance') ? [{ subjectcode: 'ATTENDANCE', subjectname: 'ATTENDANCE' }] : fetchedSubjects;
+                    allCols.forEach(sub => {
+                        const key = `${s.regno}_${sub.subjectcode}`;
+                        newMarksMap[key] = {
+                            colid: Number(global1.colid),
+                            regno: s.regno,
+                            semester,
+                            academicyear,
+                            section,
+                            subjectcode: sub.subjectcode,
+                            subjectname: sub.subjectname || sub.name || '',
+                            studentname: s.name,
+                            user: global1.user,
+                            teacherremarks: '',
+                            promotedclass: '',
+                            newsessiondate: ''
+                        };
+                    });
+                });
+
+                const componentToAbsentField = {
+                    'unitpremidobtain': 'unitpremidabsent',
+                    'unitpostmidobtain': 'unitpostmidabsent',
+                    'halfyearlythobtain': 'halfyearlythabsent',
+                    'halfyearlypracticalobtain': 'halfyearlypracticalabsent',
+                    'annualthobtain': 'annualthabsent',
+                    'annualpracticalobtain': 'annualpracticalabsent'
+                };
+                const currentAbsentField = componentToAbsentField[component];
+
+                // Merge existing marks into the pre-initialized map
                 marks.forEach(m => {
-                    const key = `${m.regno}-${m.subjectcode}`;
+                    let codeToUse = m.subjectcode;
+                    const matchedSub = fetchedSubjects.find(sub => 
+                        sub.subjectcode === m.subjectcode || 
+                        (sub.subjectname && sub.subjectname.toUpperCase() === String(m.subjectcode).toUpperCase())
+                    );
+                    if (matchedSub) {
+                        codeToUse = matchedSub.subjectcode;
+                    }
+
+                    const key = `${m.regno}_${codeToUse}`;
                     newMarksMap[key] = {
+                        ...(newMarksMap[key] || {}), // Keep pre-initialized fields
                         ...m,
-                        isgrace: m.isgrace || false // Ensure isgrace is initialized
+                        isgrace: m.isgrace || false,
+                        isabsent: currentAbsentField ? (m[currentAbsentField] || false) : false,
+                        teacherremarks: m.teacherremarks || '',
+                        promotedclass: m.promotedclass || '',
+                        newsessiondate: m.newsessiondate ? m.newsessiondate.split('T')[0] : ''
                     };
                 });
                 setMarksMap(newMarksMap);
@@ -217,25 +304,101 @@ const StudentMarksEntry11ds = () => {
     }, [students, searchQuery, sortConfig]);
 
     const handleMarkChange = (regno, subject, field, value) => {
-        const key = `${regno}-${subject.subjectcode}`;
+        const subcode = subject.subjectcode;
+        const key = `${regno}_${subcode}`;
         const existing = marksMap[key] || {};
+
+        const componentToAbsentField = {
+            'unitpremidobtain': 'unitpremidabsent',
+            'unitpostmidobtain': 'unitpostmidabsent',
+            'halfyearlythobtain': 'halfyearlythabsent',
+            'halfyearlypracticalobtain': 'halfyearlypracticalabsent',
+            'annualthobtain': 'annualthabsent',
+            'annualpracticalobtain': 'annualpracticalabsent'
+        };
+
+        const updateData = {
+            ...existing,
+            regno,
+            colid: global1.colid,
+            semester,
+            academicyear,
+            section,
+            studentname: existing.studentname || students.find(s => s.regno === regno)?.name,
+            subjectcode: subject.subjectcode,
+            subjectname: subject.subjectname,
+            user: global1.user,
+            [field]: value
+        };
+
+        if (field === 'isabsent') {
+            const specificAbsentField = componentToAbsentField[component];
+            if (specificAbsentField) {
+                updateData[specificAbsentField] = value;
+            }
+        }
 
         setMarksMap(prev => ({
             ...prev,
-            [key]: {
+            [key]: updateData
+        }));
+    };
+
+    const handleRemarkChange = (regno, remarkValue) => {
+        const newMarksMap = { ...marksMap };
+        const cols = term === 'attendance' ? [{ subjectcode: 'ATTENDANCE' }] : subjects;
+        cols.forEach(sub => {
+            const key = `${regno}_${sub.subjectcode}`;
+            const existing = newMarksMap[key] || {};
+            newMarksMap[key] = {
                 ...existing,
+                regno,
                 colid: global1.colid,
                 semester,
                 academicyear,
                 section,
+                teacherremarks: remarkValue
+            };
+        });
+        setMarksMap(newMarksMap);
+    };
+
+    const handlePromotionChange = (regno, promoValue) => {
+        const newMarksMap = { ...marksMap };
+        const cols = term === 'attendance' ? [{ subjectcode: 'ATTENDANCE' }] : subjects;
+        cols.forEach(sub => {
+            const key = `${regno}_${sub.subjectcode}`;
+            const existing = newMarksMap[key] || {};
+            newMarksMap[key] = {
+                ...existing,
                 regno,
-                studentname: existing.studentname || students.find(s => s.regno === regno)?.name,
-                subjectcode: subject.subjectcode,
-                subjectname: subject.subjectname,
-                user: global1.user,
-                [field]: value // Update the specified field (e.g., component or isgrace)
-            }
-        }));
+                colid: global1.colid,
+                semester,
+                academicyear,
+                section,
+                promotedclass: promoValue
+            };
+        });
+        setMarksMap(newMarksMap);
+    };
+
+    const handleSessionDateChange = (regno, dateValue) => {
+        const newMarksMap = { ...marksMap };
+        const cols = term === 'attendance' ? [{ subjectcode: 'ATTENDANCE' }] : subjects;
+        cols.forEach(sub => {
+            const key = `${regno}_${sub.subjectcode}`;
+            const existing = newMarksMap[key] || {};
+            newMarksMap[key] = {
+                ...existing,
+                regno,
+                colid: global1.colid,
+                semester,
+                academicyear,
+                section,
+                newsessiondate: dateValue
+            };
+        });
+        setMarksMap(newMarksMap);
     };
 
     const handleSave = async () => {
@@ -260,7 +423,7 @@ const StudentMarksEntry11ds = () => {
                 const workingDaysVal = extraData ? extraData.workingDays : 0;
 
                 payloadMarks = students.map(s => {
-                    const key = `${s.regno}-ATTENDANCE`;
+                    const key = `${s.regno}_ATTENDANCE`;
                     const markObj = marksMap[key] || {};
                     const attVal = markObj[component];
 
@@ -327,8 +490,9 @@ const StudentMarksEntry11ds = () => {
 
     // Helper to get value
     const getVal = (regno, subjectcode, field = component) => {
-        const key = `${regno}-${subjectcode}`;
-        return marksMap[key]?.[field] || '';
+        const key = `${regno}_${subjectcode}`;
+        const val = marksMap[key]?.[field];
+        return (val !== undefined && val !== null) ? val : '';
     };
 
     // Determine header columns
@@ -399,6 +563,7 @@ const StudentMarksEntry11ds = () => {
                                 <MenuItem value="halfyearly">Half Yearly</MenuItem>
                                 <MenuItem value="annual">Annual</MenuItem>
                                 <MenuItem value="attendance">Attendance</MenuItem>
+                                <MenuItem value="remarks">Teacher Remarks</MenuItem>
                             </TextField>
                         </Grid>
 
@@ -409,10 +574,12 @@ const StudentMarksEntry11ds = () => {
                                 label="Component"
                                 value={component}
                                 onChange={(e) => setComponent(e.target.value)}
+                                disabled={term === 'remarks'}
                             >
-                                {componentOptions[term]?.map((opt) => (
+                                {term !== 'remarks' && componentOptions[term]?.map((opt) => (
                                     <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
                                 ))}
+                                {term === 'remarks' && <MenuItem value="teacherremarks">Teacher Remarks</MenuItem>}
                             </TextField>
                         </Grid>
 
@@ -492,7 +659,7 @@ const StudentMarksEntry11ds = () => {
                                         </Typography>
                                     </Box>
                                 </TableCell>
-                                {columns.map((subject) => (
+                                {component !== 'teacherremarks' && columns.map((subject) => (
                                     <TableCell
                                         key={subject.subjectcode}
                                         align="center"
@@ -507,55 +674,110 @@ const StudentMarksEntry11ds = () => {
                                                 </Typography>
                                             </>
                                         )}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
+                                     </TableCell>
+                                 ))}
+                                 {component === 'teacherremarks' && (
+                                     <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', minWidth: 250, borderLeft: '1px solid #ddd' }}>
+                                         <Box sx={{ fontWeight: 'bold' }}>Teacher Remarks</Box>
+                                     </TableCell>
+                                 )}
+                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredAndSortedStudents.map((student) => (
                                 <TableRow key={student.regno} hover>
                                     <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: '#fff', zIndex: 5, borderRight: '1px solid #eee' }}>
                                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{student.name}</Typography>
-                                        <Typography variant="caption" color="textSecondary">{student.rollno} | {student.regno}</Typography>
-                                    </TableCell>
-                                    {columns.map((subject) => (
-                                        <TableCell key={`${student.regno}-${subject.subjectcode}`} align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
-                                            <TextField
-                                                size="small"
-                                                type="number"
-                                                variant="outlined"
-                                                value={getVal(student.regno, subject.subjectcode)}
-                                                onChange={(e) => handleMarkChange(student.regno, subject, component, e.target.value)}
-                                                inputProps={{
-                                                    style: { textAlign: 'center', padding: '5px' }
-                                                }}
-                                                sx={{
-                                                    width: '80px',
-                                                    '& .MuiOutlinedInput-root': {
-                                                        '& fieldset': { borderColor: getVal(student.regno, subject.subjectcode) ? '#1976d2' : '#e0e0e0' }
-                                                    }
-                                                }}
-                                            />
-                                            {(term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) && (
-                                                <Box sx={{ mt: 1 }}>
-                                                    <FormControlLabel
-                                                        control={
-                                                            <Switch
-                                                                size="small"
-                                                                checked={getVal(student.regno, subject.subjectcode, 'isgrace') || false}
-                                                                onChange={(e) => handleMarkChange(student.regno, subject, 'isgrace', e.target.checked)}
-                                                                color="secondary"
-                                                            />
-                                                        }
-                                                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
-                                                        labelPlacement="end"
-                                                        sx={{ m: 0 }}
-                                                    />
-                                                </Box>
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
+                                         <Typography variant="caption" color="textSecondary">{student.rollno} | {student.regno}</Typography>
+                                     </TableCell>
+                                     {component !== 'teacherremarks' && columns.map((subject) => (
+                                         <TableCell key={`${student.regno}-${subject.subjectcode}`} align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
+                                             <TextField
+                                                 size="small"
+                                                 type="number"
+                                                 variant="outlined"
+                                                 value={getVal(student.regno, subject.subjectcode)}
+                                                 onChange={(e) => handleMarkChange(student.regno, subject, component, e.target.value)}
+                                                 inputProps={{
+                                                     style: { textAlign: 'center', padding: '5px' }
+                                                 }}
+                                                 sx={{
+                                                     width: '80px',
+                                                     '& .MuiOutlinedInput-root': {
+                                                         '& fieldset': { borderColor: getVal(student.regno, subject.subjectcode) ? '#1976d2' : '#e0e0e0' }
+                                                     }
+                                                 }}
+                                             />
+                                             <Box sx={{ mt: 1 }}>
+                                                 {(term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) && (
+                                                     <FormControlLabel
+                                                         control={
+                                                             <Switch
+                                                                 size="small"
+                                                                 checked={getVal(student.regno, subject.subjectcode, 'isgrace') || false}
+                                                                 onChange={(e) => handleMarkChange(student.regno, subject, 'isgrace', e.target.checked)}
+                                                                 color="secondary"
+                                                             />
+                                                         }
+                                                         label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                                                         labelPlacement="end"
+                                                         sx={{ m: 0 }}
+                                                     />
+                                                 )}
+                                                 {term !== 'attendance' && (
+                                                     <FormControlLabel
+                                                         control={
+                                                             <Switch
+                                                                 size="small"
+                                                                 checked={getVal(student.regno, subject.subjectcode, 'isabsent') || false}
+                                                                 onChange={(e) => handleMarkChange(student.regno, subject, 'isabsent', e.target.checked)}
+                                                                 color="error"
+                                                             />
+                                                         }
+                                                         label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                                                         labelPlacement="end"
+                                                         sx={{ m: 0, ml: (term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) ? 1 : 0 }}
+                                                     />
+                                                 )}
+                                             </Box>
+                                         </TableCell>
+                                     ))}
+                                     {component === 'teacherremarks' && (
+                                         <TableCell align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
+                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                                 <TextField
+                                                     fullWidth
+                                                     multiline
+                                                     maxRows={3}
+                                                     size="small"
+                                                     label="Teacher Remarks"
+                                                     placeholder="Enter Remarks"
+                                                     value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.teacherremarks || '') : ''}
+                                                     onChange={(e) => handleRemarkChange(student.regno, e.target.value)}
+                                                     sx={{ minWidth: 250 }}
+                                                 />
+                                                 <Box sx={{ display: 'flex', gap: 1 }}>
+                                                     <TextField
+                                                         fullWidth
+                                                         size="small"
+                                                         label="Promoted to Class"
+                                                         value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.promotedclass || '') : ''}
+                                                         onChange={(e) => handlePromotionChange(student.regno, e.target.value)}
+                                                     />
+                                                     <TextField
+                                                         type="date"
+                                                         fullWidth
+                                                         size="small"
+                                                         label="Session Start On"
+                                                         InputLabelProps={{ shrink: true }}
+                                                         value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.newsessiondate || '') : ''}
+                                                         onChange={(e) => handleSessionDateChange(student.regno, e.target.value)}
+                                                     />
+                                                 </Box>
+                                             </Box>
+                                         </TableCell>
+                                     )}
+                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>

@@ -50,12 +50,17 @@ const UnifiedLandingPageds1 = () => {
     const [currentPage, setCurrentPage] = useState(null);
     const [openQrDialog, setOpenQrDialog] = useState(false);
     const [openQrListDialog, setOpenQrListDialog] = useState(false);
+    const [openLinkDialog, setOpenLinkDialog] = useState(false);
     const [selectedPage, setSelectedPage] = useState(null);
     const [qrFormData, setQrFormData] = useState({
         qr_name: "",
         source: "",
     });
+    const [linkFormData, setLinkFormData] = useState({
+        source: "",
+    });
     const [generatedQr, setGeneratedQr] = useState("");
+    const [generatedLink, setGeneratedLink] = useState("");
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
     const [formData, setFormData] = useState({
         page_name: "",
@@ -122,7 +127,8 @@ const UnifiedLandingPageds1 = () => {
         const currentUrl = window.location.origin;
         const encryptedData = encryptData({
             colid: global1.colid,
-            user: global1.user
+            user: global1.user,
+            logo: global1.logo
         });
 
         let url = `${currentUrl}/unified-landing1/${slug}?data=${encryptedData}`;
@@ -228,6 +234,19 @@ const UnifiedLandingPageds1 = () => {
                 showSnackbar("Failed to delete unified landing page", "error");
             }
         }
+    };
+
+    // Link Management
+    const handleOpenLinkDialog = (page) => {
+        setSelectedPage(page);
+        setLinkFormData({ source: "" });
+        setGeneratedLink(page.page_url); // Default to base URL
+        setOpenLinkDialog(true);
+    };
+
+    const handleGenerateLink = () => {
+        const linkWithSource = generateUrl(selectedPage.page_slug, linkFormData.source);
+        setGeneratedLink(linkWithSource);
     };
 
     // QR Code Management
@@ -423,8 +442,8 @@ const UnifiedLandingPageds1 = () => {
                                 <Box sx={{ display: "flex", gap: 1 }}>
                                     <IconButton
                                         size="small"
-                                        onClick={() => copyToClipboard(page.page_url)}
-                                        title="Copy URL"
+                                        onClick={() => handleOpenLinkDialog(page)}
+                                        title="Get Tracking Link"
                                         sx={{ color: "#1565c0", bgcolor: "rgba(21, 101, 192, 0.1)", "&:hover": { bgcolor: "rgba(21, 101, 192, 0.2)" } }}
                                     >
                                         <LinkIcon fontSize="small" />
@@ -560,6 +579,7 @@ const UnifiedLandingPageds1 = () => {
                                 />
                             </Grid>
 
+
                             {/* Form Field Builder */}
                             <Grid item xs={12}>
                                 <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
@@ -612,6 +632,63 @@ const UnifiedLandingPageds1 = () => {
                     <Button onClick={handleSubmit} variant="contained">
                         {editMode ? "Update" : "Create"}
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Tracking Link Dialog */}
+            <Dialog open={openLinkDialog} onClose={() => setOpenLinkDialog(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Get Tracking Link</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            Select a source to embed it into the link for tracking.
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            select
+                            label="Select Source (Optional)"
+                            value={linkFormData.source}
+                            onChange={(e) => {
+                                const newSource = e.target.value;
+                                setLinkFormData({ source: newSource });
+                                const newLink = generateUrl(selectedPage.page_slug, newSource);
+                                setGeneratedLink(newLink);
+                            }}
+                            sx={{ mb: 3, mt: 1 }}
+                        >
+                            <MenuItem value=""><em>None (Base URL)</em></MenuItem>
+                            {sources.filter(s => s.is_active === 'Yes').map((source) => (
+                                <MenuItem key={source._id} value={source.source_name}>
+                                    {source.source_name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            fullWidth
+                            label="Generated Link"
+                            value={generatedLink}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                            sx={{ mb: 2 }}
+                            multiline
+                            rows={3}
+                        />
+
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<LinkIcon />}
+                            onClick={() => copyToClipboard(generatedLink)}
+                            sx={{ mb: 1, py: 1.5, textTransform: 'none', fontWeight: 600 }}
+                        >
+                            Copy Tracking Link
+                        </Button>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenLinkDialog(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 

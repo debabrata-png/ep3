@@ -1332,6 +1332,8 @@ import AnswerSheetEvaluationPageds from "./pages/AnswerSheetEvaluationPageds";
 import ReevaluationQuestionWiseViewPageds from "./pages/ReevaluationQuestionWiseViewPageds";
 import ReevaluationQuestionWiseEditPageds from "./pages/ReevaluationQuestionWiseEditPageds";
 import HostelReport from './pages/HostelReport';
+import PostToExamAdmit from './pages/PostToExamAdmit';
+import ExamMarksMatrixEntry from './pages/ExamMarksMatrixEntry';
 
 // payment gateway
 
@@ -1768,6 +1770,8 @@ function App() {
                                         <Route path="/dashchattest4" element={<Dashchattest4 />} />
 
                                         <Route path="/dashmexamupload" element={<Dashmexamupload />} />
+                                        <Route path="/posttoexamadmit" element={<PostToExamAdmit />} />
+                                        <Route path="/exammarksmatrix" element={<ExamMarksMatrixEntry />} />
 
                                         <Route path="/returnmanagementds" element={<Returnmanagementds />} />
 

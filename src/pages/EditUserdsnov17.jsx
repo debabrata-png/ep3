@@ -169,7 +169,7 @@ const EditUserdsnov17 = () => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Serial Number"
@@ -179,7 +179,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -189,7 +189,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -199,7 +199,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -210,7 +210,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -220,7 +220,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Password"
@@ -231,7 +231,7 @@ const EditUserdsnov17 = () => {
                 helperText="Leave blank to keep current password"
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -246,7 +246,7 @@ const EditUserdsnov17 = () => {
                 <MenuItem value="Faculty">Faculty</MenuItem>
               </TextField>
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 select
@@ -261,7 +261,7 @@ const EditUserdsnov17 = () => {
                 <MenuItem value="Other">Other</MenuItem>
               </TextField>
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Date of Birth"
@@ -272,7 +272,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Photo URL"
@@ -281,7 +281,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Category"
@@ -290,7 +290,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Quota"
@@ -307,7 +307,7 @@ const EditUserdsnov17 = () => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -317,7 +317,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -327,7 +327,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -337,7 +337,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -354,7 +354,7 @@ const EditUserdsnov17 = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -364,7 +364,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Eligibility Name"
@@ -373,7 +373,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Degree"
@@ -382,7 +382,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Minor Subject"
@@ -391,7 +391,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Vocational Subject"
@@ -400,7 +400,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="MDC Subject"
@@ -409,7 +409,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Other Subject (PW/AP/CE)"
@@ -426,7 +426,7 @@ const EditUserdsnov17 = () => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Father's Name"
@@ -435,7 +435,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Mother's Name"
@@ -444,7 +444,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Address"
@@ -463,7 +463,7 @@ const EditUserdsnov17 = () => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 label="Merit"
@@ -472,7 +472,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 label="Obtain Marks"
@@ -482,7 +482,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 label="Bonus"
@@ -492,7 +492,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
                 label="Weightage"
@@ -502,7 +502,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="NCC Type"
@@ -511,7 +511,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 select
@@ -525,7 +525,7 @@ const EditUserdsnov17 = () => {
                 <MenuItem value="No">No</MenuItem>
               </TextField>
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Scholarship"
@@ -542,7 +542,7 @@ const EditUserdsnov17 = () => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="User"
@@ -551,7 +551,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -565,7 +565,7 @@ const EditUserdsnov17 = () => {
                 <MenuItem value={0}>Inactive</MenuItem>
               </TextField>
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Status1 (Text)"
@@ -575,7 +575,7 @@ const EditUserdsnov17 = () => {
                 placeholder="e.g., Verified, Pending, etc."
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Added By"
@@ -585,7 +585,7 @@ const EditUserdsnov17 = () => {
                 disabled
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Last Login"
@@ -597,7 +597,7 @@ const EditUserdsnov17 = () => {
                 helperText="User access expiry date"
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 label="Expo Token"
@@ -606,7 +606,7 @@ const EditUserdsnov17 = () => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Comments"

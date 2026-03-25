@@ -130,13 +130,13 @@ function MarksEntryPageds() {
           papercode: paper.papercode,
           papername: paper.papername,
           thmax: paper.thmax,
-          thobtained: existing?.thobtained || "",
+          thobtained: (existing?.thobtained !== undefined && existing?.thobtained !== null) ? existing.thobtained : "",
           prmax: paper.prmax,
-          probtained: existing?.probtained || "",
+          probtained: (existing?.probtained !== undefined && existing?.probtained !== null) ? existing.probtained : "",
           iatmax: paper.iatmax,
-          iatobtained: existing?.iatobtained || "",
+          iatobtained: (existing?.iatobtained !== undefined && existing?.iatobtained !== null) ? existing.iatobtained : "",
           iapmax: paper.iapmax,
-          iapobtained: existing?.iapobtained || "",
+          iapobtained: (existing?.iapobtained !== undefined && existing?.iapobtained !== null) ? existing.iapobtained : "",
         };
       });
       setMarksData(initialMarks);

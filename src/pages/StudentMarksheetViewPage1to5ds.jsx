@@ -145,6 +145,8 @@ const StudentMarksheetViewPage1to5ds = () => {
 
                     setPdfParams(prev => ({
                         ...prev,
+                        remarksTerm1: studentData.remarks || '',
+                        remarksTerm2: studentData.remarks || '',
                         promotedToClass: studentData.promotedToClass || '',
                         newSessionDate: studentData.newSessionDate || ''
                     }));
@@ -186,8 +188,18 @@ const StudentMarksheetViewPage1to5ds = () => {
     };
 
 
+    const loadImageAsync = (url) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+    };
+
     // --- PDF GENERATION LOGIC ---
-    const generateMarksheetPDF = (pdfData) => {
+    const generateMarksheetPDF = async (pdfData) => {
         const doc = new jsPDF('p', 'pt', 'a4');
         const pageWidth = doc.internal.pageSize.getWidth(); // 595
         const pageHeight = doc.internal.pageSize.getHeight(); // 842
@@ -247,15 +259,17 @@ const StudentMarksheetViewPage1to5ds = () => {
 
         // 2. Logos (School Left, CBSE Right)
         try {
-            const schoolLogoImg = new Image();
-            schoolLogoImg.src = '/CPS.jpeg';
-            doc.addImage(schoolLogoImg, 'JPEG', 30, logoY + 15, schoolLogoWidth, schoolLogoHeight);
+            const schoolLogoImg = await loadImageAsync('/CPS.jpeg');
+            if (schoolLogoImg) {
+                doc.addImage(schoolLogoImg, 'JPEG', 30, logoY + 15, schoolLogoWidth, schoolLogoHeight);
+            }
         } catch (e) { }
 
         try {
-            const cbseLogoImg = new Image();
-            cbseLogoImg.src = '/CBSE_logo.png';
-            doc.addImage(cbseLogoImg, 'PNG', 500, logoY, logoSize, logoSize);
+            const cbseLogoImg = await loadImageAsync('/CBSE_logo.png');
+            if (cbseLogoImg) {
+                doc.addImage(cbseLogoImg, 'PNG', 500, logoY, logoSize, logoSize);
+            }
         } catch (e) { }
 
         // 3. Center School Details
@@ -379,7 +393,12 @@ const StudentMarksheetViewPage1to5ds = () => {
         if (pdfData.profile?.photo) {
             try {
                 const photoUrl = pdfData.profile.photo.startsWith('http') ? pdfData.profile.photo : `${ep1.defaults.baseURL}/${pdfData.profile.photo}`;
-                doc.addImage(photoUrl, 'JPEG', 451, 151, 98, 118);
+                const photoImg = await loadImageAsync(photoUrl);
+                if (photoImg) {
+                    doc.addImage(photoImg, 'JPEG', 451, 151, 98, 118);
+                } else {
+                    drawText("Photo", 500, 210, 10, false, [0, 0, 0], 'center');
+                }
             } catch (e) {
                 drawText("Photo", 500, 210, 10, false, [0, 0, 0], 'center');
             }
@@ -421,7 +440,7 @@ const StudentMarksheetViewPage1to5ds = () => {
         };
 
         drawLineItem("Roll No.", pdfData.profile.rollNo);
-        drawLineItem("Scholastic No.", pdfData.profile.admissionNo);
+        drawLineItem("Scholar No.", pdfData.profile.admissionNo);
         drawLineItem("Student's Name", pdfData.profile.name);
 
         // Class / Section
@@ -540,7 +559,20 @@ const StudentMarksheetViewPage1to5ds = () => {
         // Data Rows
         let dy = my + h3;
         const dRH = 25;
-        const scholasticSubjects = pdfData.subjects.filter(sub => !sub.isAdditional || sub.isAdditional === 'false');
+        const scholasticSubjects = pdfData.subjects.filter(sub => {
+            const hasMarks = [
+                sub.term1PeriodicTest, sub.term1Notebook, sub.term1Enrichment, sub.term1MidExam,
+                sub.term2PeriodicTest, sub.term2Notebook, sub.term2Enrichment, sub.term2AnnualExam
+            ].some(val => val !== null && val !== undefined && val !== '') ||
+                [
+                    sub.term1periodictestabsent, sub.term1midexamabsent,
+                    sub.term2periodictestabsent, sub.term2annualexamabsent
+                ].some(abs => abs === true || abs === 'true');
+
+            return (!sub.isAdditional || sub.isAdditional === 'false') &&
+                sub.subjectname !== 'Teacher Remarks' &&
+                hasMarks === true;
+        });
 
         // Sort logic (ensure previously sorted)
 
@@ -563,25 +595,39 @@ const StudentMarksheetViewPage1to5ds = () => {
             const t2NB = parseFloat(sub.term2Notebook || 0);
             const t2Enr = parseFloat(sub.term2Enrichment || 0);
             const t2Ann = parseFloat(sub.term2AnnualExam || 0);
-            const t2Tot = (t2PT + t2NB + t2Enr + t2Ann);
+            const t2TotRaw = (parseFloat(t2PT) + parseFloat(t2NB) + parseFloat(t2Enr) + parseFloat(t2Ann));
+            const t2Tot = t2TotRaw;
             const t2Grade = sub.term2Grade;
             const isGrace = sub.isgrace || false;
+            const isabsent = sub.isabsent || false;
 
-            // Check E Grade
-            if ((t1Grade && t1Grade.toUpperCase() === 'E') || (t2Grade && t2Grade.toUpperCase() === 'E')) {
+            // Check E Grade (only Term 2 for rank exclusion)
+            if (t2Grade && t2Grade.toUpperCase() === 'E') {
                 hasFailure = true;
             }
 
             gT1Obt += t1Tot;
             gT2Obt += t2Tot;
 
-            const t2AnnDisplay = isGrace ? `${t2Ann.toFixed(0)}*` : t2Ann.toFixed(0);
-            const t2TotDisplay = isGrace ? `${t2Tot.toFixed(0)}*` : t2Tot.toFixed(0);
+            const t2AnnDisplay = sub.term2annualexamabsent ? 'AB' : (isGrace ? `${Number(t2Ann.toFixed(1))}*` : Number(t2Ann.toFixed(1)));
+            const t2TotDisplay = isGrace ? `${Number(t2Tot.toFixed(1))}*` : Number(t2Tot.toFixed(1));
+            const t1TotDisplay = Number(t1Tot.toFixed(1));
 
             const rowVals = [
-                t1PT, t1NB, t1Enr, t1Mid, t1Tot.toFixed(0), t1Grade,
-                t2PT, t2NB, t2Enr, t2AnnDisplay, t2TotDisplay, t2Grade
+                sub.term1periodictestabsent ? 'AB' : t1PT,
+                t1NB,
+                t1Enr,
+                sub.term1midexamabsent ? 'AB' : t1Mid,
+                t1TotDisplay,
+                t1Grade,
+                sub.term2periodictestabsent ? 'AB' : t2PT,
+                t2NB,
+                t2Enr,
+                t2AnnDisplay,
+                t2TotDisplay,
+                t2Grade
             ];
+            // No longer forcing AB for grade/total rowVals
 
             drawRect(sTableX, dy, subW, dRH, { lineWidth: 1 });
             const subNameWidth = doc.getTextWidth(sub.subjectname);
@@ -611,8 +657,8 @@ const StudentMarksheetViewPage1to5ds = () => {
         cx = sTableX + subW;
         for (let i = 0; i < 12; i++) {
             drawRect(cx, dy, valW, dRH, { lineWidth: 1 });
-            if (i === 4) drawCenteredText(gT1Obt.toFixed(0), cx, dy, valW, dRH, 11, true);
-            if (i === 10) drawCenteredText(gT2Obt.toFixed(0), cx, dy, valW, dRH, 11, true);
+            if (i === 4) drawCenteredText(String(Number(gT1Obt.toFixed(1))), cx, dy, valW, dRH, 11, true);
+            if (i === 10) drawCenteredText(String(Number(gT2Obt.toFixed(1))), cx, dy, valW, dRH, 11, true);
             cx += valW;
         }
         dy += 40;
@@ -650,23 +696,25 @@ const StudentMarksheetViewPage1to5ds = () => {
         const rank = hasFailure ? '-' : (pdfData.rank || '-');
 
         const calculateOverallGrade = (percentage) => {
-            if (percentage >= 91) return 'A1';
-            if (percentage >= 81) return 'A2';
-            if (percentage >= 71) return 'B1';
-            if (percentage >= 61) return 'B2';
-            if (percentage >= 51) return 'C1';
-            if (percentage >= 41) return 'C2';
-            if (percentage >= 33) return 'D';
+            const pct = Math.round(percentage * 100) / 100;
+            if (pct >= 91) return 'A1';
+            if (pct >= 81) return 'A2';
+            if (pct >= 71) return 'B1';
+            if (pct >= 61) return 'B2';
+            if (pct >= 51) return 'C1';
+            if (pct >= 41) return 'C2';
+            if (pct >= 33) return 'D';
             return 'E';
         };
 
-        const overallGradeStr = hasFailure ? 'E' : calculateOverallGrade(overallPerc);
+        const displayPerc = parseFloat(overallPerc.toFixed(1));
+        const overallGradeStr = calculateOverallGrade(displayPerc);
 
         const faVals = [
             t1Weighted.toFixed(1),
             t2Weighted.toFixed(1),
-            grandTot.toFixed(0),
-            `${overallPerc.toFixed(1)}%`,
+            grandTot.toFixed(1),
+            `${displayPerc.toFixed(1)}%`,
             overallGradeStr,
             rank
         ];
@@ -758,7 +806,19 @@ const StudentMarksheetViewPage1to5ds = () => {
         cy += 40;
 
         // Additional Subjects Table
-        const addSubjects = pdfData.subjects.filter(sub => sub.isAdditional === true || sub.isAdditional === 'true');
+        const addSubjects = pdfData.subjects.filter(sub => {
+            const hasMarks = [
+                sub.term1PeriodicTest, sub.term1Notebook, sub.term1Enrichment, sub.term1MidExam,
+                sub.term2PeriodicTest, sub.term2Notebook, sub.term2Enrichment, sub.term2AnnualExam,
+                sub.term1Total, sub.term2Total
+            ].some(val => val !== null && val !== undefined && val !== '') ||
+                [
+                    sub.term1periodictestabsent, sub.term1midexamabsent,
+                    sub.term2periodictestabsent, sub.term2annualexamabsent
+                ].some(abs => abs === true || abs === 'true');
+
+            return (sub.isAdditional === true || sub.isAdditional === 'true') && hasMarks === true;
+        });
         if (addSubjects.length > 0) {
             const areaW = 180;
             const termW = 177;
@@ -902,8 +962,10 @@ const StudentMarksheetViewPage1to5ds = () => {
         });
 
         // Legend for grace marks
-        iy = gY + 20;
-        drawText("* - Passes by grace", centerX, iy, 12, true, [0, 0, 0], 'center');
+        gY += 25;
+        drawText("Abbreviations - ", centerX - 40, gY, 12, true, [0, 0, 0], 'left');
+        drawText("*- Passed by Grace", centerX - 40, gY + 15, 11, false, [0, 0, 0], 'left');
+        drawText("AB - Absent", centerX - 40, gY + 30, 11, false, [0, 0, 0], 'left');
 
         // FOOTER QUOTE
         doc.setFontSize(14);
@@ -1014,7 +1076,7 @@ const StudentMarksheetViewPage1to5ds = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {marks[0]?.subjects?.filter(s => !s.isAdditional || s.isAdditional === 'false').map((sub, idx) => {
+                                        {marks[0]?.subjects?.filter(s => (!s.isAdditional || s.isAdditional === 'false') && s.subjectname !== 'Teacher Remarks').map((sub, idx) => {
                                             const t1Tot = parseFloat(sub.term1PeriodicTest || 0) + parseFloat(sub.term1Notebook || 0) + parseFloat(sub.term1Enrichment || 0) + parseFloat(sub.term1MidExam || 0);
                                             const t2Tot = parseFloat(sub.term2PeriodicTest || 0) + parseFloat(sub.term2Notebook || 0) + parseFloat(sub.term2Enrichment || 0) + parseFloat(sub.term2AnnualExam || 0);
                                             const isGrace = sub.isgrace || false;

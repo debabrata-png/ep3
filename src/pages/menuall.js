@@ -570,6 +570,20 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Exam registration" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/posttoexamadmit">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Post Exam" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/exammarksmatrix">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Matrix marks entry" />}
+          </ListItem>
+
           <ListItem button component={RouterLink} to="/mainrubric">
             <ListItemIcon>
               <PersonIcon />

@@ -155,6 +155,7 @@ const QualityInspectorDashboardds2 = () => {
                 <div class="field"><span class="label">Challan No</span><span class="value">${qc.challanNo || ''}</span></div>
                 <div class="field"><span class="label">Challan Date</span><span class="value">${qc.challanDate ? new Date(qc.challanDate).toLocaleDateString('en-GB') : ''}</span></div>
                 <div class="field"><span class="label">Gate Pass No</span><span class="value">${qc.gatePassNumber || ''}</span></div>
+                <div class="field"><span class="label">Store Name</span><span class="value">${qc.storeName || ''}</span></div>
                 <div class="field"><span class="label">Status</span><span class="value">${qc.status}</span></div>
             </div>
             <table>
@@ -193,6 +194,7 @@ const QualityInspectorDashboardds2 = () => {
     const netPayable = Number(invoiceAmount || 0) - Number(advanceDeduction || 0);
 
     const pendingColumns = [
+        { field: "storeName", headerName: "Store", width: 140 },
         { field: 'grnNo', headerName: 'GRN No', width: 160 },
         { field: 'gatePassNumber', headerName: 'Gate Pass', width: 140 },
         { field: 'poid', headerName: 'PO ID', width: 140 },
@@ -208,6 +210,7 @@ const QualityInspectorDashboardds2 = () => {
     ];
 
     const completedColumns = [
+        { field: "storeName", headerName: "Store", width: 140 },
         { field: 'inspectionId', headerName: 'Inspection ID', width: 160 },
         { field: 'grnNo', headerName: 'GRN No', width: 140 },
         { field: 'partyName', headerName: 'Party', width: 140 },

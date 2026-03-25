@@ -112,8 +112,9 @@ const StudentMarksheetViewPageds = () => {
 
     setLoading(true);
     try {
-      // Use the same endpoint as PDF generation to ensure consistent data and formatting
-      const response = await ep1.get('/api/v2/getmarksheetpdfdata9ds', {
+      const isClass9or10 = ['9', '10', 'ix', 'x'].includes(String(semester).toLowerCase().trim());
+      const endpoint = isClass9or10 ? '/api/v2/getmarksheetpdfdata9top5ds' : '/api/v2/getmarksheetpdfdata9ds';
+      const response = await ep1.get(endpoint, {
         params: {
           colid: global1.colid,
           regno,
@@ -127,6 +128,12 @@ const StudentMarksheetViewPageds = () => {
         if (response.data.data && response.data.data.subjects) {
           setMarks(response.data.data.subjects);
           setFullPdfData(response.data.data); // Store full data for PDF
+          setPdfParams(prev => ({
+            ...prev,
+            remarks: response.data.data.remarks || '',
+            promotedToClass: response.data.data.promotedToClass || '',
+            newSessionDate: response.data.data.newSessionDate || ''
+          }));
         } else {
           setMarks([]);
           setFullPdfData(null);
@@ -188,7 +195,17 @@ const StudentMarksheetViewPageds = () => {
     window.print();
   };
 
-  const generateMarksheetPDF = async (pdfData) => {
+    const loadImageAsync = (url) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+    };
+
+    const generateMarksheetPDF = async (pdfData) => {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "pt",  // Changed to points for better precision (1pt = 1/72 inch)
@@ -324,15 +341,19 @@ const StudentMarksheetViewPageds = () => {
     if (pdfData.school?.logolink) {
       try {
         const logoUrl = pdfData.school.logolink.startsWith('http') ? pdfData.school.logolink : `${ep1.defaults.baseURL}/${pdfData.school.logolink}`;
-        doc.addImage(logoUrl, 'PNG', 30, 75, 100, 60);
+        const schoolLogoImg = await loadImageAsync(logoUrl);
+        if (schoolLogoImg) {
+            doc.addImage(schoolLogoImg, 'PNG', 30, 75, 100, 60);
+        }
       } catch (e) { console.warn("School Logo fail", e); }
     }
 
     // Add CBSE Logo (Left) - static asset - Lowered to Y=60
     try {
-      const cbseLogoImg = new Image();
-      cbseLogoImg.src = '/CBSE_logo.jpeg';
-      doc.addImage(cbseLogoImg, 'JPEG', 505, 60, 65, 65);
+      const cbseLogoImg = await loadImageAsync('/CBSE_logo.jpeg');
+      if (cbseLogoImg) {
+          doc.addImage(cbseLogoImg, 'JPEG', 505, 60, 65, 65);
+      }
     } catch (e) { /* ignore */ }
 
     // PERFORMANCE PROFILE heading
@@ -357,7 +378,13 @@ const StudentMarksheetViewPageds = () => {
 
         // Note: addImage might fail if Cross-Origin issues exist. 
         // In a real app, you might need to fetch the image as blob/base64 first.
-        doc.addImage(photoUrl, 'JPEG', 486, 201, 78, 98);
+        const photoImg = await loadImageAsync(photoUrl);
+        if (photoImg) {
+            doc.addImage(photoImg, 'JPEG', 486, 201, 78, 98);
+        } else {
+            console.warn("Could not add photo to PDF", "Failed to load image");
+            drawText("Photo", 505, 255, 10);
+        }
       } catch (e) {
         console.warn("Could not add photo to PDF", e);
         drawText("Photo", 505, 255, 10);
@@ -555,17 +582,20 @@ const StudentMarksheetViewPageds = () => {
 
     // Helper for overall grade
     const calculateGrade = (percentage) => {
-      if (percentage >= 91) return "A1";
-      if (percentage >= 81) return "A2";
-      if (percentage >= 71) return "B1";
-      if (percentage >= 61) return "B2";
-      if (percentage >= 51) return "C1";
-      if (percentage >= 41) return "C2";
-      if (percentage >= 33) return "D";
+      const pct = Math.round(percentage * 100) / 100;
+      if (pct >= 91) return "A1";
+      if (pct >= 81) return "A2";
+      if (pct >= 71) return "B1";
+      if (pct >= 61) return "B2";
+      if (pct >= 51) return "C1";
+      if (pct >= 41) return "C2";
+      if (pct >= 33) return "D";
       return "E";
     };
 
-    const overallGrade = calculateGrade(overallPercentage);
+    // Align the grade with the printed percentage (1 decimal place)
+    const displayPerc = parseFloat(overallPercentage.toFixed(1));
+    const overallGrade = calculateGrade(displayPerc);
 
 
     // ==================== PAGE 3: SCHOLASTIC AREAS ====================
@@ -706,7 +736,7 @@ const StudentMarksheetViewPageds = () => {
       weightedT1,
       weightedT2,
       recalculatedGrandTotal,
-      `${overallPercentage.toFixed(2)}%`,
+      `${displayPerc.toFixed(2)}%`,
       overallGrade, // Recalculated
       pdfData.rank || "-"
     ];

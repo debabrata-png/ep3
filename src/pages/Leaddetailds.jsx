@@ -829,19 +829,6 @@ const Leaddetailds = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                select
-                fullWidth
-                label="Temperature"
-                value={updateData.lead_temperature}
-                onChange={(e) => setUpdateData({ ...updateData, lead_temperature: e.target.value })}
-              >
-                <MenuItem value="Hot">Hot</MenuItem>
-                <MenuItem value="Warm">Warm</MenuItem>
-                <MenuItem value="Cold">Cold</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
                 fullWidth
                 label="Next Follow-up Date"
                 type="date"

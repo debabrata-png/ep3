@@ -123,7 +123,7 @@ function TabulationRegisterPage() {
     } catch (error) {
       setError(
         "Failed to generate: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
     setLoading(false);
@@ -218,6 +218,8 @@ function TabulationRegisterPage() {
                   {y}
                 </MenuItem>
               ))}
+              <MenuItem value="2026-27">2026-27</MenuItem>
+              <MenuItem value="2025-26">2025-26</MenuItem>
             </TextField>
             <TextField
               select
@@ -833,14 +835,13 @@ function TabulationRegisterPage() {
                             >
                               {semData
                                 ? row.key === "monthYear"
-                                  ? `${semData.month?.substring(0, 3)}/${
-                                      semData.year
-                                    }`
+                                  ? `${semData.month?.substring(0, 3)}/${semData.year
+                                  }`
                                   : row.key === "total"
-                                  ? `${semData.total}/${semData.maxTotal}`
-                                  : row.key === "percentage"
-                                  ? `${semData.percentage}%`
-                                  : semData[row.key]
+                                    ? `${semData.total}/${semData.maxTotal}`
+                                    : row.key === "percentage"
+                                      ? `${semData.percentage}%`
+                                      : semData[row.key]
                                 : ""}
                             </TableCell>
                           );

@@ -13,8 +13,25 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import BusinessIcon from '@mui/icons-material/Business';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import WorkIcon from '@mui/icons-material/Work';
+import GroupIcon from '@mui/icons-material/Group';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import LanIcon from '@mui/icons-material/Lan';
+import RuleIcon from '@mui/icons-material/Rule';
+import PaymentIcon from '@mui/icons-material/Payment';
+import DescriptionIcon from '@mui/icons-material/Description';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import TaskIcon from '@mui/icons-material/Task';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import SecurityIcon from '@mui/icons-material/Security';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import CategoryIcon from '@mui/icons-material/Category';
-import LeadsIcon from '@mui/icons-material/Leaderboard';
 import ProgramIcon from '@mui/icons-material/School';
 import LandingPageIcon from '@mui/icons-material/WebAsset';
 import CampaignIcon from '@mui/icons-material/Campaign';
@@ -73,7 +90,7 @@ export function menuitemshrms() {
 
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    <AccountBoxIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
@@ -86,55 +103,116 @@ export function menuitemshrms() {
                 </AccordionDetails>
             </Accordion>
 
+
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    <WorkIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>HRMS</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
 
+                    <ListItem button component={RouterLink} to="/setuppageds1">
+                        <ListItemIcon>
+                            <SettingsApplicationsIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leave Setup" />}
+                    </ListItem>
+
+
+                    <ListItem button component={RouterLink} to="/leavespageds1">
+                        <ListItemIcon>
+                            <FactCheckIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Apply or Approve" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/ip-management">
+                        <ListItemIcon>
+                            <LanIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="IP Management" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/attendance-settings">
+                        <ListItemIcon>
+                            <RuleIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Attendance Settings" />}
+                    </ListItem>
+
                     <ListItem button component={RouterLink} to="/salary-management">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <PaymentIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Salary management" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/salary-slips">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <DescriptionIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Salary slip" />}
                     </ListItem>
+
+                    <ListItem button component={RouterLink} to="/admin-attendance">
+                        <ListItemIcon>
+                            <AdminPanelSettingsIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Admin Attendance" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/attendance-dashboard">
+                        <ListItemIcon>
+                            <LeaderboardIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Attendance Dashboard" />}
+                    </ListItem>
+
 
 
                 </AccordionDetails>
             </Accordion>
 
+
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    <GroupIcon sx={{ marginRight: 1 }} />
+                    {open && <Typography sx={{ fontSize: 14 }}>User Management</Typography>}
+                </AccordionSummary>
+                <AccordionDetails>
+                    <ListItem button component={RouterLink} to="/usermanagementdsnov17">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Profile" />}
+                    </ListItem>
+                </AccordionDetails>
+            </Accordion>
+
+            <Accordion>
+                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+                    <AssignmentIndIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>Task assignment</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
 
                     <ListItem button component={RouterLink} to="/taskcreatorpage">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <AddTaskIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Create Task" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/assigneetaskpage">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <TaskIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="My Tasks" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/approvertaskpage">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <FactCheckIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Approve Tasks" />}
                     </ListItem>
@@ -143,7 +221,7 @@ export function menuitemshrms() {
             </Accordion>
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    <SettingsIcon sx={{ marginRight: 1 }} />
                     {open && <Typography sx={{ fontSize: 14 }}>Settings</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
@@ -152,28 +230,28 @@ export function menuitemshrms() {
 
                     <ListItem button component={RouterLink} to="/dashmquotanew">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <AccountBalanceWalletIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="AI Credits" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/dashawsconfig">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <SecurityIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="AWS config" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/dashmpassword">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <VpnKeyIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Change password" />}
                     </ListItem>
 
                     <ListItem button component={RouterLink} to="/signinpay">
                         <ListItemIcon>
-                            <PersonIcon />
+                            <SubscriptionsIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Subscription" />}
                     </ListItem>

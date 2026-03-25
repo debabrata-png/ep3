@@ -135,17 +135,17 @@ function ExamMarksStructurePageds() {
     <Box sx={{ p: 3 }}>
 
       {/* Header */}
-            <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
-              <Button
-                startIcon={<ArrowBack />}
-                onClick={() => navigate("/dashboardreevalds")}
-              >
-                Back
-              </Button>
-               <Typography variant="h4" gutterBottom>
-        Exam Marks Structure
-      </Typography>
-            </Box>
+      <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/dashboardreevalds")}
+        >
+          Back
+        </Button>
+        <Typography variant="h4" gutterBottom>
+          Exam Marks Structure
+        </Typography>
+      </Box>
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -171,6 +171,10 @@ function ExamMarksStructurePageds() {
                 {years.map((y) => (
                   <MenuItem key={y} value={y}>{y}</MenuItem>
                 ))}
+                <MenuItem value="2026-27">2026-27</MenuItem>
+                <MenuItem value="2025-26">2025-26</MenuItem>
+                <MenuItem value="2025-26">2024-25</MenuItem>
+                <MenuItem value="2025-26">2023-24</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>

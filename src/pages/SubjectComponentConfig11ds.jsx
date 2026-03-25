@@ -55,7 +55,8 @@ const SubjectComponentConfig11ds = () => {
         halfyearlypractical: 30,
         annualth: 70,
         annualpractical: 30,
-        isadditional: false
+        isadditional: false,
+        iscompulsory: false
     });
 
     useEffect(() => {
@@ -149,7 +150,8 @@ const SubjectComponentConfig11ds = () => {
                 halfyearlypractical: subject.halfyearlypractical,
                 annualth: subject.annualth,
                 annualpractical: subject.annualpractical,
-                isadditional: subject.isadditional
+                isadditional: subject.isadditional || false,
+                iscompulsory: subject.iscompulsory || false
             });
         } else {
             setEditMode(false);
@@ -164,7 +166,8 @@ const SubjectComponentConfig11ds = () => {
                 halfyearlypractical: 30,
                 annualth: 70,
                 annualpractical: 30,
-                isadditional: false
+                isadditional: false,
+                iscompulsory: false
             });
         }
         setOpenDialog(true);
@@ -193,17 +196,7 @@ const SubjectComponentConfig11ds = () => {
             };
 
             if (editMode && selectedSubjectId) {
-                // Update - Assuming generic update route or create new specific one?
-                // The implementation plan didn't specify update route, assuming standard save handles upsert or create specific update.
-                // Re-using save route for now if it handles upsert or creates duplicates? 
-                // Ah, savemarks11ds is for marks. 
-                // We need a route to save CONFIG.
-                // Wait, I didn't create a controller method to SAVE config!
-                // I only created getsubjectsfromconfig11ds.
-                // I need to add saveSubjectConfig11ds to controller and route!
-
-                // For now, I will use a placeholder endpoint and fix the backend in next step.
-                response = await ep1.post('/api/v2/subjectcomponentconfig11ds/save', { // TODO: Create this route
+                response = await ep1.post('/api/v2/subjectcomponentconfig11ds/save', {
                     id: selectedSubjectId,
                     ...payload
                 });
@@ -303,6 +296,7 @@ const SubjectComponentConfig11ds = () => {
                             <TableCell align="center">Half Yearly (Th+Pr)</TableCell>
                             <TableCell align="center">Annual (Th+Pr)</TableCell>
                             <TableCell align="center">Additional</TableCell>
+                            <TableCell align="center">Compulsory</TableCell>
                             <TableCell align="center">Last Updated</TableCell>
                             <TableCell align="center">Actions</TableCell>
                         </TableRow>
@@ -317,6 +311,7 @@ const SubjectComponentConfig11ds = () => {
                                 <TableCell align="center">{subject.halfyearlyth} + {subject.halfyearlypractical}</TableCell>
                                 <TableCell align="center">{subject.annualth} + {subject.annualpractical}</TableCell>
                                 <TableCell align="center">{subject.isadditional ? 'Yes' : 'No'}</TableCell>
+                                <TableCell align="center">{subject.iscompulsory ? 'Yes' : 'No'}</TableCell>
                                 <TableCell align="center">
                                     {subject.updatedAt
                                         ? new Date(subject.updatedAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -423,7 +418,7 @@ const SubjectComponentConfig11ds = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid item xs={12} md={6}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -432,6 +427,17 @@ const SubjectComponentConfig11ds = () => {
                                     />
                                 }
                                 label="Is Additional Subject?"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={formData.iscompulsory}
+                                        onChange={(e) => setFormData({ ...formData, iscompulsory: e.target.checked })}
+                                    />
+                                }
+                                label="Is Compulsory Subject?"
                             />
                         </Grid>
                     </Grid>

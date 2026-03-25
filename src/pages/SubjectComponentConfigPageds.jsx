@@ -127,7 +127,11 @@ const SubjectComponentConfigPageds = () => {
 
   const handleOpenDialog = (config = null) => {
     if (config) {
-      setFormData(config);
+      setFormData({
+        ...config,
+        isadditional: config.isadditional || false,
+        iscompulsory: config.iscompulsory || false
+      });
       setEditMode(true);
     } else {
       setFormData({
@@ -152,7 +156,8 @@ const SubjectComponentConfigPageds = () => {
         term2enrichmentactive: true,
         term2annualexamactive: true,
         isactive: true,
-        isadditional: false
+        isadditional: false,
+        iscompulsory: false
       });
       setEditMode(false);
     }
@@ -295,16 +300,15 @@ const SubjectComponentConfigPageds = () => {
               </TableRow>
             ) : configs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">No configurations found</TableCell>
+                <TableCell colSpan={8} align="center">No configurations found</TableCell>
               </TableRow>
             ) : (
               configs.map((config) => (
                 <TableRow key={config._id}>
                   <TableCell>{config.subjectcode}</TableCell>
-                  <TableCell>
-                    {config.subjectname}
-                    {config.isadditional && <Chip label="Additional" size="small" color="secondary" sx={{ ml: 1 }} />}
-                  </TableCell>
+                  <TableCell>{config.subjectname}</TableCell>
+                  <TableCell>{config.isadditional ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{config.iscompulsory ? 'Yes' : 'No'}</TableCell>
                   <TableCell>
                     {config.term1periodictestactive && `PT(${config.term1periodictestmax}) `}
                     {config.term1notebookactive && `NB(${config.term1notebookmax}) `}
@@ -367,6 +371,28 @@ const SubjectComponentConfigPageds = () => {
                 label="Subject Name"
                 value={formData.subjectname}
                 onChange={(e) => setFormData({ ...formData, subjectname: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isadditional}
+                    onChange={(e) => setFormData({ ...formData, isadditional: e.target.checked })}
+                  />
+                }
+                label="Is Additional?"
+              />
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.iscompulsory}
+                    onChange={(e) => setFormData({ ...formData, iscompulsory: e.target.checked })}
+                  />
+                }
+                label="Is Compulsory?"
               />
             </Grid>
 
@@ -545,22 +571,6 @@ const SubjectComponentConfigPageds = () => {
                   />
                 }
                 label="Active"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Subject Type</Typography>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isadditional}
-                    onChange={(e) => setFormData({ ...formData, isadditional: e.target.checked })}
-                  />
-                }
-                label="Is Additional Subject"
               />
             </Grid>
           </Grid>

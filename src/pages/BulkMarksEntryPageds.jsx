@@ -40,6 +40,7 @@ const BulkMarksEntryPageds = () => {
   const [section, setSection] = useState('');
   const [term, setTerm] = useState('term1');
   const [componentname, setComponentname] = useState('term1periodictest');
+  const [remarksOptions, setRemarksOptions] = useState([]);
 
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -92,6 +93,7 @@ const BulkMarksEntryPageds = () => {
       { value: 'term2totalpresentdays', label: 'Term II Present Days' }
     ]
   };
+  const remarksOption = { value: 'teacherremarks', label: 'Teacher Remarks' };
 
   // Fetch semesters and years on component mount
   useEffect(() => {
@@ -101,8 +103,10 @@ const BulkMarksEntryPageds = () => {
   useEffect(() => {
     if (term === 'term1') {
       setComponentname('term1periodictest');
-    } else {
+    } else if (term === 'term2') {
       setComponentname('term2periodictest');
+    } else if (term === 'remarks') {
+      setComponentname('teacherremarks');
     }
   }, [term]);
 
@@ -160,7 +164,21 @@ const BulkMarksEntryPageds = () => {
     }
   };
 
+  const fetchRemarks = async () => {
+    try {
+      const response = await ep1.get('/api/v2/getremarksds', {
+        params: { colid: global1.colid }
+      });
+      if (response.data.success) {
+        setRemarksOptions(response.data.remarks || []);
+      }
+    } catch (error) {
+      console.error('Error fetching remarks:', error);
+    }
+  };
+
   const fetchData = async () => {
+    if (!componentname) return;
     setLoading(true);
     try {
       const response = await ep1.get('/api/v2/getstudentsandsubjectsformarks9ds', {
@@ -183,11 +201,44 @@ const BulkMarksEntryPageds = () => {
         const existingMarks = response.data.existingmarks || [];
         const marksMap = {};
 
+        // PRE-INITIALIZE the map for all students and subjects
+        const fetchedStudents = response.data.students || [];
+        fetchedStudents.forEach(s => {
+          const allCols = (componentname.includes('presentdays')) ? [{ subjectcode: 'ATTENDANCE' }] : (response.data.subjects || []);
+          allCols.forEach(sub => {
+            const key = `${s.regno}_${sub.subjectcode}`;
+            marksMap[key] = {
+              value: '',
+              isgrace: false,
+              isabsent: false,
+              teacherremarks: '',
+              promotedclass: '',
+              newsessiondate: '',
+              status: 'active'
+            };
+          });
+        });
+
+        const componentToAbsentField = {
+          'term1periodictest': 'term1periodictestabsent',
+          'term1midexam': 'term1midexamabsent',
+          'term2periodictest': 'term2periodictestabsent',
+          'term2annualexam': 'term2annualexamabsent'
+        };
+        const currentAbsentField = componentToAbsentField[componentname];
+
+        // Merge existing marks into the pre-initialized map (Note: backend for 9ds already uses obtainedmarks mapping)
         existingMarks.forEach(mark => {
           const key = `${mark.regno}_${mark.subjectcode}`;
           marksMap[key] = {
-            value: mark.obtainedmarks || 0,
-            isgrace: mark.isgrace || false
+            ...(marksMap[key] || {}),
+            value: mark.obtainedmarks !== undefined ? mark.obtainedmarks : '',
+            isgrace: mark.isgrace || false,
+            isabsent: mark.isabsent || false,
+            teacherremarks: mark.teacherremarks || '',
+            promotedclass: mark.promotedclass || '',
+            newsessiondate: mark.newsessiondate ? mark.newsessiondate.split('T')[0] : '',
+            status: mark.status || 'active'
           };
         });
 
@@ -213,6 +264,14 @@ const BulkMarksEntryPageds = () => {
         } else {
           setExistingWorkingDays(0);
           setWorkingDaysValue('');
+        }
+
+        // Special handling for teacherremarks mode
+        if (componentname === 'teacherremarks') {
+          // If in remarks mode, we still need one 'dummy' subject to show the column per student
+          // Or we can just let the existing subjects be, but typically one is enough
+          // However, the current logic fetches ALL subjects. I'll leave it as is for now
+          // so the table projects subjects, and the remarks column is appended.
         }
       }
     } catch (error) {
@@ -252,20 +311,59 @@ const BulkMarksEntryPageds = () => {
 
   const handleMarkChange = (regno, subjectcode, value) => {
     const key = `${regno}_${subjectcode}`;
-    const current = marksData[key] || { value: '', isgrace: false };
+    const current = marksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
     setMarksData({
       ...marksData,
       [key]: { ...current, value: value === '' ? '' : Number(value) }
     });
   };
 
-  const handleGraceToggle = (regno, subjectcode) => {
+  const handleGraceToggle = (regno, subjectcode, checked) => {
     const key = `${regno}_${subjectcode}`;
-    const current = marksData[key] || { value: '', isgrace: false };
+    const current = marksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
     setMarksData({
       ...marksData,
-      [key]: { ...current, isgrace: !current.isgrace }
+      [key]: { ...current, isgrace: checked }
     });
+  };
+
+  const handleAbsentToggle = (regno, subjectcode, checked) => {
+    const key = `${regno}_${subjectcode}`;
+    const current = marksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
+    setMarksData({
+      ...marksData,
+      [key]: { ...current, isabsent: checked }
+    });
+  };
+
+  const handleRemarkChange = (regno, remarkValue) => {
+    const newMarksData = { ...marksData };
+    subjects.forEach(subject => {
+      const key = `${regno}_${subject.subjectcode}`;
+      const current = newMarksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
+      newMarksData[key] = { ...current, teacherremarks: remarkValue };
+    });
+    setMarksData(newMarksData);
+  };
+
+  const handlePromotionChange = (regno, promotedValue) => {
+    const newMarksData = { ...marksData };
+    subjects.forEach(subject => {
+      const key = `${regno}_${subject.subjectcode}`;
+      const current = newMarksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
+      newMarksData[key] = { ...current, promotedclass: promotedValue };
+    });
+    setMarksData(newMarksData);
+  };
+
+  const handleSessionDateChange = (regno, dateValue) => {
+    const newMarksData = { ...marksData };
+    subjects.forEach(subject => {
+      const key = `${regno}_${subject.subjectcode}`;
+      const current = newMarksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
+      newMarksData[key] = { ...current, newsessiondate: dateValue };
+    });
+    setMarksData(newMarksData);
   };
 
   const handleSaveMarks = async () => {
@@ -298,14 +396,26 @@ const BulkMarksEntryPageds = () => {
           const key = `${student.regno}_${subject.subjectcode}`;
           const markEntry = marksData[key];
 
-          if (markEntry && (markEntry.value !== undefined && markEntry.value !== '' || markEntry.isgrace)) {
+          if (markEntry && (
+            markEntry.value !== undefined && markEntry.value !== '' || 
+            markEntry.isgrace || 
+            markEntry.isabsent || 
+            markEntry.teacherremarks || 
+            markEntry.promotedclass || 
+            markEntry.newsessiondate
+          )) {
             marksArray.push({
               regno: student.regno,
               studentname: student.name,
               subjectcode: subject.subjectcode,
               subjectname: subject.subjectname,
               obtained: markEntry.value === '' ? 0 : Number(markEntry.value),
-              isgrace: markEntry.isgrace || false // Include grace status
+              isgrace: markEntry.isgrace || false, // Include grace status
+              isabsent: markEntry.isabsent || false, // Include absent status
+              teacherremarks: markEntry.teacherremarks || '',
+              promotedclass: markEntry.promotedclass || '',
+              newsessiondate: markEntry.newsessiondate || '',
+              status: markEntry.status || 'active'
             });
           }
         });
@@ -383,7 +493,8 @@ const BulkMarksEntryPageds = () => {
           SubjectName: subject.subjectname,
           MaxMarks: subject.maxmarks,
           ObtainedMarks: markEntry?.value || '',
-          IsGrace: markEntry?.isgrace ? 'Yes' : 'No'
+          IsGrace: markEntry?.isgrace ? 'Yes' : 'No',
+          IsAbsent: markEntry?.isabsent ? 'Yes' : 'No'
         });
       });
     });
@@ -414,7 +525,9 @@ const BulkMarksEntryPageds = () => {
           if (row.ObtainedMarks !== undefined && row.ObtainedMarks !== '') {
             newMarksData[key] = {
               value: Number(row.ObtainedMarks),
-              isgrace: row.IsGrace?.toLowerCase() === 'yes' || false
+              isgrace: row.IsGrace?.toLowerCase() === 'yes' || false,
+              isabsent: row.IsAbsent?.toLowerCase() === 'yes' || false,
+              status: 'active'
             };
           }
         });
@@ -438,6 +551,11 @@ const BulkMarksEntryPageds = () => {
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  const getCellValue = (regno, subjectcode, field) => {
+    const key = `${regno}_${subjectcode}`;
+    return marksData[key]?.[field];
   };
 
   return (
@@ -490,6 +608,7 @@ const BulkMarksEntryPageds = () => {
               >
                 <MenuItem value="term1">Term 1</MenuItem>
                 <MenuItem value="term2">Term 2</MenuItem>
+                <MenuItem value="remarks">Teacher Remarks</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} md={3}>
@@ -499,12 +618,15 @@ const BulkMarksEntryPageds = () => {
                 label="Component"
                 value={componentname}
                 onChange={(e) => setComponentname(e.target.value)}
+                disabled={term === 'remarks'}
+                size="small"
               >
-                {componentOptions[term].map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                {term !== 'remarks' && componentOptions[term]?.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
                   </MenuItem>
                 ))}
+                {term === 'remarks' && <MenuItem value="teacherremarks">Teacher Remarks</MenuItem>}
               </TextField>
             </Grid>
             <Grid item xs={12} md={2}>
@@ -634,12 +756,17 @@ const BulkMarksEntryPageds = () => {
                     Student Name
                   </TableSortLabel>
                 </TableCell>
-                {subjects.map(subject => (
+                {componentname !== 'teacherremarks' && subjects.map(subject => (
                   <TableCell key={subject.subjectcode} sx={{ fontWeight: 'bold', minWidth: 120 }}>
                     {subject.subjectname}
                     <Chip label={`Max: ${subject.maxmarks}`} size="small" sx={{ ml: 1 }} />
                   </TableCell>
                 ))}
+                {componentname === 'teacherremarks' && (
+                  <TableCell sx={{ fontWeight: 'bold', minWidth: 300 }}>
+                    Teacher Remarks
+                  </TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -651,12 +778,15 @@ const BulkMarksEntryPageds = () => {
                   <TableCell sx={{ position: 'sticky', left: 120, bgcolor: 'background.paper', zIndex: 1 }}>
                     {student.name}
                   </TableCell>
-                  {subjects.map(subject => {
+                  {componentname !== 'teacherremarks' && subjects.map(subject => {
                     const key = `${student.regno}_${subject.subjectcode}`;
-                    const markEntry = marksData[key] || { value: '', isgrace: false };
+                    const markEntry = marksData[key] || { value: '', isgrace: false, isabsent: false, status: 'active' };
                     const value = markEntry.value;
                     const isGrace = markEntry.isgrace;
-                    const maxMarks = subject.maxmarks;
+                    const isAbsent = markEntry.isabsent;
+                    const maxMarks = componentname.includes('presentdays') 
+                      ? (Number(workingDaysValue) || (subject.maxmarks || 500)) 
+                      : subject.maxmarks;
                     const isInvalid = value !== '' && (Number(value) < 0 || Number(value) > maxMarks);
 
                     return (
@@ -670,26 +800,77 @@ const BulkMarksEntryPageds = () => {
                           error={isInvalid}
                           sx={{ width: 100 }}
                         />
-                        {componentname === "term2annualexam" && (
-                          <Box sx={{ mt: 0.5 }}>
-                            <FormControlLabel
-                              control={
-                                <Switch
-                                  size="small"
-                                  checked={isGrace}
-                                  onChange={() => handleGraceToggle(student.regno, subject.subjectcode)}
-                                  color="secondary"
-                                />
-                              }
-                              label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
-                              labelPlacement="end"
-                              sx={{ m: 0 }}
-                            />
+                        {(componentname === "term2annualexam" || !(componentname.toLowerCase().includes('notebook') || componentname.toLowerCase().includes('enrichment') || componentname.toLowerCase().includes('presentdays'))) && (
+                          <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column' }}>
+                            {componentname === "term2annualexam" && (
+                              <FormControlLabel
+                                control={
+                                  <Switch
+                                    size="small"
+                                    checked={isGrace}
+                                    onChange={(e) => handleGraceToggle(student.regno, subject.subjectcode, e.target.checked)}
+                                    color="secondary"
+                                  />
+                                }
+                                label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                                labelPlacement="end"
+                                sx={{ m: 0 }}
+                              />
+                            )}
+                            {!(componentname.toLowerCase().includes('notebook') || componentname.toLowerCase().includes('enrichment') || componentname.toLowerCase().includes('presentdays')) && (
+                              <FormControlLabel
+                                control={
+                                  <Switch
+                                    size="small"
+                                    checked={isAbsent}
+                                    onChange={(e) => handleAbsentToggle(student.regno, subject.subjectcode, e.target.checked)}
+                                    color="error"
+                                  />
+                                }
+                                label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                                labelPlacement="end"
+                                sx={{ m: 0 }}
+                              />
+                            )}
                           </Box>
                         )}
                       </TableCell>
                     );
                   })}
+                  {componentname === 'teacherremarks' && (
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <TextField
+                          fullWidth
+                          multiline
+                          maxRows={3}
+                          size="small"
+                          placeholder="Enter Remarks"
+                          label="Teacher Remarks"
+                          value={subjects.length > 0 ? (marksData[`${student.regno}_${subjects[0].subjectcode}`]?.teacherremarks || '') : ''}
+                          onChange={(e) => handleRemarkChange(student.regno, e.target.value)}
+                          sx={{ minWidth: 250 }}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="Promoted to Class"
+                          label="Promoted to Class"
+                          value={subjects.length > 0 ? (marksData[`${student.regno}_${subjects[0].subjectcode}`]?.promotedclass || '') : ''}
+                          onChange={(e) => handlePromotionChange(student.regno, e.target.value)}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="date"
+                          label="Session Start On"
+                          InputLabelProps={{ shrink: true }}
+                          value={subjects.length > 0 ? (marksData[`${student.regno}_${subjects[0].subjectcode}`]?.newsessiondate || '') : ''}
+                          onChange={(e) => handleSessionDateChange(student.regno, e.target.value)}
+                        />
+                      </Box>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

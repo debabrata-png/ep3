@@ -191,7 +191,7 @@ const UserManagementdsnov17 = () => {
       field: "srno",
       headerName: "Sr No",
       width: 80,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.srno || "",
     },
     { field: "rollno", headerName: "Roll No", width: 150 }, // ✅ Increased width
     { field: "regno", headerName: "Reg No", width: 150 }, // ✅ Increased width
@@ -201,7 +201,7 @@ const UserManagementdsnov17 = () => {
       field: "phone",
       headerName: "Phone",
       width: 130,
-      valueGetter: (value) => (value && typeof value !== 'object') ? String(value) : "",
+      valueGetter: (params) => (params.row?.phone && typeof params.row?.phone !== 'object') ? String(params.row.phone) : "",
     },
     { field: "role", headerName: "Role", width: 100 },
     { field: "department", headerName: "Department", width: 150 },
@@ -213,13 +213,14 @@ const UserManagementdsnov17 = () => {
       field: "gender",
       headerName: "Gender",
       width: 90,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.gender || "",
     },
     {
       field: "dob",
       headerName: "DOB",
       width: 110,
-      valueGetter: (value) => {
+      valueGetter: (params) => {
+        const value = params.row?.dob;
         if (!value) return "";
         try {
           return new Date(value).toLocaleDateString();
@@ -232,148 +233,155 @@ const UserManagementdsnov17 = () => {
       field: "category",
       headerName: "Category",
       width: 100,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.category || "",
     },
     {
       field: "quota",
       headerName: "Quota",
       width: 100,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.quota || "",
     },
     {
       field: "fathername",
       headerName: "Father Name",
       width: 150,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.fathername || "",
     },
     {
       field: "mothername",
       headerName: "Mother Name",
       width: 150,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.mothername || "",
     },
     {
       field: "address",
       headerName: "Address",
       width: 200,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.address || "",
     },
     {
       field: "eligibilityname",
       headerName: "Eligibility",
       width: 150,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.eligibilityname || "",
     },
     {
       field: "degree",
       headerName: "Degree",
       width: 120,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.degree || "",
     },
     {
       field: "minorsub",
       headerName: "Minor Sub",
       width: 120,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.minorsub || "",
     },
     {
       field: "vocationalsub",
       headerName: "Vocational Sub",
       width: 140,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.vocationalsub || "",
     },
     {
       field: "mdcsub",
       headerName: "MDC Sub",
       width: 120,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.mdcsub || "",
     },
     {
       field: "othersub",
       headerName: "Other Sub",
       width: 120,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.othersub || "",
     },
     {
       field: "merit",
       headerName: "Merit",
       width: 100,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.merit || "",
     },
     {
       field: "obtain",
       headerName: "Obtain",
       width: 100,
-      valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "",
+      valueGetter: (params) => {
+        const val = params.row?.obtain;
+        return val !== null && val !== undefined ? val : "";
+      },
     },
     {
       field: "bonus",
       headerName: "Bonus",
       width: 90,
-      valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "",
+      valueGetter: (params) => {
+        const val = params.row?.bonus;
+        return val !== null && val !== undefined ? val : "";
+      },
     },
     {
       field: "weightage",
       headerName: "Weightage",
       width: 110,
-      valueGetter: (value) =>
-        value !== null && value !== undefined ? value : "",
+      valueGetter: (params) => {
+        const val = params.row?.weightage;
+        return val !== null && val !== undefined ? val : "";
+      },
     },
     {
       field: "ncctype",
       headerName: "NCC Type",
       width: 110,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.ncctype || "",
     },
     {
       field: "isdisabled",
       headerName: "Is Disabled",
       width: 110,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.isdisabled || "",
     },
     {
       field: "scholarship",
       headerName: "Scholarship",
       width: 130,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.scholarship || "",
     },
     {
       field: "photo",
       headerName: "Photo URL",
       width: 150,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.photo || "",
     },
     {
       field: "status",
       headerName: "Status",
       width: 90,
-      valueGetter: (value) => (value === 1 ? "Active" : "Inactive"),
+      valueGetter: (params) => (params.row?.status === 1 ? "Active" : "Inactive"),
     },
     {
       field: "status1",
       headerName: "Status1",
       width: 100,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.status1 || "",
     },
     {
       field: "addedby",
       headerName: "Added By",
       width: 150,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.addedby || "",
     },
     {
       field: "comments",
       headerName: "Comments",
       width: 200,
-      valueGetter: (value) => value || "",
+      valueGetter: (params) => params.row?.comments || "",
     },
     {
       field: "lastlogin",
       headerName: "Last Login",
       width: 180,
-      valueGetter: (value) => {
+      valueGetter: (params) => {
+        const value = params.row?.lastlogin;
         if (!value) return "N/A";
         try {
           return new Date(value).toLocaleString();
