@@ -269,7 +269,25 @@ export function menustore() {
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store" />}
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Dashboard" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/store-master-data">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Master Data" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/local-purchase2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Local Purchase (LPO/Memo)" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/local-grn2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Local GRN (Gate Pass)" />}
           </ListItem>
           <ListItem button component={RouterLink} to="/role/delivery-dashboard2">
             <ListItemIcon>

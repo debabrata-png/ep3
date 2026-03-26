@@ -60,6 +60,8 @@ const EditUserdsnov17 = () => {
     ncctype: "",
     isdisabled: "",
     scholarship: "",
+    rollno: "",
+    cbseno: "",
     user: "",
     addedby: "",
     comments: "",
@@ -341,18 +343,12 @@ const EditUserdsnov17 = () => {
               <TextField
                 fullWidth
                 required
-                select
                 label="Semester"
                 name="semester"
                 value={formData.semester}
                 onChange={handleChange}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                  <MenuItem key={sem} value={sem.toString()}>
-                    {sem}
-                  </MenuItem>
-                ))}
-              </TextField>
+                helperText="e.g., 1, 2, 3, etc."
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <TextField
@@ -361,6 +357,26 @@ const EditUserdsnov17 = () => {
                 label="Section"
                 name="section"
                 value={formData.section}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Roll No"
+                name="rollno"
+                value={formData.rollno}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="CBSE No"
+                name="cbseno"
+                value={formData.cbseno}
                 onChange={handleChange}
               />
             </Grid>

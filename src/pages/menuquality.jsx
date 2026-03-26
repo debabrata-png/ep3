@@ -68,6 +68,12 @@ export function menuquality() {
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Quality Inspector" />}
                     </ListItem>
+                    <ListItem button component={RouterLink} to="/role/manual-quality-check2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Quality Check" />}
+                    </ListItem>
                 </AccordionDetails>
             </Accordion>
             <Accordion>

@@ -593,8 +593,8 @@ const StudentMarksheetViewPageds = () => {
       return "E";
     };
 
-    // Align the grade with the printed percentage (1 decimal place)
-    const displayPerc = parseFloat(overallPercentage.toFixed(1));
+    // Align the grade with the printed percentage (2 decimal places)
+    const displayPerc = parseFloat(overallPercentage.toFixed(2));
     const overallGrade = calculateGrade(displayPerc);
 
 

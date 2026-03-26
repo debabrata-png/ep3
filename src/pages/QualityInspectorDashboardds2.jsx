@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Tabs, Tab, Paper, Grid, TextField, Button, Divider,
     Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody,
-    TableCell, TableHead, TableRow, Chip
+    TableCell, TableHead, TableRow, Chip, CircularProgress, Backdrop, MenuItem
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+
+import S3 from 'react-aws-s3';
+window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const QualityInspectorDashboardds2 = () => {
     const [tabValue, setTabValue] = useState(0);
@@ -31,6 +34,20 @@ const QualityInspectorDashboardds2 = () => {
     const [paymentDetails, setPaymentDetails] = useState('');
     const [corporateDirectorName, setCorporateDirectorName] = useState('');
     const [executiveName, setExecutiveName] = useState('');
+    const [returnType, setReturnType] = useState('NRGP'); // 'RGP' or 'NRGP'
+
+    // Document link + upload
+    const [documentLink, setDocumentLink] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
+    // S3 config from global1
+    const s3Config = {
+        bucketName: global1.bucket,
+        region: global1.region,
+        accessKeyId: global1.username,
+        secretAccessKey: global1.password,
+    };
 
     useEffect(() => { fetchData(); }, [tabValue]); // eslint-disable-line
 
@@ -68,6 +85,8 @@ const QualityInspectorDashboardds2 = () => {
         setPaymentDetails('');
         setCorporateDirectorName('');
         setExecutiveName(global1.name || '');
+        setDocumentLink('');
+        setSelectedFile(null);
 
         const mappedItems = (grn.items || []).map(item => ({
             itemid: item.itemid,
@@ -96,6 +115,39 @@ const QualityInspectorDashboardds2 = () => {
         setInspectionItems(newItems);
     };
 
+    const handleFileSelect = (event) => {
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const handleUploadToS3 = () => {
+        if (!selectedFile) {
+            alert('Please select a file first');
+            return;
+        }
+        if (!global1.username) {
+            alert('Please configure AWS settings under Settings - AWS config');
+            return;
+        }
+        setUploading(true);
+        const ReactS3Client = new S3(s3Config);
+        const dt1 = new Date();
+        const month = dt1.getMonth() + 1;
+        const dt2 = month + '-' + dt1.getFullYear() + '-' + dt1.getDate() + '-' + dt1.getMinutes() + dt1.getSeconds();
+        const newFileName = dt2 + '-' + selectedFile.name;
+
+        ReactS3Client
+            .uploadFile(selectedFile, newFileName)
+            .then(data => {
+                setDocumentLink(data.location);
+                alert('File uploaded successfully!');
+                setUploading(false);
+            })
+            .catch(err => {
+                alert('Upload failed: ' + err);
+                setUploading(false);
+            });
+    };
+
     const handleSubmitInspection = async () => {
         if (!currentGRN) return;
         try {
@@ -110,7 +162,9 @@ const QualityInspectorDashboardds2 = () => {
                 invoiceAmount: Number(invoiceAmount),
                 advanceDeduction: Number(advanceDeduction),
                 paymentDetails,
-                corporateDirectorName, executiveName
+                corporateDirectorName, executiveName,
+                documentLink,
+                returnType
             };
             await ep1.post('/api/v2/addqualitycheckds2', payload);
             alert('Inspection submitted successfully.');
@@ -157,6 +211,7 @@ const QualityInspectorDashboardds2 = () => {
                 <div class="field"><span class="label">Gate Pass No</span><span class="value">${qc.gatePassNumber || ''}</span></div>
                 <div class="field"><span class="label">Store Name</span><span class="value">${qc.storeName || ''}</span></div>
                 <div class="field"><span class="label">Status</span><span class="value">${qc.status}</span></div>
+                <div class="field"><span class="label">Document Link</span><span class="value">${qc.documentLink ? '<a href="' + qc.documentLink + '">' + qc.documentLink + '</a>' : 'N/A'}</span></div>
             </div>
             <table>
                 <thead><tr><th>Sr.No</th><th>Item Description</th><th>Unit</th><th>PO Qty</th><th>Delivered Qty</th><th>GRN Qty</th><th>Accepted Qty</th><th>Rejected Qty</th><th>Remarks</th></tr></thead>
@@ -199,7 +254,7 @@ const QualityInspectorDashboardds2 = () => {
         { field: 'gatePassNumber', headerName: 'Gate Pass', width: 140 },
         { field: 'poid', headerName: 'PO ID', width: 140 },
         { field: 'vendorName', headerName: 'Vendor', width: 160 },
-        { field: 'grnDate', headerName: 'GRN Date', width: 110, valueFormatter: (v) => v ? new Date(v).toLocaleDateString('en-GB') : '' },
+        { field: 'grnDate', headerName: 'GRN Date', width: 110, valueFormatter: (params) => params.value ? new Date(params.value).toLocaleDateString('en-GB') : '' },
         { field: 'status', headerName: 'Status', width: 110, renderCell: (p) => <Chip label={p.value} color="warning" size="small" /> },
         {
             field: 'actions', headerName: 'Action', width: 140,
@@ -218,6 +273,10 @@ const QualityInspectorDashboardds2 = () => {
         { field: 'challanNo', headerName: 'Challan No', width: 110 },
         { field: 'status', headerName: 'Status', width: 130, renderCell: (p) => <Chip label={p.value} color={p.value === 'Accepted' ? 'success' : 'warning'} size="small" /> },
         { field: 'netPayableAmount', headerName: 'Net Payable (₹)', width: 130 },
+        {
+            field: 'documentLink', headerName: 'Document', width: 120,
+            renderCell: (p) => p.value ? <a href={p.value} target="_blank" rel="noreferrer" style={{ color: '#1976d2' }}>View</a> : '—'
+        },
         {
             field: 'actions', headerName: 'Actions', width: 130,
             renderCell: (p) => <Button size="small" variant="outlined" onClick={() => handlePrintQC(p.row)}>Print</Button>
@@ -244,6 +303,11 @@ const QualityInspectorDashboardds2 = () => {
                 </Paper>
             )}
 
+            {/* Upload progress backdrop */}
+            <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={uploading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+
             {/* QC Inspection Modal */}
             <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="lg" fullWidth>
                 <DialogTitle>Quality Inspection — GRN: {currentGRN?.grnNo}</DialogTitle>
@@ -257,6 +321,12 @@ const QualityInspectorDashboardds2 = () => {
                         <Grid item xs={6} md={3}><TextField fullWidth label="GRN Date" type="date" size="small" value={currentGRN?.grnDate ? new Date(currentGRN.grnDate).toISOString().split('T')[0] : ''} InputProps={{ readOnly: true }} InputLabelProps={{ shrink: true }} /></Grid>
                         <Grid item xs={6} md={3}><TextField fullWidth label="Party Name" size="small" value={currentGRN?.partyName || currentGRN?.vendorName || ''} InputProps={{ readOnly: true }} /></Grid>
                         <Grid item xs={6} md={3}><TextField fullWidth label="Gate Pass No" size="small" value={currentGRN?.gatePassNumber || ''} InputProps={{ readOnly: true }} /></Grid>
+                        <Grid item xs={6} md={3}>
+                            <TextField fullWidth select label="Return Category" size="small" value={returnType} onChange={(e) => setReturnType(e.target.value)}>
+                                <MenuItem value="RGP">RGP (Returnable)</MenuItem>
+                                <MenuItem value="NRGP">NRGP (Non-Returnable)</MenuItem>
+                            </TextField>
+                        </Grid>
 
                         {/* Bill */}
                         <Grid item xs={12}><Typography variant="subtitle1" fontWeight={600} sx={{ mt: 1 }}>Bill & Challan</Typography><Divider /></Grid>
@@ -315,6 +385,23 @@ const QualityInspectorDashboardds2 = () => {
                         <Grid item xs={6} md={3}><TextField fullWidth label="Advance / Deduction (₹)" type="number" size="small" value={advanceDeduction} onChange={(e) => setAdvanceDeduction(e.target.value)} /></Grid>
                         <Grid item xs={6} md={3}><TextField fullWidth label="Net Payable Amount (₹)" size="small" value={netPayable} InputProps={{ readOnly: true }} /></Grid>
                         <Grid item xs={12} md={6}><TextField fullWidth label="Payment Details" size="small" multiline rows={2} value={paymentDetails} onChange={(e) => setPaymentDetails(e.target.value)} /></Grid>
+
+                        {/* Document Link & Upload */}
+                        <Grid item xs={12}><Typography variant="subtitle1" fontWeight={600} sx={{ mt: 1 }}>Document Attachment</Typography><Divider /></Grid>
+                        <Grid item xs={12} md={5}>
+                            <TextField fullWidth label="Document Link" size="small" value={documentLink} onChange={(e) => setDocumentLink(e.target.value)} placeholder="Paste link or upload file below" />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Button variant="outlined" component="label" size="small" sx={{ mr: 1, height: 40 }}>
+                                {selectedFile ? selectedFile.name : 'Choose File'}
+                                <input type="file" hidden onChange={handleFileSelect} />
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <Button variant="contained" color="secondary" size="small" sx={{ height: 40 }} onClick={handleUploadToS3} disabled={!selectedFile || uploading}>
+                                {uploading ? 'Uploading...' : 'Upload to S3'}
+                            </Button>
+                        </Grid>
 
                         {/* Signatures */}
                         <Grid item xs={12}><Typography variant="subtitle1" fontWeight={600} sx={{ mt: 1 }}>Signatories</Typography><Divider /></Grid>

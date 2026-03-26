@@ -13,20 +13,32 @@ import {
     DialogActions,
     TextField,
     Grid,
-    FormControl, InputLabel, Select, MenuItem, Autocomplete // Added
+    FormControl, InputLabel, Select, MenuItem, Autocomplete, // Added
+    CircularProgress, Backdrop
 } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
 import PRTemplate2 from './PRTemplate2';
 import GRNTemplate2 from './GRNTemplate2';
+import GatePassTemplate2 from './GatePassTemplate2';
 import { createRoot } from 'react-dom/client';
+import * as XLSX from 'xlsx';
 
 const StoreManagerDashboardds2 = () => {
     const [tabValue, setTabValue] = useState(0);
     const [requests, setRequests] = useState([]);
     const [inventory, setInventory] = useState([]);
+
+    // Bulk Upload State
+    const [bulkParsedData, setBulkParsedData] = useState([]);
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [bulkMessage, setBulkMessage] = useState("");
+    const [bulkErrors, setBulkErrors] = useState([]);
+    const [openBulkErrorModal, setOpenBulkErrorModal] = useState(false);
 
     // Allotment State
     const [openAllotModal, setOpenAllotModal] = useState(false);
@@ -87,9 +99,37 @@ const StoreManagerDashboardds2 = () => {
     // Local Purchase Restructure State
     const [localPurchaseSubTab, setLocalPurchaseSubTab] = useState(0);
     const [budgetHeads, setBudgetHeads] = useState([]);
+
+    // Master Data Management States
+    const [masterTabValue, setMasterTabValue] = useState(0);
+    const [masterItemTypes, setMasterItemTypes] = useState([]);
+    const [masterItemCategories, setMasterItemCategories] = useState([]);
+    const [masterItemUnits, setMasterItemUnits] = useState([]);
+    const [masterItems, setMasterItems] = useState([]);
+    const [masterFormOpen, setMasterFormOpen] = useState(false);
+    const [masterCurrentItem, setMasterCurrentItem] = useState({});
+    const [masterContext, setMasterContext] = useState('item'); 
+    const [masterFormMode, setMasterFormMode] = useState('create');
+    const [masterSearchQuery, setMasterSearchQuery] = useState('');
+
+    // Manual Gate Pass States
+    const [manualGPDirection, setManualGPDirection] = useState('Inward');
+    const [manualGPOrderType, setManualGPOrderType] = useState('PO');
+    const [manualGPNpoType, setManualGPNpoType] = useState('LPO');
+    const [allPotentialPOs, setAllPotentialPOs] = useState([]);
+    const [gpHistory, setGPHistory] = useState([]);
+    const [openManualGPModal, setOpenManualGPModal] = useState(false);
+    const [selectedGPPO, setSelectedGPPO] = useState(null);
+    const [manualGPItems, setManualGPItems] = useState([]);
+    const [gpVehicleNo, setGPVehicleNo] = useState('');
+    const [gpDriverName, setGPDriverName] = useState('');
+    const [gpContactNo, setGPContactNo] = useState('');
+    const [gpDcInvoiceNo, setGPDcInvoiceNo] = useState('');
+    const [gpRemarks, setGPRemarks] = useState('');
     const [localPoBudgetHead, setLocalPoBudgetHead] = useState('');
     const [localPoApproxAmount, setLocalPoApproxAmount] = useState('');
     const [storeApprovalThreshold, setStoreApprovalThreshold] = useState(5000);
+    const [selectedStoreForLocalPurchase, setSelectedStoreForLocalPurchase] = useState(null); // Added
 
     // Update Actual PO State
     const [updateActualPO, setUpdateActualPO] = useState(null);
@@ -100,6 +140,8 @@ const StoreManagerDashboardds2 = () => {
     const [localGRNSelectedPO, setLocalGRNSelectedPO] = useState(null);
     const [localGRNItems, setLocalGRNItems] = useState([]);
     const [localGRNRemarks, setLocalGRNRemarks] = useState('');
+    const [localOrderType, setLocalOrderType] = useState('LPO'); // LPO, Cash Memo, Imprest
+    const [completedLocalGRNs, setCompletedLocalGRNs] = useState([]);
 
     // Vendor Data State
     const [vendors, setVendors] = useState([]);
@@ -286,10 +328,11 @@ const StoreManagerDashboardds2 = () => {
         } else if (tabValue === 3) {
             fetchHistory();
         } else if (tabValue === 4) {
-            fetchCashBalanceAndBudgets();
+            setupLocalPurchaseTab();
             fetchStores();
             fetchAllItems();
             fetchLocalPurchaseHistory();
+            fetchCompletedLocalGRNs();
         } else if (tabValue === 7) {
             fetchVendorsList();
         } else if (tabValue === 8) {
@@ -330,6 +373,40 @@ const StoreManagerDashboardds2 = () => {
         } catch (e) {
             console.error('Error fetching local purchase history:', e);
         }
+    };
+
+    const fetchCompletedLocalGRNs = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getalllocalgrnds2?colid=${global1.colid}`);
+            setCompletedLocalGRNs((res.data.data || []).map(g => ({ ...g, id: g._id })));
+        } catch (e) {
+            console.error('Error fetching completed local GRNs:', e);
+        }
+    };
+
+    const handlePrintLocalGRN = (grn) => {
+        const printWindow = window.open('', '', 'height=900,width=900');
+        printWindow.document.write('<html><head><title>Local GRN - ' + (grn.grnNo || '') + '</title></head><body><div id="local-grn-print-root"></div></body></html>');
+        printWindow.document.close();
+        const root = createRoot(printWindow.document.getElementById('local-grn-print-root'));
+        root.render(
+            <GRNTemplate2
+                poData={grn}
+                items={grn.items || []}
+                grnNumber={grn.grnNo}
+                instituteName={prConfigData.institutionname}
+                instituteAddress={prConfigData.address}
+                institutePhone={prConfigData.phone}
+                extraData={{
+                    poid: grn.lpoId,
+                    vendorName: grn.vendorName,
+                    receivedBy: grn.receivedBy,
+                    grnDate: grn.grnDate,
+                    remarks: grn.remarks
+                }}
+            />
+        );
+        setTimeout(() => { printWindow.focus(); printWindow.print(); }, 1000);
     };
 
     const handleDeleteLocalPO = async (id) => {
@@ -385,40 +462,54 @@ const StoreManagerDashboardds2 = () => {
         }
     };
 
-    const fetchCashBalanceAndBudgets = async () => {
+    const setupLocalPurchaseTab = async () => {
         try {
             const mapRes = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
             const mappings = mapRes.data.data.storeUsers || [];
-            const userMapping = mappings.find(m => m.user === global1.user || m.userid === global1.user);
-            if (userMapping) {
-                const res = await ep1.get(`/api/v2/getstorecashaccounts2?colid=${global1.colid}&storeid=${userMapping.storeid}`);
-                const account = res.data.data && res.data.data.length > 0 ? res.data.data[0] : null;
-                setMyCashBalance(account ? account.balance : 0);
-                if (account && account.approvalThreshold !== undefined) {
-                    setStoreApprovalThreshold(account.approvalThreshold);
+            const userMappings = mappings.filter(m => m.user === global1.user || m.userid === global1.user);
+            
+            if (userMappings.length > 0) {
+                // If there's a current selection, keep it, otherwise default to first
+                const currentId = selectedStoreForLocalPurchase?._id || userMappings[0].storeid;
+                fetchCashBalanceAndBudgets(currentId);
+                
+                // Track correct store object for selection
+                const storeMatch = userMappings.find(m => m.storeid === currentId);
+                if (storeMatch) {
+                    setSelectedStoreForLocalPurchase({ _id: storeMatch.storeid, storename: storeMatch.store });
                 }
-
-                const budgetRes = await ep1.get(`/api/v2/getstorebudgets2?colid=${global1.colid}&storeid=${userMapping.storeid}`);
-                setBudgetHeads(budgetRes.data.data || []);
             }
+        } catch (e) {
+            console.error("error setting up local purchase tab", e);
+        }
+    };
+
+    const fetchCashBalanceAndBudgets = async (storeid) => {
+        if (!storeid) return;
+        try {
+            const res = await ep1.get(`/api/v2/getstorecashaccounts2?colid=${global1.colid}&storeid=${storeid}`);
+            const account = res.data.data && res.data.data.length > 0 ? res.data.data[0] : null;
+            setMyCashBalance(account ? account.balance : 0);
+            if (account && account.approvalThreshold !== undefined) {
+                setStoreApprovalThreshold(account.approvalThreshold);
+            }
+
+            const budgetRes = await ep1.get(`/api/v2/getstorebudgets2?colid=${global1.colid}&storeid=${storeid}`);
+            setBudgetHeads(budgetRes.data.data || []);
         } catch (e) {
             console.error("error fetching cash balance/budgets", e);
         }
-    }
+    };
 
     const handleLocalPurchase = async () => {
         if (!localPoApproxAmount || !localPoVendor || !localPoItem || !localPoQty || !localPoUnit || !localPoBudgetHead) return alert("Fill all fields including Budget Head & Amount");
+        if (!selectedStoreForLocalPurchase) return alert("Select a store first.");
 
         const approxAmt = Number(localPoApproxAmount);
         const requiresApproval = approxAmt > storeApprovalThreshold;
         if (!requiresApproval && approxAmt > myCashBalance) return alert("Insufficient Cash Balance for Auto-Approval");
 
         try {
-            const mapRes = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
-            const mappings = mapRes.data.data.storeUsers || [];
-            const userMapping = mappings.find(m => m.user === global1.user || m.userid === global1.user);
-            if (!userMapping) return alert("No store mapped to your user.");
-
             // Generate Sequential LPO
             const date = new Date();
             const yyyy = date.getFullYear();
@@ -427,13 +518,14 @@ const StoreManagerDashboardds2 = () => {
             const lpoNum = `PU-${yyyy}${mm}${uniq}`;
 
             const poPayload = {
-                name: `Local-PO-${lpoNum}`,
+                name: `${localOrderType}-${lpoNum}`,
                 vendorname: localPoVendor,
                 vendor: localPoVendor,
                 year: yyyy.toString(),
                 poid: lpoNum,
                 postatus: requiresApproval ? 'Pending Approval' : 'Auto Approved',
                 poType: 'Local',
+                localOrderType: localOrderType,
                 deliveryType: 'Direct Local',
                 colid: global1.colid,
                 user: global1.user,
@@ -441,12 +533,31 @@ const StoreManagerDashboardds2 = () => {
                 netprice: approxAmt,
                 actualAmount: 0,
                 creatorName: global1.name || global1.user,
-                storeid: userMapping.storeid,
-                storename: userMapping.store,
+                storeid: selectedStoreForLocalPurchase._id,
+                storename: selectedStoreForLocalPurchase.storename,
                 budgetHeadId: localPoBudgetHead // Tracking local budget usage
             };
             const poRes = await ep1.post('/api/v2/addstorepoorderds2', poPayload);
             const currentPO = poRes.data.data;
+
+            // NEW: Add Item to Store PO Items (so it shows in Gate Pass checklist)
+            await ep1.post('/api/v2/addstorepoitemsds2', {
+                colid: global1.colid,
+                user: global1.user,
+                name: global1.name || global1.user,
+                poid: currentPO.poid,
+                itemid: localPoItem._id,
+                itemcode: localPoItem.itemcode,
+                itemname: localPoItem.itemname,
+                category: localPoItem.category || localPoItem.itemtype || '-',
+                vendor: localPoVendor || '-',
+                vendorid: localPoVendor,
+                unit: localPoUnit,
+                quantity: Number(localPoQty),
+                price: approxAmt / Number(localPoQty), // Distribute approx amount
+                netprice: approxAmt,
+                remarks: `Local Purchase: ${lpoNum}`
+            });
 
             if (!requiresApproval) {
                 // Deduct cash automatically if below threshold
@@ -461,8 +572,9 @@ const StoreManagerDashboardds2 = () => {
             await ep1.post('/api/v2/addstoreitemds2', {
                 colid: global1.colid,
                 user: global1.user,
-                storeid: userMapping.storeid,
-                storename: userMapping.store,
+                name: global1.name || global1.user,
+                storeid: selectedStoreForLocalPurchase._id,
+                storename: selectedStoreForLocalPurchase.storename,
                 itemid: localPoItem._id,
                 itemcode: localPoItem.itemcode,
                 itemname: localPoItem.itemname,
@@ -474,7 +586,7 @@ const StoreManagerDashboardds2 = () => {
 
             alert(requiresApproval ? `LPO Created & sent for Higher Authority Approval. Amount: ₹${approxAmt}` : `LPO Auto-Approved. Cash Deducted by ₹${approxAmt}`);
             setLocalPoApproxAmount(''); setLocalPoVendor(''); setLocalPoCategory(''); setLocalPoType(''); setLocalPoItem(null); setLocalPoUnit(''); setLocalPoQty(''); setLocalPoBudgetHead('');
-            fetchCashBalanceAndBudgets();
+            fetchCashBalanceAndBudgets(selectedStoreForLocalPurchase._id);
             fetchLocalPurchaseHistory();
         } catch (e) {
             console.error(e);
@@ -516,7 +628,7 @@ const StoreManagerDashboardds2 = () => {
                 lpoId: localGRNSelectedPO.poid,
                 storeid: localGRNSelectedPO.storeid,
                 storeName: localGRNSelectedPO.storename,
-                vendorName: localGRNSelectedPO.vendorname,
+                vendorName: localGRNSelectedPO.vendorname || localGRNSelectedPO.vendor || '',
                 items: localGRNItems,
                 receivedBy: global1.name || global1.user,
                 colid: global1.colid
@@ -528,7 +640,10 @@ const StoreManagerDashboardds2 = () => {
 
             alert('Local GRN created successfully!');
             setLocalGRNModal(false);
-            fetchLocalPurchaseHistory();
+            fetchCompletedLocalGRNs(); // Refresh history
+            fetchLocalPurchaseHistory(); // Refresh pending
+            // Optional: Automatically trigger print for the new GRN
+            // handlePrintLocalGRN({ ...grnData, items: localGRNItems, vendorName: localGRNSelectedPO.vendorname || localGRNSelectedPO.vendor });
         } catch (error) {
             console.error(error);
             alert("Failed to create GRN: " + (error.response?.data?.error || error.message));
@@ -851,6 +966,168 @@ const StoreManagerDashboardds2 = () => {
             alert('Failed to add stock');
         }
     };
+
+    const handleDownloadTemplate = () => {
+        const template = [
+            {
+                "Store Name": "",
+                "Item Name": "",
+                "Item Code": "",
+                "Category": "",
+                "Quantity": 0,
+                "Type": "",
+                "Unit": "",
+                "Status": "Available",
+                "Remarks": "Opening Stock"
+            }
+        ];
+        const ws = XLSX.utils.json_to_sheet(template);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Inventory Template");
+        XLSX.writeFile(wb, "inventory_bulk_upload_template.xlsx");
+    };
+
+    const handleBulkFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const bstr = evt.target.result;
+                const wb = XLSX.read(bstr, { type: "binary" });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+                setBulkParsedData(data);
+                alert(`${data.length} rows loaded. Click "Confirm Bulk Upload" to process.`);
+            } catch (err) {
+                alert("Error parsing Excel file.");
+                console.error(err);
+            }
+        };
+        reader.readAsBinaryString(file);
+    };
+
+    const handleBulkSubmit = async () => {
+        if (bulkParsedData.length === 0) return alert("No data to upload");
+        if (!window.confirm(`Are you sure you want to upload ${bulkParsedData.length} items?`)) return;
+
+        setBulkLoading(true);
+        setBulkMessage("Processing bulk upload...");
+        let successCount = 0;
+        let failCount = 0;
+        let errors = [];
+        let localAllItems = [...allItems];
+
+        try {
+            for (const origRow of bulkParsedData) {
+                // Normalize keys (trim and ignore case)
+                const row = {};
+                Object.keys(origRow).forEach(key => {
+                    row[key.trim().toLowerCase()] = origRow[key];
+                });
+
+                const storeName = row["store name"]?.toString().trim();
+                const itemCode = row["item code"]?.toString().trim();
+                const itemName = row["item name"]?.toString().trim();
+                const qty = Number(row["quantity"] || 0);
+
+                if (!storeName) {
+                    errors.push(`Row missing Store Name: ${JSON.stringify(origRow)}`);
+                    failCount++;
+                    continue;
+                }
+
+                // Find Store ID
+                const store = stores.find(s => s.storename?.trim().toLowerCase() === storeName?.toLowerCase());
+                if (!store) {
+                    errors.push(`Store not found or not assigned: "${storeName}"`);
+                    failCount++;
+                    continue;
+                }
+
+                // Find Item ID (Match by Code first, then Name)
+                let item = null;
+                if (itemCode) {
+                    item = localAllItems.find(i => i.itemcode?.toString().trim() === itemCode);
+                }
+                if (!item && itemName) {
+                    item = localAllItems.find(i => i.itemname?.trim().toLowerCase() === itemName.toLowerCase());
+                }
+
+                // If still not found, CREATE in Item Master
+                if (!item) {
+                    try {
+                        console.log(`Creating missing item master for: ${itemName || itemCode}`);
+                        const masterRes = await ep1.post('/api/v2/additemmasterds2', {
+                            colid: global1.colid,
+                            user: global1.user,
+                            name: global1.name || 'Bulk Upload',
+                            itemname: itemName || `Item-${itemCode}`,
+                            itemcode: itemCode,
+                            itemtype: row["type"] || 'Consume',
+                            category: row["category"] || 'General',
+                            unit: row["unit"] || 'Nos',
+                            status: 'Available'
+                        });
+                        item = masterRes.data.data.item;
+                        // Add to both local tracking and state
+                        localAllItems.push(item);
+                        setAllItems(prev => [...prev, item]);
+                    } catch (masterErr) {
+                        console.error("Error creating item master:", masterErr);
+                        errors.push(`Failed to create Item Master for "${itemName || itemCode}": ${masterErr.response?.data?.message || masterErr.message}`);
+                        failCount++;
+                        continue;
+                    }
+                }
+
+                if (isNaN(qty)) {
+                    errors.push(`Invalid quantity for item "${itemName}": ${row["quantity"]}`);
+                    failCount++;
+                    continue;
+                }
+
+                try {
+                    await ep1.post('/api/v2/addstoreitemds2', {
+                        colid: global1.colid,
+                        user: global1.user,
+                        storeid: store._id,
+                        storename: store.storename,
+                        itemid: item._id,
+                        itemcode: item.itemcode,
+                        itemname: item.itemname,
+                        category: row["category"] || item.category,
+                        quantity: qty,
+                        type: row["type"] || item.itemtype,
+                        status: row["status"] || 'Available',
+                        remarks: row["remarks"] || 'Bulk Upload'
+                    });
+                    successCount++;
+                } catch (apiErr) {
+                    console.error("API Error adding item:", apiErr);
+                    errors.push(`API Error for "${itemName}": ${apiErr.response?.data?.message || apiErr.message}`);
+                    failCount++;
+                }
+            }
+
+            if (errors.length > 0) {
+                setBulkErrors(errors);
+                setOpenBulkErrorModal(true);
+            } else {
+                alert(`Bulk Upload Successful! ${successCount} items added.`);
+            }
+
+            setBulkParsedData([]);
+            fetchInventory();
+        } catch (error) {
+            console.error("Bulk upload main loop error:", error);
+            alert("Error during bulk upload processing.");
+        }
+        setBulkLoading(false);
+        setBulkMessage("");
+    };
     // --- Print Logic ---
     const [openPrintDialog, setOpenPrintDialog] = useState(false);
     const [printConfig, setPrintConfig] = useState({
@@ -1090,7 +1367,36 @@ const StoreManagerDashboardds2 = () => {
 
             {tabValue === 1 && (
                 <Box>
-                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={bulkLoading}>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <CircularProgress color="inherit" />
+                            <Typography sx={{ mt: 2 }}>{bulkMessage}</Typography>
+                        </Box>
+                    </Backdrop>
+                    <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold', color: '#1a237e' }}>Store Manager Dashboard</Typography>
+
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                        <Button variant="contained" color="primary" onClick={() => window.location.href = '/local-purchase'}>
+                            New Local Purchase (LPO/Memo)
+                        </Button>
+                        <Button variant="contained" color="secondary" onClick={() => window.location.href = '/local-grn'}>
+                            Process Local GRN (Gate Pass)
+                        </Button>
+                    </Box>
+
+                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        <Button variant="outlined" startIcon={<DownloadIcon />} onClick={handleDownloadTemplate}>
+                            Download Template
+                        </Button>
+                        <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
+                            Bulk Upload
+                            <input type="file" hidden accept=".xlsx,.xls" onChange={handleBulkFileUpload} />
+                        </Button>
+                        {bulkParsedData.length > 0 && (
+                            <Button variant="contained" color="secondary" onClick={handleBulkSubmit}>
+                                Confirm Bulk Upload ({bulkParsedData.length})
+                            </Button>
+                        )}
                         <Button variant="contained" onClick={() => setOpenAddStockModal(true)}>
                             Add Stock
                         </Button>
@@ -1110,7 +1416,12 @@ const StoreManagerDashboardds2 = () => {
                                     field: 'updatedate',
                                     headerName: 'Last Updated',
                                     width: 160,
-                                    valueFormatter: (params) => { const val = params?.value || params; return val ? new Date(val).toLocaleString('en-GB') : ''; }
+                                    valueFormatter: (params) => { 
+                                        const val = params.value; 
+                                        if (!val) return 'N/A';
+                                        const date = new Date(val);
+                                        return isNaN(date.getTime()) ? 'N/A' : date.toLocaleString('en-GB'); 
+                                    }
                                 },
                                 {
                                     field: 'actions',
@@ -1375,11 +1686,33 @@ const StoreManagerDashboardds2 = () => {
                 <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3, border: '1px solid #ccc', borderRadius: 2 }}>
                     <Typography variant="h5" gutterBottom>Local Store Purchases</Typography>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        <Typography variant="h6">Available Cash Balance:</Typography>
-                        <Typography variant="h6" color={myCashBalance > 0 ? "success.main" : "error.main"}>
-                            ₹{myCashBalance}
-                        </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                        <Box>
+                            <Typography variant="h6">Available Cash Balance:</Typography>
+                            <Typography variant="h6" color={myCashBalance > 0 ? "success.main" : "error.main"}>
+                                ₹{myCashBalance}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ minWidth: 300 }}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel>Select Store</InputLabel>
+                                <Select
+                                    value={selectedStoreForLocalPurchase?._id || ''}
+                                    label="Select Store"
+                                    onChange={(e) => {
+                                        const store = stores.find(s => s._id === e.target.value);
+                                        setSelectedStoreForLocalPurchase(store);
+                                        fetchCashBalanceAndBudgets(e.target.value);
+                                    }}
+                                >
+                                    {stores.map(s => (
+                                        <MenuItem key={s._id} value={s._id}>
+                                            {s.storename || s.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
                     </Box>
 
                     <Paper sx={{ mb: 3 }}>
@@ -1490,16 +1823,34 @@ const StoreManagerDashboardds2 = () => {
                                     />
                                 </Grid>
                                 <Grid item xs={12} md={6}>
-                                    <TextField
-                                        label="Local Vendor / Shop Name"
-                                        fullWidth
-                                        value={localPoVendor}
-                                        onChange={(e) => setLocalPoVendor(e.target.value)}
-                                    />
+                                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                                        <Grid item xs={12} md={6}>
+                                            <FormControl fullWidth>
+                                                <InputLabel>Order Type</InputLabel>
+                                                <Select
+                                                    value={localOrderType}
+                                                    label="Order Type"
+                                                    onChange={(e) => setLocalOrderType(e.target.value)}
+                                                >
+                                                    <MenuItem value="LPO">Local Purchase Order (LPO)</MenuItem>
+                                                    <MenuItem value="Cash Memo">Cash Memo</MenuItem>
+                                                    <MenuItem value="Imprest">Imprest</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                label="Vendor / Shop Name"
+                                                value={localPoVendor}
+                                                onChange={(e) => setLocalPoVendor(e.target.value)}
+                                            />
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
                                 <Grid item xs={12} sx={{ textAlign: 'right' }}>
                                     <Button variant="contained" color="secondary" onClick={handleLocalPurchase}>
-                                        Create Local Purchase Order
+                                        Create Local Purchase Record
                                     </Button>
                                 </Grid>
                             </Grid>
@@ -1512,7 +1863,7 @@ const StoreManagerDashboardds2 = () => {
                                         rows={localPurchaseHistory}
                                         columns={[
                                             { field: 'poid', headerName: 'LPO No', width: 150 },
-                                            { field: 'vendorname', headerName: 'Vendor', width: 180 },
+                                            { field: 'vendorname', headerName: 'Vendor', width: 180, valueGetter: (p) => p.row.vendorname || p.row.vendor || '' },
                                             { field: 'price', headerName: 'Approx (₹)', width: 110 },
                                             { field: 'actualAmount', headerName: 'Actual (₹)', width: 110 },
                                             {
@@ -1523,6 +1874,7 @@ const StoreManagerDashboardds2 = () => {
                                                     </Typography>
                                                 )
                                             },
+                                            { field: 'localOrderType', headerName: 'Order Type', width: 130 },
                                             { field: 'createdAt', headerName: 'Date', width: 120, valueFormatter: (params) => new Date(params.value).toLocaleDateString('en-GB') }
                                         ]}
                                     />
@@ -1563,10 +1915,11 @@ const StoreManagerDashboardds2 = () => {
                                 <DataGrid
                                     rows={localPurchaseHistory.filter(po => po.postatus === 'Auto Approved' || po.postatus === 'Approved')}
                                     columns={[
-                                        { field: 'poid', headerName: 'LPO No', width: 150 },
-                                        { field: 'vendorname', headerName: 'Vendor', width: 200 },
+                                        { field: 'poid', headerName: 'LPO No', width: 140 },
+                                        { field: 'vendorname', headerName: 'Vendor', width: 200, valueGetter: (p) => p.row.vendorname || p.row.vendor || 'N/A' },
                                         { field: 'price', headerName: 'Approx Amt (₹)', width: 150 },
                                         { field: 'actualAmount', headerName: 'Actual Amt (₹)', width: 150 },
+                                        { field: 'localOrderType', headerName: 'Type', width: 120 },
                                         {
                                             field: 'actions', headerName: 'Action', width: 150, renderCell: (params) => (
                                                 <Button size="small" variant="contained" onClick={() => {
@@ -1584,31 +1937,91 @@ const StoreManagerDashboardds2 = () => {
                     {/* SUB-TAB 2: Local GRN */}
                     {localPurchaseSubTab === 2 && (
                         <Box>
-                            <Typography variant="body1" mb={2}>Create GRN for delivered Local Purchases. Items will be added to Available Stock.</Typography>
+                            <Typography variant="body1" mb={2}>Create GRN for delivered Local Purchases. Items will be sent to Quality Check before adding to stock.</Typography>
 
                             <Box sx={{ height: 350, width: '100%', mb: 2 }}>
                                 <DataGrid
                                     rows={localPurchaseHistory.filter(po => (po.postatus === 'Auto Approved' || po.postatus === 'Approved'))} // In a real app we filter out POs that already have full GRNs
                                     columns={[
-                                        { field: 'poid', headerName: 'LPO No', width: 150 },
-                                        { field: 'vendorname', headerName: 'Vendor', width: 200 },
+                                        { field: 'poid', headerName: 'LPO No', width: 140 },
+                                        { field: 'vendorname', headerName: 'Vendor', width: 200, valueGetter: (p) => p.row.vendorname || p.row.vendor || 'N/A' },
                                         { field: 'status', headerName: 'Status', width: 150, valueGetter: () => 'Awaiting GRN' },
                                         {
                                             field: 'actions', headerName: 'Action', width: 150, renderCell: (params) => (
-                                                <Button size="small" color="secondary" variant="contained" onClick={() => {
+                                                <Button size="small" color="secondary" variant="contained" onClick={async () => {
                                                     setLocalGRNSelectedPO(params.row);
-                                                    setLocalGRNItems([{
-                                                        itemname: "Local PO Items (See Invoice)",
-                                                        quantity: 1,
-                                                        unit: "Lot",
-                                                        remarks: ""
-                                                    }]);
+                                                    try {
+                                                        const res = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}&poid=${params.row.poid}`);
+                                                        const poItems = res.data.data.poItems || [];
+                                                        // Extra safety: double-filter by poid on client side
+                                                        const filtered = poItems.filter(it => it.poid === params.row.poid);
+
+                                                        if (filtered.length > 0) {
+                                                            setLocalGRNItems(filtered.map(it => ({
+                                                                ...it,
+                                                                quantity: it.receiveqty || it.quantity // Default to full quantity
+                                                            })));
+                                                        } else {
+                                                            // Fallback with better metadata for older records
+                                                            setLocalGRNItems([{
+                                                                itemname: "Local Purchase Item",
+                                                                itemcode: params.row.poid,
+                                                                category: params.row.category || '-',
+                                                                vendor: params.row.vendorname || params.row.vendor || '-',
+                                                                price: params.row.price || params.row.approxAmount || 0,
+                                                                quantity: 1,
+                                                                unit: "Qty"
+                                                            }]);
+                                                        }
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                        setLocalGRNItems([{
+                                                            itemname: "Failed to fetch items",
+                                                            quantity: 0
+                                                        }]);
+                                                    }
                                                     setLocalGRNRemarks('');
                                                     setLocalGRNModal(true);
                                                 }}>Create GRN</Button>
                                             )
                                         }
                                     ]}
+                                />
+                            </Box>
+
+                            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Created Local GRNs</Typography>
+                            <Box sx={{ height: 350, width: '100%' }}>
+                                <DataGrid
+                                    rows={completedLocalGRNs}
+                                    columns={[
+                                        { field: 'grnNo', headerName: 'GRN No', width: 160 },
+                                        { field: 'lpoId', headerName: 'LPO No', width: 140 },
+                                        { field: 'vendorName', headerName: 'Vendor', width: 140 },
+                                        { field: 'receivedBy', headerName: 'Received By', width: 140 },
+                                        { field: 'status', headerName: 'Status', width: 130 },
+                                        {
+                                            field: 'grnDate',
+                                            headerName: 'Date',
+                                            width: 120,
+                                            valueFormatter: (params) => {
+                                                const val = params.value;
+                                                if (!val) return 'N/A';
+                                                const date = new Date(val);
+                                                return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('en-GB');
+                                            }
+                                        },
+                                        {
+                                            field: 'actions',
+                                            headerName: 'Actions',
+                                            width: 130,
+                                            renderCell: (params) => (
+                                                <Button size="small" variant="outlined" onClick={() => handlePrintLocalGRN(params.row)}>
+                                                    Print GRN
+                                                </Button>
+                                            )
+                                        }
+                                    ]}
+                                    pageSizeOptions={[10, 25, 50]}
                                 />
                             </Box>
                         </Box>
@@ -1794,8 +2207,8 @@ const StoreManagerDashboardds2 = () => {
                                 gatePassNumber: selectedGatePass.passNumber,
                                 poid: selectedGatePass.poid,
                                 colid: global1.colid,
-                                storeId: global1.storeid || '',
-                                storeName: global1.storename || '',
+                                storeId: selectedGatePass.storeId || '',
+                                storeName: selectedGatePass.storeName || '',
                                 receivedBy: global1.name || global1.user,
                                 items: grnItems,
                                 remarks: grnRemarks,
@@ -1845,7 +2258,7 @@ const StoreManagerDashboardds2 = () => {
                         { field: 'vendorName', headerName: 'Vendor', width: 150 },
                         { field: 'vehicleNo', headerName: 'Vehicle', width: 110 },
                         { field: 'deliveryPersonName', headerName: 'Delivery Person', width: 140 },
-                        { field: 'createdAt', headerName: 'Date', width: 100, valueFormatter: (v) => v ? new Date(v).toLocaleDateString('en-GB') : '' },
+                        { field: 'createdAt', headerName: 'Date', width: 100, valueFormatter: (params) => { const val = params.value; if (!val) return 'N/A'; const date = new Date(val); return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('en-GB'); } },
                         { field: 'actions', headerName: 'Action', width: 130, renderCell: (p) => <Button variant="contained" size="small" onClick={() => handleOpenGRNModal(p.row)}>Create GRN</Button> }
                     ];
                     const grnColumns = [
@@ -1854,7 +2267,7 @@ const StoreManagerDashboardds2 = () => {
                         { field: 'poid', headerName: 'PO ID', width: 130 },
                         { field: 'vendorName', headerName: 'Vendor', width: 150 },
                         { field: 'status', headerName: 'Status', width: 120 },
-                        { field: 'grnDate', headerName: 'GRN Date', width: 100, valueFormatter: (v) => v ? new Date(v).toLocaleDateString('en-GB') : '' },
+                        { field: 'grnDate', headerName: 'GRN Date', width: 100, valueFormatter: (params) => { const val = params.value; if (!val) return 'N/A'; const date = new Date(val); return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('en-GB'); } },
                         { field: 'actions', headerName: 'Actions', width: 120, renderCell: (p) => <Button size="small" variant="outlined" onClick={() => handlePrintGRN(p.row)}>Print GRN</Button> }
                     ];
 
@@ -1918,6 +2331,74 @@ const StoreManagerDashboardds2 = () => {
             }
 
 
+            {/* ── Local GRN Modal ── */}
+            <Dialog open={localGRNModal} onClose={() => setLocalGRNModal(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Create Local GRN - {localGRNSelectedPO?.poid}</DialogTitle>
+                <DialogContent dividers>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Vendor: {localGRNSelectedPO?.vendorname}
+                    </Typography>
+
+                    <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: 'bold' }}>Items Received:</Typography>
+                    {localGRNItems.map((item, idx) => (
+                        <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                            <TextField
+                                label="Item Name"
+                                value={item.itemname}
+                                fullWidth
+                                disabled
+                            />
+                            <TextField
+                                label="Qty"
+                                type="number"
+                                value={item.quantity}
+                                sx={{ width: 100 }}
+                                onChange={(e) => {
+                                    const newItems = [...localGRNItems];
+                                    newItems[idx].quantity = e.target.value;
+                                    setLocalGRNItems(newItems);
+                                }}
+                            />
+                        </Box>
+                    ))}
+
+                    <TextField
+                        fullWidth
+                        label="GRN Remarks"
+                        multiline
+                        rows={2}
+                        value={localGRNRemarks}
+                        onChange={(e) => setLocalGRNRemarks(e.target.value)}
+                        sx={{ mt: 2 }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setLocalGRNModal(false)}>Cancel</Button>
+                    <Button variant="contained" color="secondary" onClick={handleCreateLocalGRN}>
+                        Save & Send to Quality Check
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Bulk Upload Error Dialog */}
+            <Dialog open={openBulkErrorModal} onClose={() => setOpenBulkErrorModal(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ bgcolor: 'error.main', color: 'white' }}>Bulk Upload Issues Found</DialogTitle>
+                <DialogContent sx={{ mt: 2 }}>
+                    <Typography variant="body1" gutterBottom>
+                        The following rows could not be processed:
+                    </Typography>
+                    <Box sx={{ bgcolor: '#fff5f5', p: 2, borderRadius: 1, border: '1px solid #ffc1c1', maxHeight: 300, overflow: 'auto' }}>
+                        {bulkErrors.map((err, idx) => (
+                            <Typography key={idx} variant="body2" color="error" sx={{ mb: 1, borderBottom: '1px solid #ffebeb', pb: 0.5 }}>
+                                • {err}
+                            </Typography>
+                        ))}
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenBulkErrorModal(false)} variant="contained" color="primary">Close</Button>
+                </DialogActions>
+            </Dialog>
         </Box >
     );
 };

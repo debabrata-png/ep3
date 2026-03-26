@@ -240,8 +240,8 @@ const StudentMarksEntry11ds = () => {
                 // Merge existing marks into the pre-initialized map
                 marks.forEach(m => {
                     let codeToUse = m.subjectcode;
-                    const matchedSub = fetchedSubjects.find(sub => 
-                        sub.subjectcode === m.subjectcode || 
+                    const matchedSub = fetchedSubjects.find(sub =>
+                        sub.subjectcode === m.subjectcode ||
                         (sub.subjectname && sub.subjectname.toUpperCase() === String(m.subjectcode).toUpperCase())
                     );
                     if (matchedSub) {
@@ -674,110 +674,110 @@ const StudentMarksEntry11ds = () => {
                                                 </Typography>
                                             </>
                                         )}
-                                     </TableCell>
-                                 ))}
-                                 {component === 'teacherremarks' && (
-                                     <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', minWidth: 250, borderLeft: '1px solid #ddd' }}>
-                                         <Box sx={{ fontWeight: 'bold' }}>Teacher Remarks</Box>
-                                     </TableCell>
-                                 )}
-                             </TableRow>
+                                    </TableCell>
+                                ))}
+                                {component === 'teacherremarks' && (
+                                    <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', minWidth: 250, borderLeft: '1px solid #ddd' }}>
+                                        <Box sx={{ fontWeight: 'bold' }}>Teacher Remarks</Box>
+                                    </TableCell>
+                                )}
+                            </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredAndSortedStudents.map((student) => (
                                 <TableRow key={student.regno} hover>
                                     <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: '#fff', zIndex: 5, borderRight: '1px solid #eee' }}>
                                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{student.name}</Typography>
-                                         <Typography variant="caption" color="textSecondary">{student.rollno} | {student.regno}</Typography>
-                                     </TableCell>
-                                     {component !== 'teacherremarks' && columns.map((subject) => (
-                                         <TableCell key={`${student.regno}-${subject.subjectcode}`} align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
-                                             <TextField
-                                                 size="small"
-                                                 type="number"
-                                                 variant="outlined"
-                                                 value={getVal(student.regno, subject.subjectcode)}
-                                                 onChange={(e) => handleMarkChange(student.regno, subject, component, e.target.value)}
-                                                 inputProps={{
-                                                     style: { textAlign: 'center', padding: '5px' }
-                                                 }}
-                                                 sx={{
-                                                     width: '80px',
-                                                     '& .MuiOutlinedInput-root': {
-                                                         '& fieldset': { borderColor: getVal(student.regno, subject.subjectcode) ? '#1976d2' : '#e0e0e0' }
-                                                     }
-                                                 }}
-                                             />
-                                             <Box sx={{ mt: 1 }}>
-                                                 {(term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) && (
-                                                     <FormControlLabel
-                                                         control={
-                                                             <Switch
-                                                                 size="small"
-                                                                 checked={getVal(student.regno, subject.subjectcode, 'isgrace') || false}
-                                                                 onChange={(e) => handleMarkChange(student.regno, subject, 'isgrace', e.target.checked)}
-                                                                 color="secondary"
-                                                             />
-                                                         }
-                                                         label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
-                                                         labelPlacement="end"
-                                                         sx={{ m: 0 }}
-                                                     />
-                                                 )}
-                                                 {term !== 'attendance' && (
-                                                     <FormControlLabel
-                                                         control={
-                                                             <Switch
-                                                                 size="small"
-                                                                 checked={getVal(student.regno, subject.subjectcode, 'isabsent') || false}
-                                                                 onChange={(e) => handleMarkChange(student.regno, subject, 'isabsent', e.target.checked)}
-                                                                 color="error"
-                                                             />
-                                                         }
-                                                         label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
-                                                         labelPlacement="end"
-                                                         sx={{ m: 0, ml: (term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) ? 1 : 0 }}
-                                                     />
-                                                 )}
-                                             </Box>
-                                         </TableCell>
-                                     ))}
-                                     {component === 'teacherremarks' && (
-                                         <TableCell align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
-                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                                 <TextField
-                                                     fullWidth
-                                                     multiline
-                                                     maxRows={3}
-                                                     size="small"
-                                                     label="Teacher Remarks"
-                                                     placeholder="Enter Remarks"
-                                                     value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.teacherremarks || '') : ''}
-                                                     onChange={(e) => handleRemarkChange(student.regno, e.target.value)}
-                                                     sx={{ minWidth: 250 }}
-                                                 />
-                                                 <Box sx={{ display: 'flex', gap: 1 }}>
-                                                     <TextField
-                                                         fullWidth
-                                                         size="small"
-                                                         label="Promoted to Class"
-                                                         value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.promotedclass || '') : ''}
-                                                         onChange={(e) => handlePromotionChange(student.regno, e.target.value)}
-                                                     />
-                                                     <TextField
-                                                         type="date"
-                                                         fullWidth
-                                                         size="small"
-                                                         label="Session Start On"
-                                                         InputLabelProps={{ shrink: true }}
-                                                         value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.newsessiondate || '') : ''}
-                                                         onChange={(e) => handleSessionDateChange(student.regno, e.target.value)}
-                                                     />
-                                                 </Box>
-                                             </Box>
-                                         </TableCell>
-                                     )}
-                                 </TableRow>
+                                        <Typography variant="caption" color="textSecondary">{student.rollno} | {student.regno}</Typography>
+                                    </TableCell>
+                                    {component !== 'teacherremarks' && columns.map((subject) => (
+                                        <TableCell key={`${student.regno}-${subject.subjectcode}`} align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
+                                            <TextField
+                                                size="small"
+                                                type="number"
+                                                variant="outlined"
+                                                value={getVal(student.regno, subject.subjectcode)}
+                                                onChange={(e) => handleMarkChange(student.regno, subject, component, e.target.value)}
+                                                inputProps={{
+                                                    style: { textAlign: 'center', padding: '5px' }
+                                                }}
+                                                sx={{
+                                                    width: '80px',
+                                                    '& .MuiOutlinedInput-root': {
+                                                        '& fieldset': { borderColor: getVal(student.regno, subject.subjectcode) ? '#1976d2' : '#e0e0e0' }
+                                                    }
+                                                }}
+                                            />
+                                            <Box sx={{ mt: 1 }}>
+                                                {(term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) && (
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Switch
+                                                                size="small"
+                                                                checked={getVal(student.regno, subject.subjectcode, 'isgrace') || false}
+                                                                onChange={(e) => handleMarkChange(student.regno, subject, 'isgrace', e.target.checked)}
+                                                                color="secondary"
+                                                            />
+                                                        }
+                                                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Grace</Typography>}
+                                                        labelPlacement="end"
+                                                        sx={{ m: 0 }}
+                                                    />
+                                                )}
+                                                {term !== 'attendance' && (
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Switch
+                                                                size="small"
+                                                                checked={getVal(student.regno, subject.subjectcode, 'isabsent') || false}
+                                                                onChange={(e) => handleMarkChange(student.regno, subject, 'isabsent', e.target.checked)}
+                                                                color="error"
+                                                            />
+                                                        }
+                                                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                                                        labelPlacement="end"
+                                                        sx={{ m: 0, ml: (term === 'annual' && (component === 'annualthobtain' || component === 'annualpracticalobtain')) ? 1 : 0 }}
+                                                    />
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    ))}
+                                    {component === 'teacherremarks' && (
+                                        <TableCell align="center" sx={{ borderLeft: '1px solid #ddd', p: 1 }}>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                                <TextField
+                                                    fullWidth
+                                                    multiline
+                                                    maxRows={3}
+                                                    size="small"
+                                                    label="Teacher Remarks"
+                                                    placeholder="Enter Remarks"
+                                                    value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.teacherremarks || '') : ''}
+                                                    onChange={(e) => handleRemarkChange(student.regno, e.target.value)}
+                                                    sx={{ minWidth: 250 }}
+                                                />
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                    <TextField
+                                                        fullWidth
+                                                        size="small"
+                                                        label="Promoted to Class"
+                                                        value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.promotedclass || '') : ''}
+                                                        onChange={(e) => handlePromotionChange(student.regno, e.target.value)}
+                                                    />
+                                                    <TextField
+                                                        type="date"
+                                                        fullWidth
+                                                        size="small"
+                                                        label="Session Start On"
+                                                        InputLabelProps={{ shrink: true }}
+                                                        value={columns.length > 0 ? (marksMap[`${student.regno}_${columns[0].subjectcode}`]?.newsessiondate || '') : ''}
+                                                        onChange={(e) => handleSessionDateChange(student.regno, e.target.value)}
+                                                    />
+                                                </Box>
+                                            </Box>
+                                        </TableCell>
+                                    )}
+                                </TableRow>
                             ))}
                         </TableBody>
                     </Table>

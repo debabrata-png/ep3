@@ -721,34 +721,42 @@ const StudentMarksheetViewPage11ds = () => {
 
             // Unit sums & cells
             const hyEnrich = sub.subjectEnrichment || sub.hyPr;
+            const unitTotalDisplay = (sub.unitpremidabsent && sub.unitpostmidabsent) ? 'AB' : sub.unitTotal;
+            const unit20Display = (sub.unitpremidabsent && sub.unitpostmidabsent) ? 'AB' : sub.unit20;
+
             drawMarkCell(sub.unitpremidabsent ? 'AB' : sub.unitpremid, xUnit, wU); sumUnitPre += parseFloat(sub.unitpremid || 0);
             drawMarkCell(sub.unitpostmidabsent ? 'AB' : sub.unitpostmid, xUnit + wU, wU); sumUnitPost += parseFloat(sub.unitpostmid || 0);
-            drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU); sumUnitTot += parseFloat(sub.unitTotal || 0);
-            drawMarkCell(sub.unit20, xUnit + (3 * wU), wU); sumUnit20 += parseFloat(sub.unit20 || 0);
+            drawMarkCell(unitTotalDisplay, xUnit + (2 * wU), wU); sumUnitTot += parseFloat(sub.unitTotal || 0);
+            drawMarkCell(unit20Display, xUnit + (3 * wU), wU); sumUnit20 += parseFloat(sub.unit20 || 0);
 
             // HY sums & cells
+            const hyTotalDisplay = (sub.halfyearlythabsent && sub.halfyearlypracticalabsent) ? 'AB' : sub.hyTotal;
+            const hy30Display = (sub.halfyearlythabsent && sub.halfyearlypracticalabsent) ? 'AB' : sub.hy30;
+
             drawMarkCell(sub.halfyearlythabsent ? 'AB' : sub.hyTh, xHY, wH); sumHyTh += parseFloat(sub.hyTh || 0);
             drawMarkCell(sub.halfyearlypracticalabsent ? 'AB' : hyEnrich, xHY + wH, wH); sumHyPr += parseFloat(hyEnrich || 0);
-            drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH); sumHyTot += parseFloat(sub.hyTotal || 0);
-            drawMarkCell(sub.hy30, xHY + (3 * wH), wH); sumHy30 += parseFloat(sub.hy30 || 0);
+            drawMarkCell(hyTotalDisplay, xHY + (2 * wH), wH); sumHyTot += parseFloat(sub.hyTotal || 0);
+            drawMarkCell(hy30Display, xHY + (3 * wH), wH); sumHy30 += parseFloat(sub.hy30 || 0);
 
             // Ann sums & cells
             const annThDisplay = sub.annualthabsent ? 'AB' : (isGrace ? `${sub.annTh}*` : sub.annTh);
-            const annTotalDisplay = isGrace ? `${sub.annTotal}*` : sub.annTotal;
-            const ann50Display = isGrace ? `${sub.ann50}*` : sub.ann50;
+            const annPrDisplay = sub.annualpracticalabsent ? 'AB' : sub.annPr;
+            const annTotalDisplay = (sub.annualthabsent && sub.annualpracticalabsent) ? 'AB' : (isGrace ? `${sub.annTotal}*` : sub.annTotal);
+            const ann50Display = (sub.annualthabsent && sub.annualpracticalabsent) ? 'AB' : (isGrace ? `${sub.ann50}*` : sub.ann50);
 
             drawMarkCell(annThDisplay, xAnn, wA); sumAnnTh += parseFloat(sub.annTh || 0);
-            drawMarkCell(sub.annualpracticalabsent ? 'AB' : sub.annPr, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
+            drawMarkCell(annPrDisplay, xAnn + wA, wA); sumAnnPr += parseFloat(sub.annPr || 0);
             drawMarkCell(annTotalDisplay, xAnn + (2 * wA), wA); sumAnnTot += parseFloat(sub.annTotal || 0);
             drawMarkCell(ann50Display, xAnn + (3 * wA), wA); sumAnn50 += parseFloat(sub.ann50 || 0);
 
             // Total
+            const isAllAbsent = sub.unitpremidabsent && sub.unitpostmidabsent && sub.halfyearlythabsent && sub.halfyearlypracticalabsent && sub.annualthabsent && sub.annualpracticalabsent;
             const subTotRaw = Number(sub.calculatedTotal.toFixed(1));
-            const subTot = isGrace ? `${subTotRaw}*` : subTotRaw;
+            const subTotDisplay = isAllAbsent ? 'AB' : (isGrace ? `${subTotRaw}*` : subTotRaw);
             grandTot += parseFloat(sub.calculatedTotal);
 
             drawRect(xTot, dy, wTot, drH);
-            drawCenteredText(String(subTot), xTot, dy, wTot, drH, 9, true);
+            drawCenteredText(String(subTotDisplay), xTot, dy, wTot, drH, 9, true);
 
             // Grade
             drawRect(xGrd, dy, wGrd, drH);
@@ -823,7 +831,7 @@ const StudentMarksheetViewPage11ds = () => {
         // Merge Unit/HY/Ann columns for percentage display:
         drawRect(xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH); // Span marks cols
         const percentage = (grandTot / (mainSubjects.length * 100)) * 100;
-        drawCenteredText(`${percentage.toFixed(1)}%`, xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH, 10, true);
+        drawCenteredText(`${percentage.toFixed(2)}%`, xUnit, dy, sTableW - (wSr + wSub + wTot + wGrd), drH, 10, true);
         // Footer blanks
         drawRect(xTot, dy, wTot, drH);
         drawRect(xGrd, dy, wGrd, drH);
@@ -888,30 +896,40 @@ const StudentMarksheetViewPage11ds = () => {
                 const isGrace = sub.isgrace || false;
 
                 // Unit
+                const unitTotalDisplay = (sub.unitpremidabsent && sub.unitpostmidabsent) ? 'AB' : sub.unitTotal;
+                const unit20Display = (sub.unitpremidabsent && sub.unitpostmidabsent) ? 'AB' : sub.unit20;
+
                 drawMarkCell(sub.unitpremidabsent ? 'AB' : sub.unitpremid, xUnit, wU);
                 drawMarkCell(sub.unitpostmidabsent ? 'AB' : sub.unitpostmid, xUnit + wU, wU);
-                drawMarkCell(sub.unitTotal, xUnit + (2 * wU), wU);
-                drawMarkCell(sub.unit20, xUnit + (3 * wU), wU);
+                drawMarkCell(unitTotalDisplay, xUnit + (2 * wU), wU);
+                drawMarkCell(unit20Display, xUnit + (3 * wU), wU);
 
                 // HY
                 const hyEnrich = sub.subjectEnrichment || sub.hyPr;
+                const hyTotalDisplay = (sub.halfyearlythabsent && sub.halfyearlypracticalabsent) ? 'AB' : sub.hyTotal;
+                const hy30Display = (sub.halfyearlythabsent && sub.halfyearlypracticalabsent) ? 'AB' : sub.hy30;
+
                 drawMarkCell(sub.halfyearlythabsent ? 'AB' : sub.hyTh, xHY, wH);
                 drawMarkCell(sub.halfyearlypracticalabsent ? 'AB' : hyEnrich, xHY + wH, wH);
-                drawMarkCell(sub.hyTotal, xHY + (2 * wH), wH);
-                drawMarkCell(sub.hy30, xHY + (3 * wH), wH);
+                drawMarkCell(hyTotalDisplay, xHY + (2 * wH), wH);
+                drawMarkCell(hy30Display, xHY + (3 * wH), wH);
 
                 // Ann
                 const annThDisplay = sub.annualthabsent ? 'AB' : (isGrace ? `${sub.annTh}*` : sub.annTh);
-                const annTotalDisplay = isGrace ? `${sub.annTotal}*` : sub.annTotal;
-                const ann50Display = isGrace ? `${sub.ann50}*` : sub.ann50;
-                
+                const annPrDisplay = sub.annualpracticalabsent ? 'AB' : sub.annPr;
+                const annTotalDisplay = (sub.annualthabsent && sub.annualpracticalabsent) ? 'AB' : (isGrace ? `${sub.annTotal}*` : sub.annTotal);
+                const ann50Display = (sub.annualthabsent && sub.annualpracticalabsent) ? 'AB' : (isGrace ? `${sub.ann50}*` : sub.ann50);
+
                 drawMarkCell(annThDisplay, xAnn, wA);
-                drawMarkCell(sub.annualpracticalabsent ? 'AB' : sub.annPr, xAnn + wA, wA);
+                drawMarkCell(annPrDisplay, xAnn + wA, wA);
                 drawMarkCell(annTotalDisplay, xAnn + (2 * wA), wA);
                 drawMarkCell(ann50Display, xAnn + (3 * wA), wA);
 
+                const isAllAbsent = sub.unitpremidabsent && sub.unitpostmidabsent && sub.halfyearlythabsent && sub.halfyearlypracticalabsent && sub.annualthabsent && sub.annualpracticalabsent;
+                const subTotDisplay = isAllAbsent ? 'AB' : Number(sub.calculatedTotal.toFixed(1));
+
                 drawRect(xTot, dy, wTot, drH);
-                drawCenteredText(String(Number(sub.calculatedTotal.toFixed(1))), xTot, dy, wTot, drH, 9, true);
+                drawCenteredText(String(subTotDisplay), xTot, dy, wTot, drH, 9, true);
 
                 drawRect(xGrd, dy, wGrd, drH);
                 drawCenteredText(sub.grade || '-', xGrd, dy, wGrd, drH, 9, true);

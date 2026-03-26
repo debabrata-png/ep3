@@ -707,14 +707,14 @@ const StudentMarksheetViewPage1to5ds = () => {
             return 'E';
         };
 
-        const displayPerc = parseFloat(overallPerc.toFixed(1));
+        const displayPerc = parseFloat(overallPerc.toFixed(2));
         const overallGradeStr = calculateOverallGrade(displayPerc);
 
         const faVals = [
             t1Weighted.toFixed(1),
             t2Weighted.toFixed(1),
             grandTot.toFixed(1),
-            `${displayPerc.toFixed(1)}%`,
+            `${displayPerc.toFixed(2)}%`,
             overallGradeStr,
             rank
         ];

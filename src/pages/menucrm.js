@@ -71,14 +71,6 @@ export function menuitemscrm() {
   return (
     <div style={{ overflowY: 'scroll', height: 600, width: 300, fontSize: 10 }}>
 
-      {/* Dashboard Section */}
-      <ListItem button component={RouterLink} to="/crmh-dashboard">
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Dashboard" />}
-      </ListItem>
-
       {/* CRM Section */}
       <Accordion>
         <AccordionSummary aria-controls="panel-crm-content" id="panel-crm-header">

@@ -825,22 +825,30 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
 
     const resolveVendorItemMapping = (vendorId) => {
         if (vendorId && selectedPRForPO) {
-            const masterItem = allItems.find(i => i.itemcode === selectedPRForPO.itemcode || i.itemname === selectedPRForPO.itemname);
-            if (masterItem) {
-                const vendorItemsForVendor = vendorItems.filter(vi => vi.vendorid === vendorId);
-                const vItem = vendorItemsForVendor.find(vi => vi.itemid === masterItem._id || vi.item === selectedPRForPO.itemname);
-                if (vItem) {
-                    setSelectedItem(vItem._id);
-                    setSelectedItemDetails(vItem);
-                    const price = Number(vItem.price || 0);
-                    const discount = Number(vItem.discount || 0);
-                    const basePrice = price - (price * discount / 100);
-                    setNewItemPrice(basePrice.toFixed(2));
-                } else {
-                    setSelectedItem('');
-                    setSelectedItemDetails(null);
-                    setNewItemPrice('');
+            // Filter vendor items for this vendor
+            const vendorItemsForVendor = vendorItems.filter(vi => vi.vendorid === vendorId);
+
+            // Step 1: Try to find mapping directly by itemid (from PR) or itemname (from PR)
+            let vItem = vendorItemsForVendor.find(vi =>
+                (vi.itemid && vi.itemid === selectedPRForPO.itemid) ||
+                (vi.item && (vi.item === selectedPRForPO.itemname || vi.item === selectedPRForPO.name))
+            );
+
+            // Step 2: Fallback to allItems if direct mapping wasn't resolved
+            if (!vItem && allItems.length > 0) {
+                const masterItem = allItems.find(i => i.itemcode === selectedPRForPO.itemcode || i.itemname === selectedPRForPO.itemname);
+                if (masterItem) {
+                    vItem = vendorItemsForVendor.find(vi => vi.itemid === masterItem._id);
                 }
+            }
+
+            if (vItem) {
+                setSelectedItem(vItem._id);
+                setSelectedItemDetails(vItem);
+                const price = Number(vItem.price || 0);
+                const discount = Number(vItem.discount || 0);
+                const basePrice = price - (price * discount / 100);
+                setNewItemPrice(basePrice.toFixed(2));
             } else {
                 setSelectedItem('');
                 setSelectedItemDetails(null);
@@ -1286,22 +1294,31 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                                         onChange={(event, newValue) => {
                                             setActiveStoreRequestId(newValue ? newValue._id : null);
                                             if (newValue && selectedVendor) {
-                                                // Find matching master item by name/code
-                                                const masterItem = allItems.find(i => i.itemcode === newValue.itemcode || i.itemname === newValue.itemname);
-                                                if (masterItem) {
-                                                    const vItem = filteredItems.find(vi => vi.itemid === masterItem._id || vi.item === newValue.itemname);
-                                                    if (vItem) {
-                                                        setSelectedItem(vItem._id);
-                                                        setSelectedItemDetails(vItem);
-                                                        const price = Number(vItem.price || 0);
-                                                        const discount = Number(vItem.discount || 0);
-                                                        const basePrice = price - (price * discount / 100);
-                                                        setNewItemPrice(basePrice.toFixed(2));
-                                                    } else {
-                                                        alert("Selected vendor does not supply this PR item.");
-                                                        setSelectedItem('');
-                                                        setNewItemPrice('');
+                                                // Try direct match in filteredItems
+                                                let vItem = filteredItems.find(vi => 
+                                                    (vi.itemid && vi.itemid === newValue.itemid) || 
+                                                    (vi.item && (vi.item === newValue.itemname || vi.item === newValue.name))
+                                                );
+                                                
+                                                // Fallback to allItems if direct mapping wasn't resolved
+                                                if (!vItem && allItems.length > 0) {
+                                                    const masterItem = allItems.find(i => i.itemcode === newValue.itemcode || i.itemname === newValue.itemname);
+                                                    if (masterItem) {
+                                                        vItem = filteredItems.find(vi => vi.itemid === masterItem._id);
                                                     }
+                                                }
+
+                                                if (vItem) {
+                                                    setSelectedItem(vItem._id);
+                                                    setSelectedItemDetails(vItem);
+                                                    const price = Number(vItem.price || 0);
+                                                    const discount = Number(vItem.discount || 0);
+                                                    const basePrice = price - (price * discount / 100);
+                                                    setNewItemPrice(basePrice.toFixed(2));
+                                                } else {
+                                                    alert("Selected vendor does not supply this PR item.");
+                                                    setSelectedItem('');
+                                                    setNewItemPrice('');
                                                 }
                                                 setNewItemQty(Number(newValue.quantity || 0) - Number(newValue.orderedQuantity || 0));
                                             } else {

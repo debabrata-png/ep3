@@ -72,10 +72,14 @@ function MarksheetDataEntryPageds() {
     term1Notebook: 0,
     term1Enrichment: 0,
     term1MidExam: 0,
+    term1periodictestabsent: false,
+    term1midexamabsent: false,
     term2PeriodicTest: 0,
     term2Notebook: 0,
     term2Enrichment: 0,
     term2AnnualExam: 0,
+    term2periodictestabsent: false,
+    term2annualexamabsent: false,
     isgrace: false,
   });
 
@@ -147,10 +151,14 @@ function MarksheetDataEntryPageds() {
       term1Notebook: 0,
       term1Enrichment: 0,
       term1MidExam: 0,
+      term1periodictestabsent: false,
+      term1midexamabsent: false,
       term2PeriodicTest: 0,
       term2Notebook: 0,
       term2Enrichment: 0,
       term2AnnualExam: 0,
+      term2periodictestabsent: false,
+      term2annualexamabsent: false,
     });
   };
 
@@ -172,10 +180,15 @@ function MarksheetDataEntryPageds() {
       term1Notebook: 0,
       term1Enrichment: 0,
       term1MidExam: 0,
+      term1periodictestabsent: false,
+      term1midexamabsent: false,
       term2PeriodicTest: 0,
       term2Notebook: 0,
       term2Enrichment: 0,
       term2AnnualExam: 0,
+      term2periodictestabsent: false,
+      term2annualexamabsent: false,
+      isgrace: false,
     });
 
     setMessage({ type: "success", text: "Subject added" });
@@ -418,6 +431,10 @@ function MarksheetDataEntryPageds() {
         term2Notebook: Number(row.term2Notebook) || 0,
         term2Enrichment: Number(row.term2Enrichment) || 0,
         term2AnnualExam: Number(row.term2AnnualExam) || 0,
+        term1periodictestabsent: row.term1periodictestabsent?.toString().toLowerCase() === 'true' || row.term1periodictestabsent === true || false,
+        term1midexamabsent: row.term1midexamabsent?.toString().toLowerCase() === 'true' || row.term1midexamabsent === true || false,
+        term2periodictestabsent: row.term2periodictestabsent?.toString().toLowerCase() === 'true' || row.term2periodictestabsent === true || false,
+        term2annualexamabsent: row.term2annualexamabsent?.toString().toLowerCase() === 'true' || row.term2annualexamabsent === true || false,
         isgrace: row.isgrace?.toLowerCase() === 'yes' || row.isgrace === true || false,
       });
     });
@@ -729,6 +746,19 @@ function MarksheetDataEntryPageds() {
                         onChange={(e) => setSubjectForm({ ...subjectForm, term1PeriodicTest: Number(e.target.value) })}
                         inputProps={{ min: 0, max: 10 }}
                       />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={subjectForm.term1periodictestabsent || false}
+                            onChange={(e) => setSubjectForm({ ...subjectForm, term1periodictestabsent: e.target.checked })}
+                            color="error"
+                          />
+                        }
+                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                        labelPlacement="end"
+                        sx={{ m: 0 }}
+                      />
                     </Grid>
                     <Grid item xs={6} md={3}>
                       <TextField
@@ -762,6 +792,19 @@ function MarksheetDataEntryPageds() {
                         onChange={(e) => setSubjectForm({ ...subjectForm, term1MidExam: Number(e.target.value) })}
                         inputProps={{ min: 0, max: 80 }}
                       />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={subjectForm.term1midexamabsent || false}
+                            onChange={(e) => setSubjectForm({ ...subjectForm, term1midexamabsent: e.target.checked })}
+                            color="error"
+                          />
+                        }
+                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                        labelPlacement="end"
+                        sx={{ m: 0 }}
+                      />
                     </Grid>
 
                     <Grid item xs={12}>
@@ -776,6 +819,19 @@ function MarksheetDataEntryPageds() {
                         value={subjectForm.term2PeriodicTest}
                         onChange={(e) => setSubjectForm({ ...subjectForm, term2PeriodicTest: Number(e.target.value) })}
                         inputProps={{ min: 0, max: 10 }}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={subjectForm.term2periodictestabsent || false}
+                            onChange={(e) => setSubjectForm({ ...subjectForm, term2periodictestabsent: e.target.checked })}
+                            color="error"
+                          />
+                        }
+                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                        labelPlacement="end"
+                        sx={{ m: 0 }}
                       />
                     </Grid>
                     <Grid item xs={6} md={3}>
@@ -809,6 +865,19 @@ function MarksheetDataEntryPageds() {
                         value={subjectForm.term2AnnualExam}
                         onChange={(e) => setSubjectForm({ ...subjectForm, term2AnnualExam: Number(e.target.value) })}
                         inputProps={{ min: 0, max: 80 }}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={subjectForm.term2annualexamabsent || false}
+                            onChange={(e) => setSubjectForm({ ...subjectForm, term2annualexamabsent: e.target.checked })}
+                            color="error"
+                          />
+                        }
+                        label={<Typography variant="caption" sx={{ fontSize: '0.6rem' }}>Absent</Typography>}
+                        labelPlacement="end"
+                        sx={{ m: 0 }}
                       />
                       <Box sx={{ mt: 1 }}>
                         <FormControlLabel

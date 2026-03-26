@@ -43,8 +43,8 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB') : '';
  */
 const GRNTemplate2 = ({ poData = {}, items = [], grnNumber, extraData = {}, instituteName, instituteAddress, institutePhone }) => {
     const grandTotal = items.reduce((sum, item) => {
-        const price = Number(item.unitPrice || 0);
-        const qty = Number(item.grnQuantity ?? item.quantity ?? 0);
+        const price = Number(item.price || item.unitPrice || 0);
+        const qty = Number(item.grnQuantity ?? item.deliveredQuantity ?? item.quantity ?? 0);
         return sum + (price * qty);
     }, 0);
 
@@ -129,7 +129,7 @@ const GRNTemplate2 = ({ poData = {}, items = [], grnNumber, extraData = {}, inst
                 </thead>
                 <tbody>
                     {items.map((item, idx) => {
-                        const price = Number(item.unitPrice || 0);
+                        const price = Number(item.price || item.unitPrice || 0);
                         const qty = Number(item.grnQuantity ?? item.deliveredQuantity ?? item.quantity ?? 0);
                         const total = (price * qty).toFixed(2);
                         return (
@@ -137,7 +137,7 @@ const GRNTemplate2 = ({ poData = {}, items = [], grnNumber, extraData = {}, inst
                                 <td style={tdStyle}>{idx + 1}</td>
                                 <td style={tdStyle}>{item.category || item.sectionname || '-'}</td>
                                 <td style={tdStyle}>{item.itemname || '-'}</td>
-                                <td style={tdStyle}>{item.type || item.itemmake || item.make || '-'}</td>
+                                <td style={tdStyle}>{item.vendor || item.itemmake || item.make || item.type || '-'}</td>
                                 <td style={tdStyle}>{qty}</td>
                                 <td style={tdStyle}>{item.unit || '-'}</td>
                                 <td style={tdStyle}>{price > 0 ? price.toFixed(2) : '-'}</td>

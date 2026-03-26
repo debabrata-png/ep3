@@ -397,11 +397,11 @@ const BulkMarksEntryPageds = () => {
           const markEntry = marksData[key];
 
           if (markEntry && (
-            markEntry.value !== undefined && markEntry.value !== '' || 
-            markEntry.isgrace || 
-            markEntry.isabsent || 
-            markEntry.teacherremarks || 
-            markEntry.promotedclass || 
+            markEntry.value !== undefined && markEntry.value !== '' ||
+            markEntry.isgrace ||
+            markEntry.isabsent ||
+            markEntry.teacherremarks ||
+            markEntry.promotedclass ||
             markEntry.newsessiondate
           )) {
             marksArray.push({
@@ -784,8 +784,8 @@ const BulkMarksEntryPageds = () => {
                     const value = markEntry.value;
                     const isGrace = markEntry.isgrace;
                     const isAbsent = markEntry.isabsent;
-                    const maxMarks = componentname.includes('presentdays') 
-                      ? (Number(workingDaysValue) || (subject.maxmarks || 500)) 
+                    const maxMarks = componentname.includes('presentdays')
+                      ? (Number(workingDaysValue) || (subject.maxmarks || 500))
                       : subject.maxmarks;
                     const isInvalid = value !== '' && (Number(value) < 0 || Number(value) > maxMarks);
 

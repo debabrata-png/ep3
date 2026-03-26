@@ -68,6 +68,12 @@ export function menusecurity() {
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Gateway Security" />}
                     </ListItem>
+                    <ListItem button component={RouterLink} to="/role/store-manual-gate-pass">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Gate Pass" />}
+                    </ListItem>
                 </AccordionDetails>
             </Accordion>
             <Accordion>

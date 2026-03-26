@@ -653,18 +653,22 @@ const StudentMarksheetViewPageKGds = () => {
       gT1Obt += parseFloat(t1Tot);
       gT2Obt += parseFloat(t2Tot);
 
-      const t2AnnDisplay = isabsent ? 'AB' : (isGrace ? `${t2Ann}*` : t2Ann);
-      const t2TotDisplay = isabsent ? 'AB' : (isGrace ? `${t2Tot}*` : t2Tot);
-      const t1TotDisplay = t1Tot;
+      const t1PTDisplay = sub.term1periodictestabsent ? 'AB' : t1PT;
+      const t1MidDisplay = sub.term1midexamabsent ? 'AB' : t1Mid;
+      const t1TotDisplay = (sub.term1periodictestabsent && sub.term1midexamabsent) ? 'AB' : t1Tot;
+
+      const t2PTDisplay = sub.term2periodictestabsent ? 'AB' : t2PT;
+      const t2AnnDisplay = sub.term2annualexamabsent ? 'AB' : (isGrace ? `${t2Ann}*` : t2Ann);
+      const t2TotDisplay = (sub.term2periodictestabsent && sub.term2annualexamabsent) ? 'AB' : (isGrace ? `${t2Tot}*` : t2Tot);
 
       const rowVals = [
-        sub.term1periodictestabsent ? 'AB' : t1PT,
+        t1PTDisplay,
         t1NB,
         t1Enr,
-        sub.term1midexamabsent ? 'AB' : t1Mid,
+        t1MidDisplay,
         t1TotDisplay,
         t1Grade,
-        sub.term2periodictestabsent ? 'AB' : t2PT,
+        t2PTDisplay,
         t2NB,
         t2Enr,
         t2AnnDisplay,
@@ -746,7 +750,7 @@ const StudentMarksheetViewPageKGds = () => {
       { label: "Marks Obtained", v1: Number(gT1Obt.toFixed(1)), v2: Number(gT2Obt.toFixed(1)) },
       { label: "Percentage", v1: `${p1}%`, v2: `${p2}%` },
       { label: "Overall Grade", v1: calculateOverallGrade(p1), v2: calculateOverallGrade(p2) },
-      { label: "Rank", v1: rank, v2: rank }
+      { label: "Rank", v1: pdfData.term1Rank || '-', v2: pdfData.term2Rank || '-' }
     ];
 
     const labelW = 120;

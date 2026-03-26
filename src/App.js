@@ -88,6 +88,8 @@ import StudentMarksheetViewPage1to5ds from './pages/StudentMarksheetViewPage1to5
 import StudentMarksheetViewPage6to8ds from './pages/StudentMarksheetViewPage6to8ds';
 import StudentMarksheetViewPage9to10ds from './pages/StudentMarksheetViewPage9to10ds';
 import RankReportds from './pages/RankReportds';
+import RankAuditTool from './pages/RankAuditTool';
+
 
 import Dashmncas11 from './pages/Dashmncas11';
 import ProgramCounselords from './pages/ProgramCounselords';
@@ -1442,12 +1444,17 @@ import FacultyRequestStatusds2 from './pages/FacultyRequestStatusds2';
 import FacultyRequestApprovalds2 from './pages/FacultyRequestApprovalds2';
 import StoreUserAccessds2 from './pages/StoreUserAccessds2';
 import StoreManagerDashboardds2 from './pages/StoreManagerDashboardds2';
+import StoreMasterDatads2 from './pages/StoreMasterDatads2';
+import StoreGatePassds2 from './pages/StoreGatePassds2';
 import PurchaseOrderDashboardds2 from './pages/PurchaseOrderDashboardds2';
 import DeliveryDashboardds2 from './pages/DeliveryDashboardds2';
-import GatewaySecurityDashboard2 from './pages/GatewaySecurityDashboard2';
+import GatewaySecurityDashboard2 from './pages/GatewaySecurityDashboardds2';
 import FinancialAllocationDashboardds2 from './pages/FinancialAllocationDashboardds2';
 import QualityInspectorDashboardds2 from './pages/QualityInspectorDashboardds2';
+import ManualQualityCheckds2 from './pages/ManualQualityCheckds2';
 import LocalPurchaseManagerds2 from './pages/LocalPurchaseManagerds2';
+import LocalPurchaseds2 from './pages/LocalPurchaseds2';
+import LocalGRNds2 from './pages/LocalGRNds2';
 import ApprovalConfigurationds2 from './pages/ApprovalConfigurationds2';
 import PurchaseCellInventoryds2 from './pages/PurchaseCellInventoryds2';
 import DashboardPurchaseds2 from './pages/DashboardPurchaseds2';
@@ -1563,7 +1570,10 @@ function App() {
                                         <Route path="/role/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
                                         <Route path="/role/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/quality-inspector2" element={<RoleLayout><QualityInspectorDashboardds2 /></RoleLayout>} />
+                                         <Route path="/role/manual-quality-check2" element={<RoleLayout><ManualQualityCheckds2 /></RoleLayout>} />
                                         <Route path="/role/local-purchase-manager2" element={<LocalPurchaseManagerds2 />} />
+                                        <Route path="/role/local-purchase2" element={<RoleLayout><LocalPurchaseds2 /></RoleLayout>} />
+                                        <Route path="/role/local-grn2" element={<RoleLayout><LocalGRNds2 /></RoleLayout>} />
                                         <Route path="/role/staff-profile2" element={<RoleLayout><StaffProfileds2 /></RoleLayout>} />
                                         <Route path="/role/delivery-type-master2" element={<RoleLayout><DeliveryTypeMasterds2 /></RoleLayout>} />
                                         <Route path="/role/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
@@ -1575,6 +1585,8 @@ function App() {
                                         <Route path="/FacultyRequestApprovalds2" element={<RoleLayout><FacultyRequestApprovalds2 /></RoleLayout>} />
                                         <Route path="/faculty-request-status2" element={<RoleLayout><FacultyRequestStatusds2 /></RoleLayout>} />
                                         <Route path="/store-manager-dashboard2" element={<RoleLayout><StoreManagerDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/store-master-data" element={<RoleLayout><StoreMasterDatads2 /></RoleLayout>} />
+                                        <Route path="/role/store-manual-gate-pass" element={<RoleLayout><StoreGatePassds2 /></RoleLayout>} />
                                         <Route path="/purchase-order-dashboard2" element={<RoleLayout><PurchaseOrderDashboardds2 /></RoleLayout>} />
                                         <Route path="/delivery-dashboard2" element={<RoleLayout><DeliveryDashboardds2 /></RoleLayout>} />
                                         <Route path="/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
@@ -1586,7 +1598,9 @@ function App() {
                                         <Route path="/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
                                         <Route path="/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
                                         <Route path="/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
-                                        <Route path="/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
+                                         <Route path="/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
+                                        <Route path="/local-purchase2" element={<RoleLayout><LocalPurchaseds2 /></RoleLayout>} />
+                                        <Route path="/local-grn2" element={<RoleLayout><LocalGRNds2 /></RoleLayout>} />
                                         <Route path="/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
                                         <Route path="/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
                                         {/* ----------------------------------------------------------------------- */}
@@ -2483,6 +2497,8 @@ function App() {
                                         <Route path="/dashmnn97admin" element={<Dashmnn97admin />} />
                                         <Route path="/dashmnn98" element={<Dashmnn98 />} />
                                         <Route path="/dashmnn98admin" element={<Dashmnn98admin />} />
+                                        <Route path="/rankaudittool" element={<RankAuditTool />} />
+
 
 
                                         <Route path="/dashmnn61" element={<Dashmnn61 />} />
