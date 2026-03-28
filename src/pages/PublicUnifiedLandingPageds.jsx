@@ -47,6 +47,7 @@ const PublicUnifiedLandingPageds = () => {
     const [categories, setCategories] = useState([]);
     const [programs, setPrograms] = useState([]);
     const [sources, setSources] = useState([]);
+    const [logo, setLogo] = useState("");
 
     const [formData, setFormData] = useState({
         name: "",
@@ -69,7 +70,10 @@ const PublicUnifiedLandingPageds = () => {
             const decrypted = decryptData(encryptedData);
             if (decrypted) {
                 setDecryptedData(decrypted);
-                fetchInitialData(decrypted.colid);
+                if (decrypted.logo) {
+                    setLogo(decrypted.logo);
+                }
+                fetchInitialData(decrypted.colid, decrypted.logo);
             } else {
                 showSnackbar("Invalid link. Please contact support.", "error");
             }
@@ -92,14 +96,25 @@ const PublicUnifiedLandingPageds = () => {
         setLoading(false);
     };
 
-    const fetchInitialData = async (colid) => {
+    const fetchInitialData = async (colid, existingLogo) => {
         try {
-            const [qualRes, sourceRes] = await Promise.all([
+            const promises = [
                 ep1.get('/api/v2/geteducationqualificationsag1', { params: { colid } }),
                 ep1.get('/api/v2/getallsourcesds', { params: { colid } })
-            ]);
-            setQualifications(qualRes.data.data || []);
-            setSources(sourceRes.data.data || []);
+            ];
+
+            // Only fetch logo if not provided in URL
+            if (!existingLogo) {
+                promises.push(ep1.get('/api/v2/checkinstitutionsds', { params: { colid } }));
+            }
+
+            const results = await Promise.all(promises);
+            setQualifications(results[0].data.data || []);
+            setSources(results[1].data.data || []);
+
+            if (!existingLogo && results[2]?.data.data?.institutions?.[0]) {
+                setLogo(results[2].data.data.institutions[0].logo || "");
+            }
         } catch (err) {
             console.error("Error fetching initial data:", err);
         }
@@ -257,20 +272,55 @@ const PublicUnifiedLandingPageds = () => {
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: 6 }}>
+        <Box sx={{
+            minHeight: '100vh',
+            py: 6,
+            backgroundImage: landingPage.page_content?.image_url ? `linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url(${landingPage.page_content.image_url})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            bgcolor: '#f8fafc'
+        }}>
             <Container maxWidth="lg">
-                <Paper elevation={0} sx={{ p: 6, mb: 4, textAlign: 'center', background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', color: 'white', borderRadius: 4, boxShadow: "0 10px 30px rgba(21, 101, 192, 0.3)" }}>
+                <Paper elevation={0} sx={{
+                    p: 6,
+                    mb: 4,
+                    textAlign: 'center',
+                    background: landingPage.page_content?.image_url ? 'rgba(30, 41, 59, 0.6)' : 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    backdropFilter: landingPage.page_content?.image_url ? 'blur(10px)' : 'none',
+                    color: 'white',
+                    borderRadius: 4,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                    border: landingPage.page_content?.image_url ? '1px solid rgba(255,255,255,0.1)' : 'none'
+                }}>
+                    {logo && (
+                        <Box sx={{ mb: 3 }}>
+                            <img
+                                src={logo}
+                                alt="Institution Logo"
+                                style={{
+                                    maxHeight: '80px',
+                                    maxWidth: '200px',
+                                    backgroundColor: 'white',
+                                    padding: '10px',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                }}
+                            />
+                        </Box>
+                    )}
                     <Typography variant="h3" gutterBottom sx={{ fontWeight: 800 }}>{landingPage.page_content?.headline || "Welcome"}</Typography>
                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 500, opacity: 0.9 }}>{landingPage.page_content?.subheadline || ""}</Typography>
                     <Typography variant="body1" sx={{ mt: 2, maxWidth: 800, mx: "auto", opacity: 0.9 }}>{landingPage.page_content?.description || ""}</Typography>
-                    {landingPage.page_content?.image_url && (
-                        <Box sx={{ mt: 4 }}>
-                            <img src={landingPage.page_content.image_url} alt="Landing" style={{ maxWidth: '100%', borderRadius: '16px', boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }} />
-                        </Box>
-                    )}
                 </Paper>
 
-                <Paper elevation={0} sx={{ p: 6, borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <Paper elevation={0} sx={{
+                    p: 6,
+                    borderRadius: 4,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    bgcolor: landingPage.page_content?.image_url ? 'rgba(255, 255, 255, 0.95)' : 'white'
+                }}>
                     <Typography variant="h4" gutterBottom sx={{ color: "#1565c0", fontWeight: 700, textAlign: "center" }}>
                         {landingPage.page_content?.cta_button_text || "Apply Now"}
                     </Typography>

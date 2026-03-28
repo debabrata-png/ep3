@@ -164,7 +164,8 @@ const QualityInspectorDashboardds2 = () => {
                 paymentDetails,
                 corporateDirectorName, executiveName,
                 documentLink,
-                returnType
+                returnType,
+                storeName: currentGRN.storeName || currentGRN.storename || ''
             };
             await ep1.post('/api/v2/addqualitycheckds2', payload);
             alert('Inspection submitted successfully.');
@@ -325,6 +326,7 @@ const QualityInspectorDashboardds2 = () => {
                             <TextField fullWidth select label="Return Category" size="small" value={returnType} onChange={(e) => setReturnType(e.target.value)}>
                                 <MenuItem value="RGP">RGP (Returnable)</MenuItem>
                                 <MenuItem value="NRGP">NRGP (Non-Returnable)</MenuItem>
+                                <MenuItem value="Institution Movement">Institution Movement</MenuItem>
                             </TextField>
                         </Grid>
 

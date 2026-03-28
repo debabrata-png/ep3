@@ -137,6 +137,20 @@ export function menuitemsfees() {
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counter Fees payment" />}
                     </ListItem>
 
+                    <ListItem button component={RouterLink} to="/challan-payment">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan Payment" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/challan-config">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan Config" />}
+                    </ListItem>
+
                     <ListItem button component={RouterLink} to="/feesummaryreport">
                         <ListItemIcon>
                             <PersonIcon />

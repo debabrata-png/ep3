@@ -508,22 +508,21 @@ return '';
     
             //const title=titleref.current.value;
             const academicyear=user.academicyear;
-const student=user.student;
-const regno=user.regno;
-const feegroup=user.feegroup;
-const semester=user.semester;
-const feeeitem=user.feeitem;
-const feecategory=user.feecategory;
-const classdate=new Date(user.classdate);
-const amount=user.amount;
-const paymode=user.paymode;
-const paydetails=user.paydetails;
-const installment=user.installment;
-const status=user.status;
+            const student=user.student;
+            const regno=user.regno;
+            const feegroup=user.feegroup;
+            const semester=user.semester;
+            const feeeitem=user.feeitem;
+            const feecategory=user.feecategory;
+            const classdate=new Date(user.classdate);
+            const amount=user.amount;
+            const concession=user.concession;
+            const balance=user.balance;
+            const paymode=user.paymode;
+            const paydetails=user.paydetails;
+            const installment=user.installment;
+            const status=user.status;
 
-            //alert(coursetitle + ' - ' + studentscompleted);
-             
-     
             const response =await ep1.get('/api/v2/updateledgerstudbyfac', {
             params: {
             id: user._id,
@@ -532,18 +531,20 @@ const status=user.status;
             name: user.name,
             colid: colid,
             academicyear:academicyear,
-student:student,
-regno:regno,
-feegroup:feegroup,
-semester:semester,
-feeeitem:feeeitem,
-feecategory:feecategory,
-classdate:classdate,
-amount:amount,
-paymode:paymode,
-paydetails:paydetails,
-installment:installment,
-status:status,
+            student:student,
+            regno:regno,
+            feegroup:feegroup,
+            semester:semester,
+            feeeitem:feeeitem,
+            feecategory:feecategory,
+            classdate:classdate,
+            amount:amount,
+            concession:concession,
+            balance:balance,
+            paymode:paymode,
+            paydetails:paydetails,
+            installment:installment,
+            status:status,
 
             status1:'Submitted',
             comments:''

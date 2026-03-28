@@ -328,14 +328,17 @@ const StudentMarksEntry11ds = () => {
             subjectcode: subject.subjectcode,
             subjectname: subject.subjectname,
             user: global1.user,
-            [field]: value
         };
 
         if (field === 'isabsent') {
+            // ONLY set the specific absent field for the current component — do NOT set generic isabsent
             const specificAbsentField = componentToAbsentField[component];
             if (specificAbsentField) {
                 updateData[specificAbsentField] = value;
             }
+            // Do NOT set updateData.isabsent = value here
+        } else {
+            updateData[field] = value;
         }
 
         setMarksMap(prev => ({
@@ -729,7 +732,18 @@ const StudentMarksEntry11ds = () => {
                                                         control={
                                                             <Switch
                                                                 size="small"
-                                                                checked={getVal(student.regno, subject.subjectcode, 'isabsent') || false}
+                                                                checked={(() => {
+                                                                    const componentToAbsentField = {
+                                                                        'unitpremidobtain': 'unitpremidabsent',
+                                                                        'unitpostmidobtain': 'unitpostmidabsent',
+                                                                        'halfyearlythobtain': 'halfyearlythabsent',
+                                                                        'halfyearlypracticalobtain': 'halfyearlypracticalabsent',
+                                                                        'annualthobtain': 'annualthabsent',
+                                                                        'annualpracticalobtain': 'annualpracticalabsent'
+                                                                    };
+                                                                    const specificField = componentToAbsentField[component];
+                                                                    return getVal(student.regno, subject.subjectcode, specificField) || false;
+                                                                })()}
                                                                 onChange={(e) => handleMarkChange(student.regno, subject, 'isabsent', e.target.checked)}
                                                                 color="error"
                                                             />

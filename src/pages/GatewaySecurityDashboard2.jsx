@@ -27,11 +27,31 @@ const GatewaySecurityDashboard2 = () => {
     const [dcInvoiceNo, setDcInvoiceNo] = useState('');
     const [remarks, setRemarks] = useState('');
 
+    // Extra dynamic fields for Outward
+    const [outwardCategory, setOutwardCategory] = useState('');
+    const [shiftFrom, setShiftFrom] = useState('');
+    const [shiftTo, setShiftTo] = useState('');
+    const [totalTrip, setTotalTrip] = useState('');
+    const [purpose, setPurpose] = useState('');
+    const [authorizedBy, setAuthorizedBy] = useState('');
+    const [expectedDateOfReturn, setExpectedDateOfReturn] = useState('');
+    const [materialTakenBy, setMaterialTakenBy] = useState('');
+    
+    const [storeUsers, setStoreUsers] = useState([]);
+
     useEffect(() => {
         if (tabValue === 0) fetchApprovedPOs();
         if (tabValue === 1) fetchReturns();
         if (tabValue === 2) fetchGatewayPasses();
+        fetchStoreUsers();
     }, [tabValue]);
+
+    const fetchStoreUsers = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
+            setStoreUsers(res.data.data || []);
+        } catch (e) { console.error("Error fetching Store Users", e); }
+    };
 
     const fetchApprovedPOs = async () => {
         setLoading(true);
@@ -77,14 +97,15 @@ const GatewaySecurityDashboard2 = () => {
                 const returnedQty = Number(d.return || d.returned || 0);
                 if (returnedQty > 0) {
                     if (!groupedReturns[d.poid]) {
-                        groupedReturns[d.poid] = { poid: d.poid, items: [] };
+                        groupedReturns[d.poid] = { poid: d.poid, storeName: d.storeName || '', vendor: d.partyName || d.vendorName || '', items: [] };
                     }
                     // Aggregate returns if multiple deliveries for same item
                     const extItem = groupedReturns[d.poid].items.find(i => i.item === d.item);
                     if (extItem) {
                         extItem.returnQty += returnedQty;
+                        if (!extItem.returnType || extItem.returnType === 'N/A') extItem.returnType = d.returnType || 'N/A';
                     } else {
-                        groupedReturns[d.poid].items.push({ item: d.item, itemcode: d.itemcode, returnQty: returnedQty });
+                        groupedReturns[d.poid].items.push({ item: d.item, itemcode: d.itemcode, returnQty: returnedQty, returnType: d.returnType || 'N/A' });
                     }
                 }
             });
@@ -96,14 +117,15 @@ const GatewaySecurityDashboard2 = () => {
                     const rejectedQty = Number(i.rejectedQuantity || 0);
                     if (rejectedQty > 0) {
                         if (!groupedReturns[qc.poid]) {
-                            groupedReturns[qc.poid] = { poid: qc.poid, items: [] };
+                            groupedReturns[qc.poid] = { poid: qc.poid, storeName: qc.storeName || '', vendor: qc.partyName || qc.vendorName || '', items: [] };
                         }
                         const extItem = groupedReturns[qc.poid].items.find(existing => existing.item === i.itemname);
                         if (extItem) {
                             extItem.returnQty += rejectedQty;
+                            if (!extItem.returnType || extItem.returnType === 'N/A') extItem.returnType = qc.returnType;
                         } else {
                             // Map the items correctly based on quality checks
-                            groupedReturns[qc.poid].items.push({ item: i.itemname, itemcode: i.itemid, returnQty: rejectedQty });
+                            groupedReturns[qc.poid].items.push({ item: i.itemname, itemcode: i.itemid, returnQty: rejectedQty, returnType: qc.returnType || 'N/A' });
                         }
                     }
                 });
@@ -145,17 +167,38 @@ const GatewaySecurityDashboard2 = () => {
         setDcInvoiceNo('');
         setRemarks('');
 
+        // Clear new fields
+        setShiftFrom(po.storeName || '');
+        setShiftTo('');
+        setTotalTrip('');
+        setPurpose('');
+        setAuthorizedBy('');
+        setExpectedDateOfReturn('');
+        setMaterialTakenBy('');
+
         if (isOutward) {
+            // Determine primary category by inspecting items
+            let primaryType = 'NRGP'; 
+            if (po.items && po.items.length > 0) {
+                const types = po.items.map(i => i.returnType).filter(Boolean);
+                if (types.includes('Institution Movement')) primaryType = 'Institution Movement';
+                else if (types.includes('RGP')) primaryType = 'RGP';
+                else if (types.includes('NRGP')) primaryType = 'NRGP';
+            }
+            setOutwardCategory(primaryType);
+
             const items = po.items.map(i => ({
                 itemid: i.itemcode,
                 itemname: i.item,
                 unit: 'Nos',
                 expectedQuantity: i.returnQty,
-                deliveredQuantity: i.returnQty
+                deliveredQuantity: i.returnQty,
+                remarks: i.returnType || ''
             }));
             setPoItems(items);
             setOpenPassModal(true);
         } else {
+            setOutwardCategory('');
             try {
                 const res = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}`);
                 const rawItems = res.data.data.poItems || [];
@@ -234,7 +277,7 @@ const GatewaySecurityDashboard2 = () => {
             passType,
             colid: global1.colid,
             poid: selectedPO.poid,
-            vendorName: selectedPO.vendor,
+            vendorName: selectedPO.vendor || selectedPO.partyName || selectedPO.vendorName || '(Returns)',
             vendorAddress: '', // Add mapping if available
             vehicleNo,
             lrNo,
@@ -244,6 +287,18 @@ const GatewaySecurityDashboard2 = () => {
             dcInvoiceNo,
             billAmount: selectedPO.netprice || selectedPO.price,
             remarks,
+            
+            // Extracted outward categories
+            returnCategory: outwardCategory,
+            storeName: selectedPO.storename || selectedPO.storeName || '',
+            shiftFrom,
+            shiftTo,
+            totalTrip,
+            purpose,
+            authorizedBy,
+            expectedDateOfReturn,
+            materialTakenBy,
+
             items: poItems.filter(i => Number(i.deliveredQuantity) > 0) // Only include items with actual delivery
         };
 
@@ -263,8 +318,193 @@ const GatewaySecurityDashboard2 = () => {
         }
     };
 
+    const printIMPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        const itemsList = pass.items && pass.items.length > 0
+            ? pass.items.map(i => `${i.itemname} (${i.deliveredQuantity})`).join(', ')
+            : '____________________';
+
+        printWindow.document.write(`
+            <html><head><title>Internal Material Shifting Gate-Pass</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 40px; }
+                .title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+                .subtitle { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 40px; }
+                .row { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; font-size: 16px; }
+                .content { font-size: 18px; line-height: 2; margin-top: 40px; font-weight: bold; }
+                .fill { border-bottom: 1px dashed #000; padding: 0 10px; font-weight: normal; }
+                .signature-section { display: flex; justify-content: space-between; margin-top: 80px; font-weight: bold; font-size: 18px; }
+            </style>
+            </head><body>
+            <div class="title">Internal Material Shifting</div>
+            <div class="subtitle">Gate-Pass</div>
+            
+            <div class="row">
+                <div>Gate Pass No.- <span class="fill">${pass.passNumber}</span></div>
+                <div>Date: <span class="fill">${new Date(pass.createdAt).toLocaleDateString('en-GB')}</span><br/><br/>
+                     Time: <span class="fill">${new Date(pass.createdAt).toLocaleTimeString('en-US')}</span></div>
+            </div>
+
+            <div class="content">
+                Kindly allow this <br/>
+                Material <span class="fill">${itemsList}</span> to <br/>
+                Shift from <span class="fill">${pass.shiftFrom || '____________________'}</span> to <span class="fill">${pass.shiftTo || '____________________'}</span><br/><br/>
+                Total trip <span class="fill">${pass.totalTrip || '____________________'}</span> Vehicle number <span class="fill">${pass.vehicleNo || '____________________'}</span>
+            </div>
+
+            <div class="signature-section">
+                <div>Signature of HOD</div>
+                <div>Security Sign.</div>
+            </div>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
+    const printNRGPPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html><head><title>OUTWARD-NON-RETURNABLE MATERIALS REGISTER</title>
+            <style>
+                @page { size: landscape; }
+                body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+                h3 { text-align: center; font-size: 14px; text-decoration: underline; margin-bottom: 5px; text-transform: uppercase; }
+                .header-row { font-weight: bold; font-size: 13px; margin-bottom: 10px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+                th { background-color: #f5f5f5; font-size: 11px; }
+                .blank-col { color: #fff; } /* To leave space for physical signature */
+            </style>
+            </head><body>
+            <h3>OUTWARD-NON-RETURNABLE MATERIALS REGISTER</h3>
+            <div class="header-row">Name of the University: <span style="font-weight:normal;">CMR University</span></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date/Time</th>
+                        <th>Gate Pass.No</th>
+                        <th>Description of Items</th>
+                        <th>UoM</th>
+                        <th>Quantity</th>
+                        <th>Vendor Name & Address</th>
+                        <th>Stores I/C Name & Sign</th>
+                        <th>Authorized By</th>
+                        <th>Material Taken by Name & sign</th>
+                        <th>Security Signature</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${pass.items.map((item, idx) => `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${new Date(pass.createdAt).toLocaleString('en-GB')}</td>
+                        <td>${pass.passNumber}</td>
+                        <td>${item.itemname}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.deliveredQuantity}</td>
+                        <td>${pass.vendorName || ''}</td>
+                        <td><br/><br/></td>
+                        <td>${pass.authorizedBy || ''}</td>
+                        <td>${pass.materialTakenBy || ''}</td>
+                        <td><br/><br/></td>
+                        <td>${item.remarks || pass.remarks || ''}</td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
+    const printRGPPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html><head><title>OUTWARD-RETURNABLE MATERIALS REGISTER</title>
+            <style>
+                @page { size: landscape; }
+                body { font-family: Arial, sans-serif; margin: 20px; font-size: 11px; }
+                h3 { text-align: center; font-size: 14px; text-decoration: underline; margin-bottom: 5px; text-transform: uppercase; }
+                .header-row { font-weight: bold; font-size: 13px; margin-bottom: 10px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #333; padding: 6px; text-align: center; }
+                th { background-color: #f5f5f5; font-size: 10px; }
+            </style>
+            </head><body>
+            <h3>OUTWARD-RETURNABLE MATERIALS REGISTER</h3>
+            <div class="header-row">Name of the University: <span style="font-weight:normal;">CMR University</span></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date/Time</th>
+                        <th>Gate Pass.No</th>
+                        <th>Description of Items</th>
+                        <th>Units</th>
+                        <th>Quantity</th>
+                        <th>Party Name & Address</th>
+                        <th>Stores I/C Name & Sign</th>
+                        <th>Authorized By</th>
+                        <th>Material Taken by Name & sign</th>
+                        <th>Purpose</th>
+                        <th>Security Signature</th>
+                        <th>Expect.Date of Return</th>
+                        <th>Return Date</th>
+                        <th>Security Signature</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${pass.items.map((item, idx) => `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${new Date(pass.createdAt).toLocaleString('en-GB')}</td>
+                        <td>${pass.passNumber}</td>
+                        <td>${item.itemname}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.deliveredQuantity}</td>
+                        <td>${pass.vendorName || ''}</td>
+                        <td><br/><br/></td>
+                        <td>${pass.authorizedBy || ''}</td>
+                        <td>${pass.materialTakenBy || ''}</td>
+                        <td>${pass.purpose || ''}</td>
+                        <td><br/><br/></td>
+                        <td>${pass.expectedDateOfReturn ? new Date(pass.expectedDateOfReturn).toLocaleDateString('en-GB') : ''}</td>
+                        <td></td>
+                        <td></td>
+                        <td>${item.remarks || pass.remarks || ''}</td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
+    const handlePrintPass = (pass) => {
+        if (pass.passType === 'Inward') {
+            return alert("Inward Passes don't have a designated outbound format.");
+        }
+        
+        if (pass.returnCategory === 'Institution Movement') {
+            printIMPass(pass);
+        } else if (pass.returnCategory === 'RGP') {
+            printRGPPass(pass);
+        } else {
+            // Default to NRGP register format
+            printNRGPPass(pass);
+        }
+    };
+
     const poCols = [
         { field: 'poid', headerName: 'PO Number', width: 200 },
+        { field: 'storename', headerName: 'Store Name', width: 200 }, // Added Store Name
         { field: 'vendor', headerName: 'Vendor', width: 200 },
         { field: 'deliveryType', headerName: 'Delivery Type', width: 150 },
         { field: 'postatus', headerName: 'Status', width: 150 },
@@ -279,12 +519,19 @@ const GatewaySecurityDashboard2 = () => {
 
     const passCols = [
         { field: 'passNumber', headerName: 'Pass No.', width: 150 },
-        { field: 'poid', headerName: 'PO No.', width: 150 },
-        { field: 'passType', headerName: 'Type', width: 120 },
-        { field: 'vehicleNo', headerName: 'Vehicle No', width: 150 },
-        { field: 'deliveryPersonName', headerName: 'Delivery Person', width: 180 },
-        { field: 'securityName', headerName: 'Security Officer', width: 180 },
-        { field: 'createdAt', headerName: 'Date', width: 180, valueFormatter: (params) => new Date(params.value).toLocaleString() }
+        { field: 'poid', headerName: 'PO No.', width: 140 },
+        { field: 'storeName', headerName: 'Store Name', width: 140 },
+        { field: 'passType', headerName: 'Type', width: 110 },
+        { field: 'returnCategory', headerName: 'Category', width: 160 },
+        { field: 'deliveryPersonName', headerName: 'Delivery Person', width: 160 },
+        { field: 'createdAt', headerName: 'Date', width: 160, valueFormatter: (params) => new Date(params.value).toLocaleString() },
+        {
+            field: 'actions', headerName: 'Action', width: 120, renderCell: (params) => (
+                <Button variant="outlined" size="small" onClick={() => handlePrintPass(params.row)}>
+                    Print
+                </Button>
+            )
+        }
     ];
 
     return (
@@ -307,12 +554,13 @@ const GatewaySecurityDashboard2 = () => {
                     <DataGrid
                         rows={returnsList}
                         columns={[
+                            { field: 'storeName', headerName: 'Store Name', width: 140 },
                             { field: 'poid', headerName: 'PO #', width: 180 },
                             {
                                 field: 'itemsDesc', headerName: 'Pending Return Items', width: 400,
                                 valueGetter: (params) => {
                                     if (!params.row || !params.row.items) return '';
-                                    return params.row.items.map(i => `${i.item} (Qty: ${i.returnQty})`).join(', ');
+                                    return params.row.items.map(i => `${i.item} (Qty: ${i.returnQty}) [${i.returnType || 'N/A'}]`).join(', ');
                                 }
                             },
                             {
@@ -348,6 +596,45 @@ const GatewaySecurityDashboard2 = () => {
                         <Grid item xs={12} md={4}><TextField fullWidth label="Delivery Person Name" size="small" value={deliveryPersonName} onChange={e => setDeliveryPersonName(e.target.value)} /></Grid>
                         <Grid item xs={12} md={4}><TextField fullWidth label="Contact No" size="small" value={contactNo} onChange={e => setContactNo(e.target.value)} /></Grid>
                         <Grid item xs={12} md={4}><TextField fullWidth label="DC / Invoice No" size="small" value={dcInvoiceNo} onChange={e => setDcInvoiceNo(e.target.value)} /></Grid>
+
+                        {/* OUTWARD DYNAMIC FIELDS */}
+                        {passDirection === 'Outdoor' && (
+                            <>
+                                <Grid item xs={12}><Typography variant="subtitle2" sx={{ mt: 1, color: 'secondary.main' }}>Outward Details ({outwardCategory})</Typography></Grid>
+                                
+                                {outwardCategory === 'Institution Movement' && (
+                                    <>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Shift From" size="small" value={shiftFrom} onChange={e => setShiftFrom(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Shift To" size="small" value={shiftTo} onChange={e => setShiftTo(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Total Trip" size="small" value={totalTrip} onChange={e => setTotalTrip(e.target.value)} /></Grid>
+                                    </>
+                                )}
+
+                                {(outwardCategory === 'RGP' || outwardCategory === 'NRGP' || outwardCategory === 'Institution Movement') && (
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth size="small">
+                                            <InputLabel>Material Taken By</InputLabel>
+                                            <Select value={materialTakenBy} label="Material Taken By" onChange={e => setMaterialTakenBy(e.target.value)}>
+                                                {storeUsers.map(u => (
+                                                    <MenuItem key={u._id} value={u.name}>{u.name} ({u.role})</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                )}
+
+                                {(outwardCategory === 'RGP' || outwardCategory === 'NRGP') && (
+                                    <Grid item xs={12} md={4}><TextField fullWidth label="Authorized By" size="small" value={authorizedBy} onChange={e => setAuthorizedBy(e.target.value)} /></Grid>
+                                )}
+                                
+                                {outwardCategory === 'RGP' && (
+                                    <>
+                                        <Grid item xs={12} md={4}><TextField fullWidth type="date" label="Expected Date of Return" InputLabelProps={{ shrink: true }} size="small" value={expectedDateOfReturn} onChange={e => setExpectedDateOfReturn(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={12}><TextField fullWidth label="Purpose" size="small" value={purpose} onChange={e => setPurpose(e.target.value)} /></Grid>
+                                    </>
+                                )}
+                            </>
+                        )}
 
                         <Grid item xs={12}>
                             <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Delivery Items Checklist</Typography>

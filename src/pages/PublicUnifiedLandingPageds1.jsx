@@ -282,16 +282,26 @@ const PublicUnifiedLandingPageds1 = () => {
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: { xs: 2, md: 6 } }}>
+        <Box sx={{
+            minHeight: '100vh',
+            py: { xs: 2, md: 6 },
+            backgroundImage: landingPage.page_content?.image_url ? `linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url(${landingPage.page_content.image_url})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            bgcolor: '#f8fafc',
+        }}>
             <Container maxWidth="lg">
                 <Paper elevation={0} sx={{
                     p: { xs: 3, md: 6 },
                     mb: 4,
                     textAlign: 'center',
-                    background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    background: landingPage.page_content?.image_url ? 'rgba(30, 41, 59, 0.6)' : 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    backdropFilter: landingPage.page_content?.image_url ? 'blur(10px)' : 'none',
                     color: 'white',
                     borderRadius: { xs: 2, md: 4 },
-                    boxShadow: "0 10px 30px rgba(21, 101, 192, 0.3)"
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                    border: landingPage.page_content?.image_url ? '1px solid rgba(255,255,255,0.1)' : 'none'
                 }}>
                     {logo && (
                         <Box sx={{ mb: 3 }}>
@@ -318,18 +328,14 @@ const PublicUnifiedLandingPageds1 = () => {
                     <Typography variant="body1" sx={{ mt: 2, maxWidth: 800, mx: "auto", opacity: 0.9, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                         {landingPage.page_content?.description || ""}
                     </Typography>
-                    {landingPage.page_content?.image_url && (
-                        <Box sx={{ mt: 4 }}>
-                            <img src={landingPage.page_content.image_url} alt="Landing" style={{ width: '100%', maxWidth: '600px', borderRadius: '16px', boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }} />
-                        </Box>
-                    )}
                 </Paper>
 
                 <Paper elevation={0} sx={{
                     p: { xs: 2, sm: 4, md: 6 },
                     borderRadius: { xs: 2, md: 4 },
                     boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-                    border: "1px solid rgba(0,0,0,0.05)"
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    bgcolor: landingPage.page_content?.image_url ? 'rgba(255, 255, 255, 0.95)' : 'white'
                 }}>
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={2}>

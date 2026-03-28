@@ -89,6 +89,10 @@ import StudentMarksheetViewPage6to8ds from './pages/StudentMarksheetViewPage6to8
 import StudentMarksheetViewPage9to10ds from './pages/StudentMarksheetViewPage9to10ds';
 import RankReportds from './pages/RankReportds';
 import RankAuditTool from './pages/RankAuditTool';
+import ManualRankEntry6to8 from './pages/ManualRankEntry6to8';
+import ManualRankEntry9to10 from './pages/ManualRankEntry9to10';
+import ManualRankEntry11to12 from './pages/ManualRankEntry11to12';
+
 
 
 import Dashmncas11 from './pages/Dashmncas11';
@@ -1495,6 +1499,9 @@ import VendorsMasterds2 from './pages/VendorsMasterds2';
 import VendorCatalogds2 from './pages/VendorCatalogds2';
 
 import Dashmfeespayl from './pages/Dashmfeespayl';
+import DashmPaymentModeLanding from './pages/DashmPaymentModeLanding';
+import DashmChallanPayment from './pages/DashmChallanPayment';
+import DashmChallanConfig from './pages/DashmChallanConfig';
 
 import Viewcrmstagepivot2 from './pages/Viewcrmstagepivot2';
 import Crompipedrill from './pages/Crompipedrill';
@@ -1508,6 +1515,7 @@ import Pucadmissionform from "./pages/Pucadmissionform";
 import DCRReportPageds from './pages/DCRReportPageds';
 import UnifiedLandingPageds1 from './pages/UnifiedLandingPageds1.jsx';
 import PublicUnifiedLandingPageds1 from './pages/PublicUnifiedLandingPageds1.jsx';
+import ManualComp11to12 from './pages/ManualComp11to12.jsx';
 
 
 
@@ -1518,12 +1526,16 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
-                                         <Route path='/pucadmissionform/:colId' element={<Pucadmissionform />} />
+                                        <Route path='/pucadmissionform/:colId' element={<Pucadmissionform />} />
                                         <Route path='/menugrouppage' element={<MenuGroupPage />} />
                                         <Route path='/menu/:groupId' element={<MenuItemsPage />} />
                                         <Route path="/crompipedrill" element={<Crompipedrill />} />
                                         <Route path="/viewcrmstagepivot2" element={<Viewcrmstagepivot2 />} />
                                         <Route path="/dashmfeespayl" element={<Dashmfeespayl />} />
+                                        <Route path="/payment-mode-landing" element={<DashmPaymentModeLanding />} />
+                                        <Route path="/challan-payment" element={<DashmChallanPayment />} />
+                                        <Route path="/challan-config" element={<DashmChallanConfig />} />
+                                        <Route path='/manualcomp11to12' element={<ManualComp11to12 />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
@@ -1570,7 +1582,7 @@ function App() {
                                         <Route path="/role/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
                                         <Route path="/role/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/quality-inspector2" element={<RoleLayout><QualityInspectorDashboardds2 /></RoleLayout>} />
-                                         <Route path="/role/manual-quality-check2" element={<RoleLayout><ManualQualityCheckds2 /></RoleLayout>} />
+                                        <Route path="/role/manual-quality-check2" element={<RoleLayout><ManualQualityCheckds2 /></RoleLayout>} />
                                         <Route path="/role/local-purchase-manager2" element={<LocalPurchaseManagerds2 />} />
                                         <Route path="/role/local-purchase2" element={<RoleLayout><LocalPurchaseds2 /></RoleLayout>} />
                                         <Route path="/role/local-grn2" element={<RoleLayout><LocalGRNds2 /></RoleLayout>} />
@@ -1598,7 +1610,7 @@ function App() {
                                         <Route path="/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
                                         <Route path="/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
                                         <Route path="/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
-                                         <Route path="/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
+                                        <Route path="/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
                                         <Route path="/local-purchase2" element={<RoleLayout><LocalPurchaseds2 /></RoleLayout>} />
                                         <Route path="/local-grn2" element={<RoleLayout><LocalGRNds2 /></RoleLayout>} />
                                         <Route path="/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
@@ -3094,6 +3106,10 @@ function App() {
                                         <Route path="/studentmarksheetviewpage6to8ds" element={<StudentMarksheetViewPage6to8ds />} />
                                         <Route path="/studentmarksheetviewpage9to10ds" element={<StudentMarksheetViewPage9to10ds />} />
                                         <Route path="/rankreportds" element={<RankReportds />} />
+                                        <Route path="/manual-rank-6to8" element={<ManualRankEntry6to8 />} />
+                                        <Route path="/manual-rank-9to10" element={<ManualRankEntry9to10 />} />
+                                        <Route path="/manual-rank-11to12" element={<ManualRankEntry11to12 />} />
+
                                         <Route path="/feesgenerationds" element={<FeesGenerationds />} />
 
                                         {/* Compartment / Supplementary Exam Marks Entry */}

@@ -37,6 +37,20 @@ const GatewaySecurityDashboardds2 = () => {
     const [remarks, setRemarks] = useState('');
     const [remarkType, setRemarkType] = useState('Countable');
 
+    // Additional Outward Fields
+    const [storeUsers, setStoreUsers] = useState([]);
+    const [shiftFrom, setShiftFrom] = useState('');
+    const [shiftTo, setShiftTo] = useState('');
+    const [totalTrip, setTotalTrip] = useState('');
+    const [purpose, setPurpose] = useState('');
+    const [authorizedBy, setAuthorizedBy] = useState('');
+    const [expectedDateOfReturn, setExpectedDateOfReturn] = useState('');
+    const [materialTakenBy, setMaterialTakenBy] = useState('');
+
+    useEffect(() => {
+        fetchStoreUsers();
+    }, []);
+
     useEffect(() => {
         if (tabValue === 1) fetchGatewayPasses();
         else {
@@ -44,6 +58,13 @@ const GatewaySecurityDashboardds2 = () => {
             else fetchQualityChecks();
         }
     }, [tabValue, orderType, npoSubType, passDirection, outwardCategory]);
+
+    const fetchStoreUsers = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
+            setStoreUsers(res.data.data.storeUsers || []);
+        } catch (e) { console.error(e); }
+    };
 
     const fetchApprovedPOs = async () => {
         setLoading(true);
@@ -150,7 +171,9 @@ const GatewaySecurityDashboardds2 = () => {
             vehicleNo, deliveryPersonName: driverName, contactNo, dcInvoiceNo, remarks, remarkType,
             securityName: global1.name || global1.user || 'Security Guard',
             items: poItems, orderType: orderType, npoSubType: orderType === 'NPO' ? npoSubType : '',
-            outwardCategory: passDirection === 'Outward' ? outwardCategory : ''
+            storeName: selectedPO.storename || selectedPO.storeName || '',
+            returnCategory: passDirection === 'Outward' ? outwardCategory : '',
+            shiftFrom, shiftTo, totalTrip, purpose, authorizedBy, expectedDateOfReturn, materialTakenBy
         };
 
         try {
@@ -165,8 +188,210 @@ const GatewaySecurityDashboardds2 = () => {
         }
     };
 
+    const handlePrint = (pass) => {
+        if (pass.passType === 'Inward') {
+            return alert("Inward Passes don't have a designated outbound format.");
+        }
+        
+        if (pass.returnCategory === 'Institution Movement') {
+            printIMPass(pass);
+        } else if (pass.returnCategory === 'RGP') {
+            printRGPPass(pass);
+        } else {
+            // Default to NRGP register format
+            printNRGPPass(pass);
+        }
+    };
+
+    const printIMPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        const itemsHtml = (pass.items || []).map((item, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.itemname}</td>
+                <td>${item.unit}</td>
+                <td>${item.deliveredQuantity}</td>
+                <td>${item.remarks || ''}</td>
+            </tr>`).join('');
+
+        printWindow.document.write(`
+            <html><head><title>Institution Movement Pass</title>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; }
+                .container { max-width: 800px; margin: 0 auto; border: 2px solid #000; padding: 30px; position: relative; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; }
+                .header p { margin: 5px 0; font-size: 14px; color: #555; }
+                .top-meta { display: flex; justify-content: space-between; margin-bottom: 25px; font-weight: bold; font-size: 16px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #000; padding: 12px 15px; text-align: left; }
+                th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; font-size: 13px; }
+                .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
+                .detail-item { font-size: 15px; }
+                .detail-item span { font-weight: bold; display: inline-block; width: 140px; }
+                .footer { margin-top: 50px; display: flex; justify-content: space-between; text-align: center; }
+                .sig-box { border-top: 1px solid #000; width: 200px; padding-top: 10px; font-weight: bold; font-size: 14px; }
+                @media print { body { padding: 0; } .container { border: none; } }
+            </style>
+            </head><body>
+            <div class="container">
+                <div class="header">
+                    <h1>Institution Movement Pass</h1>
+                    <p>Internal Tracking Document</p>
+                </div>
+                <div class="top-meta">
+                    <div>PASS NO: ${pass.passNumber}</div>
+                    <div>DATE: ${new Date(pass.createdAt).toLocaleDateString()}</div>
+                </div>
+                <div class="details-grid">
+                    <div class="detail-item"><span>Shift From:</span> ${pass.shiftFrom || 'N/A'}</div>
+                    <div class="detail-item"><span>Shift To:</span> ${pass.shiftTo || 'N/A'}</div>
+                    <div class="detail-item"><span>Taken By:</span> ${pass.materialTakenBy || 'N/A'}</div>
+                    <div class="detail-item"><span>Total Trips:</span> ${pass.totalTrip || 'N/A'}</div>
+                </div>
+                <table>
+                    <thead><tr><th>Sr.</th><th>Item Description</th><th>Unit</th><th>Qty</th><th>Remarks</th></tr></thead>
+                    <tbody>${itemsHtml}</tbody>
+                </table>
+                <div class="footer">
+                    <div class="sig-box">Receiver's Signature</div>
+                    <div class="sig-box">Authorized Signatory</div>
+                </div>
+            </div>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
+    const printNRGPPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        const itemsHtml = (pass.items || []).map((item, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.itemname}</td>
+                <td>${item.unit}</td>
+                <td>${item.deliveredQuantity}</td>
+                <td>NRGP</td>
+            </tr>`).join('');
+
+        printWindow.document.write(`
+            <html><head><title>NRGP Register</title>
+            <style>
+                @page { size: landscape; margin: 10mm; }
+                body { font-family: 'Arial', sans-serif; padding: 10px; }
+                .title { text-align: center; font-size: 24px; font-weight: bold; text-decoration: underline; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                th, td { border: 1px solid #000; padding: 10px; text-align: center; font-size: 13px; word-wrap: break-word; }
+                th { background: #eee; }
+                .header-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; }
+            </style>
+            </head><body>
+            <div class="title">NON-RETURNABLE GATE PASS (NRGP) REGISTER</div>
+            <div class="header-info">
+                <div>Gate Pass No: ${pass.passNumber}</div>
+                <div>Date: ${new Date(pass.createdAt).toLocaleDateString()}</div>
+                <div>Authorized By: ${pass.authorizedBy || 'Admin'}</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Sl No.</th>
+                        <th>Description of Material</th>
+                        <th style="width: 80px;">Unit</th>
+                        <th style="width: 80px;">Qty</th>
+                        <th>Receiver / Vehicle</th>
+                        <th>Store Name</th>
+                        <th style="width: 150px;">Sign of Store Officer</th>
+                        <th style="width: 150px;">Sign of Security</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Multiple Items (See Table Below)</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>${pass.deliveryPersonName} / ${pass.vehicleNo}</td>
+                        <td>${pass.storeName || 'N/A'}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 style="margin-top:20px;">Itemized Details:</h3>
+            <table>
+                <thead><tr><th style="width: 50px;">No.</th><th>Item Name</th><th style="width: 80px;">Unit</th><th style="width: 80px;">Qty</th><th>Category</th></tr></thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
+    const printRGPPass = (pass) => {
+        const printWindow = window.open('', '_blank');
+        const itemsHtml = (pass.items || []).map((item, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.itemname}</td>
+                <td>${item.unit}</td>
+                <td>${item.deliveredQuantity}</td>
+                <td>${pass.expectedDateOfReturn ? new Date(pass.expectedDateOfReturn).toLocaleDateString() : 'N/A'}</td>
+                <td>Pending</td>
+            </tr>`).join('');
+
+        printWindow.document.write(`
+            <html><head><title>RGP Register</title>
+            <style>
+                @page { size: landscape; margin: 10mm; }
+                body { font-family: 'Arial', sans-serif; padding: 10px; }
+                .title { text-align: center; font-size: 24px; font-weight: bold; color: #b71c1c; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 12px; }
+                th { background: #ffebee; }
+                .meta { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
+            </style>
+            </head><body>
+            <div class="title">RETURNABLE GATE PASS (RGP) REGISTER</div>
+            <div class="meta">
+                <div>Pass Number: ${pass.passNumber}</div>
+                <div>Origin Store: ${pass.storeName || 'N/A'}</div>
+                <div>Vehicle/Person: ${pass.vehicleNo} / ${pass.deliveryPersonName}</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Sl No</th>
+                        <th rowspan="2">Item Name</th>
+                        <th rowspan="2">Unit</th>
+                        <th rowspan="2">Qty Sent</th>
+                        <th rowspan="2">Expected Return Date</th>
+                        <th colspan="3">Return Details</th>
+                        <th rowspan="2">Purpose</th>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <th>Qty Recv</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+            <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+                <div style="border-top: 1px solid #000; width: 250px; text-align: center;">Security Sign & Stamp</div>
+                <div style="border-top: 1px solid #000; width: 250px; text-align: center;">Authorized By: ${pass.authorizedBy || ''}</div>
+            </div>
+            <script>window.print();</script>
+            </body></html>
+        `);
+        printWindow.document.close();
+    };
+
     const columns = [
         { field: 'poid', headerName: 'PO Number', width: 200 },
+        { field: 'storename', headerName: 'Store Name', width: 200 },
         { 
             field: 'vendorname', 
             headerName: 'Vendor', 
@@ -188,7 +413,15 @@ const GatewaySecurityDashboardds2 = () => {
                 size="small" 
             />
         )},
-        { field: 'createdAt', headerName: 'Date', width: 120, valueFormatter: (params) => new Date(params.value).toLocaleDateString() },
+        { 
+            field: 'createdAt', 
+            headerName: 'Date', 
+            width: 130, 
+            valueFormatter: (params) => {
+                const dt = params?.value || params?.row?.updatedate || params?.row?.date;
+                return dt ? new Date(dt).toLocaleDateString('en-GB') : 'N/A';
+            } 
+        },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -208,16 +441,25 @@ const GatewaySecurityDashboardds2 = () => {
     const historyColumns = [
         { field: 'passNumber', headerName: 'Pass No', width: 180 },
         { field: 'poid', headerName: 'PO No', width: 150 },
+        { field: 'storeName', headerName: 'Store Name', width: 150 },
         { field: 'vendorName', headerName: 'Vendor', width: 200 },
         { field: 'passType', headerName: 'Direction', width: 120 },
-        { field: 'outwardCategory', headerName: 'Category', width: 120 },
-        { field: 'vehicleNo', headerName: 'Vehicle', width: 150 },
-        { field: 'createdAt', headerName: 'Date', width: 180, valueFormatter: (params) => new Date(params.value).toLocaleString() }
+        { field: 'returnCategory', headerName: 'Category', width: 120 },
+        { field: 'vehicleNo', headerName: 'Vehicle', width: 120 },
+        { field: 'createdAt', headerName: 'Date', width: 180, valueFormatter: (params) => params.value ? new Date(params.value).toLocaleString('en-GB') : 'N/A' },
+        {
+            field: 'actions', headerName: 'Print', width: 120, renderCell: (params) => (
+                <Button variant="outlined" size="small" onClick={() => handlePrint(params.row)}>
+                    Print
+                </Button>
+            )
+        }
     ];
 
     const qcColumns = [
         { field: 'inspectionId', headerName: 'Inspection ID', width: 180 },
         { field: 'grnNo', headerName: 'GRN No', width: 160 },
+        { field: 'storeName', headerName: 'Store Name', width: 160 },
         { field: 'partyName', headerName: 'Vendor/Party', width: 220 },
         { field: 'inspectionDate', headerName: 'QC Date', width: 130, valueFormatter: (p) => p.value ? new Date(p.value).toLocaleDateString() : '' },
         { field: 'actions', headerName: 'Actions', width: 150, renderCell: (p) => <Button variant="contained" size="small" onClick={() => handleOpenPassModal(p.row)}>Create Return Pass</Button> }
@@ -338,6 +580,39 @@ const GatewaySecurityDashboardds2 = () => {
                         <Grid item xs={12} md={4}>
                             <TextField fullWidth label="Invoice / DC No" value={dcInvoiceNo} onChange={(e) => setDcInvoiceNo(e.target.value)} required />
                         </Grid>
+                        {passDirection === 'Outward' && (
+                            <>
+                                <Grid item xs={12}><Typography variant="subtitle2" sx={{ mt: 1, color: 'secondary.main' }}>Outward Details ({outwardCategory})</Typography></Grid>
+                                
+                                {outwardCategory === 'Internal' && (
+                                    <>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Shift From" size="small" value={shiftFrom} onChange={e => setShiftFrom(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Shift To" size="small" value={shiftTo} onChange={e => setShiftTo(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={4}><TextField fullWidth label="Total Trip" size="small" value={totalTrip} onChange={e => setTotalTrip(e.target.value)} /></Grid>
+                                    </>
+                                )}
+
+                                <Grid item xs={12} md={4}>
+                                    <TextField 
+                                        fullWidth 
+                                        size="small" 
+                                        label="Material Taken By" 
+                                        value={materialTakenBy} 
+                                        onChange={e => setMaterialTakenBy(e.target.value)} 
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={4}><TextField fullWidth label="Authorized By" size="small" value={authorizedBy} onChange={e => setAuthorizedBy(e.target.value)} /></Grid>
+                                
+                                {outwardCategory === 'RGP' && (
+                                    <>
+                                        <Grid item xs={12} md={4}><TextField fullWidth type="date" label="Expected Date of Return" InputLabelProps={{ shrink: true }} size="small" value={expectedDateOfReturn} onChange={e => setExpectedDateOfReturn(e.target.value)} /></Grid>
+                                        <Grid item xs={12} md={12}><TextField fullWidth label="Purpose" size="small" value={purpose} onChange={e => setPurpose(e.target.value)} /></Grid>
+                                    </>
+                                )}
+                            </>
+                        )}
+
                         <Grid item xs={12} md={4}>
                             <FormControl fullWidth>
                                 <InputLabel>Remark Type</InputLabel>

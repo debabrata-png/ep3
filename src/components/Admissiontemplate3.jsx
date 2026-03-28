@@ -29,6 +29,7 @@ const Admissiontemplate3 = () => {
   const [availablePrograms, setAvailablePrograms] = useState([]);
   const [subjectConfigs, setSubjectConfigs] = useState([]);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
+  const [institution, setInstitution] = useState(null);
 
   const [formData, setFormData] = useState({
     colId: colId || "",
@@ -233,12 +234,18 @@ const Admissiontemplate3 = () => {
     const fetchMetadata = async () => {
       try {
         // colId comes from useParams()
-        const response = await ep1.get(`/api/v2/formMetadata?colid=${colId}`);
-        if (response.data.success) {
-          // Set the programs from the mprograms model
-          setAvailablePrograms(response.data.programs);
-          // Set the subject configs from the subjectModel
-          setSubjectConfigs(response.data.subjects);
+        const [metaRes, instRes] = await Promise.all([
+          ep1.get(`/api/v2/formMetadata?colid=${colId}`),
+          ep1.get(`/api/v1/getinstitutionname?colid=${colId}`)
+        ]);
+
+        if (metaRes.data.success) {
+          setAvailablePrograms(metaRes.data.programs);
+          setSubjectConfigs(metaRes.data.subjects);
+        }
+
+        if (instRes.data.status === "Success" && instRes.data.data.classes.length > 0) {
+          setInstitution(instRes.data.data.classes[0]);
         }
       } catch (err) {
         console.error("Error fetching form metadata:", err);
@@ -321,20 +328,57 @@ const Admissiontemplate3 = () => {
         elevation={4}
         sx={{ maxWidth: 950, mx: "auto", p: { xs: 2, md: 5 }, borderRadius: 3 }}
       >
-        <Typography
-          variant="h4"
-          align="center"
-          sx={{ fontWeight: "800", mb: 1, color: "#1a237e" }}
-        >
-          ADMISSION FORM
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          sx={{ mb: 4, color: "text.secondary" }}
-        >
-          SBRR Mahajana First Grade College (Autonomous)
-        </Typography>
+        {institution && (
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            {institution.logo && (
+              <Box
+                component="img"
+                src={institution.logo}
+                alt="Institution Logo"
+                sx={{
+                  maxHeight: 100,
+                  maxWidth: "100%",
+                  mb: 2,
+                  objectFit: "contain",
+                  filter: "drop-shadow(0px 4px 10px rgba(0,0,0,0.1))",
+                }}
+              />
+            )}
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{ fontWeight: "800", mb: 1, color: "#1a237e" }}
+            >
+              ADMISSION FORM
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              align="center"
+              sx={{ fontWeight: "600", color: "#283593", letterSpacing: "0.5px" }}
+            >
+              {institution.institutionname}
+            </Typography>
+          </Box>
+        )}
+
+        {!institution && (
+          <>
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{ fontWeight: "800", mb: 1, color: "#1a237e" }}
+            >
+              ADMISSION FORM
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              align="center"
+              sx={{ mb: 4, color: "text.secondary" }}
+            >
+              SBRR Mahajana First Grade College (Autonomous)
+            </Typography>
+          </>
+        )}
 
         <form onSubmit={handleSubmit}>
           {step === 1 && (

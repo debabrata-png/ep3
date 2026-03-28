@@ -965,10 +965,31 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Compartment Marks All" />}
           </ListItem>
           <ListItem button component={RouterLink} to="/compartmentmarks11ds">
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Compartment Marks 11" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/manual-rank-6to8">
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Compartment Marks 11" />}
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Rank 6-8" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/manual-rank-9to10">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Rank 9-10" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/manual-rank-11to12">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Rank 11-12" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/manualcomp11to12">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manual Compartment 11-12" />}
           </ListItem>
         </AccordionDetails>
       </Accordion>
@@ -1538,6 +1559,20 @@ export function menuitemsall() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Counter Fees payment" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/challan-payment">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan Payment" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/challan-config">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan Config" />}
           </ListItem>
 
           <ListItem button component={RouterLink} to="/feesummaryreport">
