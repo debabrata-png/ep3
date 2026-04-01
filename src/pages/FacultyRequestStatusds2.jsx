@@ -3,14 +3,18 @@ import {
     Box,
     Typography,
     Paper,
-    Chip
+    Chip,
+    Button
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+import { createRoot } from 'react-dom/client';
+import FacultyRequisitionPrintTemplate from './FacultyRequisitionPrintTemplate';
 
 const FacultyRequestStatusds2 = () => {
     const [requests, setRequests] = useState([]);
+    const [selectedRows, setSelectedRows] = useState([]);
 
     useEffect(() => {
         fetchRequests();
@@ -36,6 +40,46 @@ const FacultyRequestStatusds2 = () => {
             case 'Purchasing': return 'info';
             case 'Delivered': return 'primary';
             default: return 'default';
+        }
+    };
+
+    const handlePrint = async () => {
+        const itemsToPrint = requests.filter(r => selectedRows.includes(r.id));
+        if (!itemsToPrint || itemsToPrint.length === 0) {
+            alert("No items selected to print.");
+            return;
+        }
+        try {
+            const configRes = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
+            const instConfig = configRes.data?.data || {};
+            
+            const printWindow = window.open('', '', 'width=900,height=700');
+            const container = printWindow.document.createElement('div');
+            printWindow.document.body.appendChild(container);
+
+            const root = createRoot(container);
+            root.render(
+                <FacultyRequisitionPrintTemplate 
+                    items={itemsToPrint}
+                    instituteName={instConfig.institutionname}
+                    instituteAddress={instConfig.address}
+                    institutePhone={instConfig.phone}
+                    indentNumber={itemsToPrint[0]?.indentNumber || `INDDSPUAREG/ ${Date.now()}`}
+                    remark={itemsToPrint[0]?.remark || ''}
+                />
+            );
+
+            // Wait for render
+            setTimeout(() => {
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error fetching institute details for print:", error);
+            alert("Failed to print requisition.");
         }
     };
 
@@ -79,9 +123,19 @@ const FacultyRequestStatusds2 = () => {
 
     return (
         <Box p={3} sx={{ height: '85vh', width: '100%' }}>
-            <Typography variant="h4" gutterBottom>
-                My Requisition Status
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h4" gutterBottom>
+                    My Requisition Status
+                </Typography>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={handlePrint} 
+                    disabled={selectedRows.length === 0}
+                >
+                    Print Selected ({selectedRows.length})
+                </Button>
+            </Box>
 
             <Paper sx={{ height: '100%', width: '100%' }}>
                 <DataGrid
@@ -89,6 +143,11 @@ const FacultyRequestStatusds2 = () => {
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10, 25, 50]}
+                    checkboxSelection
+                    onRowSelectionModelChange={(newSelection) => {
+                        setSelectedRows(newSelection);
+                    }}
+                    rowSelectionModel={selectedRows}
                     disableSelectionOnClick
                 />
             </Paper>

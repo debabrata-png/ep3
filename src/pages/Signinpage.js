@@ -228,6 +228,8 @@ const Signup = () => {
         navigate("/role/quality-inspector2")
       } else if (response.data.role === "HOI") {
         navigate("/menugrouppage");
+      } else if (response.data.role === "AHOI") {
+        navigate("/role/ahoi");
       } else {
         //navigate('/dashmmfaccourses');
         navigate('/dashdashfacnew');

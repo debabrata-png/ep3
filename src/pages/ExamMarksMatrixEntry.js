@@ -190,9 +190,21 @@ const ExamMarksMatrixEntry = () => {
         setLoading(true);
         try {
             const marksData = [];
+            
+            // Find the full program name based on the selected code from filters
+            const selectedProgObj = filterData.programs.find(p => (p.programcode || p) === program);
+            const fullProgramName = selectedProgObj?.program || program;
+
             rows.forEach(r => {
                 papers.forEach(p => {
                     const code = p.papercode;
+
+                    // Skip the record if ALL marks fields are empty
+                    if (!r[`${code}_thobtained`] && !r[`${code}_probtained`] && 
+                        !r[`${code}_iatobtained`] && !r[`${code}_iapobtained`]) {
+                        return; // Skip this paper for this student
+                    }
+
                     // Gather marks and save
                     const mrkRecord = {
                         name: global1.name,
@@ -200,7 +212,8 @@ const ExamMarksMatrixEntry = () => {
                         colid: colid,
                         student: r.studentName,
                         regno: r.regno,
-                        program: program,
+                        program: fullProgramName,
+                        programcode: program,
                         examcode: examcode,
                         year: year,
                         status: p.status,

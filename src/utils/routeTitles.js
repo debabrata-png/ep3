@@ -41,7 +41,17 @@ export const routeTitles = {
     // '/role/purchase-order-dashboard': 'PO Approval', // Duplicate key. Will use the one defined first or last depending on load order. Since it's a map, let's stick to a generic one or the most common one. 'PO Dashboard' seems fine, or we could make it 'Purchase Order Dashboard'.
 
     // Administrative Officer
-    '/storerequisationds': 'Store Requisition'
+    '/storerequisationds': 'Store Requisition',
+
+    // Requisition System V2
+    '/faculty-create-request2': 'Material Requisition',
+    '/faculty-request-status2': 'Requisition Status',
+    '/role/faculty-request-approval2': 'Faculty Requisition Approval',
+    '/role/stock-reportds2': 'Stock Report',
+    '/role/vendors-masterds2': 'Vendors Master',
+    '/role/vendor-catalogds2': 'Vendor Catalog',
+    '/role/delivery-type-master2': 'Delivery Type Master',
+    '/role/staff-profile2': 'Staff Profile'
 };
 
 export const getTitle = (pathname) => {

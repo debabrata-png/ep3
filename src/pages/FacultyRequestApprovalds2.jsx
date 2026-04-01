@@ -5,29 +5,54 @@ import {
     Paper,
     Button,
     Chip,
-    Stack
+    Stack,
+    Tab,
+    Tabs
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+import { createRoot } from 'react-dom/client';
+import FacultyRequisitionPrintTemplate from './FacultyRequisitionPrintTemplate';
 
 const FacultyRequestApprovalds2 = () => {
-    const [requests, setRequests] = useState([]);
+    const [allRequests, setAllRequests] = useState([]);
+    const [displayRequests, setDisplayRequests] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [selectedRows, setSelectedRows] = useState([]);
+    const [currentTab, setCurrentTab] = useState(0);
 
     useEffect(() => {
         fetchRequests();
-    }, [refreshTrigger]);
+    }, [refreshTrigger, currentTab]);
 
     const fetchRequests = async () => {
         try {
             const response = await ep1.get(`/api/v2/getallrequisationds12?colid=${global1.colid}`);
-            const allRequests = response.data.data.requisitions || [];
-            // Show all pending requests for the approver. 
-            // Depending on requirements, we might filter by department, but for now show all.
-            // Filter for 'Pending Approval' as set by backend
-            const pendingRequests = allRequests.filter(req => req.reqstatus === 'Pending Approval');
-            setRequests(pendingRequests.map(r => ({ ...r, id: r._id })));
+            const data = response.data.data.requisitions || [];
+            setAllRequests(data);
+
+            if (currentTab === 0) {
+                // Pending Tab
+                const pending = data.filter(req => {
+                    if (req.reqstatus !== 'Pending Approval') return false;
+                    
+                    if (global1.role === 'AHOI') {
+                        // AHOI sees it if it's manual and they haven't approved yet
+                        return req.approvalOption === 'Manual' && !req.ahoiApproved;
+                    }
+                    if (global1.role === 'HOI') {
+                        // HOI sees it if they haven't approved yet
+                        return !req.hoiApproved;
+                    }
+                    return true;
+                });
+                setDisplayRequests(pending.map(r => ({ ...r, id: r._id })));
+            } else {
+                // History Tab
+                const history = data.filter(req => req.reqstatus === 'Approved' || req.reqstatus === 'Rejected');
+                setDisplayRequests(history.map(r => ({ ...r, id: r._id })));
+            }
         } catch (error) {
             console.error('Error fetching staging requests:', error);
         }
@@ -35,9 +60,13 @@ const FacultyRequestApprovalds2 = () => {
 
     const handleApprove = async (id) => {
         try {
-            await ep1.post('/api/v2/approverequisationds12', { id });
+            await ep1.post('/api/v2/approverequisationds12', { 
+                id, 
+                approverRole: global1.role,
+                approverName: global1.name 
+            });
             setRefreshTrigger(prev => prev + 1);
-            alert('Request Approved and Moved to Main Requisitions');
+            alert('Request Status Updated Successfully');
         } catch (error) {
             console.error('Error approving request:', error);
             alert('Failed to approve request');
@@ -55,61 +84,185 @@ const FacultyRequestApprovalds2 = () => {
         }
     };
 
+    const handlePrint = async () => {
+        const itemsToPrint = displayRequests.filter(r => selectedRows.includes(r.id));
+        if (!itemsToPrint || itemsToPrint.length === 0) {
+            alert("No items selected to print.");
+            return;
+        }
+        try {
+            const configRes = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
+            const instConfig = configRes.data?.data || {};
+            
+            const printWindow = window.open('', '', 'width=900,height=700');
+            const container = printWindow.document.createElement('div');
+            printWindow.document.body.appendChild(container);
+
+            const root = createRoot(container);
+            root.render(
+                <FacultyRequisitionPrintTemplate 
+                    items={itemsToPrint}
+                    instituteName={instConfig.institutionname}
+                    instituteAddress={instConfig.address}
+                    institutePhone={instConfig.phone}
+                    indentNumber={itemsToPrint[0]?.indentNumber || `INDDSPUAREG/ ${Date.now()}`}
+                    remark={itemsToPrint[0]?.remark || ''}
+                />
+            );
+
+            // Wait for render
+            setTimeout(() => {
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error fetching institute details for print:", error);
+            alert("Failed to print requisition.");
+        }
+    };
+
     const columns = [
-        { field: 'faculty', headerName: 'Faculty', width: 150 },
-        { field: 'itemname', headerName: 'Item Name', width: 200 },
-        { field: 'itemcode', headerName: 'Item Code', width: 150 },
-        { field: 'quantity', headerName: 'Quantity', width: 100 },
-        {
-            field: 'reqdate',
-            headerName: 'Date',
-            width: 150,
-            valueFormatter: (params) => {
-                if (!params.value) return 'N/A';
-                const date = new Date(params.value);
-                return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString('en-GB');
-            }
+        { field: 'faculty', headerName: 'Faculty', width: 130 },
+        { field: 'itemname', headerName: 'Item Name', width: 150 },
+        { field: 'quantity', headerName: 'Qty', width: 80 },
+        { field: 'storename', headerName: 'Store', width: 130 },
+        { 
+            field: 'approvalOption', 
+            headerName: 'Path', 
+            width: 100,
+            renderCell: (params) => (
+                <Chip 
+                    label={params.value} 
+                    size="small" 
+                    color={params.value === 'Manual' ? 'secondary' : 'default'} 
+                />
+            )
         },
-        { field: 'storename', headerName: 'Store', width: 150 },
+        {
+            field: 'hoiApproved',
+            headerName: 'HOI Status',
+            width: 130,
+            renderCell: (params) => (
+                <Box>
+                    <Chip 
+                        label={params.value ? "Approved" : "Pending"} 
+                        color={params.value ? "success" : "warning"} 
+                        size="small"
+                        variant="outlined"
+                    />
+                    {params.row.hoiApproverName && (
+                        <Typography variant="caption" display="block" sx={{ fontSize: '0.65rem' }}>
+                            {params.row.hoiApproverName}
+                        </Typography>
+                    )}
+                </Box>
+            )
+        },
+        {
+            field: 'ahoiApproved',
+            headerName: 'AHOI Status',
+            width: 130,
+            renderCell: (params) => (
+                params.row.approvalOption === 'Manual' ? (
+                    <Box>
+                        <Chip 
+                            label={params.value ? "Approved" : "Pending"} 
+                            color={params.value ? "success" : "warning"} 
+                            size="small"
+                            variant="outlined"
+                        />
+                        {params.row.ahoiApproverName && (
+                            <Typography variant="caption" display="block" sx={{ fontSize: '0.65rem' }}>
+                                {params.row.ahoiApproverName}
+                            </Typography>
+                        )}
+                    </Box>
+                ) : <Typography variant="caption" color="text.secondary">N/A</Typography>
+            )
+        },
+        {
+            field: 'reqstatus',
+            headerName: 'Overall Status',
+            width: 130,
+            renderCell: (params) => (
+                <Chip 
+                    label={params.value} 
+                    color={params.value === 'Approved' ? 'success' : params.value === 'Rejected' ? 'error' : 'primary'}
+                    size="small"
+                />
+            )
+        },
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 250,
+            width: 180,
             renderCell: (params) => (
-                <Stack direction="row" spacing={1}>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        onClick={() => handleApprove(params.row.id)}
-                    >
-                        Approve
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        onClick={() => handleReject(params.row.id)}
-                    >
-                        Reject
-                    </Button>
-                </Stack>
+                currentTab === 0 ? (
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => handleApprove(params.row.id)}
+                        >
+                            Approve
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => handleReject(params.row.id)}
+                        >
+                            Reject
+                        </Button>
+                    </Stack>
+                ) : null
             )
         }
     ];
 
     return (
         <Box p={3} sx={{ height: '85vh', width: '100%' }}>
-            <Typography variant="h4" gutterBottom>
-                Faculty Request Approval
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h4" gutterBottom>
+                    Faculty Request Approval
+                </Typography>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={handlePrint} 
+                    disabled={selectedRows.length === 0}
+                >
+                    Print Selected ({selectedRows.length})
+                </Button>
+            </Box>
 
-            <Paper sx={{ height: '100%', width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+                <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)}>
+                    <Tab label={`Pending Requests (${allRequests.filter(req => {
+                        if (req.reqstatus !== 'Pending Approval') return false;
+                        if (global1.role === 'AHOI') return req.approvalOption === 'Manual' && !req.ahoiApproved;
+                        if (global1.role === 'HOI') return !req.hoiApproved;
+                        return true;
+                    }).length})`} />
+                    <Tab label="Approval History" />
+                </Tabs>
+            </Box>
+
+            <Paper sx={{ height: '70%', width: '100%' }}>
                 <DataGrid
-                    rows={requests}
+                    rows={displayRequests}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[10, 25, 50]}
+                    checkboxSelection
+                    onRowSelectionModelChange={(newSelection) => {
+                        setSelectedRows(newSelection);
+                    }}
+                    rowSelectionModel={selectedRows}
                     disableSelectionOnClick
                 />
             </Paper>

@@ -32,6 +32,8 @@ import { menuao as MenuAO } from '../pages/menuao';
 import { menupe as MenuPE } from '../pages/menupe';
 import { menusecurity as MenuSecurity } from '../pages/menusecurity';
 import { menuquality as MenuQuality } from '../pages/menuquality';
+import { menuahoi as MenuAHOI } from '../pages/menuahoi';
+import { menuitems as MenuFaculty } from '../pages/menufaculty';
 import { getTitle } from '../utils/routeTitles';
 
 const drawerWidth = 240;
@@ -118,38 +120,49 @@ function RoleLayoutContent({ children, customMenu }) {
         if (r === 'Purchasepu') return <MenuPurchase />;
         if (r === 'Store') return <MenuStore />;
         if (r === 'OE') return <MenuOE />;
-        if (r === 'CA') return <MenuCMA />;
-        if (r === 'AE') return <MenuAO />;
+        if (r === 'CA' || r === 'CMA') return <MenuCMA />;
+        if (r === 'AE' || r === 'AO') return <MenuAO />;
         if (r === 'PE') return <MenuPE />;
         if (r === 'Security' || r === 'GatewaySecurity') return <MenuSecurity />;
         if (r === 'Quality' || r === 'QualityInspector') return <MenuQuality />;
+        if (r === 'AHOI') return <MenuAHOI />;
+        if (r === 'Faculty') return <MenuFaculty />;
 
-        // Default fallback or simplified view
-        return <MenuPurchase />;
+        // Default fallback: return null if no match
+        return null;
     };
+
+    const roleMenu = getMenuComponent();
+    const hasMenu = !!roleMenu;
+    const effectiveOpen = hasMenu ? open : false;
 
     return (
         <ThemeProvider theme={mdTheme}>
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
-                <AppBar position="fixed" open={open}>
+                <AppBar position="fixed" open={effectiveOpen} sx={{ 
+                    width: !hasMenu ? '100%' : undefined,
+                    ml: !hasMenu ? 0 : undefined 
+                }}>
                     <Toolbar
                         sx={{
                             pr: '24px', // keep right padding when drawer closed
                         }}
                     >
-                        <IconButton
-                            edge="start"
-                            color="inherit"
-                            aria-label="open drawer"
-                            onClick={toggleDrawer}
-                            sx={{
-                                marginRight: '36px',
-                                ...(open && { display: 'none' }),
-                            }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
+                        {hasMenu && (
+                            <IconButton
+                                edge="start"
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={toggleDrawer}
+                                sx={{
+                                    marginRight: '36px',
+                                    ...(effectiveOpen && { display: 'none' }),
+                                }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                        )}
                         <Typography
                             component="h1"
                             variant="h6"
@@ -177,32 +190,34 @@ function RoleLayoutContent({ children, customMenu }) {
                         </Button>
                     </Toolbar>
                 </AppBar>
-                <Drawer variant="permanent" open={open}>
-                    <Toolbar
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            px: [1],
-                        }}
-                    >
-                        <Typography
-                            component="h1"
-                            variant="body1"
-                            color="inherit"
-                            noWrap
-                            sx={{ flexGrow: 1, marginLeft: 2 }}
+                {hasMenu && (
+                    <Drawer variant="permanent" open={effectiveOpen}>
+                        <Toolbar
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                px: [1],
+                            }}
                         >
-                            {global1.name}
-                        </Typography>
-                        <IconButton onClick={toggleDrawer}>
-                            <ChevronLeftIcon />
-                        </IconButton>
-                    </Toolbar>
-                    <Divider />
-                    {/* Render the Role-Specific Menu */}
-                    {getMenuComponent()}
-                </Drawer>
+                            <Typography
+                                component="h1"
+                                variant="body1"
+                                color="inherit"
+                                noWrap
+                                sx={{ flexGrow: 1, marginLeft: 2 }}
+                            >
+                                {global1.name}
+                            </Typography>
+                            <IconButton onClick={toggleDrawer}>
+                                <ChevronLeftIcon />
+                            </IconButton>
+                        </Toolbar>
+                        <Divider />
+                        {/* Render the Role-Specific Menu */}
+                        {roleMenu}
+                    </Drawer>
+                )}
                 <Box
                     component="main"
                     sx={{

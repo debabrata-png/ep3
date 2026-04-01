@@ -83,7 +83,7 @@ function BulkTabulationRegisterPage() {
     } catch (error) {
       setError(
         "Failed to generate PDF: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
     setLoading(false);
@@ -144,7 +144,7 @@ function BulkTabulationRegisterPage() {
       </div>
   `;
 
-       // STUDENT 1
+    // STUDENT 1
     html += createStudentHTML(student1, "Student 1");
 
     // STUDENT 2 (if exists)
@@ -242,22 +242,18 @@ function BulkTabulationRegisterPage() {
 
           html += `
           <tr>
-            <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${
-              mark.paperCode
+            <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${mark.paperCode
             }</td>
             <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${mark.paperName?.substring(
               0,
               15
             )}</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">T</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.thObtained
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.thObtained
             }</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.iatObtained
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.iatObtained
             }</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.credit
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.credit
             }</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${theoryTotal}</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${theoryPerc}%</td>
@@ -277,22 +273,18 @@ function BulkTabulationRegisterPage() {
 
           html += `
           <tr>
-            <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${
-              mark.paperCode
+            <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${mark.paperCode
             }</td>
             <td style="border: 1px solid #000; padding: 1px; font-size: 8px;">${mark.paperName?.substring(
               0,
               15
             )}</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">P</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.prObtained
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.prObtained
             }</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.iapObtained
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.iapObtained
             }</td>
-            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${
-              mark.credit
+            <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${mark.credit
             }</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${practicalTotal}</td>
             <td style="border: 1px solid #000; padding: 1px; text-align: center; font-size: 8px;">${practicalPerc}%</td>
@@ -309,15 +301,12 @@ function BulkTabulationRegisterPage() {
           <tfoot>
             <tr style="background-color: #fff9c4; font-weight: bold;">
               <td colspan="6" style="border: 1px solid #000; padding: 2px; text-align: right; font-size: 9px;">TOTAL:</td>
-              <td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">${
-                currentSemData?.totalObtained || 0
-              }</td>
-              <td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">${
-                currentSemData?.percentage || 0
-              }%</td>
-              <td colspan="2" style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">SGPA: ${
-                currentSemData?.sgpa || 0
-              }</td>
+              <td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">${currentSemData?.totalObtained || 0
+      }</td>
+              <td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">${currentSemData?.percentage || 0
+      }%</td>
+              <td colspan="2" style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 9px;">SGPA: ${currentSemData?.sgpa || 0
+      }</td>
             </tr>
           </tfoot>
         </table>
@@ -325,12 +314,10 @@ function BulkTabulationRegisterPage() {
         <!-- Result -->
         <table style="width: 100%; border: 1px solid #000; font-size: 9px; margin-top: 2px;">
           <tr>
-            <td style="border: 1px solid #000; padding: 3px; width: 50%;"><strong>Failed:</strong> ${
-              currentSemData?.failedPapers || "None"
-            }</td>
-            <td style="border: 1px solid #000; padding: 3px; width: 50%;"><strong>Result:</strong> ${
-              currentSemData?.result || "N/A"
-            }</td>
+            <td style="border: 1px solid #000; padding: 3px; width: 50%;"><strong>Failed:</strong> ${currentSemData?.failedPapers || "None"
+      }</td>
+            <td style="border: 1px solid #000; padding: 3px; width: 50%;"><strong>Result:</strong> ${currentSemData?.result || "N/A"
+      }</td>
           </tr>
         </table>
       </div>
@@ -358,53 +345,48 @@ function BulkTabulationRegisterPage() {
             <tr>
               <td style="border: 1px solid #000; padding: 2px; font-weight: bold; font-size: 7px;">Marks</td>
               ${Array.from({ length: 8 }, (_, i) => {
-                const semData = summaryData?.allSemesterData?.[i];
-                const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
-                const bgColor = isCurrent ? "#fff9c4" : "white";
-                return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; background-color: ${bgColor};">${
-                  semData ? `${semData.total}/${semData.maxTotal}` : "-"
-                }</td>`;
-              }).join("")}
+        const semData = summaryData?.allSemesterData?.[i];
+        const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
+        const bgColor = isCurrent ? "#fff9c4" : "white";
+        return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; background-color: ${bgColor};">${semData ? `${semData.total}/${semData.maxTotal}` : "-"
+          }</td>`;
+      }).join("")}
             </tr>
             <tr>
               <td style="border: 1px solid #000; padding: 2px; font-weight: bold; font-size: 7px;">%</td>
               ${Array.from({ length: 8 }, (_, i) => {
-                const semData = summaryData?.allSemesterData?.[i];
-                const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
-                const bgColor = isCurrent ? "#fff9c4" : "white";
-                return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; background-color: ${bgColor};">${
-                  semData ? semData.percentage + "%" : "-"
-                }</td>`;
-              }).join("")}
+        const semData = summaryData?.allSemesterData?.[i];
+        const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
+        const bgColor = isCurrent ? "#fff9c4" : "white";
+        return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; background-color: ${bgColor};">${semData ? semData.percentage + "%" : "-"
+          }</td>`;
+      }).join("")}
             </tr>
             <tr>
               <td style="border: 1px solid #000; padding: 2px; font-weight: bold; font-size: 7px;">SGPA</td>
               ${Array.from({ length: 8 }, (_, i) => {
-                const semData = summaryData?.allSemesterData?.[i];
-                const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
-                const bgColor = isCurrent ? "#fff9c4" : "white";
-                return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; font-weight: bold; background-color: ${bgColor};">${
-                  semData ? semData.sgpa : "-"
-                }</td>`;
-              }).join("")}
+        const semData = summaryData?.allSemesterData?.[i];
+        const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
+        const bgColor = isCurrent ? "#fff9c4" : "white";
+        return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; font-weight: bold; background-color: ${bgColor};">${semData ? semData.sgpa : "-"
+          }</td>`;
+      }).join("")}
             </tr>
             <tr>
               <td style="border: 1px solid #000; padding: 2px; font-weight: bold; font-size: 7px;">Result</td>
               ${Array.from({ length: 8 }, (_, i) => {
-                const semData = summaryData?.allSemesterData?.[i];
-                const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
-                let bgColor = isCurrent ? "#fff9c4" : "white";
-                if (semData?.result === "Pass") bgColor = "#c8e6c9";
-                if (semData?.result === "Fail") bgColor = "#ffcdd2";
-                return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; font-weight: bold; background-color: ${bgColor};">${
-                  semData ? semData.result : "-"
-                }</td>`;
-              }).join("")}
+        const semData = summaryData?.allSemesterData?.[i];
+        const isCurrent = i + 1 === summaryData?.currentSemesterNumber;
+        let bgColor = isCurrent ? "#fff9c4" : "white";
+        if (semData?.result === "Pass") bgColor = "#c8e6c9";
+        if (semData?.result === "Fail") bgColor = "#ffcdd2";
+        return `<td style="border: 1px solid #000; padding: 2px; text-align: center; font-size: 7px; font-weight: bold; background-color: ${bgColor};">${semData ? semData.result : "-"
+          }</td>`;
+      }).join("")}
             </tr>
             <tr style="background-color: #e8f5e9; font-weight: bold;">
-              <td colspan="9" style="border: 1px solid #000; padding: 3px; text-align: center; font-size: 8px;">CGPA: ${
-                summaryData?.cgpa || 0
-              }</td>
+              <td colspan="9" style="border: 1px solid #000; padding: 3px; text-align: center; font-size: 8px;">CGPA: ${summaryData?.cgpa || 0
+      }</td>
             </tr>
           </tbody>
         </table>
@@ -416,15 +398,15 @@ function BulkTabulationRegisterPage() {
   };
 
   const createGenderStatisticsHTML = (allStudents) => {
-  const maleCount = allStudents.filter(
-    (s) => s.studentInfo.gender?.toLowerCase() === "male"
-  ).length;
-  const femaleCount = allStudents.filter(
-    (s) => s.studentInfo.gender?.toLowerCase() === "female"
-  ).length;
-  const otherCount = allStudents.length - maleCount - femaleCount;
+    const maleCount = allStudents.filter(
+      (s) => s.studentInfo.gender?.toLowerCase() === "male"
+    ).length;
+    const femaleCount = allStudents.filter(
+      (s) => s.studentInfo.gender?.toLowerCase() === "female"
+    ).length;
+    const otherCount = allStudents.length - maleCount - femaleCount;
 
-  return `
+    return `
     <div style="margin-top: 15px; padding: 10px; page-break-inside: avoid;">
       <h4 style="text-align: center; margin: 5px 0; font-size: 11px;">Summary - Gender Wise Count</h4>
       <table style="width: 100%; border-collapse: collapse; font-size: 9px; max-width: 500px; margin: 0 auto;">
@@ -479,7 +461,7 @@ function BulkTabulationRegisterPage() {
       </div>
     </div>
   `;
-};
+  };
 
   const getGrade = (percentage) => {
     const perc = parseFloat(percentage);
@@ -508,13 +490,13 @@ function BulkTabulationRegisterPage() {
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
-                    <Button
-                      startIcon={<ArrowBack />}
-                      onClick={() => navigate("/dashboardreevalds")}
-                    >
-                      Back
-                    </Button>
-                  </Box>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/dashboardreevalds")}
+        >
+          Back
+        </Button>
+      </Box>
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
@@ -580,6 +562,10 @@ function BulkTabulationRegisterPage() {
                   {y}
                 </MenuItem>
               ))}
+              <MenuItem value="2026-27">2026-27</MenuItem>
+              <MenuItem value="2025-26">2025-26</MenuItem>
+              <MenuItem value="2024-25">2024-25</MenuItem>
+              <MenuItem value="2023-24">2023-24</MenuItem>
             </TextField>
           </Box>
 

@@ -173,8 +173,8 @@ function ExamMarksStructurePageds() {
                 ))}
                 <MenuItem value="2026-27">2026-27</MenuItem>
                 <MenuItem value="2025-26">2025-26</MenuItem>
-                <MenuItem value="2025-26">2024-25</MenuItem>
-                <MenuItem value="2025-26">2023-24</MenuItem>
+                <MenuItem value="2024-25">2024-25</MenuItem>
+                <MenuItem value="2023-24">2023-24</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>

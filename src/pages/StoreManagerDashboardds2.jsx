@@ -846,13 +846,38 @@ const StoreManagerDashboardds2 = () => {
         try {
             const invRes = await ep1.get(`/api/v2/getallstoreitemds2?colid=${global1.colid}`);
             const storeItems = invRes.data.data.storeItems || [];
-            const matchingItem = storeItems.find(si =>
-                ((request.itemcode && si.itemcode === request.itemcode) ||
-                    (request.itemname && si.itemname === request.itemname) ||
-                    (request.itemid && si.itemid === request.itemid)) &&
-                si.storeid === request.storeid
-            );
-            setCurrentStock(matchingItem ? matchingItem.quantity : 0);
+            
+            console.log('DEBUG: Finding stock for request:', request);
+            console.log('DEBUG: Total store items in database for this colid:', storeItems.length);
+
+            const matchingItem = storeItems.find(si => {
+                // Normalize names for comparison
+                const rItemName = (request.itemname || request.item || "").trim().toLowerCase();
+                const siItemName = (si.itemname || si.item || "").trim().toLowerCase();
+                const rStoreName = (request.storename || request.store || "").trim().toLowerCase();
+                const siStoreName = (si.storename || si.store || "").trim().toLowerCase();
+
+                // Item Match - check code if possible, otherwise rely on name
+                let itemMatch = false;
+                if (request.itemcode && si.itemcode && request.itemcode === si.itemcode) {
+                    itemMatch = true;
+                } else if (rItemName && siItemName && rItemName === siItemName) {
+                    itemMatch = true;
+                }
+
+                // Store Match
+                let storeMatch = false;
+                if (request.storeid && si.storeid && request.storeid === si.storeid) {
+                    storeMatch = true;
+                } else if (rStoreName && siStoreName && rStoreName === siStoreName) {
+                    storeMatch = true;
+                }
+                
+                return itemMatch && storeMatch;
+            });
+            
+            console.log('DEBUG: Resulting matchingItem:', matchingItem);
+            setCurrentStock(matchingItem ? (matchingItem.quantity || 0) : 0);
         } catch (error) {
             console.error(error);
             setCurrentStock('Error');

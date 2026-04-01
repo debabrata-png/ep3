@@ -1473,6 +1473,7 @@ import NewPurchaseUserAddds2 from './pages/NewPurchaseUserAddds2';
 import VendorComparisonSheetds2 from './pages/VendorComparisonSheetds2';
 import OEDashboardds2 from './pages/OEDashboardds2';
 import DeliveryTypeMasterds2 from './pages/DeliveryTypeMasterds2';
+import Dashmahoi from './pages/Dashmahoi';
 
 import FeeSummaryReport from './pages/FeeSummaryReport';
 
@@ -1517,9 +1518,10 @@ import UnifiedLandingPageds1 from './pages/UnifiedLandingPageds1.jsx';
 import PublicUnifiedLandingPageds1 from './pages/PublicUnifiedLandingPageds1.jsx';
 import ManualComp11to12 from './pages/ManualComp11to12.jsx';
 
-
-
-
+// --- Vendor RFP System ---
+import CreateRfpds from './pages/CreateRfpds';
+import PublicVendorRfpForm from './pages/PublicVendorRfpForm';
+import RfpApprovalsds from './pages/RfpApprovalsds';
 function App() {
         return (
                 <Router>
@@ -1539,6 +1541,10 @@ function App() {
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
+                                        {/* Vendor RFP System Routes */}
+                                        <Route path="/create-rfp" element={<CreateRfpds />} />
+                                        <Route path="/public/vendor-rfp" element={<PublicVendorRfpForm />} />
+                                        <Route path="/rfp-approvals" element={<RfpApprovalsds />} />
 
                                         <Route path="/crmreports2" element={<Crmreports2 />} />
                                         <Route path="/crmupcommingfollowup" element={<CrmdsReportsPage />} />
@@ -1563,6 +1569,7 @@ function App() {
                                         <Route path="/revenuedashboard" element={<RevenueDashboard />} />
 
                                         {/* Purchasing Module Routes */}
+                                        <Route path="/role/ahoi" element={<RoleLayout><Dashmahoi /></RoleLayout>} />
                                         <Route path="/role/purchase-order-dashboard2" element={<RoleLayout><PurchaseOrderDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/PurchaseCellInventoryds2" element={<RoleLayout><PurchaseCellInventoryds2 /></RoleLayout>} />
                                         <Route path="/role/purchasing-master-data2" element={<RoleLayout><PurchasingMasterDatads2 /></RoleLayout>} />
@@ -1591,6 +1598,7 @@ function App() {
                                         <Route path="/role/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
                                         <Route path="/role/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
                                         <Route path="/role/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
+                                        <Route path="/role/faculty-request-approval2" element={<RoleLayout><FacultyRequestApprovalds2 /></RoleLayout>} />
 
                                         {/* Purchasing Module Routes - Standard Routes */}
                                         <Route path="/faculty-create-request2" element={<RoleLayout><FacultyCreateRequestds2 /></RoleLayout>} />

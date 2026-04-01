@@ -98,8 +98,12 @@ const StoreGatePassds2 = () => {
             // Filter by outwardCategory and reject count
             const filtered = all.filter(qc => {
                 const hasRejects = (qc.items || []).some(i => Number(i.rejectedQuantity) > 0);
-                if (outwardCategory === 'Internal') return true; 
-                return hasRejects;
+                
+                if (outwardCategory === 'Internal') {
+                    return qc.returnType === 'Institution Movement' || qc.returnType === 'Internal';
+                }
+                
+                return hasRejects && qc.returnType === outwardCategory;
             });
             setQualityChecks(filtered.map(q => ({ ...q, id: q._id })));
         } catch (e) { console.error(e); } finally { setLoading(false); }
@@ -313,7 +317,7 @@ const StoreGatePassds2 = () => {
                         <Grid item xs={12}>
                             <TableContainer component={Paper} variant="outlined">
                                 <Table size="small">
-                                    <TableHead><TableRow><TableCell>Item</TableCell><TableCell align="right">Exp Qty</TableCell><TableCell align="right">Rec Qty</TableCell></TableRow></TableHead>
+                                    <TableHead><TableRow><TableCell>Item</TableCell><TableCell align="right">Exp Qty</TableCell><TableCell align="right">{passDirection === 'Inward' ? 'Rec Qty' : 'Ret Qty'}</TableCell></TableRow></TableHead>
                                     <TableBody>{poItems.map((item, i) => (
                                         <TableRow key={i}><TableCell>{item.itemname}</TableCell><TableCell align="right">{item.expectedQuantity}</TableCell>
                                             <TableCell align="right"><TextField size="small" type="number" value={item.deliveredQuantity} onChange={e => { const ni = [...poItems]; ni[i].deliveredQuantity = e.target.value; setPoItems(ni); }} sx={{ width: 80 }} /></TableCell>

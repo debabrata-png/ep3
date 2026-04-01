@@ -18,8 +18,10 @@ import {
     InputLabel
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { createRoot } from 'react-dom/client';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+import FacultyRequisitionPrintTemplate from './FacultyRequisitionPrintTemplate';
 
 const FacultyCreateRequestds2 = () => {
     const [stores, setStores] = useState([]);
@@ -29,6 +31,9 @@ const FacultyCreateRequestds2 = () => {
     const [openModal, setOpenModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState('');
+    const [approvalOption, setApprovalOption] = useState('HOI');
+    const [remark, setRemark] = useState('');
+    const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
 
     // Fetch initial data
     useEffect(() => {
@@ -83,7 +88,8 @@ const FacultyCreateRequestds2 = () => {
             year: new Date().getFullYear().toString(),
             colid: global1.colid,
             user: global1.user,
-            name: global1.name
+            name: global1.name,
+            approvalOption: approvalOption
         };
 
         setCartItems([...cartItems, newItem]);
@@ -98,18 +104,66 @@ const FacultyCreateRequestds2 = () => {
     };
 
     const handleSubmitAll = async () => {
-        if (cartItems.length === 0) return;
+        if (cartItems.length === 0) {
+            alert('Your cart is empty.');
+            return;
+        }
+        setOpenSubmitDialog(true);
+    };
 
+    const handleConfirmSubmit = async () => {
         try {
             await Promise.all(cartItems.map(item => {
                 const { id, tempId, ...apiPayload } = item; // Remove local ID keys before sending
+                apiPayload.remark = remark; // Attach the remark from global state
                 return ep1.post('/api/v2/addrequisationds12', apiPayload);
             }));
             alert('All requisitions submitted successfully!');
             setCartItems([]);
+            setOpenSubmitDialog(false);
+            setRemark(''); // Clear remark for next session
         } catch (error) {
             console.error('Error submitting requisitions:', error);
             alert('Failed to submit some requisitions.');
+        }
+    };
+
+    const handlePrint = async (itemsToPrint) => {
+        if (!itemsToPrint || itemsToPrint.length === 0) {
+            alert("No items to print.");
+            return;
+        }
+        try {
+            const configRes = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
+            const instConfig = configRes.data?.data || {};
+            
+            const printWindow = window.open('', '', 'width=900,height=700');
+            const container = printWindow.document.createElement('div');
+            printWindow.document.body.appendChild(container);
+
+            const root = createRoot(container);
+            root.render(
+                <FacultyRequisitionPrintTemplate 
+                    items={itemsToPrint}
+                    instituteName={instConfig.institutionname}
+                    instituteAddress={instConfig.address}
+                    institutePhone={instConfig.phone}
+                    indentNumber={`INDDSPUAREG/ ${Date.now()}`}
+                    remark={remark}
+                />
+            );
+
+            // Wait for render
+            setTimeout(() => {
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error fetching institute details for print:", error);
+            alert("Failed to print requisition.");
         }
     };
 
@@ -177,7 +231,7 @@ const FacultyCreateRequestds2 = () => {
                             </Typography>
 
                             <Grid container spacing={2} sx={{ mb: 2 }}>
-                                <Grid item xs={12}>
+                                <Grid item xs={12} sm={6}>
                                     <FormControl fullWidth size="small">
                                         <InputLabel>Select Store</InputLabel>
                                         <Select
@@ -190,6 +244,19 @@ const FacultyCreateRequestds2 = () => {
                                                     {store.storename}
                                                 </MenuItem>
                                             ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl fullWidth size="small">
+                                        <InputLabel>Approval Option</InputLabel>
+                                        <Select
+                                            value={approvalOption}
+                                            label="Approval Option"
+                                            onChange={(e) => setApprovalOption(e.target.value)}
+                                        >
+                                            <MenuItem value="HOI">HOI Approve</MenuItem>
+                                            <MenuItem value="Manual">Manual Approve (HOI & AHOI)</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -233,15 +300,27 @@ const FacultyCreateRequestds2 = () => {
                                 <Typography variant="h6" color="textSecondary">
                                     2. Your Request Cart
                                 </Typography>
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    onClick={handleSubmitAll}
-                                    disabled={cartItems.length === 0}
-                                    size="medium"
-                                >
-                                    Submit All ({cartItems.length})
-                                </Button>
+                                <Box>
+                                    <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => handlePrint(cartItems)}
+                                        disabled={cartItems.length === 0}
+                                        size="medium"
+                                        sx={{ mr: 1 }}
+                                    >
+                                        Print
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={handleSubmitAll}
+                                        disabled={cartItems.length === 0}
+                                        size="medium"
+                                    >
+                                        Submit All ({cartItems.length})
+                                    </Button>
+                                </Box>
                             </Box>
 
                             <Box sx={{ flexGrow: 1, width: '100%', minHeight: 0 }}>
@@ -289,6 +368,35 @@ const FacultyCreateRequestds2 = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {/* Submit All Confirmation Dialog with Remark */}
+            <Dialog open={openSubmitDialog} onClose={() => setOpenSubmitDialog(false)}>
+                <DialogTitle>Confirm Submission</DialogTitle>
+                <DialogContent>
+                    <Typography gutterBottom>
+                        Are you sure you want to submit {cartItems.length} request(s)?
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        margin="dense"
+                        label="Remark (Highly Recommended)"
+                        placeholder="e.g. For Establishment Section Registrar office PU"
+                        variant="outlined"
+                        value={remark}
+                        onChange={(e) => setRemark(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenSubmitDialog(false)} color="inherit">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmSubmit} color="primary" variant="contained">
+                        Confirm & Submit
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </Box>
     );
 };

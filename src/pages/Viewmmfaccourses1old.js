@@ -6,7 +6,6 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import AddUserModal from './Addmmfaccourses';
 import AddUserModalBulk from './Addmmfaccoursesbulk';
-import AddUserModalBulkall from './Addmmfaccoursesbulkall';
 import EditUserModal from '../Crud/Edit';
 import DeleteUserModal from '../Crud/Delete';
 import ExportUserModal from './Export';
@@ -40,7 +39,6 @@ function ViewPage() {
     const [second, setSecond] = useState([]);
     const [openAdd, setOpenAdd] = useState(false);
     const [openAddBulk, setOpenAddBulk] = useState(false);
-    const [openAddBulkall, setOpenAddBulkall] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [openExport, setOpenExport] = useState(false);
@@ -548,10 +546,6 @@ return '';
     const handleOpenAddBulk = () => {
         setOpenAddBulk(true);
       };
-
-      const handleOpenAddBulkall = () => {
-        setOpenAddBulkall(true);
-      };
   
     const handleCloseAdd = () => {
       setOpenAdd(false);
@@ -563,14 +557,6 @@ return '';
 
     const handleCloseAddBulk = () => {
         setOpenAddBulk(false);
-        setNewUser({
-          coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '',
-          price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '',studentsenrolled:'', dateadded: ''
-        });
-      };
-
-      const handleCloseAddBulkall = () => {
-        setOpenAddBulkall(false);
         setNewUser({
           coursecode: '', coursetitle: '', year: '', coursetype: '', duration: '', offeredtimes: '', imagelink: '',
           price: '', category: '', department: '', coursehours: '', totalstudents: '', studentscompleted: '',studentsenrolled:'', dateadded: ''
@@ -720,14 +706,6 @@ type:type,
            </Button>
            <Button
              variant="contained"
-             color="success"
-             style={{ padding: '5px 10px', marginRight: '4px', fontSize: '12px', height: '30px', width: '80px' }}
-             onClick={handleOpenAddBulkall}
-           >
-             Bulk all
-           </Button>
-           <Button
-             variant="contained"
              color="primary"
              style={{ padding: '5px 10px', fontSize: '12px', marginRight: '4px', height: '30px', width: '80px' }}
              onClick={() => setOpenExport(true)}
@@ -843,14 +821,6 @@ height={250}
                 <AddUserModalBulk
                   open={openAddBulk}
                   handleClose={handleCloseAddBulk}
-                  handleInputChange={handleInputChange}
-                  handleAddUser={handleAddUser}
-                  newUser={newUser}
-                />
-
-                <AddUserModalBulkall
-                  open={openAddBulkall}
-                  handleClose={handleCloseAddBulkall}
                   handleInputChange={handleInputChange}
                   handleAddUser={handleAddUser}
                   newUser={newUser}

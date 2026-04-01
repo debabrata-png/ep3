@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Tabs, Tab, Paper, Grid, TextField, Button,
     Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, InputLabel, FormControl,
-    CircularProgress, Chip, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton
+    CircularProgress, Chip, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Backdrop
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+import { createRoot } from 'react-dom/client';
+import GatePassTemplate2 from './GatePassTemplate2';
+
+import S3 from 'react-aws-s3';
+window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const GatewaySecurityDashboardds2 = () => {
     const [tabValue, setTabValue] = useState(0);
@@ -47,8 +52,29 @@ const GatewaySecurityDashboardds2 = () => {
     const [expectedDateOfReturn, setExpectedDateOfReturn] = useState('');
     const [materialTakenBy, setMaterialTakenBy] = useState('');
 
+    // Document link + upload
+    const [documentLink, setDocumentLink] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
+    // S3 config from global1
+    const s3Config = {
+        bucketName: global1.bucket,
+        region: global1.region,
+        accessKeyId: global1.username,
+        secretAccessKey: global1.password,
+    };
+
+    const [prConfigData, setPrConfigData] = useState({
+        institutionname: '',
+        address: '',
+        phone: '',
+        prshort: ''
+    });
+
     useEffect(() => {
         fetchStoreUsers();
+        fetchPRConfig();
     }, []);
 
     useEffect(() => {
@@ -64,6 +90,23 @@ const GatewaySecurityDashboardds2 = () => {
             const res = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
             setStoreUsers(res.data.data.storeUsers || []);
         } catch (e) { console.error(e); }
+    };
+
+    const fetchPRConfig = async () => {
+        try {
+            const response = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
+            if (response.data.data) {
+                const data = response.data.data;
+                setPrConfigData({
+                    institutionname: data.institutionname || "Institution Name",
+                    address: data.address || "",
+                    phone: data.phone || "",
+                    prshort: data.prshort || 'GP'
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching PR Config:', error);
+        }
     };
 
     const fetchApprovedPOs = async () => {
@@ -107,8 +150,12 @@ const GatewaySecurityDashboardds2 = () => {
             const all = res.data.data || [];
             const filtered = all.filter(qc => {
                 const hasRejects = (qc.items || []).some(i => Number(i.rejectedQuantity) > 0);
-                if (outwardCategory === 'Internal') return true;
-                return hasRejects;
+                
+                if (outwardCategory === 'Internal') {
+                    return qc.returnType === 'Institution Movement' || qc.returnType === 'Internal';
+                }
+                
+                return hasRejects && qc.returnType === outwardCategory;
             });
             setQualityChecks(filtered.map(q => ({ ...q, id: q._id })));
         } catch (e) { console.error(e); } finally { setLoading(false); }
@@ -131,6 +178,7 @@ const GatewaySecurityDashboardds2 = () => {
     const handleOpenPassModal = async (record) => {
         setSelectedPO(record);
         setVehicleNo(''); setDriverName(''); setContactNo(''); setDcInvoiceNo(''); setRemarks(''); setRemarkType('Countable');
+        setDocumentLink(''); setSelectedFile(null);
 
         if (passDirection === 'Inward') {
             try {
@@ -155,6 +203,39 @@ const GatewaySecurityDashboardds2 = () => {
         }
     };
 
+    const handleFileSelect = (event) => {
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const handleUploadToS3 = () => {
+        if (!selectedFile) {
+            alert('Please select a file first');
+            return;
+        }
+        if (!global1.username) {
+            alert('Please configure AWS settings under Settings - AWS config');
+            return;
+        }
+        setUploading(true);
+        const ReactS3Client = new S3(s3Config);
+        const dt1 = new Date();
+        const month = dt1.getMonth() + 1;
+        const dt2 = month + '-' + dt1.getFullYear() + '-' + dt1.getDate() + '-' + dt1.getMinutes() + dt1.getSeconds();
+        const newFileName = dt2 + '-' + selectedFile.name;
+
+        ReactS3Client
+            .uploadFile(selectedFile, newFileName)
+            .then(data => {
+                setDocumentLink(data.location);
+                alert('File uploaded successfully!');
+                setUploading(false);
+            })
+            .catch(err => {
+                alert('Upload failed: ' + err);
+                setUploading(false);
+            });
+    };
+
     const handleCreatePass = async () => {
         if (!vehicleNo || !driverName || !dcInvoiceNo) {
             alert('Please fill Vehicle No, Driver Name, and Invoice No.');
@@ -173,7 +254,8 @@ const GatewaySecurityDashboardds2 = () => {
             items: poItems, orderType: orderType, npoSubType: orderType === 'NPO' ? npoSubType : '',
             storeName: selectedPO.storename || selectedPO.storeName || '',
             returnCategory: passDirection === 'Outward' ? outwardCategory : '',
-            shiftFrom, shiftTo, totalTrip, purpose, authorizedBy, expectedDateOfReturn, materialTakenBy
+            shiftFrom, shiftTo, totalTrip, purpose, authorizedBy, expectedDateOfReturn, materialTakenBy,
+            attachment: documentLink
         };
 
         try {
@@ -190,7 +272,7 @@ const GatewaySecurityDashboardds2 = () => {
 
     const handlePrint = (pass) => {
         if (pass.passType === 'Inward') {
-            return alert("Inward Passes don't have a designated outbound format.");
+            return printInwardPass(pass);
         }
         
         if (pass.returnCategory === 'Institution Movement') {
@@ -201,6 +283,25 @@ const GatewaySecurityDashboardds2 = () => {
             // Default to NRGP register format
             printNRGPPass(pass);
         }
+    };
+
+    const printInwardPass = (pass) => {
+        const printWindow = window.open('', '', 'height=800,width=800');
+        printWindow.document.write('<html><head><title>Print Inward Gate Pass</title></head><body><div id="print-gp-root"></div></body></html>');
+        printWindow.document.close();
+        const root = createRoot(printWindow.document.getElementById('print-gp-root'));
+        root.render(
+            <GatePassTemplate2 
+                passData={pass} 
+                instituteName={prConfigData.institutionname} 
+                instituteAddress={prConfigData.address} 
+                institutePhone={prConfigData.phone} 
+            />
+        );
+        setTimeout(() => { 
+            printWindow.focus(); 
+            printWindow.print(); 
+        }, 500);
     };
 
     const printIMPass = (pass) => {
@@ -448,6 +549,13 @@ const GatewaySecurityDashboardds2 = () => {
         { field: 'vehicleNo', headerName: 'Vehicle', width: 120 },
         { field: 'createdAt', headerName: 'Date', width: 180, valueFormatter: (params) => params.value ? new Date(params.value).toLocaleString('en-GB') : 'N/A' },
         {
+            field: 'attachment', headerName: 'Document', width: 120, renderCell: (params) => (
+                params.value ? (
+                    <Button variant="text" size="small" color="secondary" href={params.value} target="_blank">View</Button>
+                ) : 'N/A'
+            )
+        },
+        {
             field: 'actions', headerName: 'Print', width: 120, renderCell: (params) => (
                 <Button variant="outlined" size="small" onClick={() => handlePrint(params.row)}>
                     Print
@@ -551,6 +659,11 @@ const GatewaySecurityDashboardds2 = () => {
                 </Paper>
             )}
 
+            {/* Upload progress backdrop */}
+            <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={uploading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+
             {/* Gate Pass Generation Modal */}
             <Dialog open={openPassModal} onClose={() => setOpenPassModal(false)} maxWidth="md" fullWidth>
                 <DialogTitle sx={{ bgcolor: '#1a237e', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -632,7 +745,9 @@ const GatewaySecurityDashboardds2 = () => {
                                             <TableCell>Item Name</TableCell>
                                             <TableCell>Code</TableCell>
                                             <TableCell align="right">Expected Qty</TableCell>
-                                            <TableCell align="right" sx={{ width: 150 }}>Received Qty</TableCell>
+                                            <TableCell align="right" sx={{ width: 150 }}>
+                                                {passDirection === 'Inward' ? 'Received Qty' : 'Return Qty'}
+                                            </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -663,6 +778,23 @@ const GatewaySecurityDashboardds2 = () => {
 
                         <Grid item xs={12}>
                             <TextField fullWidth multiline rows={2} label="Security Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        </Grid>
+
+                        {/* Document Link & Upload */}
+                        <Grid item xs={12}><Typography variant="subtitle2" sx={{ mt: 1, color: 'secondary.main' }}>Document Attachment</Typography></Grid>
+                        <Grid item xs={12} md={5}>
+                            <TextField fullWidth label="Document Link" size="small" value={documentLink} onChange={(e) => setDocumentLink(e.target.value)} placeholder="Paste link or upload file below" />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Button variant="outlined" component="label" size="small" sx={{ mr: 1, height: 40 }}>
+                                {selectedFile ? selectedFile.name : 'Choose File'}
+                                <input type="file" hidden onChange={handleFileSelect} />
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <Button variant="contained" color="secondary" size="small" sx={{ height: 40 }} onClick={handleUploadToS3} disabled={!selectedFile || uploading}>
+                                {uploading ? 'Uploading...' : 'Upload to S3'}
+                            </Button>
                         </Grid>
                     </Grid>
                 </DialogContent>
