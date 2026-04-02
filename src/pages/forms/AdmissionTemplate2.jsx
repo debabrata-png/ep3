@@ -101,6 +101,10 @@ const AdmissionTemplate2 = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.email) {
+      alert("Please enter a valid email address.");
+      return;
+    }
     try {
       // const res = await axios.post(
       //   "http://localhost:8080/api/v1/applicationForm/create-applicationForm",

@@ -249,7 +249,7 @@ export default function SubjectManagement() {
     setError(""); setSuccess("");
     try {
       if (editId) {
-        await ep1.put(`/api/v2/subjects/${editId}`, form);
+        await ep1.post(`/api/v2/subjects/update/${editId}`, form);
         setSuccess("Subject record updated successfully.");
       } else {
         await ep1.post("/api/v2/subjects", form);
@@ -281,7 +281,7 @@ export default function SubjectManagement() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this subject? This action cannot be undone.")) return;
     try {
-      await ep1.delete(`/api/v2/subjects/${id}`);
+      await ep1.post(`/api/v2/subjects/delete/${id}`);
       setSuccess("Subject record deleted successfully.");
       fetchSubjects();
     } catch {

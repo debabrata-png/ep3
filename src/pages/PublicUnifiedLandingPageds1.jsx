@@ -296,7 +296,7 @@ const PublicUnifiedLandingPageds1 = () => {
                     p: { xs: 3, md: 6 },
                     mb: 4,
                     textAlign: 'center',
-                    background: landingPage.page_content?.image_url ? 'rgba(30, 41, 59, 0.6)' : 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    background: landingPage.page_content?.image_url ? 'rgba(30, 41, 59, 0.6)' : '#E31E24',
                     backdropFilter: landingPage.page_content?.image_url ? 'blur(10px)' : 'none',
                     color: 'white',
                     borderRadius: { xs: 2, md: 4 },
@@ -406,7 +406,7 @@ const PublicUnifiedLandingPageds1 = () => {
 
                             <Grid item xs={12}>
                                 <Button type="submit" variant="contained" size="large" fullWidth disabled={submitting || formData.phone.length !== 10}
-                                    sx={{ py: 1.5, fontSize: "1.1rem", fontWeight: 700, borderRadius: 2, textTransform: "none", bgcolor: "#ef6c00", boxShadow: "0 4px 12px rgba(239, 108, 0, 0.3)", "&:hover": { bgcolor: "#e65100" } }}>
+                                    sx={{ py: 1.5, fontSize: "1.1rem", fontWeight: 700, borderRadius: 2, textTransform: "none", bgcolor: "#E31E24", boxShadow: "0 4px 12px rgba(227, 30, 36, 0.3)", "&:hover": { bgcolor: "#c41a1f" } }}>
                                     {submitting ? <CircularProgress size={24} color="inherit" /> : "Submit Application"}
                                 </Button>
                             </Grid>
@@ -416,9 +416,9 @@ const PublicUnifiedLandingPageds1 = () => {
 
                 <Grid container spacing={2} sx={{ mt: 4 }}>
                     <Grid item xs={12}><Typography variant="h5" textAlign="center" gutterBottom sx={{ fontWeight: 700, color: "#1e293b", fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Why Choose Us?</Typography></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>Expert Faculty</Typography><Typography variant="body2" color="text.secondary">Learn from industry experts with years of experience</Typography></Paper></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>100% Placement</Typography><Typography variant="body2" color="text.secondary">Guaranteed placement assistance in top companies</Typography></Paper></Grid>
-                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#1565c0", fontSize: '1.1rem' }}>Modern Campus</Typography><Typography variant="body2" color="text.secondary">State-of-the-art facilities and infrastructure</Typography></Paper></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#E31E24", fontSize: '1.1rem' }}>Expert Faculty</Typography><Typography variant="body2" color="text.secondary">Learn from industry experts with years of experience</Typography></Paper></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#E31E24", fontSize: '1.1rem' }}>100% Placement</Typography><Typography variant="body2" color="text.secondary">Guaranteed placement assistance in top companies</Typography></Paper></Grid>
+                    <Grid item xs={12} md={4}><Paper elevation={0} sx={{ p: 4, textAlign: 'center', height: '100%', borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)" }}><Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: "#E31E24", fontSize: '1.1rem' }}>Modern Campus</Typography><Typography variant="body2" color="text.secondary">State-of-the-art facilities and infrastructure</Typography></Paper></Grid>
                 </Grid>
 
                 <Box sx={{ mt: 8, py: 4, textAlign: 'center', borderTop: '1px solid #e2e8f0' }}>

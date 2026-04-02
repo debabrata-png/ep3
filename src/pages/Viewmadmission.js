@@ -57,6 +57,7 @@ function ViewPage() {
   const link9 = "https://campustechnology1.netlify.app/admission/2/" + colid;
   const link10 = "https://campustechnology1.netlify.app/admission/3/" + colid;
   const link13 = "https://campustechnology1.netlify.app/pucadmissionform/" + colid
+  const linkStandard = "/admission/form/" + colid;
 
   const keywordsref = useRef();
   const policyref = useRef();
@@ -521,6 +522,8 @@ function ViewPage() {
               <a href={link12} target="blank">Admission form Template 12</a>
               <br />
               <a href={link13} target="blank">Admission form Template 13</a>
+              <br />
+              <a href={linkStandard} target="blank" style={{ color: '#E31E24', fontWeight: 'bold' }}>Standard Admission Form (New)</a>
               <br />
               {/* <Button onClick={onButtonClickm}
              variant="contained"

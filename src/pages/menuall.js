@@ -2009,6 +2009,13 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Confirm admission" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/admission/manage">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Manage Applications" />}
+          </ListItem>
+
           <ListItem button component={RouterLink} to="/admin/puc-admissions-list">
             <ListItemIcon>
               <PersonIcon />

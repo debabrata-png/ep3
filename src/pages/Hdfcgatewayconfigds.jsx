@@ -664,7 +664,6 @@ const Hdfcgatewayconfigds = () => {
                   value={formdata.baseurl}
                   onChange={handlechange}
                   required
-                  disabled
                 />
               </Grid>
 

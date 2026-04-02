@@ -30,6 +30,7 @@ export const adminMenuData = [
             { label: "Merit List All", path: "/admin/merit-list-all" },
             { label: "Merit List by Category", path: "/admin/merit-list-cat" },
             { label: "Confirm admission", path: "/admin/confirm-admission" },
+            { label: "Manage Applications", path: "/admission/manage" },
         ],
     },
     {

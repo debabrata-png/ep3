@@ -298,6 +298,9 @@ import Dashmtestq from './pages/Dashmtestq';
 import Dashmtestqadmin from './pages/Dashmtestqadmin';
 import Dashmtestqstud from './pages/Dashmtestqstud';
 import Dashmtesto from './pages/Dashmtesto';
+import AdmissionForm from './pages/AdmissionForm';
+import ManageApplications from './pages/ManageApplications';
+import ApplicationDetailsView from './pages/ApplicationDetailsView';
 import Dashmtestoadmin from './pages/Dashmtestoadmin';
 
 import CharacterizationOfDigitalLogic from './pages/CharacterizationOfDigitalLogic';
@@ -3136,6 +3139,11 @@ function App() {
                                         <Route path="/programwisecashbookreportds" element={<ProgramWiseCashbookReportDS />} />
                                         <Route path="/feesstructurereportds" element={<FeesStructureReportds />} />
                                         <Route path="/dcrreportds" element={<DCRReportPageds />} />
+
+                                        {/* Standard Admission System Routes */}
+                                        <Route path="/admission/form/:colid" element={<AdmissionForm />} />
+                                        <Route path="/admission/manage" element={<ManageApplications />} />
+                                        <Route path="/admission/details/:id" element={<ApplicationDetailsView />} />
 
                                 </Routes>
                         </React.Suspense>

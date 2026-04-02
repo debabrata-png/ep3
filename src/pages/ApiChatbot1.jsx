@@ -10,7 +10,7 @@ import ep1 from '../api/ep1';
 import global1 from './global1';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function ApiChatbot1() {
   const navigate = useNavigate();
@@ -32,6 +32,8 @@ export default function ApiChatbot1() {
   const [currentData, setCurrentData] = useState(null);
   const [aiReportText, setAiReportText] = useState('');
   const [waitingForAiQuery, setWaitingForAiQuery] = useState(false);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+  const stopProcessingRef = useRef(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,104 +81,125 @@ export default function ApiChatbot1() {
     const fullPrompt = `${prompt}\n\nData to analyze:\n${JSON.stringify(data, null, 2)}`;
 
     try {
-      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: fullPrompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                ingredients: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.STRING,
-                  },
-                },
-              },
-              propertyOrdering: ["ingredients"],
-            },
-          },
-        },
-      });
-
-      const response1 = response.text;
-      const parsedData = JSON.parse(response1);
-      let topic1 = '';
-
-      parsedData.forEach((module) => {
-        module.ingredients.forEach((topic) => {
-          topic1 = topic1 + topic + '\n';
-        });
-      });
-
-      return topic1;
+      const ai = new GoogleGenerativeAI(geminiApiKey);
+      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+      
+      const result = await model.generateContent(fullPrompt);
+      const response = await result.response;
+      return response.text();
     } catch (err) {
-      return 'Error: ' + err;
+      console.error('Gemini API Error:', err);
+      return 'Error: ' + err.message;
     }
   };
 
-  // Handle AI Report Generation
+  // Handle AI Report Generation (with Batching)
   const handleGenerateAiReport = async (query) => {
-    setOpen(true);
+    if (!currentData || !Array.isArray(currentData)) {
+      setMessages(prev => [...prev, { sender: 'bot', text: '❌ No data found to analyze.' }]);
+      return;
+    }
+
+    const BATCH_SIZE = 50;
+    const totalRecords = currentData.length;
+    const totalBatches = Math.ceil(totalRecords / BATCH_SIZE);
+    
+    setIsBatchProcessing(true);
+    stopProcessingRef.current = false;
+    setWaitingForAiQuery(false);
 
     setMessages(prev => [
       ...prev,
       { 
         sender: 'bot', 
-        text: 'Processing your data with AI... Please wait.' 
+        text: `🚀 Starting AI analysis in batches...\nTotal Records: ${totalRecords}\nBatch size: ${BATCH_SIZE}\nExpected Batches: ${totalBatches}`,
+        buttons: [
+          {
+            id: 'stop_processing',
+            label: '🛑 Stop Processing',
+            handler: () => {
+              stopProcessingRef.current = true;
+              setMessages(msg => [...msg, { sender: 'bot', text: '⏳ Stopping after current batch...' }]);
+            }
+          }
+        ]
       }
     ]);
 
-    try {
-      const aiResponse = await callGeminiAI(query, currentData);
-      setAiReportText(aiResponse);
-      
-      setOpen(false);
-      setWaitingForAiQuery(false);
+    const batchSummaries = [];
 
-      setMessages(prev => [
-        ...prev,
-        { 
-          sender: 'bot', 
-          text: `✨ AI Report Generated:\n\n${aiResponse}`,
-          buttons: [
-            {
-              id: 'export_ai_report',
-              label: 'Export AI Report to Excel',
-              handler: () => exportAiReport(aiResponse, currentApiConfig)
-            },
-            {
-              id: 'download_original',
-              label: 'Download Original Data',
-              handler: () => downloadExcel(currentData, currentApiConfig)
-            },
-            {
-              id: 'new_ai_query',
-              label: 'New AI Query',
-              handler: () => startAiReport()
-            },
-            {
-              id: 'search_again',
-              label: 'Search Another API',
-              handler: () => handleSearchAgain()
-            }
-          ]
+    try {
+      for (let i = 0; i < totalBatches; i++) {
+        // Check if stop was requested
+        if (stopProcessingRef.current) {
+          setMessages(prev => [...prev, { sender: 'bot', text: '✋ Processing stopped by user.' }]);
+          break;
         }
-      ]);
+
+        const start = i * BATCH_SIZE;
+        const end = Math.min(start + BATCH_SIZE, totalRecords);
+        const batchData = currentData.slice(start, end);
+
+        setMessages(prev => [
+          ...prev,
+          { sender: 'bot', text: `⏳ Processing Batch ${i + 1}/${totalBatches} (${start + 1}-${end})...` }
+        ]);
+
+        const batchReport = await callGeminiAI(
+          `Analyze this batch of data (Batch ${i+1}/${totalBatches}) based on this user query: "${query}". Provide a concise summary of findings for this batch.`,
+          batchData
+        );
+
+        batchSummaries.push(`Batch ${i+1} Summary: ${batchReport}`);
+
+        setMessages(prev => [
+          ...prev,
+          { sender: 'bot', text: `📦 Batch ${i + 1} Report:\n\n${batchReport}` }
+        ]);
+      }
+
+      // If finished all batches (or stopped), generate final consolidated report
+      if (batchSummaries.length > 0) {
+        setMessages(prev => [...prev, { sender: 'bot', text: '📝 Generating final consolidated report...' }]);
+        
+        const finalPrompt = `The following are partial reports from multiple batches of data analysis based on the query: "${query}". 
+        Please provide a comprehensive final consolidated report that merges all these findings into one professional summary.
+        
+        ${batchSummaries.join('\n\n')}`;
+
+        // For final report, we pass the summaries as "data" and use a default prompt
+        const finalReport = await callGeminiAI(finalPrompt, { note: "Summaries provided in prompt" });
+        setAiReportText(finalReport);
+
+        setMessages(prev => [
+          ...prev,
+          { 
+            sender: 'bot', 
+            text: `🏁 FINAL CONSOLIDATED REPORT:\n\n${finalReport}`,
+            buttons: [
+              {
+                id: 'export_ai_report',
+                label: 'Export Final Report to Excel',
+                handler: () => exportAiReport(finalReport, currentApiConfig)
+              },
+              {
+                id: 'search_again',
+                label: 'Search Another API',
+                handler: () => handleSearchAgain()
+              }
+            ]
+          }
+        ]);
+      }
     } catch (error) {
-      setOpen(false);
-      setWaitingForAiQuery(false);
+      console.error('Error in batch processing:', error);
       setMessages(prev => [
         ...prev,
-        { 
-          sender: 'bot', 
-          text: `❌ Error generating AI report: ${error.message}` 
-        }
+        { sender: 'bot', text: `❌ Error during analysis: ${error.message}` }
       ]);
+    } finally {
+      setIsBatchProcessing(false);
+      stopProcessingRef.current = false;
     }
   };
 
@@ -974,25 +997,29 @@ export default function ApiChatbot1() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            disabled={isBatchProcessing}
             placeholder={
-              waitingForAiQuery 
-                ? "Type your AI query here..." 
-                : "Type API name to search..."
+              isBatchProcessing
+                ? "Processing batches... Please wait."
+                : (waitingForAiQuery 
+                  ? "Type your AI query here..." 
+                  : "Type API name to search...")
             }
             sx={{
               '& .MuiOutlinedInput-root': {
-                bgcolor: waitingForAiQuery ? '#fff3e0' : 'white'
+                bgcolor: isBatchProcessing ? '#f5f5f5' : (waitingForAiQuery ? '#fff3e0' : 'white')
               }
             }}
           />
           <Button 
             variant="contained" 
             onClick={sendMessage}
+            disabled={isBatchProcessing}
             sx={{
               bgcolor: waitingForAiQuery ? '#ff9800' : '#1976d2'
             }}
           >
-            {waitingForAiQuery ? '✨ Ask AI' : 'Send'}
+            {isBatchProcessing ? <CircularProgress size={24} color="inherit" /> : (waitingForAiQuery ? '✨ Ask AI' : 'Send')}
           </Button>
         </Box>
       </Paper>
