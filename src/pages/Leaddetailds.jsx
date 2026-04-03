@@ -196,7 +196,7 @@ const Leaddetailds = () => {
         phone: leadData.phone || "",
         email: leadData.email || "",
         category: leadData.category || "",
-        course_interested: leadData.course_interested || "",
+        course_interested: leadData.program || "",
         source: leadData.source || "",
         city: leadData.city || "",
         state: leadData.state || "",

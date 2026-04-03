@@ -50,6 +50,8 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
+import AddLeadsDSBulk from "./AddLeadsDSBulk";
+import { CloudUpload as BulkUploadIcon } from "@mui/icons-material";
 
 const CustomToolbar = () => {
   return (
@@ -75,6 +77,7 @@ const Leadsds = () => {
   const [openCommDialog, setOpenCommDialog] = useState(false);
   const [openNotesDialog, setOpenNotesDialog] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [openBulkDialog, setOpenBulkDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -451,7 +454,7 @@ const Leadsds = () => {
       phone: lead.phone || "",
       email: lead.email || "",
       category: lead.category || "",
-      course_interested: lead.course_interested || "",
+      course_interested: lead.program || "",
       source: lead.source || "",
       city: lead.city || "",
       state: lead.state || "",
@@ -1001,6 +1004,21 @@ const Leadsds = () => {
             }}
           >
             Refresh
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<BulkUploadIcon />}
+            onClick={() => setOpenBulkDialog(true)}
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              borderColor: "#1565c0",
+              color: "#1565c0",
+              "&:hover": { borderColor: "#0d47a1", bgcolor: "rgba(21, 101, 192, 0.04)" },
+            }}
+          >
+            Bulk Upload
           </Button>
           <Button
             variant="contained"
@@ -1907,6 +1925,13 @@ const Leadsds = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Bulk Upload Dialog */}
+      <AddLeadsDSBulk
+        open={openBulkDialog}
+        handleClose={() => setOpenBulkDialog(false)}
+        refreshData={fetchLeads}
+      />
     </Container >
   );
 };

@@ -364,6 +364,18 @@ const QuestionBankListds = () => {
                         variant="outlined"
                         startIcon={<ViewIcon />}
                         onClick={() =>
+                          navigate(`/managedynamicformatds/${qb.questionbankcode}`)
+                        }
+                        sx={{ ml: 1 }}
+                        color="secondary"
+                      >
+                        Dynamic Paper
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ViewIcon />}
+                        onClick={() =>
                           navigate(`/managequestionsds/${qb.questionbankcode}`)
                         }
                       >

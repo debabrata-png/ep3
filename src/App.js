@@ -1429,7 +1429,10 @@ import NewAdminRoles from './pages/NewAdminroles';
 
 import Admissiontemplateann1 from "./pages/Admissiontemplateann1";
 import Admissiontemplateann2 from "./pages/Admissiontemplateann2";
-import Admissiontemplateann3 from "./pages/Admissiontemplateann3";
+import Admissiontemplateann3 from './pages/Admissiontemplateann3';
+import ManageDynamicFormatds from './pages/ManageDynamicFormatds';
+import ManageDynamicQuestionsds from './pages/ManageDynamicQuestionsds';
+
 
 import MentorRegistration from "./pages/Mentorregistration ";
 import Admissiontemplateann1new from "./components/Admissiontemplate1";
@@ -3144,6 +3147,10 @@ function App() {
                                         <Route path="/admission/form/:colid" element={<AdmissionForm />} />
                                         <Route path="/admission/manage" element={<ManageApplications />} />
                                         <Route path="/admission/details/:id" element={<ApplicationDetailsView />} />
+
+                                        {/* Dynamic Question Bank Format Routes */}
+                                        <Route path="/managedynamicformatds/:questionbankcode" element={<ManageDynamicFormatds />} />
+                                        <Route path="/managedynamicquestionsds/:questionbankcode" element={<ManageDynamicQuestionsds />} />
 
                                 </Routes>
                         </React.Suspense>
