@@ -1509,6 +1509,7 @@ import Dashmfeespayl from './pages/Dashmfeespayl';
 import DashmPaymentModeLanding from './pages/DashmPaymentModeLanding';
 import DashmChallanPayment from './pages/DashmChallanPayment';
 import DashmChallanConfig from './pages/DashmChallanConfig';
+import DashmChallanHistory from './pages/DashmChallanHistory';
 
 import Viewcrmstagepivot2 from './pages/Viewcrmstagepivot2';
 import Crompipedrill from './pages/Crompipedrill';
@@ -1543,6 +1544,7 @@ function App() {
                                         <Route path="/payment-mode-landing" element={<DashmPaymentModeLanding />} />
                                         <Route path="/challan-payment" element={<DashmChallanPayment />} />
                                         <Route path="/challan-config" element={<DashmChallanConfig />} />
+                                        <Route path="/challan-history" element={<DashmChallanHistory />} />
                                         <Route path='/manualcomp11to12' element={<ManualComp11to12 />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />

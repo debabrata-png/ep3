@@ -138,24 +138,22 @@ const ViewmChallanPayment = () => {
                 const payload = {
                     colid: parseInt(colid),
                     user: item.user,
-                    year: item.academicyear,
-                    programcode: item.programcode || studentInfo.programcode,
-                    student: studentInfo.name,
+                    name: studentInfo.name,
                     regno: studentInfo.regno,
+                    programcode: item.programcode || studentInfo.programcode,
+                    academicyear: item.academicyear,
                     feegroup: item.feegroup,
                     feeitem: item.feeitem,
                     semester: item.semester,
                     feecategory: item.feecategory,
-                    amount: Number(item.payingAmount),
-                    paymode: 'Challan',
-                    payref: payref,
-                    ledgerId: item._id,
-                    balance: item.balance - Number(item.payingAmount),
-                    name: studentInfo.name,
-                    paystatus: 'Submitted',
-                    paiddate: new Date()
+                    actualAmount: Number(item.amount || 0),
+                    paidAmount: Number(item.paid || 0),
+                    balance: Number(item.balance || 0),
+                    challanNo: payref,
+                    challanDate: new Date(),
+                    comments: 'Challan Issued'
                 };
-                await ep1.post('/api/v2/generatechallanpayment', payload);
+                await ep1.post('/api/v2/issuechallands', payload);
             }
 
             setSuccess(true);
@@ -359,7 +357,10 @@ const ViewmChallanPayment = () => {
                 <Button startIcon={<ArrowBack />} onClick={() => navigate('/payment-mode-landing')} sx={{ mb: 2 }}>Back</Button>
 
                 <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
-                    <Typography variant="h5" gutterBottom fontWeight="bold">Search Student for Challan</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                        <Typography variant="h5" fontWeight="bold">Search Student for Challan</Typography>
+                        <Button variant="outlined" color="primary" onClick={() => navigate('/challan-history')}>View Issuance History</Button>
+                    </Box>
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} sm={8}>
                             <TextField fullWidth placeholder="Registration No / User ID" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSearch()} />

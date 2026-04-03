@@ -1575,6 +1575,13 @@ export function menuitemsall() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan Config" />}
           </ListItem>
 
+          <ListItem button component={RouterLink} to="/challan-history">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Challan History" />}
+          </ListItem>
+
           <ListItem button component={RouterLink} to="/feesummaryreport">
             <ListItemIcon>
               <PersonIcon />
