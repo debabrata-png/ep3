@@ -19,6 +19,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  Autocomplete,
 } from '@mui/material';
 import {
   Save as SaveIcon,
@@ -33,7 +34,26 @@ import { useParams, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import ep1 from '../api/ep1';
-import global1 from './global1';
+ import global1 from './global1';
+
+const LANGUAGES = [
+  { label: 'English', code: 'en' },
+  { label: 'Hindi', code: 'hi' },
+  { label: 'Bengali', code: 'bn' },
+  { label: 'Marathi', code: 'mr' },
+  { label: 'Telugu', code: 'te' },
+  { label: 'Tamil', code: 'ta' },
+  { label: 'Gujarati', code: 'gu' },
+  { label: 'Kannada', code: 'kn' },
+  { label: 'Odia', code: 'or' },
+  { label: 'Malayalam', code: 'ml' },
+  { label: 'Punjabi', code: 'pa' },
+  { label: 'Assamese', code: 'as' },
+  { label: 'Sanskrit', code: 'sa' },
+  { label: 'Spanish', code: 'es' },
+  { label: 'French', code: 'fr' },
+  { label: 'German', code: 'de' },
+];
 
 const ManageDynamicQuestionsds = () => {
   const { questionbankcode } = useParams();
@@ -49,7 +69,8 @@ const ManageDynamicQuestionsds = () => {
   const [questionData, setQuestionData] = useState({});
   const [aiConfig, setAiConfig] = useState({
     difficulty: 'Medium',
-    keywords: ''
+    keywords: '',
+    targetLanguage: LANGUAGES[0], // Default English
   });
 
   // Recursive function to extract leaf nodes from the format structure
@@ -103,9 +124,12 @@ const ManageDynamicQuestionsds = () => {
         const found = existing.find(ex => ex.nodeId === leaf.id);
         dataMap[leaf.id] = {
           question: found?.question || '',
+          translatedQuestion: found?.translatedQuestion || '',
           answer: found?.answer || '',
+          translatedAnswer: found?.translatedAnswer || '',
           questiontype: 'Descriptive',
-          marks: leaf.marks
+          marks: leaf.marks,
+          targetLanguageCode: found?.targetLanguageCode || ''
         };
       });
 
@@ -132,7 +156,10 @@ const ManageDynamicQuestionsds = () => {
         partLabel: leaf.label,
         questionNo: index + 1,
         question: questionData[leaf.id]?.question || '',
+        translatedQuestion: questionData[leaf.id]?.translatedQuestion || '',
         answer: questionData[leaf.id]?.answer || '',
+        translatedAnswer: questionData[leaf.id]?.translatedAnswer || '',
+        targetLanguageCode: questionData[leaf.id]?.targetLanguageCode || aiConfig.targetLanguage?.code,
         marks: leaf.marks
       }));
 
@@ -195,6 +222,8 @@ const ManageDynamicQuestionsds = () => {
         format: { ...format, structure: smartStructure },
         difficulty: aiConfig.difficulty,
         keywords: aiConfig.keywords,
+        targetLanguage: aiConfig.targetLanguage?.label,
+        targetLanguageCode: aiConfig.targetLanguage?.code,
         colid: global1.colid,
         user: global1.user
       });
@@ -212,18 +241,24 @@ const ManageDynamicQuestionsds = () => {
               newData[targetId] = {
                 ...newData[targetId],
                 question: gen.question,
-                answer: gen.answer
+                translatedQuestion: gen.translatedQuestion,
+                answer: gen.answer,
+                translatedAnswer: gen.translatedAnswer,
+                targetLanguageCode: aiConfig.targetLanguage?.code
               };
               fillCount++;
             } else {
               // Fallback: match by partLabel if ID is mangled by AI
               const leafByLabel = leafNodes.find(leaf => leaf.label === gen.partLabel && !newData[leaf.id]?.question?.trim());
               if (leafByLabel) {
-                newData[leafByLabel.id] = {
-                  ...newData[leafByLabel.id],
-                  question: gen.question,
-                  answer: gen.answer
-                };
+                  newData[leafByLabel.id] = {
+                    ...newData[leafByLabel.id],
+                    question: gen.question,
+                    translatedQuestion: gen.translatedQuestion,
+                    answer: gen.answer,
+                    translatedAnswer: gen.translatedAnswer,
+                    targetLanguageCode: aiConfig.targetLanguage?.code
+                  };
                 fillCount++;
               }
             }
@@ -287,9 +322,14 @@ const ManageDynamicQuestionsds = () => {
         
         if (node.type === 'leaf') {
           const qText = questionData[node.id]?.question || '__________________________________________________';
+          const tText = questionData[node.id]?.translatedQuestion;
+          
+          // Combine English and Translated version if available
+          const cellContent = tText ? `${qText}\n\n(${tText})` : qText;
+
           tableData.push([
             { content: currentLabel, styles: { fontStyle: 'bold' } },
-            qText,
+            cellContent,
             { content: node.marks || '', styles: { halign: 'center' } }
           ]);
         } else {
@@ -398,14 +438,27 @@ const ManageDynamicQuestionsds = () => {
               onChange={(e) => setAiConfig({ ...aiConfig, keywords: e.target.value })}
               sx={{ 
                 bgcolor: 'white', 
-                borderRadius: 1,
-                '& .MuiOutlinedInput-root': {
-                   '& fieldset': { borderColor: 'transparent' },
-                }
+                borderRadius: 1
               }}
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
+            <Typography variant="subtitle2" gutterBottom>Target Language</Typography>
+            <Autocomplete
+              size="small"
+              options={LANGUAGES}
+              value={aiConfig.targetLanguage}
+              onChange={(e, val) => setAiConfig({ ...aiConfig, targetLanguage: val })}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  placeholder="Select Language" 
+                  sx={{ bgcolor: 'white', borderRadius: 1 }}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} md={2}>
             <Box sx={{ pt: 3 }}>
               <Button
                 variant="contained"
@@ -472,6 +525,37 @@ const ManageDynamicQuestionsds = () => {
                         placeholder="Describe what the student should answer..."
                       />
                     </Grid>
+
+                    {/* Bilingual Options */}
+                    { (questionData[leaf.id]?.translatedQuestion || aiConfig.targetLanguage?.code !== 'en') && (
+                      <>
+                        <Grid item xs={12}>
+                          <Divider sx={{ my: 1 }}><Chip label={`${aiConfig.targetLanguage?.label || 'Translated'} Version`} size="small" /></Divider>
+                        </Grid>
+                        <Grid item xs={12} md={7}>
+                          <TextField
+                            label={`Question (${aiConfig.targetLanguage?.label || 'Target'})`}
+                            multiline
+                            rows={3}
+                            fullWidth
+                            value={questionData[leaf.id]?.translatedQuestion || ''}
+                            onChange={(e) => handleInputChange(leaf.id, 'translatedQuestion', e.target.value)}
+                            sx={{ bgcolor: '#f0f4f8' }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={5}>
+                          <TextField
+                            label={`Answer (${aiConfig.targetLanguage?.label || 'Target'})`}
+                            multiline
+                            rows={3}
+                            fullWidth
+                            value={questionData[leaf.id]?.translatedAnswer || ''}
+                            onChange={(e) => handleInputChange(leaf.id, 'translatedAnswer', e.target.value)}
+                            sx={{ bgcolor: '#fff9c4' }}
+                          />
+                        </Grid>
+                      </>
+                    )}
                   </Grid>
                 </CardContent>
               </Card>

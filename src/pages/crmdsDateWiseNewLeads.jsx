@@ -156,7 +156,9 @@ const CrmdsDateWiseNewLeads = () => {
 
     const displayedLeads = selectedGraphDate
         ? leads.filter(l => {
-            const leadDate = new Date(l.createdAt).toLocaleDateString('en-CA'); // YYYY-MM-DD
+            const date = new Date(l.createdAt);
+            // Format to YYYY-MM-DD in IST to match backend grouping
+            const leadDate = date.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); 
             return leadDate === selectedGraphDate;
         })
         : leads;

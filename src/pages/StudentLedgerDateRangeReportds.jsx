@@ -140,7 +140,7 @@ const StudentLedgerDateRangeReportds = () => {
 
     if (activeGroupby === 'student') {
       header = ['Student Name', 'Reg No', 'Fee Item', 'Cash','UPI','NEFT','Cheque','PG',
-                'Total (Paymode)', 'Total Amount', 'Total Paid', 'Concession', 'Balance', 'Txns'];
+                'Total (Paymode)', 'Total Due', 'Total Paid', 'Concession', 'Balance', 'Txns'];
       rows = reportRows.map(r => [
         r.student, r.regno, r.feeitem,
         r.Cash, r.UPI, r.NEFT, r.Cheque, r.PG,
@@ -148,7 +148,7 @@ const StudentLedgerDateRangeReportds = () => {
       ]);
     } else {
       header = ['Fee Item', 'Student Name', 'Reg No', 'Cash','UPI','NEFT','Cheque','PG',
-                'Total (Paymode)', 'Total Amount', 'Total Paid', 'Concession', 'Balance', 'Txns'];
+                'Total (Paymode)', 'Total Due', 'Total Paid', 'Concession', 'Balance', 'Txns'];
       rows = reportRows.map(r => [
         r.feeitem,
         r.students?.map(s => s.student).filter(Boolean).join(', ') || '',
@@ -356,6 +356,9 @@ const StudentLedgerDateRangeReportds = () => {
             </Grid>
           ))}
           <Grid item xs={6} sm={4} md={2}>
+            <SummaryCard label="Total Due" value={grandTotals.totalAmount} color="#1565c0" icon={<Assessment />} />
+          </Grid>
+          <Grid item xs={6} sm={4} md={2}>
             <SummaryCard label="Total Paid" value={grandTotals.totalPaid} color="#4caf50" icon={<AccountBalance />} />
           </Grid>
           <Grid item xs={6} sm={4} md={2}>
@@ -424,7 +427,7 @@ const StudentLedgerDateRangeReportds = () => {
                       <TableCell key={pm} align="right" sx={{ ...thStyle, minWidth: 80 }}>{pm}</TableCell>
                     ))}
                     <TableCell align="right" sx={{ ...thStyle, bgcolor:'#0d47a1', minWidth:110 }}>Total (Paymode)</TableCell>
-                    <TableCell align="right" sx={{ ...thStyle, minWidth: 100 }}>Total Amount</TableCell>
+                    <TableCell align="right" sx={{ ...thStyle, minWidth: 100 }}>Total Due</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Total Paid</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Concession</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Balance</TableCell>
@@ -505,7 +508,7 @@ const StudentLedgerDateRangeReportds = () => {
                       <TableCell key={pm} align="right" sx={{ ...thStyle, minWidth: 80 }}>{pm}</TableCell>
                     ))}
                     <TableCell align="right" sx={{ ...thStyle, bgcolor:'#0d47a1', minWidth:110 }}>Total (Paymode)</TableCell>
-                    <TableCell align="right" sx={{ ...thStyle, minWidth: 100 }}>Total Amount</TableCell>
+                    <TableCell align="right" sx={{ ...thStyle, minWidth: 100 }}>Total Due</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Total Paid</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Concession</TableCell>
                     <TableCell align="right" sx={{ ...thStyle, minWidth: 95 }}>Balance</TableCell>

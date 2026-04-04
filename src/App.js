@@ -1529,6 +1529,10 @@ import ManualComp11to12 from './pages/ManualComp11to12.jsx';
 import CreateRfpds from './pages/CreateRfpds';
 import PublicVendorRfpForm from './pages/PublicVendorRfpForm';
 import RfpApprovalsds from './pages/RfpApprovalsds';
+
+import PublicUnifiedLandingPageds2 from './pages/PublicUnifiedLandingPageds2';
+import UnifiedLandingPageds2 from './pages/UnifiedLandingPageds2.jsx';
+
 function App() {
         return (
                 <Router>
@@ -1546,6 +1550,8 @@ function App() {
                                         <Route path="/challan-config" element={<DashmChallanConfig />} />
                                         <Route path="/challan-history" element={<DashmChallanHistory />} />
                                         <Route path='/manualcomp11to12' element={<ManualComp11to12 />} />
+                                        <Route path="/publicunifiedlandingpageds2/:slug" element={<PublicUnifiedLandingPageds2 />} />
+                                        <Route path="/unifiedlandingpage2" element={<UnifiedLandingPageds2 />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
