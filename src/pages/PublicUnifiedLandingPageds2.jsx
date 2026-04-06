@@ -122,16 +122,14 @@ const PublicUnifiedLandingPageds2 = () => {
                 ep1.get('/api/v2/geteducationqualificationsag1', { params: { colid } })
             ];
 
-            // Only fetch logo from API if not already provided in URL
-            if (!existingLogo) {
-                promises.push(ep1.get('/api/v2/checkinstitutionsds', { params: { colid } }));
-            }
+            // Always fetch institutional data to keep content (logo, etc.) fresh
+            promises.push(ep1.get('/api/v2/checkinstitutionsds', { params: { colid } }));
 
             const results = await Promise.all(promises);
             setQualifications(results[0].data.data || []);
 
-            if (!existingLogo && results[1]?.data.data?.institutions?.[0]) {
-                setLogo(results[1].data.data.institutions[0].logo || "");
+            if (results[1]?.data.data?.institutions?.[0]) {
+                setLogo(results[1].data.data.institutions[0].logo || existingLogo || "");
             }
         } catch (err) {
             console.error("Error fetching initial data:", err);
@@ -325,10 +323,10 @@ const PublicUnifiedLandingPageds2 = () => {
                                 style={{
                                     height: '80px',
                                     width: 'auto',
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
+                                    backgroundColor: 'rgba(255,255,255,0.1)', // Light background for contrast
                                     padding: '8px',
                                     borderRadius: '8px',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    backdropFilter: 'blur(4px)'
                                 }}
                             />
                         </Box>

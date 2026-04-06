@@ -340,6 +340,7 @@ import CrmdsUntouchedLeadReport from './pages/crmdsUntouchedLeadReport';
 import CrmdsFollowUpDueReport from './pages/crmdsFollowUpDueReport';
 import CrmdsSourceWiseEnhancedReport from './pages/crmdsSourceWiseEnhancedReport';
 import CrmdsConversionReport from './pages/crmdsConversionReport';
+import StudentLedgerWiseReportds from './pages/StudentLedgerWiseReportds';
 
 // ... inside Routes
 
@@ -3147,6 +3148,7 @@ function App() {
                                         <Route path="/crm-sourcewise-enhanced-report" element={<CrmdsSourceWiseEnhancedReport />} />
                                         <Route path="/crm-conversion-report" element={<CrmdsConversionReport />} />
                                         <Route path="/studentledgerdaterangereportds" element={<StudentLedgerDateRangeReportds />} />
+                                        <Route path="/studentledgerwisereportds" element={<StudentLedgerWiseReportds />} />
                                         <Route path="/programwisecashbookreportds" element={<ProgramWiseCashbookReportDS />} />
                                         <Route path="/feesstructurereportds" element={<FeesStructureReportds />} />
                                         <Route path="/dcrreportds" element={<DCRReportPageds />} />

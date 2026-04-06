@@ -230,6 +230,8 @@ const Signup = () => {
         navigate("/menugrouppage");
       } else if (response.data.role === "AHOI") {
         navigate("/role/ahoi");
+      } else if (response.data.role === "AO") {
+        navigate("/faculty-create-request2");
       } else {
         //navigate('/dashmmfaccourses');
         navigate('/dashdashfacnew');

@@ -54,6 +54,7 @@ export const adminMenuData = [
         items: [
             { label: "Fee configuration", path: "/admin/fee-config" },
             { label: "Student Ledger", path: "/admin/student-ledger" },
+            { label: "Student Ledger Wise Report", path: "/studentledgerwisereportds" },
             { label: "Fees collection", path: "/admin/fees-collection" },
         ],
     },

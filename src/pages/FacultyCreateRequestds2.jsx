@@ -34,11 +34,22 @@ const FacultyCreateRequestds2 = () => {
     const [approvalOption, setApprovalOption] = useState('HOI');
     const [remark, setRemark] = useState('');
     const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
+    const [indentNumber, setIndentNumber] = useState('');
+
+    const generateIndentNumber = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const date = String(now.getDate()).padStart(2, '0');
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `INDDSPUAREG/${year}${month}${date}${random}`;
+    };
 
     // Fetch initial data
     useEffect(() => {
         fetchStores();
         fetchItems();
+        setIndentNumber(generateIndentNumber());
     }, []);
 
     const fetchStores = async () => {
@@ -116,12 +127,14 @@ const FacultyCreateRequestds2 = () => {
             await Promise.all(cartItems.map(item => {
                 const { id, tempId, ...apiPayload } = item; // Remove local ID keys before sending
                 apiPayload.remark = remark; // Attach the remark from global state
+                apiPayload.indentNumber = indentNumber; // Attach the newly formatted indent number
                 return ep1.post('/api/v2/addrequisationds12', apiPayload);
             }));
             alert('All requisitions submitted successfully!');
             setCartItems([]);
             setOpenSubmitDialog(false);
             setRemark(''); // Clear remark for next session
+            setIndentNumber(generateIndentNumber()); // Generate a fresh indent number for next batch
         } catch (error) {
             console.error('Error submitting requisitions:', error);
             alert('Failed to submit some requisitions.');
@@ -136,20 +149,21 @@ const FacultyCreateRequestds2 = () => {
         try {
             const configRes = await ep1.get(`/api/v2/getprconfigds2?colid=${global1.colid}`);
             const instConfig = configRes.data?.data || {};
-            
+
             const printWindow = window.open('', '', 'width=900,height=700');
             const container = printWindow.document.createElement('div');
             printWindow.document.body.appendChild(container);
 
             const root = createRoot(container);
             root.render(
-                <FacultyRequisitionPrintTemplate 
+                <FacultyRequisitionPrintTemplate
                     items={itemsToPrint}
                     instituteName={instConfig.institutionname}
                     instituteAddress={instConfig.address}
                     institutePhone={instConfig.phone}
-                    indentNumber={`INDDSPUAREG/ ${Date.now()}`}
+                    indentNumber={indentNumber}
                     remark={remark}
+                    name={global1.name}
                 />
             );
 

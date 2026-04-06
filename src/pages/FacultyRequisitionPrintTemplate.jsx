@@ -17,7 +17,8 @@ const FacultyRequisitionPrintTemplate = ({
     institutePhone,
     indentNumber = "________________",
     department = "Asst. Registrar (Admin)",
-    remark = ""
+    remark = "",
+    name = "",
 }) => {
     const base = {
         fontFamily: '"Courier New", Courier, monospace',
@@ -94,10 +95,10 @@ const FacultyRequisitionPrintTemplate = ({
                             <td style={tdStyle}>{idx + 1}</td>
                             <td style={tdStyle}>{item.storename || item.section || '-'}</td>
                             <td style={tdStyle}>{item.itemname || '-'}</td>
-                            <td style={tdStyle}>{item.make || 'LOCAL'}</td>
+                            <td style={tdStyle}>{item.vendor || 'LOCAL'}</td>
                             <td style={tdStyle}>{item.quantity || '-'}</td>
                             <td style={tdStyle}>{item.unit || 'EA'}</td>
-                            <td style={tdStyle}>0</td>
+                            <td style={tdStyle}>{item.quantity}</td>
                         </tr>
                     ))}
                     {items.length === 0 && (
@@ -115,7 +116,7 @@ const FacultyRequisitionPrintTemplate = ({
             {/* Signatures */}
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', marginTop: 100 }}>
                 <div style={{ textAlign: 'left', fontWeight: 'bold' }}>
-                    Created By: ________________
+                    Created By: {name}
                 </div>
                 <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
                     Verified By Sign with Name ________________

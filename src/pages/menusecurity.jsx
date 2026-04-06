@@ -82,7 +82,7 @@ export function menusecurity() {
                     {open && <Typography sx={{ fontSize: 14 }}>Profile Page</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/role/staff-profile2">
+                    <ListItem button component={RouterLink} to="/role/staff-profile">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
