@@ -88,7 +88,7 @@ import StudentMarksheetViewPage1to5ds from './pages/StudentMarksheetViewPage1to5
 import StudentMarksheetViewPage6to8ds from './pages/StudentMarksheetViewPage6to8ds';
 import StudentMarksheetViewPage9to10ds from './pages/StudentMarksheetViewPage9to10ds';
 import RankReportds from './pages/RankReportds';
-import RankAuditTool from './pages/RankAuditTool';
+// import RankAuditTool from './pages/RankAuditTool';
 import ManualRankEntry6to8 from './pages/ManualRankEntry6to8';
 import ManualRankEntry9to10 from './pages/ManualRankEntry9to10';
 import ManualRankEntry11to12 from './pages/ManualRankEntry11to12';
@@ -2532,7 +2532,7 @@ function App() {
                                         <Route path="/dashmnn97admin" element={<Dashmnn97admin />} />
                                         <Route path="/dashmnn98" element={<Dashmnn98 />} />
                                         <Route path="/dashmnn98admin" element={<Dashmnn98admin />} />
-                                        <Route path="/rankaudittool" element={<RankAuditTool />} />
+                                        {/* <Route path="/rankaudittool" element={<RankAuditTool />} /> */}
 
 
 
