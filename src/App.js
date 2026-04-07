@@ -264,6 +264,10 @@ import ItemUnitds from './pages/ItemUnitds';
 import CashApprovalds from './pages/CashApprovalds';
 import ApproveCashApprovalds from './pages/ApproveCashApprovalds';
 import StaffProfileds from './pages/StaffProfileds'; // Added
+import BudgetTypeds from './pages/BudgetTypeds';
+import BudgetApproverds from './pages/BudgetApproverds';
+import BudgetDashboardds from './pages/BudgetDashboardds';
+import BudgetApprovalds from './pages/BudgetApprovalds';
 
 import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
@@ -3122,6 +3126,12 @@ function App() {
                                         <Route path="/PurchaseCellInventoryds" element={<PurchaseCellInventoryds />} />
                                         <Route path="/ItemCategoryds" element={<ItemCategoryds />} />
                                         <Route path="/ItemTypeds" element={<ItemTypeds />} />
+
+                                        {/* Budget Module Routes */}
+                                        <Route path="/BudgetTypeds" element={<BudgetTypeds />} />
+                                        <Route path="/BudgetApproverds" element={<BudgetApproverds />} />
+                                        <Route path="/BudgetDashboardds" element={<BudgetDashboardds />} />
+                                        <Route path="/BudgetApprovalds" element={<BudgetApprovalds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
                                         <Route path="/staffprofileds" element={<StaffProfileds />} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />

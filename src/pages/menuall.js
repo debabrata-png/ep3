@@ -4712,6 +4712,39 @@ export function menuitemsall() {
           </ListItem>
         </AccordionDetails>
       </Accordion> */}
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel-budget-content" id="panel-budget-header">
+          <AccountBalanceWalletIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Budget Management</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+          <ListItem button component={RouterLink} to="/BudgetDashboardds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Budget Dashboard" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/BudgetApprovalds">
+            <ListItemIcon>
+              <ApprovalIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Budget Approval" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/BudgetTypeds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Budget Types" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/BudgetApproverds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Budget Approvers" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
       <Accordion>
         <AccordionSummary aria-controls="panel-reports-content" id="panel-reports-header">
           <AssignmentIcon sx={{ marginRight: 1 }} />
