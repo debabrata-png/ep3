@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Paper, Container, Grid, Card, CardContent } from '@mui/material';
+import { Typography, Paper, Container, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import AdminLayout from '../components/AdminLayout';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import api from '../api/ep1';
@@ -12,7 +12,8 @@ export default function DashMainAdmin() {
         classesConductedToday: 0,
         staffPresentToday: 0,
         userDistribution: {},
-        lmsStats: 0
+        lmsStats: 0,
+        studentDistribution: []
     });
     const [loading, setLoading] = useState(true);
 
@@ -64,6 +65,12 @@ export default function DashMainAdmin() {
         { name: 'LMS Videos', count: stats.lmsStats },
     ];
 
+    // Prepare data for Student Distribution Bar Chart
+    const distributionChartData = (stats.studentDistribution || []).map(row => ({
+        name: `${row._id.programcode} (${row._id.admissionyear}-S${row._id.semester})`,
+        count: row.count
+    }));
+
     return (
         <AdminLayout title="Admin Dashboard">
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -77,6 +84,32 @@ export default function DashMainAdmin() {
                             <Typography variant="body1">
                                 Welcome to the Admin Dashboard. Here is the summary for today.
                             </Typography>
+                        </Paper>
+                    </Grid>
+
+                    {/* NEW: Student Distribution Graph at Top */}
+                    <Grid item xs={12}>
+                        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 450 }}>
+                            <Typography component="h2" variant="h6" color="primary" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                Student Report
+                            </Typography>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={distributionChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis
+                                        dataKey="name"
+                                        interval={0}
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={120}
+                                        style={{ fontSize: '12px' }}
+                                    />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend verticalAlign="top" />
+                                    <Bar dataKey="count" name="Total Students" fill="#42a5f5" label={{ position: 'top' }} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </Paper>
                     </Grid>
 
@@ -108,8 +141,8 @@ export default function DashMainAdmin() {
                     <Grid item xs={12} md={3}>
                         <Card sx={{ bgcolor: '#f3e5f5' }}>
                             <CardContent>
-                                <Typography color="textSecondary" gutterBottom>Total Faculties</Typography>
-                                <Typography variant="h3">{stats.userDistribution['Faculty'] || 0}</Typography>
+                                <Typography color="textSecondary" gutterBottom>Total Students</Typography>
+                                <Typography variant="h3">{stats.userDistribution['Student'] || 0}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -159,6 +192,45 @@ export default function DashMainAdmin() {
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
+                        </Paper>
+                    </Grid>
+
+                    {/* Student Distribution Section */}
+                    <Grid item xs={12}>
+                        <Paper sx={{ p: 4, display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
+                            <Typography component="h2" variant="h5" color="primary" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
+                                Student Distribution
+                            </Typography>
+                            <TableContainer>
+                                <Table sx={{ minWidth: 650 }} aria-label="student distribution table">
+                                    <TableHead>
+                                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                                            <TableCell sx={{ fontWeight: 'bold' }}>Academic Year</TableCell>
+                                            <TableCell sx={{ fontWeight: 'bold' }}>Semester</TableCell>
+                                            <TableCell sx={{ fontWeight: 'bold' }}>Program Code</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Total Students</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {stats.studentDistribution && stats.studentDistribution.length > 0 ? (
+                                            stats.studentDistribution.map((row, index) => (
+                                                <TableRow key={index} hover>
+                                                    <TableCell>{row._id.admissionyear}</TableCell>
+                                                    <TableCell>{row._id.semester}</TableCell>
+                                                    <TableCell>{row._id.programcode}</TableCell>
+                                                    <TableCell align="right" sx={{ fontWeight: '600' }}>{row.count}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                                                    <Typography color="textSecondary">No distribution data available</Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </Paper>
                     </Grid>
 
