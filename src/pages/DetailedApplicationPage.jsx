@@ -5,6 +5,10 @@ import {
   Typography,
   Grid,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Button,
   TextField,
   Snackbar,
@@ -62,6 +66,12 @@ const DetailedApplicationPage = () => {
     semester: "",
     feecategory: "",
   });
+  const [filterOptions, setFilterOptions] = useState({
+    programcodes: [],
+    academicyears: [],
+    semesters: [],
+    feecategories: []
+  });
   const [feeAmount, setFeeAmount] = useState(null);
   const [feeData, setFeeData] = useState(null);
 
@@ -84,6 +94,19 @@ const DetailedApplicationPage = () => {
     } catch {}
   };
 
+  const fetchFilterOptions = async () => {
+    try {
+      const { data } = await ep1.get("/api/v2/getfeesfiltervalues", {
+        params: { colid: global1.colid }
+      });
+      if (data.success) {
+        setFilterOptions(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching filter options:", err);
+    }
+  };
+
   /* fetch fee once – cached in feeData */
   const fetchFeeAmount = async () => {
     try {
@@ -97,6 +120,7 @@ const DetailedApplicationPage = () => {
 
   useEffect(() => {
     fetchApplication();
+    fetchFilterOptions();
   }, [id]);
 
   /* helpers */
@@ -152,6 +176,14 @@ const DetailedApplicationPage = () => {
         department: application.programOptingFor,
         colid: application.colId,
         status: 1,
+        dob: application.dob || application.dateOfBirth || "",
+        fathername: application.fatherName || application.fathername || application.parentName || "",
+        mothername: application.motherName || application.mothername || "",
+        category: application.category || application.caste || "",
+        address: application.address || (typeof application.permanentAddress === 'string' ? application.permanentAddress : application.permanentAddress?.addressLine1) || "",
+        quota: application.quota || application.reservedCategory || "",
+        religion: application.religion || "",
+        nationality: application.nationality || "",
       };
 
       const { data: userData } = await ep1.post("/api/v2/createuser", userPayload);
@@ -276,36 +308,60 @@ const DetailedApplicationPage = () => {
           </Typography>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6} md={2.4}>
-              <TextField
-                label="Program Code"
-                fullWidth
-                value={filters.programcode}
-                onChange={(e) => setFilters({ ...filters, programcode: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Program Code</InputLabel>
+                <Select
+                  value={filters.programcode}
+                  onChange={(e) => setFilters({ ...filters, programcode: e.target.value })}
+                  label="Program Code"
+                >
+                  {filterOptions.programcodes.map((code) => (
+                    <MenuItem key={code} value={code}>{code}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2.4}>
-              <TextField
-                label="Academic Year"
-                fullWidth
-                value={filters.academicyear}
-                onChange={(e) => setFilters({ ...filters, academicyear: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Academic Year</InputLabel>
+                <Select
+                  value={filters.academicyear}
+                  onChange={(e) => setFilters({ ...filters, academicyear: e.target.value })}
+                  label="Academic Year"
+                >
+                  {filterOptions.academicyears.map((year) => (
+                    <MenuItem key={year} value={year}>{year}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2.4}>
-              <TextField
-                label="Semester"
-                fullWidth
-                value={filters.semester}
-                onChange={(e) => setFilters({ ...filters, semester: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Semester</InputLabel>
+                <Select
+                  value={filters.semester}
+                  onChange={(e) => setFilters({ ...filters, semester: e.target.value })}
+                  label="Semester"
+                >
+                  {filterOptions.semesters.map((sem) => (
+                    <MenuItem key={sem} value={sem}>{sem}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2.4}>
-              <TextField
-                label="Fee Category"
-                fullWidth
-                value={filters.feecategory}
-                onChange={(e) => setFilters({ ...filters, feecategory: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Fee Category</InputLabel>
+                <Select
+                  value={filters.feecategory}
+                  onChange={(e) => setFilters({ ...filters, feecategory: e.target.value })}
+                  label="Fee Category"
+                >
+                  {filterOptions.feecategories.map((cat) => (
+                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2.4}>
               <Button variant="contained" fullWidth onClick={fetchFeeAmount}>
