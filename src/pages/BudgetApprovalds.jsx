@@ -21,23 +21,39 @@ const BudgetApprovalds = () => {
 
     // Add category dialog for approvers with create access
     const [openCat, setOpenCat] = useState(false);
-    const [catForm, setCatForm] = useState({ category: '', amount: '', budgettype: '', remarks: '' });
+    const [catForm, setCatForm] = useState({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
     const [selectedBudgetId, setSelectedBudgetId] = useState(null);
     const [selectedBudgetName, setSelectedBudgetName] = useState('');
     const [budgetTypes, setBudgetTypes] = useState([]);
     const [itemCategories, setItemCategories] = useState([]);
+    const [budgetGroups, setBudgetGroups] = useState([]);
 
     useEffect(() => { 
         fetchBudgetsForApproval(); 
         fetchBudgetTypes();
         fetchItemCategories();
+        fetchBudgetGroups();
     }, []);
+
+    const fetchBudgetGroups = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getbudgetgroupsdistinct?colid=${global1.colid}`);
+            setBudgetGroups(res.data.data.items || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchCategoriesByGroup = async (groupName) => {
+        try {
+            const res = await ep1.get(`/api/v2/getbudgetcategoriesbygroup?colid=${global1.colid}&groupname=${groupName}`);
+            setItemCategories(res.data.data.items || []);
+        } catch (e) { console.error(e); }
+    };
 
     const fetchBudgetsForApproval = async () => {
         try {
             setLoading(true);
             const res = await ep1.get(`/api/v2/getbudgetsforapproval?colid=${global1.colid}&useremail=${global1.user}`);
-            setBudgets(res.data.data.items || []);
+            setBudgets(res.data.data?.items || []);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     };
@@ -45,14 +61,15 @@ const BudgetApprovalds = () => {
     const fetchBudgetTypes = async () => {
         try {
             const res = await ep1.get(`/api/v2/getallbudgettypeds?colid=${global1.colid}`);
-            setBudgetTypes(res.data.data.items.filter(t => t.isactive !== false));
+            const items = res.data?.data?.items || [];
+            setBudgetTypes(items.filter(t => t.isactive !== false));
         } catch (e) { console.error(e); }
     };
 
     const fetchItemCategories = async () => {
         try {
             const res = await ep1.get(`/api/v2/getallitemcategoryds?colid=${global1.colid}`);
-            setItemCategories(res.data.data.items);
+            setItemCategories(res.data?.data?.items || []);
         } catch (e) { console.error(e); }
     };
 
@@ -67,8 +84,9 @@ const BudgetApprovalds = () => {
     const handleOpenAddCategory = (budgetId, budgetName) => {
         setSelectedBudgetId(budgetId);
         setSelectedBudgetName(budgetName);
-        setCatForm({ category: '', amount: '', budgettype: '', remarks: '' });
+        setCatForm({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
         setOpenCat(true);
+        fetchItemCategories(); // Reset
     };
 
     const handleSaveCategory = async () => {
@@ -165,6 +183,7 @@ const BudgetApprovalds = () => {
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell><strong>Group</strong></TableCell>
                                     <TableCell><strong>Category</strong></TableCell>
                                     <TableCell><strong>Amount</strong></TableCell>
                                     <TableCell><strong>Budget Type</strong></TableCell>
@@ -177,6 +196,7 @@ const BudgetApprovalds = () => {
                             <TableBody>
                                 {(budget.categories || []).map((cat) => (
                                     <TableRow key={cat._id}>
+                                        <TableCell>{cat.groupname || '—'}</TableCell>
                                         <TableCell>{cat.category}</TableCell>
                                         <TableCell>₹ {(cat.amount || 0).toLocaleString()}</TableCell>
                                         <TableCell>{cat.budgettype}</TableCell>
@@ -184,7 +204,13 @@ const BudgetApprovalds = () => {
                                         {(budget.approverConfig?.iseditaccess || budget.approverConfig?.isdeleteaccess) && (
                                             <TableCell>
                                                 {budget.approverConfig?.iseditaccess && (
-                                                    <Button size="small" onClick={() => { setEditCatId(cat._id); setEditAmount(cat.amount || ''); setOpenEdit(true); }}>
+                                                    <Button size="small" onClick={() => { 
+                                                        setEditCatId(cat._id); 
+                                                        setEditAmount(cat.amount || ''); 
+                                                        setCatForm({ groupname: cat.groupname || '', category: cat.category || '', amount: cat.amount || '', budgettype: cat.budgettype || '', remarks: cat.remarks || '' });
+                                                        if (cat.groupname) fetchCategoriesByGroup(cat.groupname);
+                                                        setOpenEdit(true); 
+                                                    }}>
                                                         Edit Amount
                                                     </Button>
                                                 )}
@@ -197,7 +223,7 @@ const BudgetApprovalds = () => {
                                 ))}
                                 {(budget.categories || []).length > 0 && (
                                     <TableRow>
-                                        <TableCell><strong>Total</strong></TableCell>
+                                        <TableCell colSpan={2}><strong>Total</strong></TableCell>
                                         <TableCell><strong>₹ {(budget.categories || []).reduce((s, c) => s + (c.amount || 0), 0).toLocaleString()}</strong></TableCell>
                                         <TableCell colSpan={3}></TableCell>
                                     </TableRow>
@@ -251,12 +277,30 @@ const BudgetApprovalds = () => {
                 <DialogTitle>Add Budget Category — {selectedBudgetName}</DialogTitle>
                 <DialogContent>
                     <FormControl fullWidth margin="normal">
+                        <InputLabel>Budget Group</InputLabel>
+                        <Select 
+                            value={catForm.groupname} 
+                            label="Budget Group" 
+                            onChange={e => {
+                                const group = e.target.value;
+                                setCatForm({ ...catForm, groupname: group, category: '' });
+                                fetchCategoriesByGroup(group);
+                            }}
+                        >
+                            {budgetGroups.map((g, idx) => <MenuItem key={idx} value={g}>{g}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth margin="normal" disabled={!catForm.groupname}>
                         <InputLabel>Category</InputLabel>
                         <Select value={catForm.category} label="Category" onChange={e => setCatForm({ ...catForm, category: e.target.value })}>
-                            {itemCategories.map(c => <MenuItem key={c._id} value={c.categoryname || c.name}>{c.categoryname || c.name}</MenuItem>)}
+                            {itemCategories.map((c, idx) => {
+                                const val = typeof c === 'string' ? c : (c.categoryname || c.name);
+                                return <MenuItem key={idx} value={val}>{val}</MenuItem>;
+                            })}
                         </Select>
                     </FormControl>
                     <TextField label="Amount" fullWidth margin="normal" type="number" value={catForm.amount} onChange={e => setCatForm({ ...catForm, amount: e.target.value })} />
+
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Budget Type</InputLabel>
                         <Select value={catForm.budgettype} label="Budget Type" onChange={e => setCatForm({ ...catForm, budgettype: e.target.value })}>

@@ -11,6 +11,7 @@ const BudgetDashboardds = () => {
     const [budgetTypes, setBudgetTypes] = useState([]);
     const [categories, setCategories] = useState([]);
     const [itemCategories, setItemCategories] = useState([]);
+    const [budgetGroups, setBudgetGroups] = useState([]);
 
     // Budget form
     const [openBudget, setOpenBudget] = useState(false);
@@ -20,7 +21,7 @@ const BudgetDashboardds = () => {
     // Category form
     const [openCat, setOpenCat] = useState(false);
     const [editCatId, setEditCatId] = useState(null);
-    const [catForm, setCatForm] = useState({ category: '', amount: '', budgettype: '', remarks: '' });
+    const [catForm, setCatForm] = useState({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
     const [selectedBudgetId, setSelectedBudgetId] = useState(null);
     const [selectedBudgetName, setSelectedBudgetName] = useState('');
 
@@ -32,33 +33,50 @@ const BudgetDashboardds = () => {
         fetchBudgets();
         fetchBudgetTypes();
         fetchItemCategories();
+        fetchBudgetGroups();
     }, []);
+
+    const fetchBudgetGroups = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getbudgetgroupsdistinct?colid=${global1.colid}`);
+            setBudgetGroups(res.data.data.items || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchCategoriesByGroup = async (groupName) => {
+        try {
+            const res = await ep1.get(`/api/v2/getbudgetcategoriesbygroup?colid=${global1.colid}&groupname=${groupName}`);
+            setItemCategories(res.data.data.items || []);
+        } catch (e) { console.error(e); }
+    };
 
     const fetchBudgets = async () => {
         try {
             const res = await ep1.get(`/api/v2/getallbudgetpods?colid=${global1.colid}`);
-            setBudgets(res.data.data.items.map(i => ({ ...i, id: i._id })));
+            const items = res.data?.data?.items || [];
+            setBudgets(items.map(i => ({ ...i, id: i._id })));
         } catch (e) { console.error(e); }
     };
 
     const fetchBudgetTypes = async () => {
         try {
             const res = await ep1.get(`/api/v2/getallbudgettypeds?colid=${global1.colid}`);
-            setBudgetTypes(res.data.data.items.filter(t => t.isactive !== false));
+            const items = res.data?.data?.items || [];
+            setBudgetTypes(items.filter(t => t.isactive !== false));
         } catch (e) { console.error(e); }
     };
 
     const fetchItemCategories = async () => {
         try {
             const res = await ep1.get(`/api/v2/getallitemcategoryds?colid=${global1.colid}`);
-            setItemCategories(res.data.data.items);
+            setItemCategories(res.data?.data?.items || []);
         } catch (e) { console.error(e); }
     };
 
     const fetchCategoriesForBudget = async (budgetId) => {
         try {
             const res = await ep1.get(`/api/v2/getbudgetpocatdsbybudgetid?budgetid=${budgetId}&colid=${global1.colid}`);
-            setExpandedCategories(res.data.data.items);
+            setExpandedCategories(res.data?.data?.items || []);
         } catch (e) { console.error(e); }
     };
 
@@ -96,9 +114,10 @@ const BudgetDashboardds = () => {
     const handleOpenAddCategory = (budgetId, budgetName) => {
         setSelectedBudgetId(budgetId);
         setSelectedBudgetName(budgetName);
-        setCatForm({ category: '', amount: '', budgettype: '', remarks: '' });
+        setCatForm({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
         setEditCatId(null);
         setOpenCat(true);
+        fetchItemCategories(); // Reset to all until group is selected
     };
 
     const handleSaveCategory = async () => {
@@ -199,6 +218,7 @@ const BudgetDashboardds = () => {
                         <Table size="medium">
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                                    <TableCell align="center" sx={{ color: '#fff', fontWeight: 600 }}>Group</TableCell>
                                     <TableCell align="center" sx={{ color: '#fff', fontWeight: 600 }}>Category</TableCell>
                                     <TableCell align="center" sx={{ color: '#fff', fontWeight: 600 }}>Amount</TableCell>
                                     <TableCell align="center" sx={{ color: '#fff', fontWeight: 600 }}>Budget Type</TableCell>
@@ -210,6 +230,7 @@ const BudgetDashboardds = () => {
                             <TableBody>
                                 {expandedCategories.map((cat, idx) => (
                                     <TableRow key={cat._id} sx={{ backgroundColor: idx % 2 === 0 ? '#fafafa' : '#fff' }}>
+                                        <TableCell align="center">{cat.groupname || '—'}</TableCell>
                                         <TableCell align="center">{cat.category}</TableCell>
                                         <TableCell align="center">₹ {(cat.amount || 0).toLocaleString()}</TableCell>
                                         <TableCell align="center">{cat.budgettype}</TableCell>
@@ -220,7 +241,8 @@ const BudgetDashboardds = () => {
                                                 setEditCatId(cat._id);
                                                 setSelectedBudgetId(cat.budgetid);
                                                 setSelectedBudgetName(cat.budgetname);
-                                                setCatForm({ category: cat.category || '', amount: cat.amount || '', budgettype: cat.budgettype || '', remarks: cat.remarks || '' });
+                                                setCatForm({ groupname: cat.groupname || '', category: cat.category || '', amount: cat.amount || '', budgettype: cat.budgettype || '', remarks: cat.remarks || '' });
+                                                if (cat.groupname) fetchCategoriesByGroup(cat.groupname);
                                                 setOpenCat(true);
                                             }}>Edit</Button>
                                             <Button size="small" color="error" onClick={() => handleDeleteCategory(cat._id)}>Delete</Button>
@@ -228,13 +250,13 @@ const BudgetDashboardds = () => {
                                     </TableRow>
                                 ))}
                                 {expandedCategories.length === 0 && (
-                                    <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: '#999' }}>No categories added yet</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} align="center" sx={{ py: 3, color: '#999' }}>No categories added yet</TableCell></TableRow>
                                 )}
                                 {expandedCategories.length > 0 && (
                                     <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
                                         <TableCell align="center" sx={{ fontWeight: 700 }}>Total</TableCell>
                                         <TableCell align="center" sx={{ fontWeight: 700 }}>₹ {expandedCategories.reduce((s, c) => s + (c.amount || 0), 0).toLocaleString()}</TableCell>
-                                        <TableCell colSpan={4}></TableCell>
+                                        <TableCell colSpan={5}></TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
@@ -322,12 +344,30 @@ const BudgetDashboardds = () => {
                 <DialogTitle>{editCatId ? 'Edit' : 'Add'} Budget Category — {selectedBudgetName}</DialogTitle>
                 <DialogContent>
                     <FormControl fullWidth margin="normal">
+                        <InputLabel>Budget Group</InputLabel>
+                        <Select 
+                            value={catForm.groupname} 
+                            label="Budget Group" 
+                            onChange={e => {
+                                const group = e.target.value;
+                                setCatForm({ ...catForm, groupname: group, category: '' });
+                                fetchCategoriesByGroup(group);
+                            }}
+                        >
+                            {budgetGroups.map((g, idx) => <MenuItem key={idx} value={g}>{g}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth margin="normal" disabled={!catForm.groupname}>
                         <InputLabel>Category</InputLabel>
                         <Select value={catForm.category} label="Category" onChange={e => setCatForm({ ...catForm, category: e.target.value })}>
-                            {itemCategories.map(c => <MenuItem key={c._id} value={c.categoryname || c.name}>{c.categoryname || c.name}</MenuItem>)}
+                            {itemCategories.map((c, idx) => {
+                                const val = typeof c === 'string' ? c : (c.categoryname || c.name);
+                                return <MenuItem key={idx} value={val}>{val}</MenuItem>;
+                            })}
                         </Select>
                     </FormControl>
                     <TextField label="Amount" fullWidth margin="normal" type="number" value={catForm.amount} onChange={e => setCatForm({ ...catForm, amount: e.target.value })} />
+
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Budget Type</InputLabel>
                         <Select value={catForm.budgettype} label="Budget Type" onChange={e => setCatForm({ ...catForm, budgettype: e.target.value })}>

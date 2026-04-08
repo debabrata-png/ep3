@@ -133,6 +133,17 @@ export const adminMenuData = [
         ],
     },
     {
+        title: "Budget",
+        items: [
+            { label: "Budget Dashboard", path: "/BudgetDashboardds" },
+            { label: "Budget Approval", path: "/BudgetApprovalds" },
+            { label: "Budget Configuration", path: "/BudgetTypeds" },
+            { label: "Budget Approver", path: "/BudgetApproverds" },
+            { label: "Budget Grouping", path: "/BudgetGroupds" },
+            { label: "Group-wise Budget Report", path: "/GroupWiseBudgetReportds" },
+        ],
+    },
+    {
         title: "Communication",
         items: [
             { label: "Communication", path: "/newcomunicationds" },
