@@ -74,6 +74,28 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
     // Delivery Types
     const [deliveryTypes, setDeliveryTypes] = useState([]);
 
+    // Budget Tracking
+    const [availableBudget, setAvailableBudget] = useState(null);
+
+    const fetchAvailableBudget = async (category) => {
+        if (!category) {
+            setAvailableBudget(null);
+            return;
+        }
+        try {
+            const yearStr = new Date().getFullYear().toString();
+            const res = await ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}`);
+            if (res.data && res.data.data) {
+                setAvailableBudget(res.data.data.availableAmount);
+            } else {
+                setAvailableBudget(null);
+            }
+        } catch (error) {
+            console.error("Error fetching budget for category", error);
+            setAvailableBudget(null);
+        }
+    };
+
     useEffect(() => {
         setLoading(true);
 
@@ -294,6 +316,35 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
         setAddToPoPrice('');
         setMatchingDraftPOs([]);
 
+        // Ensure all data arrays are ready for fallback matches
+        if (vendors.length === 0) await fetchVendors();
+        if (vendorItems.length === 0) await fetchVendorItems();
+
+        let localAllItems = allItems;
+        if (localAllItems.length === 0) {
+            try {
+                const response = await ep1.get(`/api/v2/getallitemmasterds2?colid=${global1.colid}`);
+                localAllItems = response.data.data.items || [];
+                setAllItems(localAllItems);
+            } catch (error) { console.error(error); }
+        }
+
+        // Find category: either from PR or fallback to master items list
+        let prCategory = pr.category;
+        if (!prCategory) {
+            const mItem = localAllItems.find(i => i._id === pr.itemid || i.itemname === pr.itemname || i.item === pr.itemname);
+            if (mItem) prCategory = mItem.category;
+        }
+
+        // Save computed category so the JSX can display it easily
+        pr.computedCategory = prCategory;
+
+        if (prCategory) {
+            fetchAvailableBudget(prCategory);
+        } else {
+            setAvailableBudget(null);
+        }
+
         // Pre-load all draft POs so we have them ready
         try {
             const res = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
@@ -301,8 +352,6 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
             setMatchingDraftPOs(allPOs.filter(p => p.postatus === 'Draft'));
         } catch (e) { console.error(e); }
 
-        if (vendors.length === 0) await fetchVendors();
-        if (vendorItems.length === 0) await fetchVendorItems();
         setOpenPOModal(true);
     };
 
@@ -1111,6 +1160,7 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                                     value={selectedCategory}
                                     onChange={(event, newValue) => {
                                         setSelectedCategory(newValue || '');
+                                        fetchAvailableBudget(newValue || '');
                                         setSelectedType('');
                                         setSelectedMasterItem('');
                                         if (!isEditMode && poItems.length === 0) {
@@ -1122,6 +1172,11 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                                     }}
                                     renderInput={(params) => <TextField {...params} label="Category" />}
                                 />
+                                {availableBudget !== null && (
+                                    <Typography variant="caption" color="primary" sx={{ mt: 1, ml: 1 }}>
+                                        Available Budget: ₹{availableBudget.toFixed(2)}
+                                    </Typography>
+                                )}
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} md={3}>
@@ -1385,6 +1440,13 @@ const PurchaseOrderDashboardNewds2 = ({ role }) => {
                     Add PR to Purchase Order — {selectedPRForPO?.itemname} (Remaining: {Number(selectedPRForPO?.quantity || 0) - Number(selectedPRForPO?.orderedQuantity || 0)} {selectedPRForPO?.unit || ''})
                 </DialogTitle>
                 <DialogContent dividers>
+                    {availableBudget !== null && (
+                        <Box mb={2} p={1} bgcolor="#f0fdf4" border="1px solid #bbf7d0" borderRadius={1}>
+                            <Typography variant="subtitle2" color="success.main">
+                                Available Budget for {selectedPRForPO?.computedCategory || selectedPRForPO?.category || 'Category'}: ₹{availableBudget.toFixed(2)}
+                            </Typography>
+                        </Box>
+                    )}
                     <Box display="flex" gap={2} mb={2}>
                         <Button variant={poCreationMode === 'NEW' ? 'contained' : 'outlined'} onClick={() => {
                             setPoCreationMode('NEW');

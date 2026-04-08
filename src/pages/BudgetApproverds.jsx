@@ -8,7 +8,7 @@ const BudgetApproverds = () => {
     const [data, setData] = useState([]);
     const [open, setOpen] = useState(false);
     const [editId, setEditId] = useState(null);
-    const [formData, setFormData] = useState({ approvername: '', approveremail: '', levelofapproval: '', iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
+    const [formData, setFormData] = useState({ approvername: '', approveremail: '', levelofapproval: '', iscreateaccess: false, iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
 
     // User search
     const [users, setUsers] = useState([]);
@@ -36,7 +36,7 @@ const BudgetApproverds = () => {
             if (editId) await ep1.post(`/api/v2/updatebudgetapproverds?id=${editId}`, payload);
             else await ep1.post('/api/v2/addbudgetapproverds', payload);
             setOpen(false); fetchData();
-            setFormData({ approvername: '', approveremail: '', levelofapproval: '', iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
+            setFormData({ approvername: '', approveremail: '', levelofapproval: '', iscreateaccess: false, iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
             setEditId(null); setSelectedUser(null);
         } catch (e) { console.error(e); }
     };
@@ -59,6 +59,7 @@ const BudgetApproverds = () => {
         { field: 'approvername', headerName: 'Approver Name', width: 180 },
         { field: 'approveremail', headerName: 'Approver Email', width: 220 },
         { field: 'levelofapproval', headerName: 'Level', width: 80 },
+        { field: 'iscreateaccess', headerName: 'Create Access', width: 110, renderCell: (p) => p.value ? 'Yes' : 'No' },
         { field: 'iseditaccess', headerName: 'Edit Access', width: 100, renderCell: (p) => p.value ? 'Yes' : 'No' },
         { field: 'isdeleteaccess', headerName: 'Delete Access', width: 110, renderCell: (p) => p.value ? 'Yes' : 'No' },
         { field: 'status', headerName: 'Status', width: 80 },
@@ -70,7 +71,7 @@ const BudgetApproverds = () => {
                         setEditId(p.row.id);
                         setFormData({
                             approvername: p.row.approvername || '', approveremail: p.row.approveremail || '',
-                            levelofapproval: p.row.levelofapproval || '', iseditaccess: p.row.iseditaccess || false,
+                            levelofapproval: p.row.levelofapproval || '', iscreateaccess: p.row.iscreateaccess || false, iseditaccess: p.row.iseditaccess || false,
                             isdeleteaccess: p.row.isdeleteaccess || false, status: p.row.status || 'Active', remarks: p.row.remarks || ''
                         });
                         // Find and set matching user for Autocomplete
@@ -89,7 +90,7 @@ const BudgetApproverds = () => {
             <Typography variant="h5" gutterBottom>Budget Approver Configuration</Typography>
             <Button variant="contained" onClick={() => {
                 setOpen(true); setEditId(null); setSelectedUser(null);
-                setFormData({ approvername: '', approveremail: '', levelofapproval: '', iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
+                setFormData({ approvername: '', approveremail: '', levelofapproval: '', iscreateaccess: false, iseditaccess: false, isdeleteaccess: false, status: 'Active', remarks: '' });
             }}>Add Approver</Button>
             <Paper sx={{ height: 500, mt: 2 }}><DataGrid rows={data} columns={columns} /></Paper>
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
@@ -114,6 +115,7 @@ const BudgetApproverds = () => {
                     <TextField label="Approver Name" fullWidth margin="normal" value={formData.approvername} InputProps={{ readOnly: true }} />
                     <TextField label="Approver Email" fullWidth margin="normal" value={formData.approveremail} InputProps={{ readOnly: true }} />
                     <TextField label="Level of Approval (1, 2, 3...)" fullWidth margin="normal" value={formData.levelofapproval} onChange={e => setFormData({ ...formData, levelofapproval: e.target.value })} />
+                    <FormControlLabel control={<Checkbox checked={formData.iscreateaccess} onChange={e => setFormData({ ...formData, iscreateaccess: e.target.checked })} />} label="Create Access (can add budget categories during approval)" />
                     <FormControlLabel control={<Checkbox checked={formData.iseditaccess} onChange={e => setFormData({ ...formData, iseditaccess: e.target.checked })} />} label="Edit Access (can edit budget categories during approval)" />
                     <FormControlLabel control={<Checkbox checked={formData.isdeleteaccess} onChange={e => setFormData({ ...formData, isdeleteaccess: e.target.checked })} />} label="Delete Access (can delete budget categories during approval)" />
                     <TextField label="Status" fullWidth margin="normal" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} />

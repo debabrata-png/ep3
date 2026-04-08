@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, Paper, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material';
+import { Box, Typography, Button, TextField, Paper, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
@@ -19,7 +19,19 @@ const BudgetApprovalds = () => {
     const [actionType, setActionType] = useState('');
     const [actionRemarks, setActionRemarks] = useState('');
 
-    useEffect(() => { fetchBudgetsForApproval(); }, []);
+    // Add category dialog for approvers with create access
+    const [openCat, setOpenCat] = useState(false);
+    const [catForm, setCatForm] = useState({ category: '', amount: '', budgettype: '', remarks: '' });
+    const [selectedBudgetId, setSelectedBudgetId] = useState(null);
+    const [selectedBudgetName, setSelectedBudgetName] = useState('');
+    const [budgetTypes, setBudgetTypes] = useState([]);
+    const [itemCategories, setItemCategories] = useState([]);
+
+    useEffect(() => { 
+        fetchBudgetsForApproval(); 
+        fetchBudgetTypes();
+        fetchItemCategories();
+    }, []);
 
     const fetchBudgetsForApproval = async () => {
         try {
@@ -30,10 +42,44 @@ const BudgetApprovalds = () => {
         finally { setLoading(false); }
     };
 
+    const fetchBudgetTypes = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallbudgettypeds?colid=${global1.colid}`);
+            setBudgetTypes(res.data.data.items.filter(t => t.isactive !== false));
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchItemCategories = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getallitemcategoryds?colid=${global1.colid}`);
+            setItemCategories(res.data.data.items);
+        } catch (e) { console.error(e); }
+    };
+
     const handleUpdateCategoryAmount = async () => {
         try {
             await ep1.post(`/api/v2/updatebudgetpocatdsamount?id=${editCatId}`, { amount: Number(editAmount) });
             setOpenEdit(false);
+            fetchBudgetsForApproval();
+        } catch (e) { console.error(e); }
+    };
+
+    const handleOpenAddCategory = (budgetId, budgetName) => {
+        setSelectedBudgetId(budgetId);
+        setSelectedBudgetName(budgetName);
+        setCatForm({ category: '', amount: '', budgettype: '', remarks: '' });
+        setOpenCat(true);
+    };
+
+    const handleSaveCategory = async () => {
+        const payload = {
+            ...catForm, amount: Number(catForm.amount),
+            colid: global1.colid, user: global1.user, name: global1.user,
+            budgetid: selectedBudgetId, budgetname: selectedBudgetName
+        };
+        try {
+            await ep1.post('/api/v2/addbudgetpocatds', payload);
+            setOpenCat(false);
             fetchBudgetsForApproval();
         } catch (e) { console.error(e); }
     };
@@ -91,6 +137,14 @@ const BudgetApprovalds = () => {
                             <Chip label={budget.status} color="warning" size="small" />
                         </Box>
                     </Box>
+
+                    {budget.approverConfig?.iscreateaccess && (
+                        <Box mb={2}>
+                            <Button size="small" variant="outlined" onClick={() => handleOpenAddCategory(budget._id, budget.budgetname)}>
+                                + Add Category
+                            </Button>
+                        </Box>
+                    )}
 
                     {/* Approval History */}
                     {budget.approvedby && budget.approvedby.length > 0 && (
@@ -189,6 +243,31 @@ const BudgetApprovalds = () => {
                     <Button onClick={handleApproveReject} variant="contained" color={actionType === 'Approved' ? 'success' : 'error'}>
                         {actionType === 'Approved' ? 'Approve' : 'Reject'}
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Category Form Dialog */}
+            <Dialog open={openCat} onClose={() => setOpenCat(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Add Budget Category — {selectedBudgetName}</DialogTitle>
+                <DialogContent>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Category</InputLabel>
+                        <Select value={catForm.category} label="Category" onChange={e => setCatForm({ ...catForm, category: e.target.value })}>
+                            {itemCategories.map(c => <MenuItem key={c._id} value={c.categoryname || c.name}>{c.categoryname || c.name}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <TextField label="Amount" fullWidth margin="normal" type="number" value={catForm.amount} onChange={e => setCatForm({ ...catForm, amount: e.target.value })} />
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Budget Type</InputLabel>
+                        <Select value={catForm.budgettype} label="Budget Type" onChange={e => setCatForm({ ...catForm, budgettype: e.target.value })}>
+                            {budgetTypes.map(t => <MenuItem key={t._id} value={t.budgettypename}>{t.budgettypename}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <TextField label="Remarks" fullWidth margin="normal" value={catForm.remarks} onChange={e => setCatForm({ ...catForm, remarks: e.target.value })} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenCat(false)}>Cancel</Button>
+                    <Button onClick={handleSaveCategory} variant="contained">Save</Button>
                 </DialogActions>
             </Dialog>
         </Box>

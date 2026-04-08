@@ -83,6 +83,10 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     const [matchingDraftPOs, setMatchingDraftPOs] = useState([]);
     const [selectedDraftPO, setSelectedDraftPO] = useState('');
 
+    // Budget Tracking State
+    const [availableBudget, setAvailableBudget] = useState(null);
+    const [budgetCategory, setBudgetCategory] = useState('');
+
     // Dynamic Approval State
     const [approvalConfig, setApprovalConfig] = useState([]);
 
@@ -776,14 +780,55 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
 
     const [poCreationMode, setPoCreationMode] = useState('NEW'); // 'NEW' or 'EXISTING'
 
+    // Fetch available budget for a given category
+    const fetchAvailableBudget = async (category) => {
+        if (!category) {
+            setAvailableBudget(null);
+            setBudgetCategory('');
+            return;
+        }
+        try {
+            const year = new Date().getFullYear().toString();
+            const res = await ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}`);
+            setAvailableBudget(res.data.data.availableAmount);
+            setBudgetCategory(category);
+        } catch (err) {
+            console.error('Error fetching available budget:', err);
+            setAvailableBudget(null);
+            setBudgetCategory(category);
+        }
+    };
+
     const handleOpenAddToPOModal = async (reqRow) => {
         setOpenPOModal(true); // Open immediately for snappiness
         setSelectedPRForPO(reqRow);
+        setAvailableBudget(null);
+        setBudgetCategory('');
 
         // Fetch catalogs if missing
         if (vendors.length === 0) fetchVendors();
-        if (allItems.length === 0) fetchAllItems();
+        let localAllItems = allItems;
+        if (localAllItems.length === 0) {
+            try {
+                const response = await ep1.get(`/api/v2/getallitemmasterds2?colid=${global1.colid}`);
+                localAllItems = response.data.data.items || [];
+                setAllItems(localAllItems);
+            } catch (error) { console.error(error); }
+        }
         if (vendorItems.length === 0) fetchVendorItems();
+
+        // Resolve category from PR or fallback to master items
+        let prCategory = reqRow.category;
+        if (!prCategory && localAllItems.length > 0) {
+            const mItem = localAllItems.find(i => i._id === reqRow.itemid || i.itemname === reqRow.itemname || i.item === reqRow.itemname);
+            if (mItem) prCategory = mItem.category;
+        }
+        reqRow.computedCategory = prCategory;
+
+        // Fetch budget for this category
+        if (prCategory) {
+            fetchAvailableBudget(prCategory);
+        }
 
         // Guarantee POs are fetched regardless of currently active tab!
         try {
@@ -1295,11 +1340,11 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                                             setActiveStoreRequestId(newValue ? newValue._id : null);
                                             if (newValue && selectedVendor) {
                                                 // Try direct match in filteredItems
-                                                let vItem = filteredItems.find(vi => 
-                                                    (vi.itemid && vi.itemid === newValue.itemid) || 
+                                                let vItem = filteredItems.find(vi =>
+                                                    (vi.itemid && vi.itemid === newValue.itemid) ||
                                                     (vi.item && (vi.item === newValue.itemname || vi.item === newValue.name))
                                                 );
-                                                
+
                                                 // Fallback to allItems if direct mapping wasn't resolved
                                                 if (!vItem && allItems.length > 0) {
                                                     const masterItem = allItems.find(i => i.itemcode === newValue.itemcode || i.itemname === newValue.itemname);
@@ -1527,6 +1572,29 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                         <Typography variant="subtitle1" gutterBottom sx={{ borderLeft: '4px solid #1976d2', pl: 1 }}>
                             <strong>Processing PR:</strong> {selectedPRForPO?.itemname} (Max Quantity Available: {Number(selectedPRForPO?.quantity || 0) - Number(selectedPRForPO?.orderedQuantity || 0)})
                         </Typography>
+
+                        {/* Budget Info Display */}
+                        {budgetCategory && (
+                            <Paper sx={{ p: 2, mt: 1, mb: 2, bgcolor: availableBudget !== null && availableBudget > 0 ? '#e8f5e9' : '#fff3e0', border: '1px solid', borderColor: availableBudget !== null && availableBudget > 0 ? '#4caf50' : '#ff9800', borderRadius: 1 }}>
+                                <Grid container spacing={2} alignItems="center">
+                                    <Grid item xs={6}>
+                                        <Typography variant="body2"><strong>Budget Category:</strong> {budgetCategory}</Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: availableBudget !== null && availableBudget > 0 ? '#2e7d32' : '#e65100' }}>
+                                            Available Budget: {availableBudget !== null ? `₹ ${availableBudget.toLocaleString('en-IN')}` : 'Loading...'}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        )}
+                        {!budgetCategory && selectedPRForPO && (
+                            <Paper sx={{ p: 1.5, mt: 1, mb: 2, bgcolor: '#fff8e1', border: '1px dashed #ffa000', borderRadius: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    ⚠️ No category found for this PR item. Budget tracking is unavailable.
+                                </Typography>
+                            </Paper>
+                        )}
 
                         <Box sx={{ mb: 3, mt: 2 }}>
                             <Button
