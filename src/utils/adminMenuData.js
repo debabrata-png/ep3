@@ -15,6 +15,12 @@ export const adminMenuData = [
         ],
     },
     {
+        title: "Chat Bot",
+        items: [
+            { label: "Chat Bot Admin", path: "/adminchattest" },
+        ],
+    },
+    {
         title: "Reports",
         items: [
             { label: "Institution wise Dashboard", path: "/admin/drigable-institutions" },

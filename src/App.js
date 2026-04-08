@@ -1538,6 +1538,9 @@ import RfpApprovalsds from './pages/RfpApprovalsds';
 import PublicUnifiedLandingPageds2 from './pages/PublicUnifiedLandingPageds2';
 import UnifiedLandingPageds2 from './pages/UnifiedLandingPageds2.jsx';
 
+import Chattestadmin from "./pages/chattestadmin";
+import Dashchattestadmin from './pages/Dashchattestadmin';
+
 function App() {
         return (
                 <Router>
@@ -1557,6 +1560,8 @@ function App() {
                                         <Route path='/manualcomp11to12' element={<ManualComp11to12 />} />
                                         <Route path="/publicunifiedlandingpageds2/:slug" element={<PublicUnifiedLandingPageds2 />} />
                                         <Route path="/unifiedlandingpage2" element={<UnifiedLandingPageds2 />} />
+                                        <Route path="/dashchattestadmin" element={<Dashchattestadmin />} />
+                                        <Route path="/adminchattest" element={<Chattestadmin />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
