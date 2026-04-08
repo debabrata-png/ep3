@@ -13,7 +13,8 @@ export default function DashMainAdmin() {
         staffPresentToday: 0,
         userDistribution: {},
         lmsStats: 0,
-        studentDistribution: []
+        studentDistribution: [],
+        departmentDistribution: []
     });
     const [loading, setLoading] = useState(true);
 
@@ -65,9 +66,9 @@ export default function DashMainAdmin() {
         { name: 'LMS Videos', count: stats.lmsStats },
     ];
 
-    // Prepare data for Student Distribution Bar Chart
-    const distributionChartData = (stats.studentDistribution || []).map(row => ({
-        name: `${row._id.programcode} (${row._id.admissionyear}-S${row._id.semester})`,
+    // Prepare data for Student Distribution Bar Chart (Department Wise)
+    const departmentChartData = (stats.departmentDistribution || []).map(row => ({
+        name: row._id || 'Unassigned',
         count: row.count
     }));
 
@@ -94,7 +95,7 @@ export default function DashMainAdmin() {
                                 Student Report
                             </Typography>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={distributionChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                                <BarChart data={departmentChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis
                                         dataKey="name"
