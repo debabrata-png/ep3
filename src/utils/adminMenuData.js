@@ -18,6 +18,7 @@ export const adminMenuData = [
         title: "Chat Bot",
         items: [
             { label: "Chat Bot Admin", path: "/adminchattest" },
+            { label: "Chat Bot 2", path: "/apichatbot1" },
             { label: "API Key Manager", path: "/manageapikeyds" },
         ],
     },

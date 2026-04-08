@@ -33,7 +33,7 @@ export default function Chatbot() {
 
   useEffect(() => {
     fetchGeminiApiKey();
-    global1.chat='search';
+    global1.chat = 'search';
   }, []);
 
   const fetchGeminiApiKey = async () => {
@@ -164,7 +164,12 @@ export default function Chatbot() {
     }
 
     var response1 = '';
-    const fullPrompt = `${prompt}\n\nData to analyze:\n${JSON.stringify(data, null, 2)}`;
+    const fullPrompt = `Analyze the following data based on the user query: "${prompt}". 
+    Please provide a well-formatted, professional response. 
+    Use Markdown tables for data comparisons, and lists for key points where appropriate.
+    
+    Data to analyze:
+    ${JSON.stringify(data, null, 2)}`;
 
     console.log(fullPrompt);
 
@@ -172,36 +177,9 @@ export default function Chatbot() {
       const ai = new GoogleGenAI({ apiKey: geminiApiKey });
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: fullPrompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                ingredients: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.STRING,
-                  },
-                },
-              },
-              propertyOrdering: ["ingredients"],
-            },
-          },
-        },
+        contents: fullPrompt
       });
-
-      response1 = response.text;
-      const parsedData = JSON.parse(response1);
-      var topic1 = '';
-      parsedData.forEach((module, index) => {
-        module.ingredients.forEach((topic, i) => {
-          topic1 = topic1 + topic + ' ';
-        });
-      });
-      return topic1;
+      return response.text;
     } catch (err) {
       return 'Error ' + err;
     }
@@ -222,8 +200,8 @@ export default function Chatbot() {
       };
     }
 
-    if(global1.chat=='search') {
-         
+    if (global1.chat == 'search') {
+
       const responses = await ep1.get('/api/v2/gettblsearch', {
         params: {
           searchstring: userText
@@ -242,8 +220,8 @@ export default function Chatbot() {
         buttons: buttons1
       };
 
-      
-      
+
+
 
     }
 
@@ -267,8 +245,8 @@ export default function Chatbot() {
       };
     }
 
-    if(global1.chat=='Filter') {
-         if (!collection) {
+    if (global1.chat == 'filter') {
+      if (!collection) {
         return {
           text: 'Please select model first. Type search - to find list of models.',
         };
@@ -335,8 +313,8 @@ export default function Chatbot() {
       setFilterText(ar1[1]);
       return { text: 'Filter added ' + ar1[1] };
     }
-    if(global1.chat=='filter') {
-        
+    if (global1.chat == 'filter') {
+
       setFilter1(filter1 + ',' + userText);
       return { text: 'Filter added ' + filter1 + ',' + userText };
     }
@@ -356,103 +334,104 @@ export default function Chatbot() {
       return { text: result };
     }
 
-if (global1.chat=='report') {
-    
-//   var ar1 = userText.split('-');
-//   var qtext = ar1[1];
+    if (global1.chat == 'report') {
 
-  setOpen(true);
-  try {
-    //const collection1=global1.collection;
-    const filter2 = '{' + filter1 + '}';
-    const filter = JSON.parse(filter2);
-    const projection = projText.trim() ? JSON.parse(projText) : null;
-    const sort = sortText.trim() ? JSON.parse(sortText) : null;
-    const body = { collection, filter, projection, sort, limit };
+      //   var ar1 = userText.split('-');
+      //   var qtext = ar1[1];
 
-     const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
-    //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
+      setOpen(true);
+      try {
+        //const collection1=global1.collection;
+        const filter2 = '{' + filter1 + '}';
+        const filter = JSON.parse(filter2);
+        const projection = projText.trim() ? JSON.parse(projText) : null;
+        const sort = sortText.trim() ? JSON.parse(sortText) : null;
+        const body = { collection, filter, projection, sort, limit };
 
-    const data = await response.json();
-    const data1 = data.results;
-    setLastReportData(data1);
+        //  const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
+        // //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(body)
+        // });
+        const response = await ep1.post("/api/v2/getdynamicresult", { ...body });
+        const data = response.data;
+        const data1 = data.results;
+        setLastReportData(data1);
 
-    console.log(data1);
+        console.log(data1);
 
-    global1.data1=data1;
+        global1.data1 = data1;
 
-    const aiResponse = await callGeminiAI(userText, data1);
-    setOpen(false);
+        const aiResponse = await callGeminiAI(userText, data1);
+        setOpen(false);
 
-    global1.airesponse=aiResponse;
+        global1.airesponse = aiResponse;
 
-    return {
-      text: aiResponse,
-      buttons: [
-        {
-          id: 'export_report',
-          label: 'Export Report to Excel',
-          handler: () => exportReportData()
-        }
-      ]
-    };
-  } catch (error) {
-    setOpen(false);
-    return {
-      text: 'Error: ' + error.message
-    };
-  }
-}
+        return {
+          text: aiResponse,
+          buttons: [
+            {
+              id: 'export_report',
+              label: 'Export Report to Excel',
+              handler: () => exportReportData()
+            }
+          ]
+        };
+      } catch (error) {
+        setOpen(false);
+        return {
+          text: 'Error: ' + error.message
+        };
+      }
+    }
 
-if (userText.toLowerCase().includes('query')) {
-  var ar1 = userText.split('-');
-  var qtext = ar1[1];
+    if (userText.toLowerCase().includes('query')) {
+      var ar1 = userText.split('-');
+      var qtext = ar1[1];
 
-  setOpen(true);
-  try {
-    const filter2 = '{' + filter1 + '}';
-    const filter = JSON.parse(filter2);
-    const projection = projText.trim() ? JSON.parse(projText) : null;
-    const sort = sortText.trim() ? JSON.parse(sortText) : null;
-    const body = { collection, filter, projection, sort, limit };
+      setOpen(true);
+      try {
+        const filter2 = '{' + filter1 + '}';
+        const filter = JSON.parse(filter2);
+        const projection = projText.trim() ? JSON.parse(projText) : null;
+        const sort = sortText.trim() ? JSON.parse(sortText) : null;
+        const body = { collection, filter, projection, sort, limit };
 
-     const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
-    //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
+        //  const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
+        // //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(body)
+        // });
 
-    const data = await response.json();
-    const data1 = data.results;
-    setLastReportData(data1);
+        const response = await ep1.post("/api/v2/getdynamicresult", { ...body });
+        const data = response.data;
+        const data1 = data.results;
+        setLastReportData(data1);
 
-    global1.data1=data1;
+        global1.data1 = data1;
 
-    const aiResponse = await callGeminiAI(qtext, data1);
-    setOpen(false);
+        const aiResponse = await callGeminiAI(qtext, data1);
+        setOpen(false);
 
-    return {
-      text: aiResponse,
-      buttons: [
-        {
-          id: 'export_report',
-          label: 'Export Report to Excel',
-          handler: () => exportReportData()
-        }
-      ]
-    };
-  } catch (error) {
-    setOpen(false);
-    return {
-      text: 'Error: ' + error.message
-    };
-  }
-}
+        return {
+          text: aiResponse,
+          buttons: [
+            {
+              id: 'export_report',
+              label: 'Export Report to Excel',
+              handler: () => exportReportData()
+            }
+          ]
+        };
+      } catch (error) {
+        setOpen(false);
+        return {
+          text: 'Error: ' + error.message
+        };
+      }
+    }
 
     return {
       text: `Let's come back to work. Try typing 'options' for choices.`
@@ -532,7 +511,7 @@ if (userText.toLowerCase().includes('query')) {
   // FIXED: Pass collection directly through parameters
   const handleDynamicButtonClick1 = (button) => {
     const selectedCollection = button.id;
-    
+
     // Update state immediately
     setCollection(selectedCollection);
     global1.collection = selectedCollection;
@@ -545,7 +524,7 @@ if (userText.toLowerCase().includes('query')) {
         text: `Model set for ${button.label}! Choose an operation:`,
         buttons: [
           { id: 'bulk_upload', label: 'Bulk Upload' },
-        //   { id: 'add_data', label: 'Add Data' },
+          //   { id: 'add_data', label: 'Add Data' },
           { id: 'add_filter', label: 'Add Filter' },
           { id: 'bulk_update', label: 'Bulk Update' },
           { id: 'bulk_delete', label: 'Bulk Delete' },
@@ -560,7 +539,7 @@ if (userText.toLowerCase().includes('query')) {
     ]);
   };
 
-  const getfilter=async(collectionToUse)=> {
+  const getfilter = async (collectionToUse) => {
     //alert(collectionToUse + ' col ' + collection + ' col2 ' + global1.collection);
     // if (!collection) {
     //     return {
@@ -568,24 +547,24 @@ if (userText.toLowerCase().includes('query')) {
     //     };
     //   }
 
-      const responsef = await ep1.get('/api/v2/gettblfieldsearch', {
-        params: {
-          tbl: global1.collection
-        }
-      });
-      //alert('got it ' + responsef.data.data.classes.length);
-      //console.log(responsef.data.data.classes);
+    const responsef = await ep1.get('/api/v2/gettblfieldsearch', {
+      params: {
+        tbl: global1.collection
+      }
+    });
+    //alert('got it ' + responsef.data.data.classes.length);
+    //console.log(responsef.data.data.classes);
 
-      var ftext = '';
-      responsef.data.data.classes.forEach((item, index) => {
-        ftext = ftext + 'Field ' + item.tfield + ' type ' + item.type + '. Example ' + item.example + ' ';
-      });
+    var ftext = '';
+    responsef.data.data.classes.forEach((item, index) => {
+      ftext = ftext + 'Field ' + item.tfield + ' type ' + item.type + '. Example ' + item.example + ' ';
+    });
 
-      setMessages(prev => [
-        ...prev,
-        { sender: 'bot', text: 'Add one or more options as per example - ' + ftext },
-        
-      ]);
+    setMessages(prev => [
+      ...prev,
+      { sender: 'bot', text: 'Add one or more options as per example - ' + ftext },
+
+    ]);
 
     //   return {
     //     text: 'Add one or more options as per example - ' + ftext,
@@ -594,7 +573,7 @@ if (userText.toLowerCase().includes('query')) {
 
   const handleOperationClick = (button, currentCollection) => {
     const collectionToUse = currentCollection || global1.collection;
-    
+
     if (button.id === 'bulk_upload') {
       setMessages(prev => [
         ...prev,
@@ -613,8 +592,8 @@ if (userText.toLowerCase().includes('query')) {
       ]);
     } else if (button.id === 'bulk_update') {
       triggerFileUpload('update', collectionToUse);
-      } else if (button.id === 'add_data') {
-        global1.chat='add';
+    } else if (button.id === 'add_data') {
+      global1.chat = 'add';
       setMessages(prev => [
         ...prev,
         { sender: 'user', text: `Clicked ${button.label}` }
@@ -628,15 +607,15 @@ if (userText.toLowerCase().includes('query')) {
         { sender: 'user', text: `Clicked ${button.label}` }
       ]);
       exportModelData(collectionToUse);
-      } else if (button.id === 'add_filter') {
-        global1.chat='filter';
-         getfilter(collectionToUse);
+    } else if (button.id === 'add_filter') {
+      global1.chat = 'filter';
+      getfilter(collectionToUse);
       setMessages(prev => [
         ...prev,
         { sender: 'user', text: `Clicked ${button.label}` }
       ]);
-     
-      
+
+
       //getformat(collectionToUse);
     } else if (button.id === 'format') {
       setMessages(prev => [
@@ -645,7 +624,7 @@ if (userText.toLowerCase().includes('query')) {
       ]);
       getformat(collectionToUse);
     } else if (button.id === 'report') {
-        global1.chat='report';
+      global1.chat = 'report';
       setMessages(prev => [
         ...prev,
         { sender: 'user', text: `Clicked ${button.label}` },
@@ -693,7 +672,7 @@ if (userText.toLowerCase().includes('query')) {
 
   const bulkUploadData = async (data, operation, collectionToUse) => {
     const finalCollection = collectionToUse || global1.collection;
-    
+
     if (!finalCollection) {
       setMessages(prev => [
         ...prev,
@@ -786,63 +765,63 @@ if (userText.toLowerCase().includes('query')) {
   };
 
   const exportReportData = () => {
-//   if (!lastReportData || lastReportData.length === 0) {
-//     setMessages(prev => [
-//       ...prev,
-//       { sender: 'bot', text: 'No report data available to export.' }
-//     ]);
-//     return;
-//   }
+    //   if (!lastReportData || lastReportData.length === 0) {
+    //     setMessages(prev => [
+    //       ...prev,
+    //       { sender: 'bot', text: 'No report data available to export.' }
+    //     ]);
+    //     return;
+    //   }
 
-//   // Find the last AI-generated report message
-//   const lastBotMessage = [...messages].reverse().find(
-//     msg => msg.sender === 'bot' && msg.text && !msg.buttons
-//   );
+    //   // Find the last AI-generated report message
+    //   const lastBotMessage = [...messages].reverse().find(
+    //     msg => msg.sender === 'bot' && msg.text && !msg.buttons
+    //   );
 
-//   if (!lastBotMessage || !lastBotMessage.text) {
-//     setMessages(prev => [
-//       ...prev,
-//       { sender: 'bot', text: 'No AI-generated report found to export.' }
-//     ]);
-//     return;
-//   }
+    //   if (!lastBotMessage || !lastBotMessage.text) {
+    //     setMessages(prev => [
+    //       ...prev,
+    //       { sender: 'bot', text: 'No AI-generated report found to export.' }
+    //     ]);
+    //     return;
+    //   }
 
-  try {
-    // Create Excel with AI report text
-    const reportData = [
-      ['AI Generated Report'],
-      [''],
-      ['Collection:', collection || 'Not specified'],
-      ['Generated:', new Date().toLocaleString()],
-      [''],
-      ['Report Content:'],
-      [''],
-    //   [lastBotMessage.text]
-    [global1.airesponse]
-    ];
+    try {
+      // Create Excel with AI report text
+      const reportData = [
+        ['AI Generated Report'],
+        [''],
+        ['Collection:', collection || 'Not specified'],
+        ['Generated:', new Date().toLocaleString()],
+        [''],
+        ['Report Content:'],
+        [''],
+        //   [lastBotMessage.text]
+        [global1.airesponse]
+      ];
 
-    const worksheet = XLSX.utils.aoa_to_sheet(reportData);
-    
-    // Set column width for better readability
-    worksheet['!cols'] = [{ wch: 100 }];
-    
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "AI Report");
-    
-    const filename = `${collection}_AI_report_${Date.now()}.xlsx`;
-    XLSX.writeFile(workbook, filename);
+      const worksheet = XLSX.utils.aoa_to_sheet(reportData);
 
-    setMessages(prev => [
-      ...prev,
-      { sender: 'bot', text: `AI report exported successfully as "${filename}"!` }
-    ]);
-  } catch (error) {
-    setMessages(prev => [
-      ...prev,
-      { sender: 'bot', text: `Error exporting report: ${error.message}` }
-    ]);
-  }
-};
+      // Set column width for better readability
+      worksheet['!cols'] = [{ wch: 100 }];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "AI Report");
+
+      const filename = `${collection}_AI_report_${Date.now()}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+
+      setMessages(prev => [
+        ...prev,
+        { sender: 'bot', text: `AI report exported successfully as "${filename}"!` }
+      ]);
+    } catch (error) {
+      setMessages(prev => [
+        ...prev,
+        { sender: 'bot', text: `Error exporting report: ${error.message}` }
+      ]);
+    }
+  };
 
 
   const exportToExcel = (data, filename) => {
@@ -870,7 +849,7 @@ if (userText.toLowerCase().includes('query')) {
 
   const getformat = async (collectionToUse) => {
     var collection1 = collectionToUse || global1.collection;
-    
+
     if (!collection1) {
       setMessages(prev => [
         ...prev,
@@ -892,8 +871,8 @@ if (userText.toLowerCase().includes('query')) {
         format = item.fields;
       });
 
-      global1.format=format;
-      
+      global1.format = format;
+
 
       const headers = parseLine(format);
       const aoa = [headers];
@@ -901,7 +880,7 @@ if (userText.toLowerCase().includes('query')) {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
       XLSX.writeFile(wb, 'format.xlsx');
-      
+
       setOpen(false);
       setMessages(prev => [
         ...prev,
@@ -918,7 +897,7 @@ if (userText.toLowerCase().includes('query')) {
 
   const exportModelData = async (collectionToUse) => {
     const finalCollection = collectionToUse || collection || global1.collection;
-    
+
     if (!finalCollection) {
       setMessages(prev => [
         ...prev,
@@ -935,15 +914,15 @@ if (userText.toLowerCase().includes('query')) {
       const sort = sortText.trim() ? JSON.parse(sortText) : null;
       const body = { collection: finalCollection, filter, projection, sort, limit: 10000 };
 
-       const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
-    //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      //    const response = await fetch('https://epmain.azurewebsites.net/api/v2/getdynamicresult', {
+      // //const response = await fetch('http://localhost:3000/api/v2/getdynamicresult', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify(body)
+      //   });
+      const response = await ep1.post("/api/v2/getdynamicresult", { ...body })
+      const data = response.data;
 
-      const data = await response.json();
-      
       // Remove user, name, and colid from each record
       const cleanedData = data.results.map(record => {
         const { user, name, colid, ...rest } = record;
@@ -1043,7 +1022,7 @@ if (userText.toLowerCase().includes('query')) {
             onChange={handleFileSelect}
             accept="image/*"
           />
-          
+
           {filePreview && (
             <Paper sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
               {filePreview.type === 'image' ? (

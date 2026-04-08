@@ -21,7 +21,7 @@ export default function ApiChatbot1() {
   const [input, setInput] = useState('');
   const chatEndRef = useRef(null);
   const [selectedApi, setSelectedApi] = useState(null);
-  
+
   // Parameter input dialog state
   const [paramDialogOpen, setParamDialogOpen] = useState(false);
   const [currentApiConfig, setCurrentApiConfig] = useState(null);
@@ -83,7 +83,7 @@ export default function ApiChatbot1() {
     try {
       const ai = new GoogleGenerativeAI(geminiApiKey);
       const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-      
+
       const result = await model.generateContent(fullPrompt);
       const response = await result.response;
       return response.text();
@@ -100,18 +100,18 @@ export default function ApiChatbot1() {
       return;
     }
 
-    const BATCH_SIZE = 50;
+    const BATCH_SIZE = 500;
     const totalRecords = currentData.length;
     const totalBatches = Math.ceil(totalRecords / BATCH_SIZE);
-    
+
     setIsBatchProcessing(true);
     stopProcessingRef.current = false;
     setWaitingForAiQuery(false);
 
     setMessages(prev => [
       ...prev,
-      { 
-        sender: 'bot', 
+      {
+        sender: 'bot',
         text: `🚀 Starting AI analysis in batches...\nTotal Records: ${totalRecords}\nBatch size: ${BATCH_SIZE}\nExpected Batches: ${totalBatches}`,
         buttons: [
           {
@@ -146,11 +146,11 @@ export default function ApiChatbot1() {
         ]);
 
         const batchReport = await callGeminiAI(
-          `Analyze this batch of data (Batch ${i+1}/${totalBatches}) based on this user query: "${query}". Provide a concise summary of findings for this batch.`,
+          `Analyze this batch of data (Batch ${i + 1}/${totalBatches}) based on this user query: "${query}". Provide a concise summary of findings for this batch.`,
           batchData
         );
 
-        batchSummaries.push(`Batch ${i+1} Summary: ${batchReport}`);
+        batchSummaries.push(`Batch ${i + 1} Summary: ${batchReport}`);
 
         setMessages(prev => [
           ...prev,
@@ -161,7 +161,7 @@ export default function ApiChatbot1() {
       // If finished all batches (or stopped), generate final consolidated report
       if (batchSummaries.length > 0) {
         setMessages(prev => [...prev, { sender: 'bot', text: '📝 Generating final consolidated report...' }]);
-        
+
         const finalPrompt = `The following are partial reports from multiple batches of data analysis based on the query: "${query}". 
         Please provide a comprehensive final consolidated report that merges all these findings into one professional summary.
         
@@ -173,8 +173,8 @@ export default function ApiChatbot1() {
 
         setMessages(prev => [
           ...prev,
-          { 
-            sender: 'bot', 
+          {
+            sender: 'bot',
             text: `🏁 FINAL CONSOLIDATED REPORT:\n\n${finalReport}`,
             buttons: [
               {
@@ -209,8 +209,8 @@ export default function ApiChatbot1() {
     setMessages(prev => [
       ...prev,
       { sender: 'user', text: 'Generate AI Report' },
-      { 
-        sender: 'bot', 
+      {
+        sender: 'bot',
         text: `✨ AI Report Mode Activated!\n\nType your query below. Examples:\n• "Summarize the attendance trends by program"\n• "Find students with less than 75% attendance"\n• "Calculate average attendance per semester"\n• "Group data by department and show counts"\n\nWhat would you like to know about the data?`
       }
     ]);
@@ -254,16 +254,16 @@ export default function ApiChatbot1() {
   // Show parameter input dialog
   const showParameterDialog = (apiConfig) => {
     setCurrentApiConfig(apiConfig);
-    
+
     // Parse dynamic parameters
     const dynamicParams = JSON.parse(apiConfig.dynamicParams || '[]');
-    
+
     // Initialize param values with defaults
     const initialValues = {};
     dynamicParams.forEach(param => {
       initialValues[param.name] = param.default || '';
     });
-    
+
     setParamValues(initialValues);
     setParamDialogOpen(true);
   };
@@ -279,37 +279,37 @@ export default function ApiChatbot1() {
   // Submit parameters and execute API
   const handleParameterSubmit = async () => {
     const dynamicParams = JSON.parse(currentApiConfig.dynamicParams || '[]');
-    
+
     // Validate required parameters
     const missingParams = dynamicParams
       .filter(param => param.required && !paramValues[param.name])
       .map(param => param.label);
-    
+
     if (missingParams.length > 0) {
       setMessages(prev => [
         ...prev,
-        { 
-          sender: 'bot', 
-          text: `❌ Please provide: ${missingParams.join(', ')}` 
+        {
+          sender: 'bot',
+          text: `❌ Please provide: ${missingParams.join(', ')}`
         }
       ]);
       return;
     }
-    
+
     setParamDialogOpen(false);
-    
+
     // Show executing message
     setMessages(prev => [
       ...prev,
-      { 
-        sender: 'bot', 
-        text: `Executing API with parameters:\n${JSON.stringify(paramValues, null, 2)}` 
+      {
+        sender: 'bot',
+        text: `Executing API with parameters:\n${JSON.stringify(paramValues, null, 2)}`
       }
     ]);
-    
+
     // Execute API with parameters
     const result = await executeApi(currentApiConfig, paramValues);
-    
+
     const formattedResponse = {
       sender: 'bot',
       text: result.text,
@@ -325,9 +325,9 @@ export default function ApiChatbot1() {
   // Render parameter input fields
   const renderParameterInputs = () => {
     if (!currentApiConfig) return null;
-    
+
     const dynamicParams = JSON.parse(currentApiConfig.dynamicParams || '[]');
-    
+
     return dynamicParams.map((param, index) => {
       if (param.type === 'select') {
         return (
@@ -430,7 +430,7 @@ export default function ApiChatbot1() {
       if (apiConfig.filterTemplate && apiConfig.filterTemplate !== '{}') {
         const filterStr = replaceVariables(apiConfig.filterTemplate, variables);
         const filter = JSON.parse(filterStr);
-        
+
         if (body) {
           body.filter = filter;
         } else {
@@ -465,7 +465,7 @@ export default function ApiChatbot1() {
 
       // Prepare authentication headers
       let headers = JSON.parse(apiConfig.headers || '{}');
-      
+
       if (apiConfig.authType === 'bearer' && apiConfig.authToken) {
         headers['Authorization'] = `Bearer ${apiConfig.authToken}`;
       } else if (apiConfig.authType === 'apikey' && apiConfig.authHeader && apiConfig.authToken) {
@@ -485,7 +485,7 @@ export default function ApiChatbot1() {
           if (apiConfig.isInternalApi) {
             // Use ep1 instance for internal APIs
             const endpoint = apiConfig.api;
-            
+
             if (apiConfig.method.toLowerCase() === 'get') {
               response = await ep1.get(endpoint, {
                 params: queryParams,
@@ -508,8 +508,8 @@ export default function ApiChatbot1() {
             }
           } else {
             // Use direct axios for external APIs
-            const fullUrl = apiConfig.domain 
-              ? `${apiConfig.domain}${apiConfig.api}` 
+            const fullUrl = apiConfig.domain
+              ? `${apiConfig.domain}${apiConfig.api}`
               : apiConfig.api;
 
             const axiosConfig = {
@@ -529,7 +529,7 @@ export default function ApiChatbot1() {
 
             response = await axios(axiosConfig);
           }
-          
+
           break; // Success, exit retry loop
         } catch (error) {
           lastError = error;
@@ -546,7 +546,7 @@ export default function ApiChatbot1() {
 
       // Extract data from response
       let data = response.data;
-      
+
       console.log('🔍 Step 1 - Raw API response:', data);
 
       // Extract data from nested path if specified
@@ -591,21 +591,21 @@ export default function ApiChatbot1() {
       if (Array.isArray(data) && data.length > 0) {
         data = data.map(item => {
           const flattened = {};
-          
+
           // Flatten _id object if exists
           if (item._id && typeof item._id === 'object') {
             Object.keys(item._id).forEach(key => {
               flattened[key] = item._id[key];
             });
           }
-          
+
           // Add other fields
           Object.keys(item).forEach(key => {
             if (key !== '_id') {
               flattened[key] = item[key];
             }
           });
-          
+
           return flattened;
         });
 
@@ -615,7 +615,7 @@ export default function ApiChatbot1() {
         // Filter fields with better logic
         data = data.map(item => {
           let filtered = {};
-          
+
           // If includeFields is specified and has values, ONLY include those fields
           if (apiConfig.includeFields && apiConfig.includeFields.length > 0 && apiConfig.includeFields[0] !== '') {
             console.log('🔍 Including only fields:', apiConfig.includeFields);
@@ -627,7 +627,7 @@ export default function ApiChatbot1() {
           } else {
             // Include all fields first
             filtered = { ...item };
-            
+
             // Then remove excluded fields (if any and not empty)
             if (apiConfig.excludeFields && apiConfig.excludeFields.length > 0) {
               console.log('🔍 Excluding fields:', apiConfig.excludeFields);
@@ -638,7 +638,7 @@ export default function ApiChatbot1() {
               });
             }
           }
-          
+
           return filtered;
         });
 
@@ -698,9 +698,9 @@ export default function ApiChatbot1() {
 
   const executeApi = async (apiConfig, userParams = {}) => {
     setOpen(true);
-    
+
     const result = await executeApiCall(apiConfig, userParams);
-    
+
     setOpen(false);
 
     if (result.success) {
@@ -713,7 +713,7 @@ export default function ApiChatbot1() {
         data: data,
         config: apiConfig
       });
-      
+
       // Store current data and config for AI report
       setCurrentData(data);
       setCurrentApiConfig(apiConfig);
@@ -766,10 +766,10 @@ export default function ApiChatbot1() {
       console.log('📥 Data length:', Array.isArray(data) ? data.length : 'N/A');
       console.log('📥 First item:', Array.isArray(data) && data.length > 0 ? data[0] : data);
       console.log('📥 Keys in first item:', Array.isArray(data) && data.length > 0 && data[0] ? Object.keys(data[0]) : 'N/A');
-      
+
       // Ensure data is an array
       let rows = Array.isArray(data) ? data : (data ? [data] : []);
-      
+
       if (rows.length === 0) {
         setMessages(prev => [
           ...prev,
@@ -788,9 +788,9 @@ export default function ApiChatbot1() {
       }
 
       console.log('📥 Final rows for Excel:', rows);
-      
+
       const worksheet = XLSX.utils.json_to_sheet(rows);
-      
+
       // Auto-size columns
       const cols = [];
       if (rows.length > 0) {
@@ -806,7 +806,7 @@ export default function ApiChatbot1() {
 
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, config.excelSheetName || 'Data');
-      
+
       // Build filename with available variables
       let filename;
       if (config.excelFileName) {
@@ -815,19 +815,19 @@ export default function ApiChatbot1() {
           apiname: config.apiname || 'export',
           date: new Date().toISOString().split('T')[0]
         };
-        
+
         // Try to get programcode and semester from first data row
         if (rows.length > 0 && rows[0]) {
           if (rows[0].programcode) variables.programcode = rows[0].programcode;
           if (rows[0].semester) variables.semester = rows[0].semester;
           if (rows[0].year) variables.year = rows[0].year;
         }
-        
+
         filename = replaceVariables(config.excelFileName, variables) + '.xlsx';
       } else {
         filename = `${config.apiname || 'report'}_export_${Date.now()}.xlsx`;
       }
-      
+
       XLSX.writeFile(workbook, filename);
 
       setMessages(prev => [
@@ -885,7 +885,7 @@ export default function ApiChatbot1() {
       ]);
 
       const result = await executeApi(button.config);
-      
+
       const formattedResponse = {
         sender: 'bot',
         text: result.text,
@@ -914,7 +914,7 @@ export default function ApiChatbot1() {
     }
 
     const botResponse = await fetchBotResponse(userInput);
-    
+
     const formattedResponse = {
       sender: 'bot',
       text: botResponse.text,
@@ -962,7 +962,7 @@ export default function ApiChatbot1() {
                 }}
               >
                 <Typography sx={{ whiteSpace: 'pre-wrap' }}>{msg.text}</Typography>
-                
+
                 {msg.buttons && (
                   <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {msg.buttons.map((btn, i) => (
@@ -1001,8 +1001,8 @@ export default function ApiChatbot1() {
             placeholder={
               isBatchProcessing
                 ? "Processing batches... Please wait."
-                : (waitingForAiQuery 
-                  ? "Type your AI query here..." 
+                : (waitingForAiQuery
+                  ? "Type your AI query here..."
                   : "Type API name to search...")
             }
             sx={{
@@ -1011,8 +1011,8 @@ export default function ApiChatbot1() {
               }
             }}
           />
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={sendMessage}
             disabled={isBatchProcessing}
             sx={{
@@ -1025,8 +1025,8 @@ export default function ApiChatbot1() {
       </Paper>
 
       {/* Parameter Input Dialog */}
-      <Dialog 
-        open={paramDialogOpen} 
+      <Dialog
+        open={paramDialogOpen}
         onClose={() => setParamDialogOpen(false)}
         maxWidth="md"
         fullWidth
@@ -1045,8 +1045,8 @@ export default function ApiChatbot1() {
           <Button onClick={() => setParamDialogOpen(false)}>
             Cancel
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleParameterSubmit}
           >
             Execute API
