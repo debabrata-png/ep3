@@ -164,10 +164,7 @@ export default function Chatbot() {
     }
 
     var response1 = '';
-    const fullPrompt = `Analyze the following data based on the user query: "${prompt}". 
-    Please provide a well-formatted, professional response. 
-    Use Markdown tables for data comparisons, and lists for key points where appropriate.
-    
+    const fullPrompt = `Analyze the following data based on the user query: "${prompt}".
     Data to analyze:
     ${JSON.stringify(data, null, 2)}`;
 

@@ -270,6 +270,8 @@ import BudgetDashboardds from './pages/BudgetDashboardds';
 import BudgetApprovalds from './pages/BudgetApprovalds';
 import BudgetGroupds from './pages/BudgetGroupds';
 import GroupWiseBudgetReportds from './pages/GroupWiseBudgetReportds';
+import CategoryWiseBudgetReportds from './pages/CategoryWiseBudgetReportds';
+import DepartmentWiseBudgetReportds from './pages/DepartmentWiseBudgetReportds';
 
 import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
@@ -3141,6 +3143,8 @@ function App() {
                                         <Route path="/BudgetApprovalds" element={<BudgetApprovalds />} />
                                          <Route path="/BudgetGroupds" element={<BudgetGroupds />} />
                                          <Route path="/GroupWiseBudgetReportds" element={<GroupWiseBudgetReportds />} />
+                                         <Route path="/CategoryWiseBudgetReportds" element={<CategoryWiseBudgetReportds />} />
+                                         <Route path="/DepartmentWiseBudgetReportds" element={<DepartmentWiseBudgetReportds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
                                         <Route path="/staffprofileds" element={<StaffProfileds />} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />

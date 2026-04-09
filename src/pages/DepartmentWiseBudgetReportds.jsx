@@ -7,8 +7,9 @@ import {
     KeyboardArrowDown as KeyboardArrowDownIcon, 
     KeyboardArrowUp as KeyboardArrowUpIcon,
     AccountBalance as AccountBalanceIcon,
-    TrendingUp as TrendingUpIcon,
-    Category as CategoryIcon
+    Business as BusinessIcon,
+    CorporateFare as CorporateFareIcon,
+    TrendingUp as TrendingUpIcon
 } from '@mui/icons-material';
 import ep1 from '../api/ep1';
 import global1 from './global1';
@@ -32,16 +33,16 @@ const StatCard = ({ title, value, icon, color }) => (
                 {title}
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a202c' }}>
-                ₹ {value.toLocaleString()}
+                ₹ {(value || 0).toLocaleString()}
             </Typography>
         </Box>
     </Paper>
 );
 
-const Row = ({ group }) => {
+const Row = ({ item }) => {
     const [open, setOpen] = useState(false);
     const theme = useTheme();
-    const displayName = group.groupname || 'Uncategorized / Others';
+    const displayName = item.department || 'General Administration';
 
     return (
         <React.Fragment>
@@ -67,18 +68,18 @@ const Row = ({ group }) => {
                     </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row">
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: group.groupname ? '#1e293b' : '#64748b' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b' }}>
                         {displayName}
                     </Typography>
                 </TableCell>
                 <TableCell align="right">
                     <Chip 
-                        label={`₹ ${(group.groupTotal || 0).toLocaleString()}`} 
+                        label={`₹ ${(item.departmentTotal || 0).toLocaleString()}`} 
                         sx={{ 
                             fontWeight: 700, 
                             fontSize: '0.9rem',
-                            bgcolor: group.groupname ? '#dcfce7' : '#f1f5f9',
-                            color: group.groupname ? '#166534' : '#475569',
+                            bgcolor: '#eff6ff',
+                            color: '#1d4ed8',
                             border: '1px solid rgba(0,0,0,0.05)'
                         }} 
                     />
@@ -87,26 +88,32 @@ const Row = ({ group }) => {
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
-                        <Box sx={{ py: 2, px: 4, bgcolor: '#fcfcfc', borderLeft: '4px solid #e2e8f0' }}>
+                        <Box sx={{ py: 2, px: 4, bgcolor: '#fcfcfc', borderLeft: '4px solid #10b981' }}>
                             <Box display="flex" alignItems="center" mb={2}>
-                                <CategoryIcon sx={{ fontSize: 20, mr: 1, color: '#64748b' }} />
+                                <CorporateFareIcon sx={{ fontSize: 20, mr: 1, color: '#64748b' }} />
                                 <Typography variant="h6" sx={{ fontSize: '0.95rem', fontWeight: 600, color: '#475569' }}>
-                                    Category Distribution
+                                    Main Budget Records
                                 </Typography>
                             </Box>
                             <Table size="small" sx={{ mb: 2 }}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Category Name</TableCell>
-                                        <TableCell align="right" sx={{ color: '#64748b', fontWeight: 600 }}>Allocated Amount</TableCell>
+                                        <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Budget Name</TableCell>
+                                        <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Type</TableCell>
+                                        <TableCell sx={{ color: '#64748b', fontWeight: 600 }}>Status</TableCell>
+                                        <TableCell align="right" sx={{ color: '#64748b', fontWeight: 600 }}>Amount</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {group.categories.map((cat, idx) => (
+                                    {(item.budgets || []).map((b, idx) => (
                                         <TableRow key={idx} sx={{ '&:last-child td': { border: 0 } }}>
-                                            <TableCell sx={{ fontSize: '0.9rem' }}>{cat.category}</TableCell>
+                                            <TableCell sx={{ fontSize: '0.9rem' }}>{b.budgetname}</TableCell>
+                                            <TableCell sx={{ fontSize: '0.8rem' }}>{b.budgettype}</TableCell>
+                                            <TableCell>
+                                                <Chip label={b.status} size="small" sx={{ fontSize: '0.7rem', height: 20 }} color={b.status === 'Approved' ? 'success' : 'default'} />
+                                            </TableCell>
                                             <TableCell align="right" sx={{ fontWeight: 600, color: '#1e293b' }}>
-                                                ₹ {(cat.amount || 0).toLocaleString()}
+                                                ₹ {(b.amount || 0).toLocaleString()}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -120,7 +127,7 @@ const Row = ({ group }) => {
     );
 };
 
-const GroupWiseBudgetReportds = () => {
+const DepartmentWiseBudgetReportds = () => {
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -131,11 +138,9 @@ const GroupWiseBudgetReportds = () => {
     const fetchReport = async () => {
         try {
             setLoading(true);
-            const res = await ep1.get(`/api/v2/getgroupwisecategorybudget?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getdepartmentwisebudget?colid=${global1.colid}`);
             const items = res.data?.data?.items || [];
-            // Sort by amount descending
-            const sortedItems = items.sort((a, b) => b.groupTotal - a.groupTotal);
-            setReportData(sortedItems);
+            setReportData(items);
         } catch (e) {
             console.error(e);
         } finally {
@@ -143,75 +148,63 @@ const GroupWiseBudgetReportds = () => {
         }
     };
 
-    if (loading) return <Box p={3}><Typography>Loading Group Wise Report...</Typography></Box>;
+    if (loading) return <Box p={3}><Typography>Loading Department Wise Report...</Typography></Box>;
 
-    const grandTotal = reportData.reduce((acc, curr) => acc + (curr.groupTotal || 0), 0);
-    const totalGroups = reportData.length;
-    const topGroup = reportData[0] ? reportData[0].groupTotal : 0;
+    const grandTotal = reportData.reduce((acc, curr) => acc + (curr.departmentTotal || 0), 0);
+    const totalDepts = reportData.length;
+    const topDeptTotal = reportData[0] ? reportData[0].departmentTotal : 0;
 
     return (
         <Box p={4} sx={{ bgcolor: '#f8fafc', minHeight: '100vh' }}>
             <Box mb={4}>
                 <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    Group Wise Budget Analysis
+                    Department Wise Main Budget
                 </Typography>
                 <Typography variant="body1" color="textSecondary" sx={{ maxWidth: 700 }}>
-                    Gain insights into budget distribution across different operational groups and their component categories.
+                    Overview of total budget allocations grouped by department. Monitor main budget records and their approval status across the entire institution.
                 </Typography>
             </Box>
 
             <Grid container spacing={3} mb={5}>
                 <Grid item xs={12} md={4}>
                     <StatCard 
-                        title="Grand Total Allocated" 
+                        title="Institution Total" 
                         value={grandTotal} 
                         icon={<AccountBalanceIcon />} 
-                        color="#3b82f6" 
+                        color="#1d4ed8" 
                     />
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <StatCard 
-                        title="Primary Group Allocation" 
-                        value={topGroup} 
+                        title="Top Dept. Budget" 
+                        value={topDeptTotal} 
                         icon={<TrendingUpIcon />} 
-                        color="#10b981" 
+                        color="#059669" 
                     />
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <StatCard 
-                        title="Total Active Groups" 
-                        value={totalGroups} 
-                        icon={<CategoryIcon />} 
-                        color="#6366f1" 
-                        // Overriding value format for count instead of currency if needed, but keeping currency format for now for simplicity
+                        title="Active Departments" 
+                        value={totalDepts} 
+                        icon={<BusinessIcon />} 
+                        color="#f59e0b" 
                     />
                 </Grid>
             </Grid>
 
-            <TableContainer component={Paper} elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+            <TableContainer component={Paper} elevation={5} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <Table>
                     <TableHead>
                         <TableRow sx={{ bgcolor: '#1e293b' }}>
                             <TableCell />
-                            <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: '1rem', py: 2 }}>Budget Group</TableCell>
-                            <TableCell align="right" sx={{ color: '#fff', fontWeight: 700, fontSize: '1rem', py: 2 }}>Total Allocation</TableCell>
+                            <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: '1rem', py: 2 }}>Department</TableCell>
+                            <TableCell align="right" sx={{ color: '#fff', fontWeight: 700, fontSize: '1rem', py: 2 }}>Total Department Budget</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {reportData.map((group, index) => (
-                            <Row key={index} group={group} />
+                        {reportData.map((item, index) => (
+                            <Row key={index} item={item} />
                         ))}
-                        {reportData.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={3} align="center" sx={{ py: 8 }}>
-                                    <Box display="flex" flexDirection="column" alignItems="center">
-                                        <CategoryIcon sx={{ fontSize: 48, color: '#cbd5e1', mb: 2 }} />
-                                        <Typography variant="h6" color="textSecondary">No analytical data found</Typography>
-                                        <Typography variant="body2" color="textSecondary">Complete budget allocations to see this report.</Typography>
-                                    </Box>
-                                </TableCell>
-                            </TableRow>
-                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -219,4 +212,4 @@ const GroupWiseBudgetReportds = () => {
     );
 };
 
-export default GroupWiseBudgetReportds;
+export default DepartmentWiseBudgetReportds;

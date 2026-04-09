@@ -4755,6 +4755,18 @@ export function menuitemsall() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Group-wise Budget Report" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/CategoryWiseBudgetReportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Category-wise Budget Report" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/DepartmentWiseBudgetReportds">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Department-wise Budget Report" />}
+          </ListItem>
         </AccordionDetails>
       </Accordion>
       <Accordion>

@@ -52,7 +52,7 @@ const Admissiontemplate2 = () => {
     }));
   };
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (applicationNo) => {
     const page1 = pdfPage1Ref.current;
     const page2 = pdfPage2Ref.current;
 
@@ -78,11 +78,37 @@ const Admissiontemplate2 = () => {
 
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
     const canvasOptions = {
       scale: 2,
       useCORS: true,
       onclone: (clonedDoc) => {
+        // Show elements that are hidden in UI but required in PDF
+        const showInPdfElements = clonedDoc.querySelectorAll('[data-show-in-pdf="true"]');
+        showInPdfElements.forEach(el => {
+          el.style.position = "static";
+          el.style.left = "auto";
+          el.style.visibility = "visible";
+          
+          if (el.getAttribute('data-is-flex') === 'true') {
+             el.style.display = "flex";
+          } else {
+             el.style.display = "block";
+          }
+        });
+
+        // Manually inject Application No to avoid state update delays
+        const appNoElements = clonedDoc.querySelectorAll('[data-field="applicationNo"]');
+        appNoElements.forEach(el => {
+          el.textContent = applicationNo || "";
+          el.style.color = "#000";
+          el.style.fontWeight = "bold";
+          el.style.fontSize = "1.2rem";
+          el.style.textAlign = "center";
+          el.style.minHeight = "24px"; // Ensure box has content height
+        });
+
         const inputs = clonedDoc.querySelectorAll("input, textarea");
         inputs.forEach((input) => {
           const value = input.getAttribute("value") || input.innerHTML || input.value || "";
@@ -108,16 +134,37 @@ const Admissiontemplate2 = () => {
       const canvas1 = await html2canvas(page1, canvasOptions);
       const imgData1 = canvas1.toDataURL("image/png");
       const imgProps1 = pdf.getImageProperties(imgData1);
-      const pdfHeight1 = (imgProps1.height * pdfWidth) / imgProps1.width;
-      pdf.addImage(imgData1, "PNG", 0, 0, pdfWidth, pdfHeight1);
+      
+      // Calculate scaling to fit within one A4 page
+      const ratio1 = imgProps1.width / imgProps1.height;
+      let printWidth1 = pdfWidth;
+      let printHeight1 = pdfWidth / ratio1;
+      
+      if (printHeight1 > pdfHeight) {
+          printHeight1 = pdfHeight;
+          printWidth1 = printHeight1 * ratio1;
+      }
+      
+      const xOffset1 = (pdfWidth - printWidth1) / 2;
+      pdf.addImage(imgData1, "PNG", xOffset1, 0, printWidth1, printHeight1);
 
       // Add Page 2 (Declaration & Office Use)
       pdf.addPage();
       const canvas2 = await html2canvas(page2, canvasOptions);
       const imgData2 = canvas2.toDataURL("image/png");
       const imgProps2 = pdf.getImageProperties(imgData2);
-      const pdfHeight2 = (imgProps2.height * pdfWidth) / imgProps2.width;
-      pdf.addImage(imgData2, "PNG", 0, 0, pdfWidth, pdfHeight2);
+      
+      const ratio2 = imgProps2.width / imgProps2.height;
+      let printWidth2 = pdfWidth;
+      let printHeight2 = pdfWidth / ratio2;
+      
+      if (printHeight2 > pdfHeight) {
+          printHeight2 = pdfHeight;
+          printWidth2 = printHeight2 * ratio2;
+      }
+      
+      const xOffset2 = (pdfWidth - printWidth2) / 2;
+      pdf.addImage(imgData2, "PNG", xOffset2, 0, printWidth2, printHeight2);
 
       pdf.save(`Admission_Form_${formData.name || "Student"}.pdf`);
     } catch (error) {
@@ -138,8 +185,17 @@ const Admissiontemplate2 = () => {
 
     setLoading(true);
     try {
+      // Generate structured Application Number: {year}{month}{date}{4 digit random}
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      const generatedAppNo = `${year}${month}${day}${randomDigits}`;
+
       const res = await ep1.post("/api/v2/createApplicationForm", {
         ...formData,
+        applicationNo: generatedAppNo,
         templateType: "template2",
       });
 
@@ -151,10 +207,10 @@ const Admissiontemplate2 = () => {
         }));
 
         setTimeout(async () => {
-          await handleDownloadPDF();
+          await handleDownloadPDF(serverData.applicationNo || generatedAppNo);
           navigate("/success", {
             state: {
-              formData: { ...formData, applicationNo: serverData.applicationNo }
+              formData: { ...formData, applicationNo: serverData.applicationNo || generatedAppNo }
             }
           });
         }, 1000);
@@ -198,18 +254,26 @@ const Admissiontemplate2 = () => {
             </Typography>
 
             <Box
+              data-show-in-pdf="true"
+              data-field="applicationNo"
               sx={{
                 border: "1px solid #000",
                 px: 4,
                 py: 0.5,
                 minWidth: "120px",
                 textAlign: "center",
+                position: "absolute",
+                left: "-9999px",
               }}
             >
               {formData.applicationNo}
             </Box>
 
-            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            <Typography 
+              variant="h6" 
+              data-show-in-pdf="true"
+              sx={{ fontWeight: "bold", position: "absolute", left: "-9999px" }}
+            >
               202____ - 202____
             </Typography>
 
@@ -224,11 +288,16 @@ const Admissiontemplate2 = () => {
               <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                 VIII, IX & X Std.
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box 
+                data-show-in-pdf="true"
+                data-is-flex="true"
+                sx={{ display: "flex", alignItems: "center", position: "absolute", left: "-9999px" }}
+              >
                 <Typography variant="body1" sx={{ mr: 1, fontWeight: "bold" }}>
                   APPLICATION No.
                 </Typography>
                 <Box
+                  data-field="applicationNo"
                   sx={{
                     border: "1px solid #000",
                     px: 2,
@@ -437,19 +506,28 @@ const Admissiontemplate2 = () => {
           </Grid>
         </Paper>
 
-        {/* PAGE 2: DECLARATION & OFFICE USE (Visible in UI) */}
-        <Paper
-          ref={pdfPage2Ref}
-          elevation={3}
+        {/* PAGE 2: DECLARATION & OFFICE USE (Hidden from UI, but captured in PDF) */}
+        <Box
           sx={{
-            maxWidth: 850,
-            mx: "auto",
-            p: 6,
-            backgroundColor: "#fff",
-            color: "#000",
-            fontFamily: "'Times New Roman', Times, serif",
+            position: "absolute",
+            left: "-9999px",
+            top: 0,
+            width: "850px",
+            visibility: "visible", // Ensure it's captured
           }}
         >
+          <Paper
+            ref={pdfPage2Ref}
+            elevation={3}
+            sx={{
+              maxWidth: 850,
+              mx: "auto",
+              p: 6,
+              backgroundColor: "#fff",
+              color: "#000",
+              fontFamily: "'Times New Roman', Times, serif",
+            }}
+          >
           <Typography
             variant="h6"
             align="center"
@@ -598,6 +676,7 @@ const Admissiontemplate2 = () => {
             </Typography>
           </Box>
         </Paper>
+        </Box>
 
         {/* SUBMIT SECTION (Visible at bottom of page) */}
         <Box id="submit-section" sx={{ textAlign: "center", py: 4 }}>
