@@ -38,7 +38,7 @@ const ManageApiKeyds = () => {
     setLoading(true);
     try {
       const response = await ep1.get('/api/v2/getapikeydsbycoldids', {
-        params: { 
+        params: {
           colid: global1.colid,
           user: global1.user,
         },
@@ -184,7 +184,7 @@ const ManageApiKeyds = () => {
               value={formData.defaultapikey}
               onChange={handleChange}
               fullWidth
-              type="password"
+              type="text"
               placeholder="Enter default Gemini API key from Google AI Studio"
             />
 
@@ -207,7 +207,7 @@ const ManageApiKeyds = () => {
               value={formData.personalapikey}
               onChange={handleChange}
               fullWidth
-              type="password"
+              type="text"
               placeholder="Enter personal Gemini API key"
             />
 
