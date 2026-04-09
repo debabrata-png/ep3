@@ -92,6 +92,11 @@ import RankReportds from './pages/RankReportds';
 import ManualRankEntry6to8 from './pages/ManualRankEntry6to8';
 import ManualRankEntry9to10 from './pages/ManualRankEntry9to10';
 import ManualRankEntry11to12 from './pages/ManualRankEntry11to12';
+import SubCounselorManagementds from './pages/SubCounselorManagementds';
+import LeadTransferds from './pages/LeadTransferds';
+import DepartmentIndentds from './pages/DepartmentIndentds';
+
+
 
 
 
@@ -2495,6 +2500,9 @@ function App() {
 
                                         <Route path="/dashmfacwcal" element={<Dashmfacwcal />} />
                                         <Route path="/dashmfacwcaladmin" element={<Dashmfacwcaladmin />} />
+                                        <Route path="/sub-counselor-management" element={<SubCounselorManagementds />} />
+                                        <Route path="/leadtransferds" element={<LeadTransferds />} />
+
 
 
                                         <Route path="/dashmtimeslotsn" element={<Dashmtimeslotsn />} />
@@ -3135,16 +3143,17 @@ function App() {
                                         <Route path="/PurchaseCellInventoryds" element={<PurchaseCellInventoryds />} />
                                         <Route path="/ItemCategoryds" element={<ItemCategoryds />} />
                                         <Route path="/ItemTypeds" element={<ItemTypeds />} />
+                                        <Route path="/departmentindentds" element={<DepartmentIndentds />} />
 
                                         {/* Budget Module Routes */}
                                         <Route path="/BudgetTypeds" element={<BudgetTypeds />} />
                                         <Route path="/BudgetApproverds" element={<BudgetApproverds />} />
                                         <Route path="/BudgetDashboardds" element={<BudgetDashboardds />} />
                                         <Route path="/BudgetApprovalds" element={<BudgetApprovalds />} />
-                                         <Route path="/BudgetGroupds" element={<BudgetGroupds />} />
-                                         <Route path="/GroupWiseBudgetReportds" element={<GroupWiseBudgetReportds />} />
-                                         <Route path="/CategoryWiseBudgetReportds" element={<CategoryWiseBudgetReportds />} />
-                                         <Route path="/DepartmentWiseBudgetReportds" element={<DepartmentWiseBudgetReportds />} />
+                                        <Route path="/BudgetGroupds" element={<BudgetGroupds />} />
+                                        <Route path="/GroupWiseBudgetReportds" element={<GroupWiseBudgetReportds />} />
+                                        <Route path="/CategoryWiseBudgetReportds" element={<CategoryWiseBudgetReportds />} />
+                                        <Route path="/DepartmentWiseBudgetReportds" element={<DepartmentWiseBudgetReportds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
                                         <Route path="/staffprofileds" element={<StaffProfileds />} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />

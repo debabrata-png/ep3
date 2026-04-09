@@ -12,6 +12,7 @@ const BudgetDashboardds = () => {
     const [categories, setCategories] = useState([]);
     const [itemCategories, setItemCategories] = useState([]);
     const [budgetGroups, setBudgetGroups] = useState([]);
+    const [userDepartments, setUserDepartments] = useState([]);
 
     // Budget form
     const [openBudget, setOpenBudget] = useState(false);
@@ -24,6 +25,7 @@ const BudgetDashboardds = () => {
     const [catForm, setCatForm] = useState({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
     const [selectedBudgetId, setSelectedBudgetId] = useState(null);
     const [selectedBudgetName, setSelectedBudgetName] = useState('');
+    const [selectedBudgetDept, setSelectedBudgetDept] = useState('');
 
     // Expanded budget row for viewing categories
     const [expandedBudgetId, setExpandedBudgetId] = useState(null);
@@ -34,7 +36,19 @@ const BudgetDashboardds = () => {
         fetchBudgetTypes();
         fetchItemCategories();
         fetchBudgetGroups();
+        fetchDepartments();
     }, []);
+
+    const fetchDepartments = async () => {
+        try {
+            const response = await ep1.post('/api/v2/getdepartmentindentds', { colid: global1.colid });
+            if (response.data.success) {
+                setUserDepartments(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    };
 
     const fetchBudgetGroups = async () => {
         try {
@@ -112,8 +126,10 @@ const BudgetDashboardds = () => {
 
     // Category CRUD
     const handleOpenAddCategory = (budgetId, budgetName) => {
+        const parentBudget = budgets.find(b => b.id === budgetId);
         setSelectedBudgetId(budgetId);
         setSelectedBudgetName(budgetName);
+        setSelectedBudgetDept(parentBudget?.department || '');
         setCatForm({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
         setEditCatId(null);
         setOpenCat(true);
@@ -124,7 +140,8 @@ const BudgetDashboardds = () => {
         const payload = {
             ...catForm, amount: Number(catForm.amount),
             colid: global1.colid, user: global1.user, name: global1.user,
-            budgetid: selectedBudgetId, budgetname: selectedBudgetName
+            budgetid: selectedBudgetId, budgetname: selectedBudgetName,
+            department: selectedBudgetDept
         };
         try {
             if (editCatId) await ep1.post(`/api/v2/updatebudgetpocatds?id=${editCatId}`, payload);
@@ -238,9 +255,11 @@ const BudgetDashboardds = () => {
                                         <TableCell align="center">{cat.remarks || '—'}</TableCell>
                                         <TableCell align="center">
                                             <Button size="small" onClick={() => {
+                                                const parentBudget = budgets.find(b => b.id === cat.budgetid);
                                                 setEditCatId(cat._id);
                                                 setSelectedBudgetId(cat.budgetid);
                                                 setSelectedBudgetName(cat.budgetname);
+                                                setSelectedBudgetDept(cat.department || parentBudget?.department || '');
                                                 setCatForm({ groupname: cat.groupname || '', category: cat.category || '', amount: cat.amount || '', budgettype: cat.budgettype || '', remarks: cat.remarks || '' });
                                                 if (cat.groupname) fetchCategoriesByGroup(cat.groupname);
                                                 setOpenCat(true);
@@ -324,7 +343,20 @@ const BudgetDashboardds = () => {
                 <DialogContent>
                     <TextField label="Budget Name" fullWidth margin="normal" value={budgetForm.budgetname} onChange={e => setBudgetForm({ ...budgetForm, budgetname: e.target.value })} />
                     <TextField label="Year (e.g. 2025-26)" fullWidth margin="normal" value={budgetForm.year} onChange={e => setBudgetForm({ ...budgetForm, year: e.target.value })} />
-                    <TextField label="Department" fullWidth margin="normal" value={budgetForm.department} onChange={e => setBudgetForm({ ...budgetForm, department: e.target.value })} />
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Department</InputLabel>
+                        <Select
+                            value={budgetForm.department}
+                            label="Department"
+                            onChange={e => setBudgetForm({ ...budgetForm, department: e.target.value })}
+                        >
+                            {userDepartments.map((d, idx) => (
+                                <MenuItem key={idx} value={d.departmentname}>
+                                    {d.departmentname}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Budget Type</InputLabel>
                         <Select value={budgetForm.budgettype} label="Budget Type" onChange={e => setBudgetForm({ ...budgetForm, budgettype: e.target.value })}>

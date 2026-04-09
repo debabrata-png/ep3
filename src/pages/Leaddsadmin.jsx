@@ -490,9 +490,9 @@ const Leadsdsadmin = () => {
 
   // Delete Lead (Admin Only)
   const handleDeleteLead = async (lead) => {
-    // Check if current user is the admin (owner)
-    if (lead.user !== global1.user) {
-      showSnackbar("Unauthorized. Only the admin can delete leads.", "error");
+    // Check if current user is the admin (owner) or has a privileged role
+    if (lead.user !== global1.user && !['Admin', 'CRM', 'All'].includes(global1.role)) {
+      showSnackbar("Unauthorized. Only the owner or an administrator can delete leads.", "error");
       return;
     }
 
@@ -712,6 +712,8 @@ const Leadsdsadmin = () => {
       ),
     },
     { field: "assignedto", headerName: "Assigned To", width: 180 },
+    { field: "subcounsellorname", headerName: "Sub-Counselor Name", width: 180 },
+    { field: "subcounselloremail", headerName: "Sub-Counselor Email", width: 200 },
     { field: "source", headerName: "Source", width: 120, editable: false },
     { field: "city", headerName: "City", width: 120, editable: false },
     { field: "state", headerName: "State", width: 120, editable: false },
@@ -836,8 +838,8 @@ const Leadsdsadmin = () => {
             </IconButton>
           </Tooltip>
 
-          {/* Delete button - only visible for admin */}
-          {params.row.user === global1.user && (
+          {/* Delete button - visible for owner or delegated roles (Admin, CRM, All) */}
+          {(params.row.user === global1.user || ['Admin', 'CRM', 'All'].includes(global1.role)) && (
             <Tooltip title="Delete Lead (Admin Only)">
               <IconButton
                 size="small"

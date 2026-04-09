@@ -16,7 +16,7 @@ const FacultyRequisitionPrintTemplate = ({
     instituteAddress,
     institutePhone,
     indentNumber = "________________",
-    department = "Asst. Registrar (Admin)",
+    department = "",
     remark = "",
     name = "",
 }) => {

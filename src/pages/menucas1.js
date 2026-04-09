@@ -60,6 +60,7 @@ import { menusecurity } from "./menusecurity";
 import { menuitemsfinance } from './menufinance';
 import { menuitemsfees } from './menufees';
 import { menuitemshrms } from './menuhrms';
+import { menuitemssubcounselor } from './menusubcounselor';
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
@@ -273,6 +274,12 @@ export function mainListItems({ open }) {
       return (
         <div>
           {menuitemshrms()}
+        </div>
+      )
+    } else if (role1 === "Subcounselor") {
+      return (
+        <div>
+          {menuitemssubcounselor()}
         </div>
       )
     }

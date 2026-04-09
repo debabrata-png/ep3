@@ -360,6 +360,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             storereqid: activeStoreRequestId, // Store ID here
             storeid: activeStoreRequestId ? (storeRequests.find(r => r._id === activeStoreRequestId)?.storeid || '') : '',
             storename: activeStoreRequestId ? (storeRequests.find(r => r._id === activeStoreRequestId)?.store || '') : '',
+            departmentname: activeStoreRequestId ? (storeRequests.find(r => r._id === activeStoreRequestId)?.departmentname || '') : '',
             isNew: true
         }]);
         setActiveStoreRequestId(null); // Reset after adding
@@ -507,7 +508,8 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                     returnamount: 0,
                     creatorName: global1.name || global1.user,
                     storeid: poItems.length > 0 ? poItems[0].storeid : '',
-                    storename: poItems.length > 0 ? poItems[0].storename : ''
+                    storename: poItems.length > 0 ? poItems[0].storename : '',
+                    departmentname: poItems.length > 0 ? poItems[0].departmentname : ''
                 };
                 const poRes = await ep1.post('/api/v2/addstorepoorderds2', poPayload);
                 currentPO = poRes.data.data;
@@ -550,7 +552,8 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                     user: global1.user,
                     storereqid: item.storereqid, // Link to Store Request
                     storeid: item.storeid,
-                    storename: item.storename
+                    storename: item.storename,
+                    departmentname: item.departmentname
                 });
             }
 
@@ -781,15 +784,14 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     const [poCreationMode, setPoCreationMode] = useState('NEW'); // 'NEW' or 'EXISTING'
 
     // Fetch available budget for a given category
-    const fetchAvailableBudget = async (category) => {
+    const fetchAvailableBudget = async (category, department) => {
         if (!category) {
             setAvailableBudget(null);
             setBudgetCategory('');
             return;
         }
         try {
-            const year = new Date().getFullYear().toString();
-            const res = await ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}`);
+            const res = await ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}${department ? `&department=${encodeURIComponent(department)}` : ''}`);
             setAvailableBudget(res.data.data.availableAmount);
             setBudgetCategory(category);
         } catch (err) {
@@ -825,9 +827,9 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
         }
         reqRow.computedCategory = prCategory;
 
-        // Fetch budget for this category
+        // Fetch budget for this category & department
         if (prCategory) {
-            fetchAvailableBudget(prCategory);
+            fetchAvailableBudget(prCategory, reqRow.departmentname);
         }
 
         // Guarantee POs are fetched regardless of currently active tab!
@@ -971,6 +973,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                     creatorName: global1.name || global1.user,
                     storeid: selectedPRForPO.storeid,
                     storename: selectedPRForPO.store || 'Main Store',
+                    departmentname: selectedPRForPO.departmentname || '',
                     deliveryType: 'Physical Delivery',
                     poType: 'Standard'
                 };

@@ -142,6 +142,8 @@ const StoreManagerDashboardds2 = () => {
     const [localGRNRemarks, setLocalGRNRemarks] = useState('');
     const [localOrderType, setLocalOrderType] = useState('LPO'); // LPO, Cash Memo, Imprest
     const [completedLocalGRNs, setCompletedLocalGRNs] = useState([]);
+    const [userDepartments, setUserDepartments] = useState([]);
+    const [selectedDeptId, setSelectedDeptId] = useState('');
 
     // Vendor Data State
     const [vendors, setVendors] = useState([]);
@@ -183,14 +185,35 @@ const StoreManagerDashboardds2 = () => {
         }
     };
 
+    const fetchDepartments = async () => {
+        try {
+            const response = await ep1.post('/api/v2/getdepartmentindentds', { colid: global1.colid });
+            if (response.data.success) {
+                // For Store Hub, we show all departments (or maybe filter? usually store sees all)
+                // However, following the pattern of creator filtering if needed:
+                // Let's show all for now, as store managers usually manage for all depts.
+                setUserDepartments(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    };
+
     const handleAddToCart = () => {
-        if (!createPrItem || !createPrQty) return;
+        if (!createPrItem || !createPrQty || !selectedDeptId) {
+            alert("Please select Department, Item and Quantity");
+            return;
+        }
+        const deptObj = userDepartments.find(d => d._id === selectedDeptId);
+
         const newItem = {
             itemid: createPrItem._id,
             itemcode: createPrItem.itemcode,
             itemname: createPrItem.itemname,
             quantity: createPrQty,
             unit: createPrUnit,
+            category: createPrCategory || createPrItem.category || '',
+            departmentname: deptObj?.departmentname || '',
             storeid: createPrItem.storeid || stores[0]?._id, // Default to first store if not linked? Or logic needs refinement.
             storename: stores.find(s => s._id === (createPrItem.storeid || stores[0]?._id))?.storename || 'General Store'
         };
@@ -238,7 +261,9 @@ const StoreManagerDashboardds2 = () => {
                     reqstatus: 'Purchase Requested', // Directly set status
                     colid: global1.colid,
                     user: global1.user,
-                    prnumber: prNum // Save generated PR Number
+                    prnumber: prNum, // Save generated PR Number
+                    category: item.category,
+                    departmentname: item.departmentname
                 });
             }
 
@@ -325,6 +350,7 @@ const StoreManagerDashboardds2 = () => {
         } else if (tabValue === 2) {
             fetchStores();
             fetchAllItems();
+            fetchDepartments();
         } else if (tabValue === 3) {
             fetchHistory();
         } else if (tabValue === 4) {
@@ -947,7 +973,9 @@ const StoreManagerDashboardds2 = () => {
                 reqdate: new Date(),
                 reqstatus: 'Pending',
                 colid: global1.colid,
-                user: global1.user
+                user: global1.user,
+                category: itemMaster?.category || selectedRequest.category || '',
+                departmentname: selectedRequest.departmentname || ''
             });
 
             // 2. Update Original Request Status
@@ -1337,7 +1365,7 @@ const StoreManagerDashboardds2 = () => {
         { field: 'itemname', headerName: 'Item Name', width: 200 },
         { field: 'quantity', headerName: 'Quantity', width: 100 },
         { field: 'storename', headerName: 'Store', width: 150 },
-        { field: 'department', headerName: 'Department', width: 150 },
+        { field: 'departmentname', headerName: 'Department', width: 150 },
         { field: 'reqdate', headerName: 'Date', width: 150, valueFormatter: (params) => { const val = params?.value || params; return val ? new Date(val).toLocaleDateString('en-GB') : ''; } },
         { field: 'reqstatus', headerName: 'Status', width: 150 },
         {
@@ -1541,6 +1569,15 @@ const StoreManagerDashboardds2 = () => {
                         {/* ... existing input section ... */}
                         <Paper sx={{ p: 2, mb: 3 }}>
                             <Grid container spacing={2} alignItems="center">
+                                <Grid item xs={12} md={2}>
+                                    <Autocomplete
+                                        options={userDepartments}
+                                        getOptionLabel={(option) => option.departmentname || ""}
+                                        value={userDepartments.find(d => d._id === selectedDeptId) || null}
+                                        onChange={(e, val) => setSelectedDeptId(val ? val._id : '')}
+                                        renderInput={(params) => <TextField {...params} label="Select Department" size="small" />}
+                                    />
+                                </Grid>
                                 <Grid item xs={12} md={2}>
                                     <Autocomplete
                                         options={apiCategories.length > 0 ? apiCategories : [...new Set(allItems.map(i => i.category || '').filter(Boolean))]}

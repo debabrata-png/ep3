@@ -124,6 +124,7 @@ export const adminMenuData = [
             { label: "Faculty Create Request", path: "/faculty-create-request" },
             { label: "Faculty Request Approval", path: "/FacultyRequestApprovalds" },
             { label: "Faculty Request Status", path: "/faculty-request-status" },
+            { label: "Department Indent", path: "/departmentindentds" },
             { label: "Purchase Dashboard", path: "/admin/purchase-dashboard" },
             { label: "Purchase Inventory", path: "/admin/purchase-inventory" },
             { label: "Vendor Management", path: "/admin/purchase-vendors" },

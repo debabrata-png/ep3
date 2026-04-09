@@ -35,22 +35,35 @@ const FacultyCreateRequestds2 = () => {
     const [remark, setRemark] = useState('');
     const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
     const [indentNumber, setIndentNumber] = useState('');
+    const [userDepartments, setUserDepartments] = useState([]);
+    const [selectedDeptId, setSelectedDeptId] = useState('');
 
-    const generateIndentNumber = () => {
+    const generateIndentNumber = (prefix = "INDDS") => {
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const date = String(now.getDate()).padStart(2, '0');
         const random = Math.floor(1000 + Math.random() * 9000);
-        return `INDDSPUAREG/${year}${month}${date}${random}`;
+        return `${prefix}/${year}${month}${date}${random}`;
     };
 
     // Fetch initial data
     useEffect(() => {
         fetchStores();
         fetchItems();
-        setIndentNumber(generateIndentNumber());
+        fetchDepartments();
     }, []);
+
+    // Update indent number when department changes
+    useEffect(() => {
+        if (selectedDeptId && userDepartments.length > 0) {
+            const dept = userDepartments.find(d => d._id === selectedDeptId);
+            const prefix = dept?.institutionshort ? `INDDS${dept.institutionshort}` : "INDDS";
+            setIndentNumber(generateIndentNumber(prefix));
+        } else {
+            setIndentNumber(generateIndentNumber("INDDS"));
+        }
+    }, [selectedDeptId, userDepartments]);
 
     const fetchStores = async () => {
         try {
@@ -70,6 +83,23 @@ const FacultyCreateRequestds2 = () => {
         }
     };
 
+    const fetchDepartments = async () => {
+        try {
+            const response = await ep1.post('/api/v2/getdepartmentindentds', { colid: global1.colid });
+            if (response.data.success) {
+                // Filter departments where current user is the creator
+                const myDepts = response.data.data.filter(d => d.creatoruserid === global1.user);
+                setUserDepartments(myDepts);
+                // Auto-select if there's only one
+                if (myDepts.length === 1) {
+                    setSelectedDeptId(myDepts[0]._id);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    };
+
     const [cartItems, setCartItems] = useState([]);
 
     const handleRequestClick = (item) => {
@@ -78,12 +108,13 @@ const FacultyCreateRequestds2 = () => {
     };
 
     const handleAddToCart = () => {
-        if (!selectedItem || !selectedStore || !quantity) {
-            alert('Please fill all fields');
+        if (!selectedItem || !selectedStore || !quantity || !selectedDeptId) {
+            alert('Please fill all fields, including Department');
             return;
         }
 
         const storeObj = stores.find(s => s._id === selectedStore);
+        const deptObj = userDepartments.find(d => d._id === selectedDeptId);
 
         const newItem = {
             id: Date.now(), // Local key for DataGrid
@@ -95,7 +126,12 @@ const FacultyCreateRequestds2 = () => {
             reqdate: new Date(),
             storeid: selectedStore,
             storename: storeObj?.storename || 'Unknown',
-            reqstatus: 'Pending',
+            departmentname: deptObj?.departmentname || 'Unknown',
+            hoiapproveruserid: deptObj?.hoiapproveruserid || '',
+            ahoiapproveruserid: deptObj?.ahoiapproveruserid || '',
+            hoiApproverName: deptObj?.hoiapprovername || '',
+            ahoiApproverName: deptObj?.ahoiapprovername || '',
+            reqstatus: 'Pending Approval', // Default to Pending Approval as per workflow
             year: new Date().getFullYear().toString(),
             colid: global1.colid,
             user: global1.user,
@@ -134,7 +170,11 @@ const FacultyCreateRequestds2 = () => {
             setCartItems([]);
             setOpenSubmitDialog(false);
             setRemark(''); // Clear remark for next session
-            setIndentNumber(generateIndentNumber()); // Generate a fresh indent number for next batch
+            
+            // Re-generate indent number for next batch using same prefix
+            const dept = userDepartments.find(d => d._id === selectedDeptId);
+            const prefix = dept?.institutionshort ? `INDDS${dept.institutionshort}` : "INDDS";
+            setIndentNumber(generateIndentNumber(prefix));
         } catch (error) {
             console.error('Error submitting requisitions:', error);
             alert('Failed to submit some requisitions.');
@@ -154,6 +194,8 @@ const FacultyCreateRequestds2 = () => {
             const container = printWindow.document.createElement('div');
             printWindow.document.body.appendChild(container);
 
+            const selectedDept = userDepartments.find(d => d._id === selectedDeptId);
+
             const root = createRoot(container);
             root.render(
                 <FacultyRequisitionPrintTemplate
@@ -162,6 +204,7 @@ const FacultyCreateRequestds2 = () => {
                     instituteAddress={instConfig.address}
                     institutePhone={instConfig.phone}
                     indentNumber={indentNumber}
+                    department={selectedDept?.departmentname || ""}
                     remark={remark}
                     name={global1.name}
                 />
@@ -259,6 +302,30 @@ const FacultyCreateRequestds2 = () => {
                                                 </MenuItem>
                                             ))}
                                         </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl fullWidth size="small" required error={!selectedDeptId}>
+                                        <InputLabel>Select Department</InputLabel>
+                                        <Select
+                                            value={selectedDeptId}
+                                            label="Select Department"
+                                            onChange={(e) => setSelectedDeptId(e.target.value)}
+                                        >
+                                            {userDepartments.map((dept) => (
+                                                <MenuItem key={dept._id} value={dept._id}>
+                                                    {dept.departmentname}
+                                                </MenuItem>
+                                            ))}
+                                            {userDepartments.length === 0 && (
+                                                <MenuItem disabled>No departments configured for you</MenuItem>
+                                            )}
+                                        </Select>
+                                        {userDepartments.length === 0 && (
+                                            <Typography variant="caption" color="error" sx={{ px: 2 }}>
+                                                Ask admin to configure your department in 'Department Indent'
+                                            </Typography>
+                                        )}
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>

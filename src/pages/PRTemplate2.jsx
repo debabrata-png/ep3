@@ -102,7 +102,7 @@ const PRTemplate2 = ({ requestData, items, prNumber, instituteName, instituteAdd
                         {dataItems.map((item, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
-                                <td>{item?.department || 'GENERAL'}</td>
+                                <td>{item?.category || 'GENERAL'}</td>
                                 <td>{item?.itemname}</td>
                                 <td>{item?.make || 'LOCAL'}</td>
                                 <td>{item?.quantity}</td>

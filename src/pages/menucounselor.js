@@ -15,6 +15,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import BusinessIcon from '@mui/icons-material/Business';
 import CategoryIcon from '@mui/icons-material/Category';
 import LeadsIcon from '@mui/icons-material/Leaderboard';
+import TransferIcon from '@mui/icons-material/SwapHoriz';
 import ProgramIcon from '@mui/icons-material/School';
 import LandingPageIcon from '@mui/icons-material/WebAsset';
 import CampaignIcon from '@mui/icons-material/Campaign';
@@ -90,6 +91,13 @@ export function menuitemscounselor() {
               <LeadsIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leads" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/leadtransferds">
+            <ListItemIcon>
+              <TransferIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Lead Transfer" />}
           </ListItem>
 
         </AccordionDetails>

@@ -65,6 +65,7 @@ const FacultyRequestStatusds2 = () => {
                     instituteAddress={instConfig.address}
                     institutePhone={instConfig.phone}
                     indentNumber={itemsToPrint[0]?.indentNumber || "________________"}
+                    department={itemsToPrint[0]?.departmentname}
                     remark={itemsToPrint[0]?.remark || ''}
                 />
             );

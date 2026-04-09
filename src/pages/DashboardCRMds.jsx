@@ -22,7 +22,9 @@ import {
   Settings as SettingsIcon,
   Source as SourceIcon,
   HowToReg as AdmissionIcon,
+  SupervisorAccount as PeopleIcon,
 } from "@mui/icons-material";
+
 import { useNavigate } from "react-router-dom";
 import global1 from "./global1";
 
@@ -145,6 +147,13 @@ const Dashboardds = () => {
       icon: <AdmissionIcon sx={{ fontSize: 48, color: "#d81b60" }} />,
       route: "/confirmadmissionds",
     },
+    {
+      title: "Sub-Counselor Management",
+      description: "Manage sub-counselor mappings",
+      icon: <PeopleIcon sx={{ fontSize: 48, color: "#8e24aa" }} />,
+      route: "/sub-counselor-management",
+    },
+
     {
       title: "Program Counselor",
       description: "Manage programs with counselors",

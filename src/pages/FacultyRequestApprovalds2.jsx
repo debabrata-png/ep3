@@ -37,11 +37,16 @@ const FacultyRequestApprovalds2 = () => {
                 const pending = data.filter(req => {
                     if (req.reqstatus !== 'Pending Approval') return false;
                     
-                    if (global1.role === 'AHOI') {
+                    const isHOI = req.hoiapproveruserid === global1.user;
+                    const isAHOI = req.ahoiapproveruserid === global1.user;
+
+                    if (!isHOI && !isAHOI) return false;
+
+                    if (isAHOI) {
                         // AHOI sees it if it's manual and they haven't approved yet
                         return req.approvalOption === 'Manual' && !req.ahoiApproved;
                     }
-                    if (global1.role === 'HOI') {
+                    if (isHOI) {
                         // HOI sees it if they haven't approved yet
                         return !req.hoiApproved;
                     }
@@ -58,15 +63,21 @@ const FacultyRequestApprovalds2 = () => {
         }
     };
 
-    const handleApprove = async (id) => {
+    const handleApprove = async (row) => {
         try {
+            const isHOI = row.hoiapproveruserid === global1.user;
+            const isAHOI = row.ahoiapproveruserid === global1.user;
+            
+            // Determine the role to send to backend based on which field matched
+            const approverRole = isAHOI ? 'AHOI' : 'HOI';
+
             await ep1.post('/api/v2/approverequisationds12', { 
-                id, 
-                approverRole: global1.role,
+                id: row.id, 
+                approverRole: approverRole,
                 approverName: global1.name 
             });
             setRefreshTrigger(prev => prev + 1);
-            alert('Request Status Updated Successfully');
+            alert(`Approved as ${approverRole}`);
         } catch (error) {
             console.error('Error approving request:', error);
             alert('Failed to approve request');
@@ -105,7 +116,8 @@ const FacultyRequestApprovalds2 = () => {
                     instituteName={instConfig.institutionname}
                     instituteAddress={instConfig.address}
                     institutePhone={instConfig.phone}
-                    indentNumber={itemsToPrint[0]?.indentNumber || `INDDSPUAREG/ ${Date.now()}`}
+                    indentNumber={itemsToPrint[0]?.indentNumber || `INDDS/ ${Date.now()}`}
+                    department={itemsToPrint[0]?.departmentname || ""}
                     remark={itemsToPrint[0]?.remark || ''}
                 />
             );
@@ -206,7 +218,7 @@ const FacultyRequestApprovalds2 = () => {
                             variant="contained"
                             color="success"
                             size="small"
-                            onClick={() => handleApprove(params.row.id)}
+                            onClick={() => handleApprove(params.row)}
                         >
                             Approve
                         </Button>
@@ -244,8 +256,11 @@ const FacultyRequestApprovalds2 = () => {
                 <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)}>
                     <Tab label={`Pending Requests (${allRequests.filter(req => {
                         if (req.reqstatus !== 'Pending Approval') return false;
-                        if (global1.role === 'AHOI') return req.approvalOption === 'Manual' && !req.ahoiApproved;
-                        if (global1.role === 'HOI') return !req.hoiApproved;
+                        const isHOI = req.hoiapproveruserid === global1.user;
+                        const isAHOI = req.ahoiapproveruserid === global1.user;
+                        if (!isHOI && !isAHOI) return false;
+                        if (isAHOI) return req.approvalOption === 'Manual' && !req.ahoiApproved;
+                        if (isHOI) return !req.hoiApproved;
                         return true;
                     }).length})`} />
                     <Tab label="Approval History" />
