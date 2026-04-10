@@ -180,6 +180,7 @@ function Login() {
         //console.log(response1.data.data.classes);
         //alert(response1.data.data.classes[0].type + ' ' + response1.data.data.classes[0].institutionname);
         global1.insname = response1.data.data.classes[0].institutionname;
+        global1.institution = response1.data.data.classes[0].institutionname;
         //localStorage.setItem('insname', response1.data.data.classes[0].institutionname);
       } catch (err) {
 

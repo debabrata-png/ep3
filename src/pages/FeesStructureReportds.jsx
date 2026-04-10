@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -21,6 +21,10 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Assessment,
@@ -63,6 +67,29 @@ const FeesStructureReportds = () => {
   const [error, setError] = useState('');
   const [reportGenerated, setReportGenerated] = useState(false);
 
+  // Distinct values for dropdowns
+  const [distinctValues, setDistinctValues] = useState({
+    academicyears: [],
+    programcodes: [],
+    semesters: [],
+  });
+
+  // ── Fetch Distinct Values ───────────────────────
+  const fetchDistinctValues = async () => {
+    try {
+      const res = await ep1.get(`/api/v2/getdistinctfeesreportfilters?colid=${global1.colid}`);
+      if (res.data.success) {
+        setDistinctValues(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching distinct values:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDistinctValues();
+  }, []);
+
   // ── Fetch ────────────────────────────────────────
   const handleGenerateReport = async () => {
     setLoading(true);
@@ -72,8 +99,8 @@ const FeesStructureReportds = () => {
     try {
       let url = `/api/v2/feesstructurereportds?colid=${global1.colid}`;
       if (academicyear) url += `&academicyear=${academicyear}`;
-      if (programcode)  url += `&programcode=${programcode}`;
-      if (semester)     url += `&semester=${semester}`;
+      if (programcode) url += `&programcode=${programcode}`;
+      if (semester) url += `&semester=${semester}`;
 
       const response = await ep1.get(url);
 
@@ -173,34 +200,49 @@ const FeesStructureReportds = () => {
 
         <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Academic Year"
-              placeholder="e.g. 2024-2025"
-              value={academicyear}
-              onChange={(e) => setAcademicyear(e.target.value)}
-            />
+            <FormControl fullWidth size="small">
+              <InputLabel>Academic Year</InputLabel>
+              <Select
+                value={academicyear}
+                label="Academic Year"
+                onChange={(e) => setAcademicyear(e.target.value)}
+              >
+                <MenuItem value=""><em>All Years</em></MenuItem>
+                {distinctValues.academicyears.map((ay) => (
+                  <MenuItem key={ay} value={ay}>{ay}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Program Code"
-              placeholder="e.g. CSE, MBA, BCA ..."
-              value={programcode}
-              onChange={(e) => setProgramcode(e.target.value)}
-            />
+            <FormControl fullWidth size="small">
+              <InputLabel>Program Code</InputLabel>
+              <Select
+                value={programcode}
+                label="Program Code"
+                onChange={(e) => setProgramcode(e.target.value)}
+              >
+                <MenuItem value=""><em>All Programs</em></MenuItem>
+                {distinctValues.programcodes.map((pc) => (
+                  <MenuItem key={pc} value={pc}>{pc}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Semester (optional)"
-              placeholder="e.g. 1, 2, 3 ..."
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-            />
+            <FormControl fullWidth size="small">
+              <InputLabel>Semester (optional)</InputLabel>
+              <Select
+                value={semester}
+                label="Semester (optional)"
+                onChange={(e) => setSemester(e.target.value)}
+              >
+                <MenuItem value=""><em>All Semesters</em></MenuItem>
+                {distinctValues.semesters.map((sem) => (
+                  <MenuItem key={sem} value={sem}>{sem}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 

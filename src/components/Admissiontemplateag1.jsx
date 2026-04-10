@@ -38,6 +38,7 @@ const Admissiontemplate1 = () => {
     6: "Guardian Info & Declaration",
   };
 
+  const [institution, setInstitution] = useState(null);
   const [formData, setFormData] = useState({
     colId: colId,
     // Personal
@@ -146,6 +147,21 @@ const Admissiontemplate1 = () => {
     registrationNo: "",
     collegeCode: "",
   });
+
+  const fetchInstitution = async () => {
+    try {
+      const res = await ep1.get(`/api/v1/getinstitutionname?colid=${colId}`);
+      if (res.data.status === "Success" && res.data.data.classes.length > 0) {
+        setInstitution(res.data.data.classes[0]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch institution details:", err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchInstitution();
+  }, [colId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -268,10 +284,15 @@ const Admissiontemplate1 = () => {
             MULTI-STEP FORM (Visible to User)
         ═══════════════════════════════════════════ */}
         <Paper elevation={3} sx={{ p: 4 }}>
+          {institution?.logo && (
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+              <img src={institution.logo} alt="Logo" style={{ maxHeight: "110px", maxWidth: "100%" }} />
+            </Box>
+          )}
           <Typography variant="h5" fontWeight="bold" align="center" gutterBottom>
-            SAINT FRANCIS DE SALES COLLEGE
+            {institution?.institutionname || "SAINT FRANCIS DE SALES COLLEGE"}
           </Typography>
-          <Typography align="center" color="text.secondary">Seminary Hill, Nagpur, Maharashtra, India</Typography>
+          <Typography align="center" color="text.secondary">{institution?.address || "Seminary Hill, Nagpur, Maharashtra, India"}</Typography>
           <Typography align="center" sx={{ mb: 1 }}>
             Step {step} of 6: <strong>{stepTitles[step]}</strong>
           </Typography>
@@ -582,11 +603,13 @@ const Admissiontemplate1 = () => {
               <tbody>
                 <tr>
                   <td rowSpan={2} style={{ border: "1px solid #000", width: "15%", textAlign: "center", padding: "4px", fontWeight: "bold", fontSize: "10px" }}>
-                    [LOGO]
+                    {institution?.logo ? (
+                      <img src={institution.logo} alt="Logo" style={{ maxWidth: "100%", maxHeight: "60px" }} crossOrigin="anonymous" />
+                    ) : "[LOGO]"}
                   </td>
                   <td style={{ border: "1px solid #000", textAlign: "center", padding: "4px" }}>
-                    <div style={{ fontWeight: "bold", fontSize: "14px" }}>SAINT FRANCIS DE SALES COLLEGE</div>
-                    <div style={{ fontSize: "11px" }}>SEMINARY HILL, NAGPUR, MAHARASHTRA, INDIA</div>
+                    <div style={{ fontWeight: "bold", fontSize: "14px" }}>{institution?.institutionname || "SAINT FRANCIS DE SALES COLLEGE"}</div>
+                    <div style={{ fontSize: "11px" }}>{institution?.address || "SEMINARY HILL, NAGPUR, MAHARASHTRA, INDIA"}</div>
                   </td>
                   <td style={{ border: "1px solid #000", width: "20%", padding: "4px", fontSize: "11px" }}>
                     <div><strong>College Code:</strong></div>

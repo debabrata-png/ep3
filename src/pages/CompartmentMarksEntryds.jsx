@@ -39,7 +39,7 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
 
     const [semester, setSemester] = useState('');
     const [academicyear, setAcademicyear] = useState('');
-    const [section, setSection] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [students, setStudents] = useState([]);
     const [marksData, setMarksData] = useState({}); // key: regno_subjectcode → value
@@ -49,7 +49,6 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
 
     const [availableSemesters, setAvailableSemesters] = useState([]);
     const [availableYears, setAvailableYears] = useState([]);
-    const [availableSections, setAvailableSections] = useState([]);
 
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -61,7 +60,7 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
         if (semester && academicyear) {
             fetchCompartmentStudents();
         }
-    }, [semester, academicyear, section]);
+    }, [semester, academicyear]);
 
     const fetchSemestersAndYears = async () => {
         try {
@@ -71,7 +70,7 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
             if (response.data.success) {
                 setAvailableSemesters(response.data.semesters || []);
                 setAvailableYears(response.data.admissionyears || []);
-                setAvailableSections(response.data.sections || []);
+                // setAvailableSections(response.data.sections || []); 
                 if (response.data.semesters?.length > 0) setSemester(response.data.semesters[0]);
                 if (response.data.admissionyears?.length > 0) setAcademicyear(response.data.admissionyears[0]);
             }
@@ -90,7 +89,7 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
                 : '/api/v2/getcompartmentstudents9ds';
 
             const response = await ep1.get(endpoint, {
-                params: { colid: global1.colid, semester, academicyear, section }
+                params: { colid: global1.colid, semester, academicyear, section: '' }
             });
 
             if (response.data.success) {
@@ -175,8 +174,14 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
         setSnackbar({ ...snackbar, open: false });
     };
 
-    // Count total failed subjects in the loaded data
-    const totalFailedSubjects = students.reduce((sum, s) => sum + s.failedSubjects.length, 0);
+    // Filtering logic for the search option
+    const filteredStudents = students.filter(s =>
+        (s.studentname || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (s.regno || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Count total failed subjects in the filtered data
+    const totalFailedSubjects = filteredStudents.reduce((sum, s) => sum + s.failedSubjects.length, 0);
 
     return (
         <Box sx={{ p: 3 }}>
@@ -223,19 +228,14 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={2}>
+                        <Grid item xs={12} md={3}>
                             <TextField
-                                select
                                 fullWidth
-                                label="Section"
-                                value={section}
-                                onChange={(e) => setSection(e.target.value)}
-                            >
-                                <MenuItem value="">All Sections</MenuItem>
-                                {availableSections.map(s => (
-                                    <MenuItem key={s} value={s}>{s}</MenuItem>
-                                ))}
-                            </TextField>
+                                label="Search Student / Reg No"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Filter by name or regno..."
+                            />
                         </Grid>
                         <Grid item xs={12} md={2}>
                             <Button
@@ -247,16 +247,16 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
                                 Load Students
                             </Button>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <Button
                                 variant="contained"
                                 color="warning"
                                 startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <Save />}
                                 onClick={handleSave}
-                                disabled={loading || saving || students.length === 0}
+                                disabled={loading || saving || filteredStudents.length === 0}
                                 fullWidth
                             >
-                                Save Supplementary Marks
+                                Save Marks
                             </Button>
                         </Grid>
                     </Grid>
@@ -303,7 +303,7 @@ const CompartmentMarksEntryds = ({ classGroup = '9ds' }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {students.map((student, sIdx) =>
+                            {filteredStudents.map((student, sIdx) =>
                                 student.failedSubjects.map((sub, subIdx) => {
                                     const key = `${student.regno}_${sub.subjectcode}`;
                                     const suppMarks = marksData[key];

@@ -158,6 +158,7 @@ import UserManagementReportds from './pages/UserManagementReportds';
 import RoleSpecificReportds from './pages/RoleSpecificReportds';
 import LMSReportds from './pages/LMSReportds';
 import PurchaseReportds from './pages/PurchaseReportds';
+import StudentDetailedReportds from './pages/StudentDetailedReportds';
 
 import Dashmmcourses from './pages/Dashmmcourses';
 import Dashmmcoursesadmin from './pages/Dashmmcoursesadmin';
@@ -282,6 +283,8 @@ import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
 import Kommunosettingsds from './pages/Kommunosettingsds';
 import CategoryManagementag1 from './pages/CategoryManagementag1';
+import BudgetInstitutionCategoryReportds from './pages/BudgetInstitutionCategoryReportds';
+import BudgetInstitutionGroupCategoryReportds from './pages/BudgetInstitutionGroupCategoryReportds';
 
 
 import Dashmclassnewc from './pages/Dashmclassnewc';
@@ -1888,6 +1891,7 @@ function App() {
                                         <Route path="/admin/institutions" element={<NewInstitutionsds />} />
                                         <Route path="/admin/drigable-institutions" element={<DrigableInstitutionSelectionds />} />
                                         <Route path="/drigablereport" element={<DrigableReportDashboardds />} />
+                                         <Route path="/studentdetailedreportds" element={<StudentDetailedReportds />} />
                                         <Route path="/usermanagementreport" element={<UserManagementReportds />} />
                                         <Route path="/rolespecificreport/:role" element={<RoleSpecificReportds />} />
                                         <Route path="/lmsreport" element={<LMSReportds />} />
@@ -3154,6 +3158,8 @@ function App() {
                                         <Route path="/GroupWiseBudgetReportds" element={<GroupWiseBudgetReportds />} />
                                         <Route path="/CategoryWiseBudgetReportds" element={<CategoryWiseBudgetReportds />} />
                                         <Route path="/DepartmentWiseBudgetReportds" element={<DepartmentWiseBudgetReportds />} />
+                                        <Route path="/BudgetInstitutionCategoryReportds" element={<BudgetInstitutionCategoryReportds />} />
+                                        <Route path="/BudgetInstitutionGroupCategoryReportds" element={<BudgetInstitutionGroupCategoryReportds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />
                                         <Route path="/staffprofileds" element={<StaffProfileds />} />
                                         <Route path="/admin-new" element={<DashMainAdmin />} />

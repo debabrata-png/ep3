@@ -321,12 +321,8 @@ const PublicUnifiedLandingPageds2 = () => {
                                 src={logo}
                                 alt="University Logo"
                                 style={{
-                                    height: '80px',
-                                    width: 'auto',
-                                    backgroundColor: 'rgba(255,255,255,0.1)', // Light background for contrast
-                                    padding: '8px',
-                                    borderRadius: '8px',
-                                    backdropFilter: 'blur(4px)'
+                                    height: '110px',
+                                    width: 'auto'
                                 }}
                             />
                         </Box>

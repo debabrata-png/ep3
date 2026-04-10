@@ -66,7 +66,8 @@ const EditUserdsnov17 = () => {
     addedby: "",
     comments: "",
     lastlogin: "",
-    expotoken: ""
+    expotoken: "",
+    institution: "",
   });
 
   // Fetch user data
@@ -116,7 +117,7 @@ const EditUserdsnov17 = () => {
         ...formData,
         status: Number(formData.status)
       };
-      
+
       // Remove password if empty
       if (!submitData.password) {
         delete submitData.password;
@@ -178,6 +179,16 @@ const EditUserdsnov17 = () => {
                 name="srno"
                 type="number"
                 value={formData.srno}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Institution"
+                name="institution"
+                type="text"
+                value={formData.institution}
                 onChange={handleChange}
               />
             </Grid>

@@ -108,8 +108,9 @@ const DepartmentIndentds = () => {
     try {
       const payload = {
         ...formData,
-        user: formData.creatoruserid, // Mongoose requires 'user' field
-        name: formData.creatorname
+        user: user, // System mandatory user from session
+        name: name, // System mandatory name from session
+        colid: colid // System mandatory colid from session
       };
 
       if (editMode) {
@@ -170,11 +171,48 @@ const DepartmentIndentds = () => {
   };
 
   const downloadTemplate = () => {
-    window.open(`${ep1.defaults.baseURL}/api/v2/templatedepartmentindentds`, '_blank');
+    const templateData = [{
+      departmentname: 'CSE',
+      institution: 'Example University',
+      institutionshort: 'EU',
+      creatorname: name,
+      creatoruserid: user,
+      hoiapprovername: 'Approver Name',
+      hoiapproveruserid: 'approver@email.com',
+      ahoiapprovername: 'Asst. Approver',
+      ahoiapproveruserid: 'asst@email.com',
+      remarks: 'Sample bulk upload',
+      status: 'Active'
+    }];
+    
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "department_indent_template.xlsx");
   };
 
   const exportData = () => {
-    window.open(`${ep1.defaults.baseURL}/api/v2/exportdepartmentindentds?colid=${colid}`, '_blank');
+    if (rows.length === 0) {
+      enqueueSnackbar('No data to export', { variant: 'info' });
+      return;
+    }
+
+    const exportRows = rows.map(r => ({
+      'Name': r.name,
+      'Department': r.departmentname,
+      'Institution': r.institution,
+      'Creator Name': r.creatorname,
+      'Creator ID': r.creatoruserid,
+      'HOI Approver': r.hoiapprovername,
+      'Assistant HOI': r.ahoiapprovername,
+      'Status': r.status,
+      'Remarks': r.remarks
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportRows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Department Indents");
+    XLSX.writeFile(wb, "department_indents_export.xlsx");
   };
 
   const columns = [
@@ -192,6 +230,7 @@ const DepartmentIndentds = () => {
       )
     },
     { field: 'creatorname', headerName: 'Creator', width: 150 },
+    { field: 'creatoruserid', headerName: 'Creator ID', width: 200 },
     { field: 'hoiapprovername', headerName: 'HOI Approver', width: 150 },
     {
       field: 'actions',

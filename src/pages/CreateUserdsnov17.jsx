@@ -75,7 +75,8 @@ const CreateUserdsnov17 = () => {
     rollno: "",
     cbseno: "",
     comments: "",
-    expotoken: ""
+    expotoken: "",
+    institution: ""
   });
 
   const handleChange = (e) => {
@@ -138,6 +139,17 @@ const CreateUserdsnov17 = () => {
                 name="srno"
                 type="number"
                 value={formData.srno}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Institution"
+                name="institution"
+                type="text"
+                value={formData.institution}
                 onChange={handleChange}
               />
             </Grid>

@@ -96,7 +96,7 @@ const BudgetDashboardds = () => {
 
     // Budget CRUD
     const handleSaveBudget = async () => {
-        const payload = { ...budgetForm, colid: global1.colid, user: global1.user, name: global1.user };
+        const payload = { ...budgetForm, colid: global1.colid, user: global1.user, name: global1.user, institution: global1.institution };
         try {
             if (editBudgetId) await ep1.post(`/api/v2/updatebudgetpods?id=${editBudgetId}`, payload);
             else await ep1.post('/api/v2/addbudgetpods', payload);
@@ -141,7 +141,8 @@ const BudgetDashboardds = () => {
             ...catForm, amount: Number(catForm.amount),
             colid: global1.colid, user: global1.user, name: global1.user,
             budgetid: selectedBudgetId, budgetname: selectedBudgetName,
-            department: selectedBudgetDept
+            department: selectedBudgetDept,
+            institution: global1.institution
         };
         try {
             if (editCatId) await ep1.post(`/api/v2/updatebudgetpocatds?id=${editCatId}`, payload);
@@ -343,6 +344,12 @@ const BudgetDashboardds = () => {
                 <DialogContent>
                     <TextField label="Budget Name" fullWidth margin="normal" value={budgetForm.budgetname} onChange={e => setBudgetForm({ ...budgetForm, budgetname: e.target.value })} />
                     <TextField label="Year (e.g. 2025-26)" fullWidth margin="normal" value={budgetForm.year} onChange={e => setBudgetForm({ ...budgetForm, year: e.target.value })} />
+                    <TextField
+                        fullWidth label="Institution"
+                        value={global1.institution || ''}
+                        disabled
+                        margin="normal"
+                    />
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Department</InputLabel>
                         <Select
@@ -406,6 +413,12 @@ const BudgetDashboardds = () => {
                             {budgetTypes.map(t => <MenuItem key={t._id} value={t.budgettypename}>{t.budgettypename}</MenuItem>)}
                         </Select>
                     </FormControl>
+                    <TextField
+                        fullWidth label="Institution"
+                        value={global1.institution || ''}
+                        disabled
+                        margin="normal"
+                    />
                     <TextField label="Remarks" fullWidth margin="normal" value={catForm.remarks} onChange={e => setCatForm({ ...catForm, remarks: e.target.value })} />
                 </DialogContent>
                 <DialogActions>

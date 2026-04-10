@@ -26,6 +26,7 @@ export const adminMenuData = [
         title: "Reports",
         items: [
             { label: "Institution wise Dashboard", path: "/admin/drigable-institutions" },
+            { label: "Student Analytics Report", path: "/studentdetailedreportds" },
         ],
     },
     {

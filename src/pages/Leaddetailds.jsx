@@ -146,7 +146,7 @@ const Leaddetailds = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await ep1.get("/api/v2/getallcategoriesds", {
+      const res = await ep1.get("/api/v2/getallcategoriesag1", {
         params: { colid: global1.colid },
       });
       setCategories(res.data.data);
@@ -601,9 +601,9 @@ const Leaddetailds = () => {
               value={callData.outcome}
               onChange={(e) => setCallData({ ...callData, outcome: e.target.value })}
             >
-              {outcomes.map((option) => (
-                <MenuItem key={option._id} value={option.outcomename || option.name}>
-                  {option.outcomename || option.name}
+              {pipelineStages.map((option) => (
+                <MenuItem key={option._id} value={option.stagename || option.name}>
+                  {option.stagename || option.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -652,9 +652,9 @@ const Leaddetailds = () => {
               value={meetingData.outcome}
               onChange={(e) => setMeetingData({ ...meetingData, outcome: e.target.value })}
             >
-              {outcomes.map((option) => (
-                <MenuItem key={option._id} value={option.outcomename || option.name}>
-                  {option.outcomename || option.name}
+              {pipelineStages.map((option) => (
+                <MenuItem key={option._id} value={option.stagename || option.name}>
+                  {option.stagename || option.name}
                 </MenuItem>
               ))}
             </TextField>

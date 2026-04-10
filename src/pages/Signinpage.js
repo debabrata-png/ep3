@@ -71,6 +71,7 @@ const Signup = () => {
       global1.department = response.data.department;
       global1.programcode = response.data.programcode;
       global1.phone = response.data.phone;
+      global1.institution = response.data.institution;
 
       const lastlogin = new Date(response.data.lastlogin);
       global1.lastlogin = lastlogin.toString();

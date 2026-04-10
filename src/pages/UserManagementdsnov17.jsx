@@ -230,6 +230,12 @@ const UserManagementdsnov17 = () => {
       },
     },
     {
+      field: "institution",
+      headerName: "Institution",
+      width: 100,
+      valueGetter: (params) => params.row?.institution || "",
+    },
+    {
       field: "category",
       headerName: "Category",
       width: 100,
