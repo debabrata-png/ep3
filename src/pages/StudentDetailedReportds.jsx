@@ -143,9 +143,26 @@ const StudentDetailedReportds = () => {
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        const newFilters = { ...filters, [name]: value };
-        
-        // If a filter is changed, its related data is fetched, and options update hierarchically
+        let newFilters = { ...filters, [name]: value };
+
+        // Hierarchy: Year -> Department -> Program -> Others
+        if (name === 'admissionyear') {
+            newFilters.department = '';
+            newFilters.programcode = '';
+            newFilters.semester = '';
+            newFilters.gender = '';
+            newFilters.category = '';
+        } else if (name === 'department') {
+            newFilters.programcode = '';
+            newFilters.semester = '';
+            newFilters.gender = '';
+            newFilters.category = '';
+        } else if (name === 'programcode') {
+            newFilters.semester = '';
+            newFilters.gender = '';
+            newFilters.category = '';
+        }
+
         setFilters(newFilters);
         fetchReportData(newFilters);
         fetchFilters(newFilters);
@@ -356,15 +373,6 @@ const StudentDetailedReportds = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6} md={2}>
                                 <FormControl fullWidth size="small">
-                                    <InputLabel>Program</InputLabel>
-                                    <Select name="programcode" value={filters.programcode} label="Program" onChange={handleFilterChange}>
-                                        <MenuItem value="">All Programs</MenuItem>
-                                        {filterOptions.programcodes.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={2}>
-                                <FormControl fullWidth size="small">
                                     <InputLabel>Year</InputLabel>
                                     <Select name="admissionyear" value={filters.admissionyear} label="Year" onChange={handleFilterChange}>
                                         <MenuItem value="">All Years</MenuItem>
@@ -374,19 +382,28 @@ const StudentDetailedReportds = () => {
                             </Grid>
                             <Grid item xs={12} sm={6} md={2}>
                                 <FormControl fullWidth size="small">
-                                    <InputLabel>Semester</InputLabel>
-                                    <Select name="semester" value={filters.semester} label="Semester" onChange={handleFilterChange}>
-                                        <MenuItem value="">All Semesters</MenuItem>
-                                        {filterOptions.semesters.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                                    <InputLabel>Department</InputLabel>
+                                    <Select name="department" value={filters.department} label="Department" onChange={handleFilterChange}>
+                                        <MenuItem value="">All Departments</MenuItem>
+                                        {filterOptions.departments.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Grid>
                             <Grid item xs={12} sm={6} md={2}>
                                 <FormControl fullWidth size="small">
-                                    <InputLabel>Department</InputLabel>
-                                    <Select name="department" value={filters.department} label="Department" onChange={handleFilterChange}>
-                                        <MenuItem value="">All Departments</MenuItem>
-                                        {filterOptions.departments.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                                    <InputLabel>Program</InputLabel>
+                                    <Select name="programcode" value={filters.programcode} label="Program" onChange={handleFilterChange}>
+                                        <MenuItem value="">All Programs</MenuItem>
+                                        {filterOptions.programcodes.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={2}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Semester</InputLabel>
+                                    <Select name="semester" value={filters.semester} label="Semester" onChange={handleFilterChange}>
+                                        <MenuItem value="">All Semesters</MenuItem>
+                                        {filterOptions.semesters.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Grid>

@@ -139,6 +139,8 @@ import Dashmteacherfellow from './pages/Dashmteacherfellow';
 import Dashmteacherfellowadmin from './pages/Dashmteacherfellowadmin';
 import Dashmconsultancy from './pages/Dashmconsultancy';
 import Dashmconsultancyadmin from './pages/Dashmconsultancyadmin';
+import EmployeeLedgerPage from './pages/EmployeeLedgerPage';
+import FinalSettlementPage from './pages/FinalSettlementPage';
 import Dashmphdguide from './pages/Dashmphdguide';
 import Dashmphdguideadmin from './pages/Dashmphdguideadmin';
 import Dashmseminar from './pages/Dashmseminar';
@@ -2262,6 +2264,8 @@ function App() {
                                         <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
                                         <Route path="/attendance-records" element={<AttendanceRecords />} />
                                         <Route path="/salary-management" element={<SalaryManagement />} />
+                                        <Route path="/employee-ledger" element={<EmployeeLedgerPage />} />
+                                        <Route path="/final-settlement" element={<FinalSettlementPage />} />
                                         <Route path="/salary-slips" element={<SalarySlips />} />
                                         <Route path="/ip-management" element={<IPManagement />} />
                                         <Route path="/attendance-settings" element={<AttendanceSettings />} />

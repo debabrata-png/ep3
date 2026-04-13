@@ -19,6 +19,12 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Grid,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import ep1 from "../api/ep1";
@@ -31,6 +37,7 @@ const STATUS_OPTIONS = [
   "Interviewed",
   "Selected",
   "Rejected",
+  "Hired",
 ];
 
 const JobApplicationDetailsPage = () => {
@@ -74,6 +81,51 @@ const JobApplicationDetailsPage = () => {
       setSnack({ open: true, msg: "Status updated", severity: "success" });
     } catch (err) {
       setSnack({ open: true, msg: "Update failed", severity: "error" });
+    }
+  };
+
+  const [hireDialogOpen, setHireDialogOpen] = useState(false);
+  const [salaryConfig, setSalaryConfig] = useState({
+    fixedComponents: {
+      basicSalary: "30000",
+      hra: "12000",
+      conveyanceAllowance: "2000",
+      medicalAllowance: "1250",
+    },
+    deductionComponents: {
+      pf: "1800",
+      esi: "500",
+      incomeTax: "0",
+    },
+    designation: app?.jobtitle || "Software Engineer",
+  });
+
+  const handleHire = async () => {
+    try {
+      setLoading(true);
+      const res = await ep1.post("/api/v2/hirecandidate", {
+        applicationId: id,
+        salaryConfig,
+        colid: global1.colid,
+      });
+
+      if (res.data.success) {
+        setSnack({
+          open: true,
+          msg: "Candidate hired! User created and salary configured.",
+          severity: "success",
+        });
+        setHireDialogOpen(false);
+        fetchDetail();
+      }
+    } catch (err) {
+      setSnack({
+        open: true,
+        msg: err.response?.data?.message || "Hiring failed",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,11 +291,101 @@ const JobApplicationDetailsPage = () => {
             <Button variant="contained" onClick={saveStatus}>
               Save Status
             </Button>
+            {status === "Selected" && (
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => setHireDialogOpen(true)}
+              >
+                Hire Candidate
+              </Button>
+            )}
             <Button variant="outlined" onClick={() => navigate(-1)}>
               Back
             </Button>
           </Box>
         </Paper>
+
+        <Dialog
+          open={hireDialogOpen}
+          onClose={() => setHireDialogOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle sx={{ fontWeight: "bold", bgcolor: "primary.main", color: "white" }}>
+            Salary Configuration & Onboarding
+          </DialogTitle>
+          <DialogContent sx={{ mt: 2 }}>
+            <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+              Fixed Components
+            </Typography>
+            <Grid container spacing={2} mb={3}>
+              {Object.keys(salaryConfig.fixedComponents).map((key) => (
+                <Grid item xs={12} sm={6} key={key}>
+                  <TextField
+                    fullWidth
+                    label={key.toUpperCase()}
+                    value={salaryConfig.fixedComponents[key]}
+                    onChange={(e) =>
+                      setSalaryConfig({
+                        ...salaryConfig,
+                        fixedComponents: {
+                          ...salaryConfig.fixedComponents,
+                          [key]: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Grid>
+              ))}
+            </Grid>
+
+            <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+              Deductions
+            </Typography>
+            <Grid container spacing={2}>
+              {Object.keys(salaryConfig.deductionComponents).map((key) => (
+                <Grid item xs={12} sm={6} key={key}>
+                  <TextField
+                    fullWidth
+                    label={key.toUpperCase()}
+                    value={salaryConfig.deductionComponents[key]}
+                    onChange={(e) =>
+                      setSalaryConfig({
+                        ...salaryConfig,
+                        deductionComponents: {
+                          ...salaryConfig.deductionComponents,
+                          [key]: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Grid>
+              ))}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Designation"
+                  value={salaryConfig.designation}
+                  onChange={(e) =>
+                    setSalaryConfig({ ...salaryConfig, designation: e.target.value })
+                  }
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setHireDialogOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleHire}
+              disabled={loading}
+            >
+              Confirm Hiring
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Snackbar
           open={snack.open}

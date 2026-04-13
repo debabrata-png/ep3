@@ -154,6 +154,20 @@ export function menuitemshrms() {
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Salary slip" />}
                     </ListItem>
 
+                    <ListItem button component={RouterLink} to="/employee-ledger">
+                        <ListItemIcon>
+                            <AccountBalanceWalletIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Employee Ledger" />}
+                    </ListItem>
+
+                    <ListItem button component={RouterLink} to="/final-settlement">
+                        <ListItemIcon>
+                            <RuleIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Final Settlement" />}
+                    </ListItem>
+
                     <ListItem button component={RouterLink} to="/admin-attendance">
                         <ListItemIcon>
                             <AdminPanelSettingsIcon />
