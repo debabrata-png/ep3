@@ -72,9 +72,13 @@ const StudentDetailedReportds = () => {
 
     const reportRef = useRef(null);
 
-    const fetchFilters = async () => {
+    const fetchFilters = async (currentFilters = filters) => {
         try {
-            const response = await ep1.get(`/api/v2/getstudentfiltersds?colid1=${global1.colid}`);
+            const queryParams = new URLSearchParams({
+                colid1: global1.colid,
+                ...Object.fromEntries(Object.entries(currentFilters).filter(([_, v]) => v !== ''))
+            }).toString();
+            const response = await ep1.get(`/api/v2/getstudentfiltersds?${queryParams}`);
             if (response.data.status === 'success') {
                 setFilterOptions(response.data.data);
             }
@@ -140,8 +144,11 @@ const StudentDetailedReportds = () => {
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         const newFilters = { ...filters, [name]: value };
+        
+        // If a filter is changed, its related data is fetched, and options update hierarchically
         setFilters(newFilters);
         fetchReportData(newFilters);
+        fetchFilters(newFilters);
     };
 
     const resetFilters = () => {
@@ -155,6 +162,7 @@ const StudentDetailedReportds = () => {
         };
         setFilters(reseted);
         fetchReportData(reseted);
+        fetchFilters(reseted);
     };
 
     const downloadPDF = async () => {

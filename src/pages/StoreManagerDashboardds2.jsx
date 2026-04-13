@@ -145,6 +145,10 @@ const StoreManagerDashboardds2 = () => {
     const [userDepartments, setUserDepartments] = useState([]);
     const [selectedDeptId, setSelectedDeptId] = useState('');
 
+    // Budget State for PR Creation
+    const [availableBudgetInfo, setAvailableBudgetInfo] = useState(null);
+    const [isBudgetLoading, setIsBudgetLoading] = useState(false);
+
     // Vendor Data State
     const [vendors, setVendors] = useState([]);
     const [vendorItems, setVendorItems] = useState([]);
@@ -198,6 +202,35 @@ const StoreManagerDashboardds2 = () => {
             console.error('Error fetching departments:', error);
         }
     };
+
+    // Budget Fetch Logic for PR
+    useEffect(() => {
+        const fetchPRBudget = async () => {
+            if (!createPrItem || !selectedDeptId) {
+                setAvailableBudgetInfo(null);
+                return;
+            }
+            setIsBudgetLoading(true);
+            try {
+                const category = createPrItem.category || createPrCategory;
+                const deptObj = userDepartments.find(d => d._id === selectedDeptId);
+                const department = deptObj?.departmentname;
+
+                if (category && department) {
+                    const res = await ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}&department=${encodeURIComponent(department)}`);
+                    setAvailableBudgetInfo(res.data.data.availableAmount);
+                } else {
+                    setAvailableBudgetInfo('N/A');
+                }
+            } catch (error) {
+                console.error("Budget fetch error:", error);
+                setAvailableBudgetInfo('Error');
+            } finally {
+                setIsBudgetLoading(false);
+            }
+        };
+        if (tabValue === 2) fetchPRBudget();
+    }, [createPrItem, selectedDeptId, tabValue, createPrCategory, userDepartments]);
 
     const handleAddToCart = () => {
         if (!createPrItem || !createPrQty || !selectedDeptId) {
@@ -387,10 +420,8 @@ const StoreManagerDashboardds2 = () => {
             const mappings = mapRes.data.data.storeUsers || [];
             const userMapping = mappings.find(m => m.user === global1.user || m.userid === global1.user);
 
-            const res = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getallstorepoorderds2?colid=${global1.colid}&poType=Local`);
             let poOrders = res.data.data.poOrders || [];
-            // Filter only Local type POs
-            poOrders = poOrders.filter(po => po.poType === 'Local');
             // Filter by user's store if mapping found
             if (userMapping) {
                 poOrders = poOrders.filter(po => po.storeid === userMapping.storeid || po.storename === userMapping.store);
@@ -1654,6 +1685,34 @@ const StoreManagerDashboardds2 = () => {
                                 </Grid>
                             </Grid>
                         </Paper>
+                        
+                        {/* Budget Info Display */}
+                        {(selectedDeptId && createPrItem) && (
+                            <Box sx={{ mb: 2 }}>
+                                {isBudgetLoading ? (
+                                    <Typography variant="body2" color="textSecondary">Checking budget availability...</Typography>
+                                ) : (
+                                    <Paper sx={{ 
+                                        p: 1.5, 
+                                        bgcolor: availableBudgetInfo !== null && availableBudgetInfo !== 'N/A' && availableBudgetInfo !== 'Error' && availableBudgetInfo > 0 ? '#e3f2fd' : '#ffebee',
+                                        border: '1px solid',
+                                        borderColor: availableBudgetInfo !== null && availableBudgetInfo !== 'N/A' && availableBudgetInfo !== 'Error' && availableBudgetInfo > 0 ? '#2196f3' : '#f44336'
+                                    }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                            {availableBudgetInfo !== null && availableBudgetInfo !== 'N/A' && availableBudgetInfo !== 'Error' ? (
+                                                availableBudgetInfo > 0 ? (
+                                                    `Available Budget for ${createPrItem.category || createPrCategory}: ₹ ${availableBudgetInfo.toLocaleString('en-IN')}`
+                                                ) : (
+                                                    <span style={{ color: '#d32f2f' }}>⚠️ No budget available for this category and department.</span>
+                                                )
+                                            ) : (
+                                                <span style={{ color: '#d32f2f' }}>⚠️ No budget available for this category and department.</span>
+                                            )}
+                                        </Typography>
+                                    </Paper>
+                                )}
+                            </Box>
+                        )}
 
                         {/* Cart Table */}
                         <Box sx={{ height: 300, width: '100%', mb: 2 }}>

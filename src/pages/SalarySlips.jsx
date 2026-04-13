@@ -299,8 +299,8 @@ const SalarySlips = () => {
         const nameText = earnings[i].name.length > 20 ? earnings[i].name.substring(0, 17) + '...' : earnings[i].name;
         doc.text(nameText, margin + 2, yPos + 6.5);
         
-        // Amount (right-aligned in second column)
-        doc.text(`₹${earnings[i].amount}`, margin + colWidth * 2 - 2, yPos + 6.5, { align: 'right' });
+        // Amount (left-aligned in second column to avoid overlap bug)
+        doc.text(`Rs. ${earnings[i].amount}`, margin + colWidth + 5, yPos + 6.5);
       }
 
       // Deductions content - Fixed positioning  
@@ -309,8 +309,8 @@ const SalarySlips = () => {
         const nameText = deductions[i].name.length > 20 ? deductions[i].name.substring(0, 17) + '...' : deductions[i].name;
         doc.text(nameText, margin + colWidth * 2 + 2, yPos + 6.5);
         
-        // Amount (right-aligned in fourth column)
-        doc.text(`₹${deductions[i].amount}`, margin + colWidth * 4 - 2, yPos + 6.5, { align: 'right' });
+        // Amount (left-aligned in fourth column)
+        doc.text(`Rs. ${deductions[i].amount}`, margin + colWidth * 3 + 5, yPos + 6.5);
       }
 
       yPos += rowHeight;
@@ -328,11 +328,15 @@ const SalarySlips = () => {
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('GROSS SALARY', margin + colWidth, yPos + 8, { align: 'center' });
-    doc.text(`₹${parseFloat(slip.grossSalary || 0).toFixed(2)}`, margin + colWidth * 2 - 2, yPos + 8, { align: 'right' });
+    // Center in the first column
+    doc.text('GROSS SALARY', margin + (colWidth / 2), yPos + 8, { align: 'center' });
+    // Left align in the second column
+    doc.text(`Rs. ${parseFloat(slip.grossSalary || 0).toFixed(2)}`, margin + colWidth + 5, yPos + 8);
     
-    doc.text('TOTAL DEDUCTIONS', margin + colWidth * 3, yPos + 8, { align: 'center' });
-    doc.text(`₹${parseFloat(slip.totalDeductions || 0).toFixed(2)}`, margin + colWidth * 4 - 2, yPos + 8, { align: 'right' });
+    // Center in the third column
+    doc.text('TOTAL DEDUCTIONS', margin + colWidth * 2 + (colWidth / 2), yPos + 8, { align: 'center' });
+    // Left align in the fourth column
+    doc.text(`Rs. ${parseFloat(slip.totalDeductions || 0).toFixed(2)}`, margin + colWidth * 3 + 5, yPos + 8);
 
     yPos += rowHeight + 20;
 
@@ -345,7 +349,9 @@ const SalarySlips = () => {
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text(`NET SALARY: ₹${parseFloat(slip.netSalary || 0).toFixed(2)}`, pageWidth / 2, yPos + 10, { align: 'center' });
+    
+    const displayNetSalary = Math.max(0, parseFloat(slip.netSalary || 0));
+    doc.text(`NET SALARY: Rs. ${displayNetSalary.toFixed(2)}`, pageWidth / 2, yPos + 10, { align: 'center' });
 
     yPos += 25;
     doc.setTextColor(0, 0, 0);
@@ -353,7 +359,7 @@ const SalarySlips = () => {
     doc.setFont('helvetica', 'italic');
     
     // Amount in words
-    const amountInWords = numberToWords(Math.floor(parseFloat(slip.netSalary || 0)));
+    const amountInWords = numberToWords(Math.floor(displayNetSalary));
     doc.text(`Amount in words: ${amountInWords} Rupees Only`, margin, yPos);
 
     yPos += 20;

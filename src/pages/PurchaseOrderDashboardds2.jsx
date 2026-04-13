@@ -20,7 +20,8 @@ import {
     TextField,
     Switch,
     FormControlLabel,
-    Autocomplete
+    Autocomplete,
+    CircularProgress
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
@@ -98,6 +99,11 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
     const [rowCount, setRowCount] = useState(0);
     const [loading, setLoading] = useState(false);
+
+    // View PO - Additional details
+    const [viewVendorSchedules, setViewVendorSchedules] = useState([]);
+    const [viewBudgetSummary, setViewBudgetSummary] = useState([]);
+    const [isPoDetailsLoading, setIsPoDetailsLoading] = useState(false);
 
     useEffect(() => {
         setPaginationModel({ page: 0, pageSize: 10 });
@@ -238,7 +244,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
 
     const fetchPOs = async (page, limit) => {
         try {
-            const url = page ? `/api/v2/getallstorepoorderds2?colid=${global1.colid}&page=${page}&limit=${limit}` : `/api/v2/getallstorepoorderds2?colid=${global1.colid}`;
+            const url = page ? `/api/v2/getallstorepoorderds2?colid=${global1.colid}&page=${page}&limit=${limit}&poType=Standard` : `/api/v2/getallstorepoorderds2?colid=${global1.colid}&poType=Standard`;
             const response = await ep1.get(url);
             const orders = response.data.data.poOrders || [];
             setPurchaseOrders(orders.map(p => ({ ...p, id: p._id })));
@@ -607,51 +613,92 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
     const handleViewPO = async (po) => {
         let poDataToView = { ...po };
 
-        // Fix: Fetch Creator Name if missing (for historical data showing email)
+        // Fix: Fetch Creator Name if missing
         if (!poDataToView.creatorName || poDataToView.creatorName.includes('@')) {
-            try {
-                // Try to look up user2 by email in cached usersList or fetch
-                // We don't have a direct 'getUserByEmail' easily accessible here without auth context usually.
-                // But we can try to use the 'user2' field (email) to find them if they differ.
-                // Actually, let's just use what we have, but if global user2 matches, use global name.
-                if (poDataToView.user === global1.user && global1.name) {
-                    poDataToView.creatorName = global1.name;
-                } else {
-                    // If it's another user2, we might need to fetch their profile.
-                    // Assuming we can't easily fetch other user2's name without a dedicated endpoint or list.
-                    // But we can check if we have an OE user2 list loaded? No, this is generic.
-                    // Let's assume for now we use the email if name defaults failed, 
-                    // BUT verify if 'user2' field IS the name? No, 'user2' is email.
-                    // Improvement: If creatorName is missing, try to display "Purchase Officer" or generic if unknown.
-                    // Or Leave it as is, but prioritised global1.name for current user2.
-                }
-            } catch (e) { }
+            if (poDataToView.user === global1.user && global1.name) {
+                poDataToView.creatorName = global1.name;
+            }
         }
 
         setViewPOData(poDataToView);
         setOpenViewModal(true);
         setViewPOItems([]);
         setViewVendorData(null);
+        setViewVendorSchedules([]);
+        setViewBudgetSummary([]);
+        setIsPoDetailsLoading(true);
         setIsAmendment(false);
 
-        // Fetch Items
         try {
-            const res = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}`);
-            const allItems = res.data.data.poItems || [];
-            const myItems = allItems.filter(i => i.poid === po.poid);
+            // 1. Fetch Items
+            const poItemsRes = await ep1.get(`/api/v2/getallstorepoitemsds2?colid=${global1.colid}`);
+            const allPoItems = poItemsRes.data.data.poItems || [];
+            const myItems = allPoItems.filter(i => i.poid === po.poid);
             setViewPOItems(myItems);
-        } catch (error) { console.error("Error fetching items details", error); }
 
-        // Fetch Vendor
-        try {
-            if (vendors.length > 0) {
-                const v = vendors.find(v => v._id === po.vendorid || v.vendorid === po.vendorid);
-                if (v) setViewVendorData(v);
-                else fetchSpecificVendor(po.vendorid);
-            } else {
-                fetchSpecificVendor(po.vendorid);
+            // 2. Fetch Vendor Details & Schedules
+            const vId = po.vendorid;
+            if (vId) {
+                // Vendor Basic Info
+                const vRes = await ep1.get(`/api/v2/getvendordsbyid2?id=${vId}`);
+                if (vRes.data && vRes.data.data && vRes.data.data.vendor) {
+                    setViewVendorData(vRes.data.data.vendor);
+                }
+
+                if (po.vendorid) {
+                    const vpsRes = await ep1.get(`/api/v2/getallvendorpayschds?colid=${global1.colid}&vendorid=${po.vendorid}`);
+                    const scheduleData = vpsRes.data.data?.results || vpsRes.data.data || [];
+                    setViewVendorSchedules(scheduleData);
+                }
             }
-        } catch (error) { console.error("Error fetching vendor details", error); }
+
+            // 3. Fetch Budget for each unique category/dept
+            const budgetRequests = [];
+            const summaryMap = new Map();
+
+            myItems.forEach(item => {
+                // FALLBACK: If item.category is missing, look it up in the master allItems list
+                let category = item.category;
+                if (!category) {
+                    const masterMatch = allItems.find(mi => mi.itemname === item.itemname || mi._id === item.itemid || mi.itemcode === item.itemcode);
+                    if (masterMatch) category = masterMatch.category;
+                }
+
+                const department = item.departmentname || po.departmentname || 'General';
+                
+                if (category && department) {
+                    const key = `${category}-${department}`;
+                    if (!summaryMap.has(key)) {
+                        summaryMap.set(key, { category, department, available: 0 });
+                        budgetRequests.push(
+                            ep1.get(`/api/v2/getavailbudgetbycategoryds?colid=${global1.colid}&category=${encodeURIComponent(category)}&department=${encodeURIComponent(department)}`)
+                                .then(res => {
+                                    if (res.data.budgetInfo && res.data.budgetInfo.length > 0) {
+                                        res.data.budgetInfo.forEach(info => {
+                                            summaryMap.set(key, {
+                                                category: info.category,
+                                                department: info.department,
+                                                available: info.availableAmount
+                                            });
+                                        });
+                                    }
+                                })
+                                .catch(() => {
+                                    summaryMap.set(key, { category, department, available: 'Err' });
+                                })
+                        );
+                    }
+                }
+            });
+
+            await Promise.all(budgetRequests);
+            setViewBudgetSummary(Array.from(summaryMap.values()).filter(v => v.available !== undefined));
+
+        } catch (error) {
+            console.error("Error fetching PO details details", error);
+        } finally {
+            setIsPoDetailsLoading(false);
+        }
     };
 
     const fetchSpecificVendor = async (id) => {
@@ -1014,6 +1061,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                 colid: global1.colid,
                 user: global1.user,
                 storereqid: selectedPRForPO._id,
+                departmentname: selectedPRForPO.departmentname || '', // Crucial for budget tracking
                 storeid: selectedPRForPO.storeid,
                 storename: selectedPRForPO.store || 'Main Store'
             });
@@ -1526,6 +1574,56 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                             </Grid>
                         </Grid>
                     </Box>
+                    {isPoDetailsLoading ? (
+                        <Box display="flex" justifyContent="center" p={3}>
+                            <CircularProgress size={24} />
+                            <Typography sx={{ ml: 2 }}>Loading Financial Details...</Typography>
+                        </Box>
+                    ) : (
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                            {/* Budget Section */}
+                            <Grid item xs={12} md={6}>
+                                <Paper sx={{ p: 2, bgcolor: '#f8f9fa', border: '1px solid #dee2e6' }}>
+                                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                        Budget Analysis (By Category & Dept)
+                                    </Typography>
+                                    <Box>
+                                        {viewBudgetSummary.length > 0 ? viewBudgetSummary.map((b, i) => (
+                                            <Box key={i} display="flex" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                                                <Typography variant="caption">
+                                                    {b.category} / {b.department}
+                                                </Typography>
+                                                <Typography variant="caption" sx={{ fontWeight: 'bold', color: (Number(b.available) || 0) > 0 ? 'success.main' : 'error.main' }}>
+                                                    Avail: {typeof b.available === 'number' ? `₹${b.available.toLocaleString('en-IN')}` : b.available}
+                                                </Typography>
+                                            </Box>
+                                        )) : <Typography variant="caption">No budget data available</Typography>}
+                                    </Box>
+                                </Paper>
+                            </Grid>
+                            
+                            {/* Vendor Payment Schedule Section */}
+                            <Grid item xs={12} md={6}>
+                                <Paper sx={{ p: 2, bgcolor: '#f8f9fa', border: '1px solid #dee2e6' }}>
+                                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                        Vendor Payment Schedule
+                                    </Typography>
+                                    <Box>
+                                        {viewVendorSchedules.length > 0 ? viewVendorSchedules.map((s, i) => (
+                                            <Box key={i} sx={{ borderBottom: i < viewVendorSchedules.length - 1 ? '1px solid #e9ecef' : 'none', py: 0.5 }}>
+                                                <Typography variant="caption" display="block">
+                                                    <b>Mode:</b> {s.paymenttype} | <b>Advance:</b> {s.isadvance} | <b>Post-Delivery:</b> {s.isdeliverylinked}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {s.paymentdesc}
+                                                </Typography>
+                                            </Box>
+                                        )) : <Typography variant="caption">No payment schedule defined for this vendor</Typography>}
+                                    </Box>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    )}
                     <POInvoiceTemplate2
                         poData={viewPOData}
                         poItems={viewPOItems}

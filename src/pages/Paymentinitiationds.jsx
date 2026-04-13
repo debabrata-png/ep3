@@ -25,10 +25,14 @@ import global1 from "./global1";
 
 const Paymentinitiationds = () => {
   const navigate = useNavigate();
+  
+  const [gateways, setGateways] = useState([]);
+  const [selectedGateway, setSelectedGateway] = useState(null);
+  
   const [formData, setFormData] = useState({
     name: global1.name || "",
-    user: global1.user || "",
-    colid: global1.colid || 1,
+    user: global1.user || "STUDENT",
+    colid: global1.colid || "",
     studentName: "",
     regno: "",
     studentEmail: "",
@@ -47,7 +51,7 @@ const Paymentinitiationds = () => {
     feeitem: "",
     feecategory: "",
     installment: "",
-    redirectUrl: `${window.location.origin}/paymentcallbackds`,
+    frontendcallbackurl: `${window.location.origin}/universalpaymentcallbackds`,
     comments: "",
     notes: ""
   });
@@ -57,9 +61,35 @@ const Paymentinitiationds = () => {
   const [loading, setLoading] = useState(false);
   const [amountBreakdown, setAmountBreakdown] = useState(null);
 
+  React.useEffect(() => {
+    fetchGateways();
+  }, []);
+
+  const fetchGateways = async () => {
+    try {
+      const response = await ep1.post("/api/v2/pgmasterds/getall", {
+        colid: global1.colid,
+      });
+      if (response.data.success) {
+        const activeGateways = response.data.data.filter(g => g.isactive);
+        setGateways(activeGateways);
+        if (activeGateways.length > 0) {
+          setSelectedGateway(activeGateways[0]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch gateways", err);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleGatewayChange = (e) => {
+    const gw = gateways.find(g => g._id === e.target.value);
+    setSelectedGateway(gw);
   };
 
   const validateCoupon = async () => {
@@ -85,12 +115,10 @@ const Paymentinitiationds = () => {
     }
   };
 
-
-
   const handleInitiatePayment = async () => {
     if (!formData.studentName || !formData.regno || !formData.studentEmail ||
-      !formData.studentPhone || !formData.originalAmount) {
-      setError("Please fill all required fields");
+      !formData.studentPhone || !formData.originalAmount || !selectedGateway) {
+      setError("Please fill all required fields and select a gateway");
       return;
     }
 
@@ -98,7 +126,19 @@ const Paymentinitiationds = () => {
       setLoading(true);
       setError("");
 
-      const orderResponse = await ep1.post("/api/v2/paymentorderds/create", formData);
+      const finalAmount = amountBreakdown ? amountBreakdown.finalAmount : formData.originalAmount;
+
+      const initiationData = {
+        ...formData,
+        amount: finalAmount,
+        gatewayname: selectedGateway.gatwayname,
+        accountno: selectedGateway.accountno,
+        email: formData.studentEmail,
+        phone: formData.studentPhone
+      };
+
+      // Call Dynamic Initiation API from Gateway Config
+      const orderResponse = await ep1.post(selectedGateway.api, initiationData);
 
       if (!orderResponse.data.success) {
         setError(orderResponse.data.message || "Failed to create order");
@@ -106,10 +146,10 @@ const Paymentinitiationds = () => {
         return;
       }
 
-      const { paymentUrl } = orderResponse.data.data;
+      const { paymenturl } = orderResponse.data.data;
 
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
+      if (paymenturl) {
+        window.location.href = paymenturl;
       } else {
         setError("Failed to get payment URL from server");
         setLoading(false);
@@ -372,6 +412,33 @@ const Paymentinitiationds = () => {
 
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom color="primary">
+                Select Payment Gateway
+              </Typography>
+              <FormControl fullWidth required error={!selectedGateway}>
+                <InputLabel>Payment Gateway</InputLabel>
+                <Select
+                  value={selectedGateway ? selectedGateway._id : ""}
+                  onChange={handleGatewayChange}
+                  label="Payment Gateway"
+                  disabled={loading}
+                >
+                  {gateways.map((gw) => (
+                    <MenuItem key={gw._id} value={gw._id}>
+                      {gw.gatwayname} {gw.accountno ? `(${gw.accountno})` : ""}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {!selectedGateway && gateways.length === 0 && (
+                  <Typography variant="caption" color="error">
+                    No active payment gateways available. Please contact admin.
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
               <Typography variant="h6" gutterBottom>
                 Coupon Code (Optional)
               </Typography>
@@ -424,7 +491,7 @@ const Paymentinitiationds = () => {
                 color="primary"
                 size="large"
                 onClick={handleInitiatePayment}
-                disabled={loading}
+                disabled={loading || gateways.length === 0 || !selectedGateway}
               >
                 {loading ? "Processing..." : "Proceed to Payment"}
               </Button>

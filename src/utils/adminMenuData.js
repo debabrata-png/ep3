@@ -65,6 +65,8 @@ export const adminMenuData = [
             { label: "Student Ledger", path: "/admin/student-ledger" },
             { label: "Student Ledger Wise Report", path: "/studentledgerwisereportds" },
             { label: "Fees collection", path: "/admin/fees-collection" },
+            { label: "Student Wise Pending Report", path: "/studentwisependingreport" },
+            { label: "Program Wise Pending Report", path: "/programwisependingreportds" },
         ],
     },
     {
@@ -132,6 +134,7 @@ export const adminMenuData = [
             { label: "Purchase Orders", path: "/admin/purchase-orders" },
             { label: "Delivery Dashboard", path: "/admin/purchase-delivery" },
             { label: "Cash & Budget Authority", path: "/role/local-purchase-manager2" },
+            { label: "Store user Access", path: "/admin/storeuser2" }
         ],
     },
     {

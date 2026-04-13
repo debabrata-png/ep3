@@ -109,6 +109,12 @@ export function menuitemsfees() {
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Provisional Fee Master" />}
                     </ListItem>
+                    <ListItem button component={RouterLink} to="/dashfeeapplicationds">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Application Fee Master" />}
+                    </ListItem>
                     <ListItem button component={RouterLink} to="/dashmledgerstud">
                         <ListItemIcon>
                             <PersonIcon />

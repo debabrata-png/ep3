@@ -117,7 +117,7 @@ const StoreUserAccessds2 = () => {
                     <Grid item xs={12} md={4}>
                         <Autocomplete
                             options={users}
-                            getOptionLabel={(option) => `${option.name} (${option.username || option.email})`}
+                            getOptionLabel={(option) => `${option.name} (${option.role || 'No Role'}) - ${option.username || option.email}`}
                             value={selectedUser}
                             onChange={(event, newValue) => setSelectedUser(newValue)}
                             renderInput={(params) => <TextField {...params} label="Select User" />}

@@ -289,6 +289,10 @@ export function menupurchasepu() {
             <ListItemIcon><PersonIcon /></ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Item Units" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/role/vendorpayschdsds">
+            <ListItemIcon><PersonIcon /></ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Payment Schedule" />}
+          </ListItem>
 
         </AccordionDetails>
       </Accordion>
@@ -312,6 +316,22 @@ export function menupurchasepu() {
               <PersonIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Form Responses" />}
+          </ListItem>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+          <BusinessIcon sx={{ marginRight: 1 }} />
+          {open && <Typography sx={{ fontSize: 14 }}>Indent Requests</Typography>}
+        </AccordionSummary>
+        <AccordionDetails>
+
+          <ListItem button component={RouterLink} to="/role/faculty-request-approval2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Indent Request Approval" />}
           </ListItem>
         </AccordionDetails>
       </Accordion>

@@ -95,6 +95,9 @@ import ManualRankEntry11to12 from './pages/ManualRankEntry11to12';
 import SubCounselorManagementds from './pages/SubCounselorManagementds';
 import LeadTransferds from './pages/LeadTransferds';
 import DepartmentIndentds from './pages/DepartmentIndentds';
+import Feeapplicationds from './pages/Feeapplicationds';
+import DashFeeapplicationds from './pages/DashFeeapplicationds';
+import ViewFeeapplicationds from './pages/ViewFeeapplicationds';
 
 
 
@@ -357,6 +360,8 @@ import CrmdsFollowUpDueReport from './pages/crmdsFollowUpDueReport';
 import CrmdsSourceWiseEnhancedReport from './pages/crmdsSourceWiseEnhancedReport';
 import CrmdsConversionReport from './pages/crmdsConversionReport';
 import StudentLedgerWiseReportds from './pages/StudentLedgerWiseReportds';
+import StudentWisePendingReportPage from './pages/StudentWisePendingReportPage';
+import ProgramWisePendingReportPage from './pages/ProgramWisePendingReportPage';
 
 // ... inside Routes
 
@@ -1370,6 +1375,11 @@ import Paymentinitiationds from "./pages/Paymentinitiationds";
 import Paymenthistoryds from "./pages/Paymenthistoryds";
 import Paymentstatusds from "./pages/Paymentstatusds";
 import Paymentcallbackds from "./pages/Paymentcallbackds";
+import Pgmasterconfigds from "./pages/Pgmasterconfigds";
+import Easebuzzconfigds from "./pages/Easebuzzconfigds";
+import Universalpaymentcallbackds from "./pages/Universalpaymentcallbackds";
+import EasebuzzTestInitiationds from "./pages/EasebuzzTestInitiationds";
+import Universalpaymenthistoryds from "./pages/Universalpaymenthistoryds";
 
 
 import DashboardCrmds from "./pages/DashboardCRMds";
@@ -1489,6 +1499,7 @@ import PurchasingMasterDatads2 from './pages/PurchasingMasterDatads2';
 import ItemCategoryds2 from './pages/ItemCategoryds2';
 import ItemTypeds2 from './pages/ItemTypeds2';
 import ItemUnitds2 from './pages/ItemUnitds2';
+import NewVendorPaySchdsds from './pages/NewVendorPaySchdsds';
 import CashApprovalds2 from './pages/CashApprovalds2';
 import ApproveCashApprovalds2 from './pages/ApproveCashApprovalds2';
 import StaffProfileds2 from './pages/StaffProfileds2';
@@ -1546,6 +1557,7 @@ import ManualComp11to12 from './pages/ManualComp11to12.jsx';
 import CreateRfpds from './pages/CreateRfpds';
 import PublicVendorRfpForm from './pages/PublicVendorRfpForm';
 import RfpApprovalsds from './pages/RfpApprovalsds';
+import RfpAiAnalysisds from './pages/RfpAiAnalysisds';
 
 import PublicUnifiedLandingPageds2 from './pages/PublicUnifiedLandingPageds2';
 import UnifiedLandingPageds2 from './pages/UnifiedLandingPageds2.jsx';
@@ -1553,12 +1565,55 @@ import UnifiedLandingPageds2 from './pages/UnifiedLandingPageds2.jsx';
 import Chattestadmin from "./pages/chattestadmin";
 import Dashchattestadmin from './pages/Dashchattestadmin';
 
+import Dashmadmission1 from "./pages/Dashmadmission1.js";
+
+import AlumniLoginds from "./pages/Alumni/AlumniLoginds";
+import AlumniDashboardds from "./pages/Alumni/AlumniDashboardds";
+import AlumniProfileds from "./pages/Alumni/AlumniProfileds";
+import AlumniEventsds from "./pages/Alumni/AlumniEventsds";
+import AlumniJobsds from "./pages/Alumni/AlumniJobsds";
+import AlumniMaterialsds from "./pages/Alumni/AlumniMaterialsds";
+import AlumniDonationsds from "./pages/Alumni/AlumniDonationsds";
+import AlumniDocumentsds from "./pages/Alumni/AlumniDocumentsds";
+import AdminDashboardAlumnids from "./pages/Admin/AdminDashboardAlumnids";
+import AdminAlumniManagementds from "./pages/Admin/AdminAlumniManagementds";
+import AdminEventManagementds from "./pages/Admin/AdminEventManagementds";
+import AdminDonationManagementds from "./pages/Admin/AdminDonationManagementds";
+import AdminApplicationsManagement from "./pages/Admin/AdminApplicationsManagement";
+import AlumniRegistrationForm from "./pages/Public/AlumniRegistrationForm";
+import StudentJobsPortalds from "./pages/Student/StudentJobsPortalds";
+import StudentMaterialsLibraryds from "./pages/Student/StudentMaterialsLibraryds";
+
 function App() {
         return (
                 <Router>
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
+                                        {/* Alumni Portal Routes */}
+                                        <Route path="/alumni/login" element={<AlumniLoginds />} />
+                                        <Route path="/alumni/dashboard" element={<AlumniDashboardds />} />
+                                        <Route path="/alumni/profile" element={<AlumniProfileds />} />
+                                        <Route path="/alumni/events" element={<AlumniEventsds />} />
+                                        <Route path="/alumni/jobs" element={<AlumniJobsds />} />
+                                        <Route path="/alumni/materials" element={<AlumniMaterialsds />} />
+                                        <Route path="/alumni/donations" element={<AlumniDonationsds />} />
+                                        <Route path="/alumni/documents" element={<AlumniDocumentsds />} />
+
+                                        {/* Public Alumni Registration */}
+                                        <Route path="/alumni/register" element={<AlumniRegistrationForm />} />
+
+                                        {/* Admin Alumni Portal Routes */}
+                                        <Route path="/admin/alumni/dashboard" element={<AdminDashboardAlumnids />} />
+                                        <Route path="/admin/alumni/management" element={<AdminAlumniManagementds />} />
+                                        <Route path="/admin/alumni/events" element={<AdminEventManagementds />} />
+                                        <Route path="/admin/alumni/donations" element={<AdminDonationManagementds />} />
+                                        <Route path="/admin/alumni/applications" element={<AdminApplicationsManagement />} />
+
+                                        {/* Student Portal Routes */}
+                                        <Route path="/student/jobs" element={<StudentJobsPortalds />} />
+                                        <Route path="/student/materials" element={<StudentMaterialsLibraryds />} />
+                                        <Route path='/dashmadmission1' element={<Dashmadmission1 />} />
                                         <Route path='/pucadmissionform/:colId' element={<Pucadmissionform />} />
                                         <Route path='/menugrouppage' element={<MenuGroupPage />} />
                                         <Route path='/menu/:groupId' element={<MenuItemsPage />} />
@@ -1581,6 +1636,7 @@ function App() {
                                         <Route path="/create-rfp" element={<CreateRfpds />} />
                                         <Route path="/public/vendor-rfp" element={<PublicVendorRfpForm />} />
                                         <Route path="/rfp-approvals" element={<RfpApprovalsds />} />
+                                        <Route path="/rfp-ai-analysis" element={<RfpAiAnalysisds />} />
 
                                         <Route path="/crmreports2" element={<Crmreports2 />} />
                                         <Route path="/crmupcommingfollowup" element={<CrmdsReportsPage />} />
@@ -1595,6 +1651,8 @@ function App() {
 
                                         <Route path="/programfeereport" element={<ProgramFeeReport />} />
                                         <Route path="/studentledgerreport" element={<StudentLedgerReport />} />
+                                        <Route path="/studentwisependingreportds" element={<StudentWisePendingReportPage />} />
+                                        <Route path="/programwisependingreportds" element={<ProgramWisePendingReportPage />} />
 
                                         <Route path="/feesummaryreport" element={<FeeSummaryReport />} />
 
@@ -1614,10 +1672,12 @@ function App() {
                                         <Route path="/role/ItemCategoryds2" element={<RoleLayout><ItemCategoryds2 /></RoleLayout>} />
                                         <Route path="/role/ItemTypeds2" element={<RoleLayout><ItemTypeds2 /></RoleLayout>} />
                                         <Route path="/role/ItemUnitds2" element={<RoleLayout><ItemUnitds2 /></RoleLayout>} />
+                                        <Route path="/role/vendorpayschdsds" element={<RoleLayout><NewVendorPaySchdsds /></RoleLayout>} />
                                         <Route path="/role/purchase-user2-add2" element={<RoleLayout><NewPurchaseUserAddds2 /></RoleLayout>} />
                                         <Route path="/role/cash-approval2" element={<RoleLayout><CashApprovalds2 /></RoleLayout>} />
                                         <Route exact path="/approvecashapprovalds/:id" element={<RoleLayout><ApproveCashApprovalds2 /></RoleLayout>} />
                                         <Route path="/role/store-user2-access2" element={<RoleLayout><StoreUserAccessds2 /></RoleLayout>} />
+                                        <Route path="/admin/storeuser2" element={<StoreUserAccessds2 />} />
                                         <Route path="/role/purchasing-dashboard2" element={<RoleLayout><DashboardPurchaseds2 /></RoleLayout>} />
                                         <Route path="/role/oe-dashboard2" element={<RoleLayout><OEDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/store-manager-dashboard2" element={<RoleLayout><StoreManagerDashboardds2 /></RoleLayout>} />
@@ -1891,7 +1951,7 @@ function App() {
                                         <Route path="/admin/institutions" element={<NewInstitutionsds />} />
                                         <Route path="/admin/drigable-institutions" element={<DrigableInstitutionSelectionds />} />
                                         <Route path="/drigablereport" element={<DrigableReportDashboardds />} />
-                                         <Route path="/studentdetailedreportds" element={<StudentDetailedReportds />} />
+                                        <Route path="/studentdetailedreportds" element={<StudentDetailedReportds />} />
                                         <Route path="/usermanagementreport" element={<UserManagementReportds />} />
                                         <Route path="/rolespecificreport/:role" element={<RoleSpecificReportds />} />
                                         <Route path="/lmsreport" element={<LMSReportds />} />
@@ -2473,6 +2533,8 @@ function App() {
                                         <Route path="/institutionsds" element={<Institutionsds />} />
                                         <Route path="/bulkleadsds" element={<BulkLeadActionsds />} />
                                         <Route path="/feesprovds" element={<Feesprovds />} />
+                                        <Route path="/feeapplicationds" element={<Feeapplicationds />} />
+                                        <Route path="/dashfeeapplicationds" element={<DashFeeapplicationds />} />
                                         <Route path="/provisionalfeereportds" element={<ProvisionalFeeReportds />} />
                                         <Route path="/facultyrequestapprovalds" element={<FacultyRequestApprovalds />} />
                                         <Route path="/dashmfeesadmin" element={<Dashmfeesadmin />} />
@@ -2783,6 +2845,14 @@ function App() {
 
 
                                         <Route path="/paymentgatewayconfigds" element={<Paymentgatewayconfigds />} />
+                                        <Route path="/pgmasterconfigds" element={<Pgmasterconfigds />} />
+                                        <Route path="/easebuzzconfigds" element={<Easebuzzconfigds />} />
+                                        <Route path="/universalpaymentcallbackds" element={<Universalpaymentcallbackds />} />
+                                        <Route path="/easebuzztestinitiationds" element={<EasebuzzTestInitiationds />} />
+                                        <Route path="/universalpaymenthistoryds" element={<Universalpaymenthistoryds />} />
+
+
+
                                         <Route path="/platformchargesds" element={<Platformchargesds />} />
                                         <Route path="/couponmanagementds" element={<Couponmanagementds />} />
                                         <Route path="/paymentinitiationds" element={<Paymentinitiationds />} />

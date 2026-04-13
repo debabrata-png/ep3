@@ -96,7 +96,14 @@ const BudgetDashboardds = () => {
 
     // Budget CRUD
     const handleSaveBudget = async () => {
-        const payload = { ...budgetForm, colid: global1.colid, user: global1.user, name: global1.user, institution: global1.institution };
+        const payload = {
+            ...budgetForm,
+            department: global1.department,
+            colid: global1.colid,
+            user: global1.user,
+            name: global1.user,
+            institution: global1.institution
+        };
         try {
             if (editBudgetId) await ep1.post(`/api/v2/updatebudgetpods?id=${editBudgetId}`, payload);
             else await ep1.post('/api/v2/addbudgetpods', payload);
@@ -141,7 +148,7 @@ const BudgetDashboardds = () => {
             ...catForm, amount: Number(catForm.amount),
             colid: global1.colid, user: global1.user, name: global1.user,
             budgetid: selectedBudgetId, budgetname: selectedBudgetName,
-            department: selectedBudgetDept,
+            department: global1.department,
             institution: global1.institution
         };
         try {
@@ -218,7 +225,7 @@ const BudgetDashboardds = () => {
     return (
         <Box p={3}>
             <Typography variant="h5" gutterBottom>Budget Management</Typography>
-            <Button variant="contained" sx={{ mb: 2 }} onClick={() => { setOpenBudget(true); setEditBudgetId(null); setBudgetForm({ budgetname: '', year: '', department: '', budgettype: '', remarks: '' }) }}>
+            <Button variant="contained" sx={{ mb: 2 }} onClick={() => { setOpenBudget(true); setEditBudgetId(null); setBudgetForm({ budgetname: '', year: '', department: global1.department || '', budgettype: '', remarks: '' }) }}>
                 Create New Budget
             </Button>
 
@@ -350,20 +357,12 @@ const BudgetDashboardds = () => {
                         disabled
                         margin="normal"
                     />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Department</InputLabel>
-                        <Select
-                            value={budgetForm.department}
-                            label="Department"
-                            onChange={e => setBudgetForm({ ...budgetForm, department: e.target.value })}
-                        >
-                            {userDepartments.map((d, idx) => (
-                                <MenuItem key={idx} value={d.departmentname}>
-                                    {d.departmentname}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <TextField
+                        fullWidth label="Department"
+                        value={global1.department || ''}
+                        disabled
+                        margin="normal"
+                    />
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Budget Type</InputLabel>
                         <Select value={budgetForm.budgettype} label="Budget Type" onChange={e => setBudgetForm({ ...budgetForm, budgettype: e.target.value })}>
@@ -384,9 +383,9 @@ const BudgetDashboardds = () => {
                 <DialogContent>
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Budget Group</InputLabel>
-                        <Select 
-                            value={catForm.groupname} 
-                            label="Budget Group" 
+                        <Select
+                            value={catForm.groupname}
+                            label="Budget Group"
                             onChange={e => {
                                 const group = e.target.value;
                                 setCatForm({ ...catForm, groupname: group, category: '' });

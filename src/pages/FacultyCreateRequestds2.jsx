@@ -67,8 +67,14 @@ const FacultyCreateRequestds2 = () => {
 
     const fetchStores = async () => {
         try {
-            const response = await ep1.get(`/api/v2/getallstoremasterds2?colid=${global1.colid}`);
-            setStores(response.data.data.stores || []);
+            const response = await ep1.get(`/api/v2/getmystoresds2?colid=${global1.colid}&user=${global1.user}`);
+            const myStores = response.data.data.stores.map(s => ({ _id: s.storeid, storename: s.store })) || [];
+            setStores(myStores);
+
+            // Auto-select if only one store is assigned
+            if (myStores.length === 1) {
+                setSelectedStore(myStores[0]._id);
+            }
         } catch (error) {
             console.error('Error fetching stores:', error);
         }
@@ -170,7 +176,7 @@ const FacultyCreateRequestds2 = () => {
             setCartItems([]);
             setOpenSubmitDialog(false);
             setRemark(''); // Clear remark for next session
-            
+
             // Re-generate indent number for next batch using same prefix
             const dept = userDepartments.find(d => d._id === selectedDeptId);
             const prefix = dept?.institutionshort ? `INDDS${dept.institutionshort}` : "INDDS";
@@ -336,8 +342,8 @@ const FacultyCreateRequestds2 = () => {
                                             label="Approval Option"
                                             onChange={(e) => setApprovalOption(e.target.value)}
                                         >
-                                            <MenuItem value="HOI">HOI Approve</MenuItem>
-                                            <MenuItem value="Manual">Manual Approve (HOI & AHOI)</MenuItem>
+                                            <MenuItem value="HOI">HOI/AI Approve</MenuItem>
+                                            <MenuItem value="Manual">Manual Approve (AI)</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>

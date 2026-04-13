@@ -11,8 +11,8 @@ const BudgetGroupds = () => {
     const [formData, setFormData] = useState({ groupname: '', category: '' });
     const [itemCategories, setItemCategories] = useState([]);
 
-    useEffect(() => { 
-        fetchData(); 
+    useEffect(() => {
+        fetchData();
         fetchItemCategories();
     }, []);
 
@@ -25,7 +25,7 @@ const BudgetGroupds = () => {
 
     const fetchItemCategories = async () => {
         try {
-            const res = await ep1.get(`/api/v2/getallitemcategoryds?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getallitemcategoryds2?colid=${global1.colid}`);
             setItemCategories(res.data.data.items);
         } catch (e) { console.error(e); }
     };
@@ -52,10 +52,10 @@ const BudgetGroupds = () => {
         {
             field: 'actions', headerName: 'Actions', width: 200, renderCell: (p) => (
                 <Box>
-                    <Button size="small" onClick={() => { 
-                        setEditId(p.row.id); 
-                        setFormData({ groupname: p.row.groupname, category: p.row.category }); 
-                        setOpen(true); 
+                    <Button size="small" onClick={() => {
+                        setEditId(p.row.id);
+                        setFormData({ groupname: p.row.groupname, category: p.row.category });
+                        setOpen(true);
                     }}>Edit</Button>
                     <Button size="small" color="error" onClick={() => handleDelete(p.row.id)}>Delete</Button>
                 </Box>
@@ -79,19 +79,19 @@ const BudgetGroupds = () => {
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>{editId ? 'Edit' : 'Add'} Budget Group Mapping</DialogTitle>
                 <DialogContent>
-                    <TextField 
-                        label="Group Name" 
-                        fullWidth 
-                        margin="normal" 
-                        value={formData.groupname} 
-                        onChange={e => setFormData({ ...formData, groupname: e.target.value })} 
+                    <TextField
+                        label="Group Name"
+                        fullWidth
+                        margin="normal"
+                        value={formData.groupname}
+                        onChange={e => setFormData({ ...formData, groupname: e.target.value })}
                         placeholder="e.g. Administrative, Academic, Infrastructure"
                     />
                     <FormControl fullWidth margin="normal">
                         <InputLabel>Category</InputLabel>
-                        <Select 
-                            value={formData.category} 
-                            label="Category" 
+                        <Select
+                            value={formData.category}
+                            label="Category"
                             onChange={e => setFormData({ ...formData, category: e.target.value })}
                         >
                             {itemCategories.map(c => (
