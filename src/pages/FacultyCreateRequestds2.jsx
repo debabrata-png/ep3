@@ -128,6 +128,7 @@ const FacultyCreateRequestds2 = () => {
             facultyid: global1.user,
             itemcode: selectedItem.itemcode,
             itemname: selectedItem.itemname,
+            category: selectedItem.category || '',
             quantity: Number(quantity),
             reqdate: new Date(),
             storeid: selectedStore,

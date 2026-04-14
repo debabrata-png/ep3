@@ -61,6 +61,7 @@ import { menuitemsfinance } from './menufinance';
 import { menuitemsfees } from './menufees';
 import { menuitemshrms } from './menuhrms';
 import { menuitemssubcounselor } from './menusubcounselor';
+import { menuit } from './menuit';
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
@@ -280,6 +281,12 @@ export function mainListItems({ open }) {
       return (
         <div>
           {menuitemssubcounselor()}
+        </div>
+      )
+    } else if (role1 === "IT") {
+      return (
+        <div>
+          {menuit()}
         </div>
       )
     }

@@ -1584,7 +1584,18 @@ import AdminDonationManagementds from "./pages/Admin/AdminDonationManagementds";
 import AdminApplicationsManagement from "./pages/Admin/AdminApplicationsManagement";
 import AlumniRegistrationForm from "./pages/Public/AlumniRegistrationForm";
 import StudentJobsPortalds from "./pages/Student/StudentJobsPortalds";
-import StudentMaterialsLibraryds from "./pages/Student/StudentMaterialsLibraryds";
+import StudentMaterialsLibraryds from "./pages/Student/StudentMaterialsLibraryds.jsx";
+import WebCmsDashboard from './pages/WebCmsDashboard';
+import WebCmsPageEditor from './pages/WebCmsPageEditor';
+import WebCmsNavFooter from './pages/WebCmsNavFooter';
+
+import SwapClasses1 from "./pages/Swapclasses1.js";
+import Swapclasses2 from "./pages/Swapclasses2.js";
+
+import Tfacultyform from "./pages/Tfacultyform";
+import Tsubjectload from "./pages/Tsubjectload";
+import Timeslot from "./pages/Timeslot";
+import Timetableview from "./pages/Timetableview";
 
 function App() {
         return (
@@ -1592,6 +1603,12 @@ function App() {
                         <AdminNavbar />
                         <React.Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
                                 <Routes>
+                                        <Route path="/tsubjectload" element={<Tsubjectload />} />
+                                        <Route path="/timeslot" element={<Timeslot />} />
+                                        <Route path="/timetableview" element={<Timetableview />} />
+                                        <Route path="/tfacultyform" element={<Tfacultyform />} />
+                                        <Route path='/swapclasses1' element={<SwapClasses1 />} />
+                                        <Route path='/swapclasses2' element={<Swapclasses2 />} />
                                         {/* Alumni Portal Routes */}
                                         <Route path="/alumni/login" element={<AlumniLoginds />} />
                                         <Route path="/alumni/dashboard" element={<AlumniDashboardds />} />
@@ -1631,6 +1648,11 @@ function App() {
                                         <Route path="/unifiedlandingpage2" element={<UnifiedLandingPageds2 />} />
                                         <Route path="/dashchattestadmin" element={<Dashchattestadmin />} />
                                         <Route path="/adminchattest" element={<Chattestadmin />} />
+
+                                        {/* Wiser CMS Routes */}
+                                        <Route path="/web-builder" element={<WebCmsDashboard />} />
+                                        <Route path="/web-builder/edit/:id" element={<WebCmsPageEditor />} />
+                                        <Route path="/web-builder/settings" element={<WebCmsNavFooter />} />
 
                                         <Route path="/dailyfeesreport1" element={<Dailyfeesreport1 />} />
 
