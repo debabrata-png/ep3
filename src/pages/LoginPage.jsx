@@ -30,8 +30,10 @@ const LoginPage = () => {
       global1.name = name;
       global1.colid = colid;
       global1.email = email;
+      global1.user = email; // Some modules rely on .user for email
       global1.regno = regno;
       global1.role = role;
+      global1.department = res.data.department || '';
       setSuccess("Login successful!");
       setError("");
 

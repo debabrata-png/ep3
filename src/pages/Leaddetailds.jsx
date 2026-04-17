@@ -83,21 +83,24 @@ const Leaddetailds = () => {
   });
 
   const [updateData, setUpdateData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    category: "",
-    course_interested: "",
-    source: "",
-    city: "",
-    state: "",
-    pipeline_stage: "",
-    lead_temperature: "",
-    leadstatus: "",
-    next_followup_date: "",
-    institution: "",
-    program_type: "",
-    program: "",
+    gender: "",
+    fathername: "",
+    fathercontactno: "",
+    board10th: "",
+    school10th: "",
+    stream10th: "",
+    yearofpassing10th: "",
+    percentage10th: "",
+    board12th: "",
+    school12th: "",
+    stream12th: "",
+    yearofpassing12th: "",
+    percentage12th: "",
+    universityug: "",
+    collegeug: "",
+    streamug: "",
+    yearofpassingug: "",
+    cgpaug: "",
     provissionalfeepaid: "No",
     comments: "",
   });
@@ -212,6 +215,24 @@ const Leaddetailds = () => {
         countercounserloeremail: leadData.countercounserloeremail || "",
         dateofvisit: leadData.dateofvisit ? dayjs(leadData.dateofvisit).format("YYYY-MM-DD") : "",
         location: leadData.location || "",
+        gender: leadData.gender || "",
+        fathername: leadData.fathername || "",
+        fathercontactno: leadData.fathercontactno || "",
+        board10th: leadData.board10th || "",
+        school10th: leadData.school10th || "",
+        stream10th: leadData.stream10th || "",
+        yearofpassing10th: leadData.yearofpassing10th || "",
+        percentage10th: leadData.percentage10th || "",
+        board12th: leadData.board12th || "",
+        school12th: leadData.school12th || "",
+        stream12th: leadData.stream12th || "",
+        yearofpassing12th: leadData.yearofpassing12th || "",
+        percentage12th: leadData.percentage12th || "",
+        universityug: leadData.universityug || "",
+        collegeug: leadData.collegeug || "",
+        streamug: leadData.streamug || "",
+        yearofpassingug: leadData.yearofpassingug || "",
+        cgpaug: leadData.cgpaug || "",
         comments: leadData.comments || "",
       });
 
@@ -444,6 +465,27 @@ const Leaddetailds = () => {
               <Typography><strong>Lead Score:</strong> {lead.lead_score}</Typography>
               <Typography><strong>Pipeline Stage:</strong> {lead.pipeline_stage}</Typography>
               <Typography><strong>Assigned To:</strong> {lead.assignedto}</Typography>
+              <Typography><strong>Gender:</strong> {lead.gender || "-"}</Typography>
+            </Box>
+          </Paper>
+
+          {/* Academic & Guardian Details */}
+          <Paper sx={{ p: 3, mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Academic & Guardian Details
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Typography><strong>Father's/Guardian's Name:</strong> {lead.fathername || "-"}</Typography>
+              <Typography><strong>Father's/Guardian's Contact:</strong> {lead.fathercontactno || "-"}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="primary">10th Details</Typography>
+              <Typography><strong>Board:</strong> {lead.board10th || "-"} | <strong>Year:</strong> {lead.yearofpassing10th || "-"} | <strong>%:</strong> {lead.percentage10th || "-"}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="primary">12th Details</Typography>
+              <Typography><strong>Board:</strong> {lead.board12th || "-"} | <strong>Year:</strong> {lead.yearofpassing12th || "-"} | <strong>%:</strong> {lead.percentage12th || "-"}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="primary">Graduation Details</Typography>
+              <Typography><strong>University:</strong> {lead.universityug || "-"} | <strong>Year:</strong> {lead.yearofpassingug || "-"} | <strong>CGPA/%:</strong> {lead.cgpaug || "-"}</Typography>
             </Box>
           </Paper>
         </Grid>
@@ -848,6 +890,65 @@ const Leaddetailds = () => {
                 <MenuItem value="Yes">Yes</MenuItem>
                 <MenuItem value="No">No</MenuItem>
               </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Gender"
+                value={updateData.gender}
+                onChange={(e) => setUpdateData({ ...updateData, gender: e.target.value })}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Father's/Guardian's Name"
+                value={updateData.fathername}
+                onChange={(e) => setUpdateData({ ...updateData, fathername: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Father's/Guardian's Contact"
+                value={updateData.fathercontactno}
+                onChange={(e) => setUpdateData({ ...updateData, fathercontactno: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12}><Divider>10th Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th Board" value={updateData.board10th} onChange={(e) => setUpdateData({ ...updateData, board10th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th Year" value={updateData.yearofpassing10th} onChange={(e) => setUpdateData({ ...updateData, yearofpassing10th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th %" value={updateData.percentage10th} onChange={(e) => setUpdateData({ ...updateData, percentage10th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12}><Divider>12th Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th Board" value={updateData.board12th} onChange={(e) => setUpdateData({ ...updateData, board12th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th Year" value={updateData.yearofpassing12th} onChange={(e) => setUpdateData({ ...updateData, yearofpassing12th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th %" value={updateData.percentage12th} onChange={(e) => setUpdateData({ ...updateData, percentage12th: e.target.value })} />
+            </Grid>
+            <Grid item xs={12}><Divider>UG Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG University" value={updateData.universityug} onChange={(e) => setUpdateData({ ...updateData, universityug: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG Year" value={updateData.yearofpassingug} onChange={(e) => setUpdateData({ ...updateData, yearofpassingug: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG CGPA/%" value={updateData.cgpaug} onChange={(e) => setUpdateData({ ...updateData, cgpaug: e.target.value })} />
             </Grid>
             <Grid item xs={12}>
               <TextField

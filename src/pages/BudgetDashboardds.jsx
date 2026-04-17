@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Paper, MenuItem, Select, InputLabel, FormControl, Chip, IconButton, Collapse, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Paper, MenuItem, Select, InputLabel, FormControl, Chip, IconButton, Collapse, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ep1 from '../api/ep1';
 import global1 from './global1';
+import { useNavigate } from 'react-router-dom';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import AddIcon from '@mui/icons-material/Add';
 
 const BudgetDashboardds = () => {
+    const navigate = useNavigate();
     const [budgets, setBudgets] = useState([]);
     const [budgetTypes, setBudgetTypes] = useState([]);
     const [categories, setCategories] = useState([]);
     const [itemCategories, setItemCategories] = useState([]);
     const [budgetGroups, setBudgetGroups] = useState([]);
     const [userDepartments, setUserDepartments] = useState([]);
+    const [isDeptFrozen, setIsDeptFrozen] = useState(false);
 
     // Budget form
     const [openBudget, setOpenBudget] = useState(false);
@@ -26,6 +31,8 @@ const BudgetDashboardds = () => {
     const [selectedBudgetId, setSelectedBudgetId] = useState(null);
     const [selectedBudgetName, setSelectedBudgetName] = useState('');
     const [selectedBudgetDept, setSelectedBudgetDept] = useState('');
+    const [selectedBudgetYear, setSelectedBudgetYear] = useState('');
+    const [selectedBudgetInst, setSelectedBudgetInst] = useState('');
 
     // Expanded budget row for viewing categories
     const [expandedBudgetId, setExpandedBudgetId] = useState(null);
@@ -43,7 +50,14 @@ const BudgetDashboardds = () => {
         try {
             const response = await ep1.post('/api/v2/getdepartmentindentds', { colid: global1.colid });
             if (response.data.success) {
-                setUserDepartments(response.data.data || []);
+                const depts = response.data.data || [];
+                setUserDepartments(depts);
+                
+                // Enforce Frozen rule
+                const myDept = depts.find(d => d.departmentname === global1.department);
+                if (myDept && myDept.isfrozen) {
+                    setIsDeptFrozen(true);
+                }
             }
         } catch (error) {
             console.error('Error fetching departments:', error);
@@ -101,7 +115,9 @@ const BudgetDashboardds = () => {
             department: global1.department,
             colid: global1.colid,
             user: global1.user,
-            name: global1.user,
+            name: global1.name, // Maintain global1.name -> name
+            username: global1.name,
+            useremail: global1.user, // Maintain global1.user -> email
             institution: global1.institution
         };
         try {
@@ -115,7 +131,7 @@ const BudgetDashboardds = () => {
 
     const handleDeleteBudget = async (id) => {
         if (window.confirm('Delete this budget and all its categories?')) {
-            await ep1.get(`/api/v2/deletebudgetpods?id=${id}`);
+            await ep1.get(`/api/v2/deletebudgetpods?id=${id}&username=${global1.name}&useremail=${global1.user}`);
             fetchBudgets();
             if (expandedBudgetId === id) { setExpandedBudgetId(null); setExpandedCategories([]); }
         }
@@ -124,7 +140,7 @@ const BudgetDashboardds = () => {
     const handleSubmitForApproval = async (id) => {
         if (window.confirm('Submit this budget for approval?')) {
             try {
-                await ep1.post(`/api/v2/submitbudgetforapproval?id=${id}&colid=${global1.colid}`);
+                await ep1.post(`/api/v2/submitbudgetforapproval?id=${id}&colid=${global1.colid}&username=${global1.name}&useremail=${global1.user}`);
                 fetchBudgets();
                 alert('Budget submitted for approval successfully');
             } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
@@ -137,6 +153,8 @@ const BudgetDashboardds = () => {
         setSelectedBudgetId(budgetId);
         setSelectedBudgetName(budgetName);
         setSelectedBudgetDept(parentBudget?.department || '');
+        setSelectedBudgetYear(parentBudget?.year || '');
+        setSelectedBudgetInst(parentBudget?.institution || '');
         setCatForm({ groupname: '', category: '', amount: '', budgettype: '', remarks: '' });
         setEditCatId(null);
         setOpenCat(true);
@@ -146,10 +164,12 @@ const BudgetDashboardds = () => {
     const handleSaveCategory = async () => {
         const payload = {
             ...catForm, amount: Number(catForm.amount),
-            colid: global1.colid, user: global1.user, name: global1.user,
+            colid: global1.colid, user: global1.user, name: global1.name,
+            username: global1.name, useremail: global1.user,
             budgetid: selectedBudgetId, budgetname: selectedBudgetName,
-            department: global1.department,
-            institution: global1.institution
+            department: selectedBudgetDept || global1.department,
+            year: selectedBudgetYear,
+            institution: selectedBudgetInst || global1.institution
         };
         try {
             if (editCatId) await ep1.post(`/api/v2/updatebudgetpocatds?id=${editCatId}`, payload);
@@ -161,7 +181,7 @@ const BudgetDashboardds = () => {
 
     const handleDeleteCategory = async (catId) => {
         if (window.confirm('Delete this budget category?')) {
-            await ep1.get(`/api/v2/deletebudgetpocatds?id=${catId}`);
+            await ep1.get(`/api/v2/deletebudgetpocatds?id=${catId}&username=${global1.name}&useremail=${global1.user}`);
             fetchBudgets();
             if (expandedBudgetId) fetchCategoriesForBudget(expandedBudgetId);
         }
@@ -199,7 +219,7 @@ const BudgetDashboardds = () => {
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'department', headerName: 'Department', width: 150 },
         { field: 'budgettype', headerName: 'Budget Type', width: 130 },
-        { field: 'amount', headerName: 'Total Amount', width: 130, renderCell: (p) => `₹ ${(p.value || 0).toLocaleString()}` },
+        { field: 'amount', headerName: 'Total Amount', width: 130, align: 'right', headerAlign: 'right', renderCell: (p) => `₹ ${(p.value || 0).toLocaleString()}` },
         { field: 'categoryCount', headerName: 'Categories', width: 100 },
         { field: 'status', headerName: 'Status', width: 110, renderCell: (p) => <Chip label={p.value || 'Draft'} color={getStatusColor(p.value)} size="small" /> },
         {
@@ -224,10 +244,35 @@ const BudgetDashboardds = () => {
 
     return (
         <Box p={3}>
-            <Typography variant="h5" gutterBottom>Budget Management</Typography>
-            <Button variant="contained" sx={{ mb: 2 }} onClick={() => { setOpenBudget(true); setEditBudgetId(null); setBudgetForm({ budgetname: '', year: '', department: global1.department || '', budgettype: '', remarks: '' }) }}>
-                Create New Budget
-            </Button>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h5" sx={{ fontWeight: 800 }}>Budget Management</Typography>
+                <Box display="flex" gap={1}>
+                    <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        startIcon={<AssessmentIcon />} 
+                        onClick={() => navigate('/budget-report-hub')}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        View Reports & Insights
+                    </Button>
+                    <Button 
+                        variant="contained" 
+                        disabled={isDeptFrozen} 
+                        startIcon={<AddIcon />}
+                        onClick={() => { setOpenBudget(true); setEditBudgetId(null); setBudgetForm({ budgetname: '', year: '', department: global1.department || '', budgettype: '', remarks: '' }) }}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        Create New Budget
+                    </Button>
+                </Box>
+            </Box>
+            
+            {isDeptFrozen && (
+                <Alert severity="error" sx={{ mb: 2, fontWeight: 500 }}>
+                    Your department ({global1.department}) has been frozen by administration. You are restricted from creating new budgets until unfrozen.
+                </Alert>
+            )}
 
             <Paper sx={{ width: '100%' }}>
                 <DataGrid rows={budgets} columns={columns} autoHeight pageSize={10} rowsPerPageOptions={[10, 25, 50]} />
@@ -268,6 +313,8 @@ const BudgetDashboardds = () => {
                                                 setSelectedBudgetId(cat.budgetid);
                                                 setSelectedBudgetName(cat.budgetname);
                                                 setSelectedBudgetDept(cat.department || parentBudget?.department || '');
+                                                setSelectedBudgetYear(cat.year || parentBudget?.year || '');
+                                                setSelectedBudgetInst(cat.institution || parentBudget?.institution || '');
                                                 setCatForm({ groupname: cat.groupname || '', category: cat.category || '', amount: cat.amount || '', budgettype: cat.budgettype || '', remarks: cat.remarks || '' });
                                                 if (cat.groupname) fetchCategoriesByGroup(cat.groupname);
                                                 setOpenCat(true);

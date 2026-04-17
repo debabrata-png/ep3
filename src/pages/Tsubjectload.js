@@ -1,4 +1,4 @@
-import { TextField, Button, Box, Card, CardContent, Typography, Container, Stack, Grid, CircularProgress, Alert, InputAdornment, IconButton } from '@mui/material';
+import { TextField, Button, Box, Card, CardContent, Typography, Container, Stack, Grid, CircularProgress, Alert, InputAdornment, IconButton, Autocomplete } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';
 import ep1 from '../api/ep1';
@@ -25,6 +25,8 @@ export default function TSubjectLoadForm() {
     const [success, setSuccess] = useState(false);
     const [loads, setLoads] = useState([]);
     const [tableLoading, setTableLoading] = useState(false);
+    const [facultiesList, setFacultiesList] = useState([]);
+    const [selectedFaculty, setSelectedFaculty] = useState(null);
 
     const colid = global1.colid;
 
@@ -40,10 +42,20 @@ export default function TSubjectLoadForm() {
         }
     };
 
+    const fetchFaculties = async () => {
+        try {
+            const res = await ep1.get(`/ttGetFaculties?colid=${colid}`);
+            setFacultiesList(res.data);
+        } catch (error) {
+            console.error("Error fetching faculties:", error);
+        }
+    };
+
     useEffect(() => {
         fetchLoads();
+        fetchFaculties();
     }, []);
-  
+
     const submit = async () => {
         setLoading(true);
         setSuccess(false);
@@ -57,6 +69,7 @@ export default function TSubjectLoadForm() {
                 semester: '',
                 classesPerWeek: ''
             });
+            setSelectedFaculty(null);
             fetchLoads();
         } catch (error) {
             console.error("Error adding subject load:", error);
@@ -88,8 +101,14 @@ export default function TSubjectLoadForm() {
         }
     };
 
+    // Helper to resolve facultyId to faculty name
+    const getFacultyName = (facultyId) => {
+        const faculty = facultiesList.find(f => f._id === facultyId);
+        return faculty ? faculty.name : facultyId;
+    };
+
     const columns = [
-        { field: 'facultyId', headerName: 'Faculty ID', width: 120, editable: true },
+        { field: 'facultyId', headerName: 'Faculty', width: 180, editable: false, valueGetter: (params) => getFacultyName(params.value) },
         { field: 'subject', headerName: 'Subject', flex: 1, editable: true },
         { field: 'program', headerName: 'Program', width: 120, editable: true },
         { field: 'semester', headerName: 'Sem', width: 80, editable: true },
@@ -105,155 +124,170 @@ export default function TSubjectLoadForm() {
             ),
         },
     ];
-  
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Stack spacing={4}>
-            <Card elevation={6} sx={{ borderRadius: 3, background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', maxWidth: 800, mx: 'auto', width: '100%' }}>
-                <Box sx={{ p: 3, background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)', color: 'white' }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                        <AssignmentIcon fontSize="large" />
-                        <Typography variant="h5" fontWeight="bold">Faculty Subject Assignment</Typography>
-                    </Stack>
-                </Box>
-                <CardContent sx={{ p: 4 }}>
-                    {success && <Alert severity="success" sx={{ mb: 3 }}>Subject load assigned successfully!</Alert>}
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Faculty ID"
-                                placeholder="e.g. 6050..."
-                                value={data.facultyId}
-                                onChange={e => setData({ ...data, facultyId: e.target.value })}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <PersonIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Subject Name"
-                                placeholder="e.g. Mathematics"
-                                value={data.subject}
-                                onChange={e => setData({ ...data, subject: e.target.value })}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <BookIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Program"
-                                placeholder="e.g. B.Tech"
-                                value={data.program}
-                                onChange={e => setData({ ...data, program: e.target.value })}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SchoolIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Semester"
-                                placeholder="e.g. 4"
-                                value={data.semester}
-                                onChange={e => setData({ ...data, semester: e.target.value })}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <LayersIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Classes per Week"
-                                type="number"
-                                placeholder="e.g. 4"
-                                value={data.classesPerWeek}
-                                onChange={e => setData({ ...data, classesPerWeek: e.target.value })}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <EventRepeatIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    onClick={submit}
-                                    disabled={loading || Object.values(data).some(v => !v)}
-                                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                                    sx={{
-                                        px: 6,
-                                        py: 1.5,
-                                        borderRadius: 2,
-                                        fontWeight: 'bold',
-                                        background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)',
-                                        '&:hover': {
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-                                        },
-                                        transition: 'all 0.3s'
-                                    }}
-                                >
-                                    {loading ? 'Saving...' : 'Save Assignment'}
-                                </Button>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
 
-            <Card elevation={4} sx={{ borderRadius: 3 }}>
-                <Box sx={{ p: 2, background: '#f5f5f5', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <ViewListIcon color="primary" />
-                    <Typography variant="h6" fontWeight="bold">Subject Load List</Typography>
-                </Box>
-                <Box sx={{ height: 400, width: '100%' }}>
-                    <DataGrid
-                        rows={loads}
-                        columns={columns}
-                        pageSize={5}
-                        rowsPerPageOptions={[5]}
-                        loading={tableLoading}
-                        processRowUpdate={processRowUpdate}
-                        experimentalFeatures={{ newEditingApi: true }}
-                        disableRowSelectionOnClick
-                        sx={{
-                            border: 'none',
-                            '& .MuiDataGrid-cell:focus': {
-                                outline: 'none',
-                            },
-                        }}
-                    />
-                </Box>
-            </Card>
-        </Stack>
-      </Container>
+    return (
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Stack spacing={4}>
+                <Card elevation={6} sx={{ borderRadius: 3, background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', maxWidth: 800, mx: 'auto', width: '100%' }}>
+                    <Box sx={{ p: 3, background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)', color: 'white' }}>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <AssignmentIcon fontSize="large" />
+                            <Typography variant="h5" fontWeight="bold">Faculty Subject Assignment</Typography>
+                        </Stack>
+                    </Box>
+                    <CardContent sx={{ p: 4 }}>
+                        {success && <Alert severity="success" sx={{ mb: 3 }}>Subject load assigned successfully!</Alert>}
+                        <Grid container spacing={3}>
+                            <Grid item xs={12} sm={6}>
+                                <Autocomplete
+                                    options={facultiesList}
+                                    getOptionLabel={(option) => option.name || ''}
+                                    value={selectedFaculty}
+                                    onChange={(event, newValue) => {
+                                        setSelectedFaculty(newValue);
+                                        setData({ ...data, facultyId: newValue ? newValue._id : '' });
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            fullWidth
+                                            label="Select Faculty"
+                                            placeholder="Search faculty..."
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                startAdornment: (
+                                                    <>
+                                                        <InputAdornment position="start">
+                                                            <PersonIcon color="action" />
+                                                        </InputAdornment>
+                                                        {params.InputProps.startAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Subject Name"
+                                    placeholder="e.g. Mathematics"
+                                    value={data.subject}
+                                    onChange={e => setData({ ...data, subject: e.target.value })}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <BookIcon color="action" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Program"
+                                    placeholder="e.g. B.Tech"
+                                    value={data.program}
+                                    onChange={e => setData({ ...data, program: e.target.value })}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SchoolIcon color="action" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Semester"
+                                    placeholder="e.g. 4"
+                                    value={data.semester}
+                                    onChange={e => setData({ ...data, semester: e.target.value })}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <LayersIcon color="action" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Classes per Week"
+                                    type="number"
+                                    placeholder="e.g. 4"
+                                    value={data.classesPerWeek}
+                                    onChange={e => setData({ ...data, classesPerWeek: e.target.value })}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <EventRepeatIcon color="action" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        onClick={submit}
+                                        disabled={loading || Object.values(data).some(v => !v)}
+                                        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                                        sx={{
+                                            px: 6,
+                                            py: 1.5,
+                                            borderRadius: 2,
+                                            fontWeight: 'bold',
+                                            background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)',
+                                            '&:hover': {
+                                                transform: 'translateY(-2px)',
+                                                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                                            },
+                                            transition: 'all 0.3s'
+                                        }}
+                                    >
+                                        {loading ? 'Saving...' : 'Save Assignment'}
+                                    </Button>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                </Card>
+
+                <Card elevation={4} sx={{ borderRadius: 3 }}>
+                    <Box sx={{ p: 2, background: '#f5f5f5', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <ViewListIcon color="primary" />
+                        <Typography variant="h6" fontWeight="bold">Subject Load List</Typography>
+                    </Box>
+                    <Box sx={{ height: 400, width: '100%' }}>
+                        <DataGrid
+                            rows={loads}
+                            columns={columns}
+                            pageSize={5}
+                            rowsPerPageOptions={[5]}
+                            loading={tableLoading}
+                            processRowUpdate={processRowUpdate}
+                            experimentalFeatures={{ newEditingApi: true }}
+                            disableRowSelectionOnClick
+                            sx={{
+                                border: 'none',
+                                '& .MuiDataGrid-cell:focus': {
+                                    outline: 'none',
+                                },
+                            }}
+                        />
+                    </Box>
+                </Card>
+            </Stack>
+        </Container>
     );
-}
+}

@@ -58,10 +58,10 @@ export function menuao() {
             <Accordion>
                 <AccordionSummary aria-controls="panel3-content" id="panel3-header">
                     <BusinessIcon sx={{ marginRight: 1 }} />
-                    {open && <Typography sx={{ fontSize: 14 }}>Indent</Typography>}
+                    {open && <Typography sx={{ fontSize: 14 }}>MRN</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <ListItem button component={RouterLink} to="/faculty-create-request2">
+                    <ListItem button component={RouterLink} to="/faculty-create-request2new">
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>

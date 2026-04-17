@@ -131,7 +131,8 @@ export const menuGroups = [
       { name: "Product management", path: "/productmanagementds", icon: <PersonIcon /> },
       { name: "Purchase management", path: "/purchasemanagementds", icon: <PersonIcon /> },
       { name: "Product requisition", path: "/productrequestds", icon: <PersonIcon /> },
-      { name: "Request Approval", path: "/role/faculty-request-approval2", icon: <ShoppingCartIcon /> }
+      { name: "Request Approval", path: "/role/faculty-request-approval2", icon: <ShoppingCartIcon /> },
+      { name: "PR Approval", path: "/role/PRApprovalds", icon: <ShoppingCartIcon /> }
     ]
   },
   {

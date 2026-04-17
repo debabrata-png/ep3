@@ -23,6 +23,7 @@ import {
   Source as SourceIcon,
   HowToReg as AdmissionIcon,
   SupervisorAccount as PeopleIcon,
+  Queue as QueueIcon,
 } from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
@@ -159,6 +160,18 @@ const Dashboardds = () => {
       description: "Manage programs with counselors",
       icon: <ProgramIcon sx={{ fontSize: 48, color: "#e91e63" }} />,
       route: "/programcounselords",
+    },
+    {
+      title: "Lead Queue System",
+      description: "Track lead arrivals and manage counseling queue",
+      icon: <QueueIcon sx={{ fontSize: 48, color: "#1976d2" }} />,
+      route: "/crmqueuesystemds",
+    },
+    {
+      title: "Extended Landing Page (V3)",
+      description: "Manage landing pages with academic and guardian fields",
+      icon: <LandingPageIcon sx={{ fontSize: 48, color: "#1e88e5" }} />,
+      route: "/unifiedlandingpageds3",
     },
   ];
 

@@ -34,6 +34,7 @@ const HostelBuildingPage = () => {
   const [form, setForm] = useState({
     buldingname: "",
     totalrooms: "",
+    floor: "",
     colid: global1.colid,
   });
   const [page, setPage] = useState(1);
@@ -85,7 +86,7 @@ const HostelBuildingPage = () => {
         });
       }
       setOpen(false);
-      setForm({ buldingname: "", totalrooms: "", colid: global1.colid });
+      setForm({ buldingname: "", totalrooms: "", floor: "", colid: global1.colid });
       setEditId(null);
       fetchBuildings();
     } catch (err) {
@@ -101,6 +102,7 @@ const HostelBuildingPage = () => {
     setForm({
       buldingname: building.buldingname,
       totalrooms: building.totalrooms,
+      floor: building.floor || "",
       colid: building.colid,
     });
     setEditId(building._id);
@@ -137,17 +139,25 @@ const HostelBuildingPage = () => {
             Back
           </Button>
           <Typography variant="h4" align="center" gutterBottom>
-            Hostel Buildings
+            Hostel Blocks
           </Typography>
           <Box display="flex" justifyContent="flex-end" mb={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<Add />}
+            <button
+              style={{
+                backgroundColor: "#1976d2",
+                color: "white",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
               onClick={() => setOpen(true)}
             >
-              Create Building
-            </Button>
+              <Add fontSize="small" /> Create Block
+            </button>
           </Box>
 
           {/* Table */}
@@ -156,7 +166,10 @@ const HostelBuildingPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>
-                    <b>Building Name</b>
+                    <b>Block Name</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Floor</b>
                   </TableCell>
                   <TableCell>
                     <b>Total Rooms</b>
@@ -175,6 +188,7 @@ const HostelBuildingPage = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <TableCell>{b.buldingname}</TableCell>
+                    <TableCell>{b.floor || "N/A"}</TableCell>
                     <TableCell>{b.totalrooms}</TableCell>
                     <TableCell
                       align="center"
@@ -219,15 +233,24 @@ const HostelBuildingPage = () => {
               });
             }}
           >
-            <DialogTitle>{editId ? "Edit" : "Create"} Building</DialogTitle>
+            <DialogTitle>{editId ? "Edit" : "Create"} Block</DialogTitle>
             <DialogContent>
               <TextField
                 margin="dense"
-                label="Building Name"
+                label="Block Name"
                 fullWidth
                 value={form.buldingname}
                 onChange={(e) =>
                   setForm({ ...form, buldingname: e.target.value })
+                }
+              />
+              <TextField
+                margin="dense"
+                label="Floor"
+                fullWidth
+                value={form.floor}
+                onChange={(e) =>
+                  setForm({ ...form, floor: e.target.value })
                 }
               />
               <TextField
@@ -249,6 +272,7 @@ const HostelBuildingPage = () => {
                   setForm({
                     buldingname: "",
                     totalrooms: "",
+                    floor: "",
                     colid: global1.colid,
                   });
                 }}

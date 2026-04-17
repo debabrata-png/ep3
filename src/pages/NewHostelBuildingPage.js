@@ -4,7 +4,7 @@ import ViewPage from './HostelBuildingPage';
 
 export default function NewHostelBuildingPage() {
     return (
-        <AdminLayout title="Hostel Buildings">
+        <AdminLayout title="Hostel Blocks">
             <ViewPage />
         </AdminLayout>
     );

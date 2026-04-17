@@ -22,6 +22,7 @@ import {
   CardContent,
   Autocomplete,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -179,6 +180,7 @@ const Leadsdsadmin = () => {
     name: "",
     phone: "",
     email: "",
+    gender: "",
     category: "",
     course_interested: "",
     source: "",
@@ -186,6 +188,23 @@ const Leadsdsadmin = () => {
     state: "",
     pipeline_stage: "",
     next_followup_date: "",
+    fathername: "",
+    fathercontactno: "",
+    board10th: "",
+    school10th: "",
+    stream10th: "",
+    yearofpassing10th: "",
+    percentage10th: "",
+    board12th: "",
+    school12th: "",
+    stream12th: "",
+    yearofpassing12th: "",
+    percentage12th: "",
+    universityug: "",
+    collegeug: "",
+    streamug: "",
+    yearofpassingug: "",
+    cgpaug: "",
     custom_fields: []
   });
 
@@ -427,6 +446,24 @@ const Leadsdsadmin = () => {
       next_followup_date: lead.next_followup_date
         ? dayjs(lead.next_followup_date).format("YYYY-MM-DD")
         : "",
+      gender: lead.gender || "",
+      fathername: lead.fathername || "",
+      fathercontactno: lead.fathercontactno || "",
+      board10th: lead.board10th || "",
+      school10th: lead.school10th || "",
+      stream10th: lead.stream10th || "",
+      yearofpassing10th: lead.yearofpassing10th || "",
+      percentage10th: lead.percentage10th || "",
+      board12th: lead.board12th || "",
+      school12th: lead.school12th || "",
+      stream12th: lead.stream12th || "",
+      yearofpassing12th: lead.yearofpassing12th || "",
+      percentage12th: lead.percentage12th || "",
+      universityug: lead.universityug || "",
+      collegeug: lead.collegeug || "",
+      streamug: lead.streamug || "",
+      yearofpassingug: lead.yearofpassingug || "",
+      cgpaug: lead.cgpaug || "",
       custom_fields: lead.custom_fields ? lead.custom_fields.map(f => ({ ...f })) : []
     });
 
@@ -659,6 +696,15 @@ const Leadsdsadmin = () => {
     { field: "user", headerName: "Created By", width: 150, editable: false },
     { field: "phone", headerName: "Phone", width: 130, editable: false },
     { field: "email", headerName: "Email", width: 200, editable: false },
+    { field: "gender", headerName: "Gender", width: 100, editable: false },
+    { field: "fathername", headerName: "Father's/Guardian's Name", width: 180, editable: false },
+    { field: "fathercontactno", headerName: "Father's/Guardian's Contact", width: 150, editable: false },
+    { field: "board10th", headerName: "10th Board", width: 130, editable: false },
+    { field: "percentage10th", headerName: "10th %", width: 100, editable: false },
+    { field: "board12th", headerName: "12th Board", width: 130, editable: false },
+    { field: "percentage12th", headerName: "12th %", width: 100, editable: false },
+    { field: "universityug", headerName: "UG University", width: 150, editable: false },
+    { field: "cgpaug", headerName: "UG CGPA", width: 100, editable: false },
     { field: "category", headerName: "Category", width: 130, editable: false },
     { field: "course_interested", headerName: "Course", width: 150, editable: false },
     { field: "institution", headerName: "Institution", width: 150, editable: false },
@@ -1574,6 +1620,70 @@ const Leadsdsadmin = () => {
                 <MenuItem value="Lost">Lost</MenuItem>
                 <MenuItem value="Other">Other</MenuItem>
               </TextField>
+            </Grid>
+
+            {/* New Fields */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Gender"
+                value={editFormData.gender}
+                onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Father's/Guardian's Name"
+                value={editFormData.fathername}
+                onChange={(e) => setEditFormData({ ...editFormData, fathername: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Father's/Guardian's Contact"
+                value={editFormData.fathercontactno}
+                onChange={(e) => setEditFormData({ ...editFormData, fathercontactno: e.target.value })}
+              />
+            </Grid>
+            {/* Academic Sections */}
+            <Grid item xs={12}><Divider>10th Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th Board" value={editFormData.board10th} onChange={(e) => setEditFormData({ ...editFormData, board10th: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th Year" value={editFormData.yearofpassing10th} onChange={(e) => setEditFormData({ ...editFormData, yearofpassing10th: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="10th %" value={editFormData.percentage10th} onChange={(e) => setEditFormData({ ...editFormData, percentage10th: e.target.value })} size="small" />
+            </Grid>
+
+            <Grid item xs={12}><Divider>12th Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th Board" value={editFormData.board12th} onChange={(e) => setEditFormData({ ...editFormData, board12th: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th Year" value={editFormData.yearofpassing12th} onChange={(e) => setEditFormData({ ...editFormData, yearofpassing12th: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="12th %" value={editFormData.percentage12th} onChange={(e) => setEditFormData({ ...editFormData, percentage12th: e.target.value })} size="small" />
+            </Grid>
+
+            <Grid item xs={12}><Divider>UG Details</Divider></Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG University" value={editFormData.universityug} onChange={(e) => setEditFormData({ ...editFormData, universityug: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG Year" value={editFormData.yearofpassingug} onChange={(e) => setEditFormData({ ...editFormData, yearofpassingug: e.target.value })} size="small" />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField fullWidth label="UG CGPA/%" value={editFormData.cgpaug} onChange={(e) => setEditFormData({ ...editFormData, cgpaug: e.target.value })} size="small" />
             </Grid>
 
             {!["New Lead", "Contacted", "Qualified", "Counselling Scheduled", "Campus Visited", "Application Sent", "Application Submitted", "Fee Paid", "Admitted", "Lost"].includes(editFormData.pipeline_stage) && (

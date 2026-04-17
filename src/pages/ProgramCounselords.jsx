@@ -52,6 +52,7 @@ const ProgramCounselords = () => {
         program_type: "",
         counsellor_name: "",
         counsellor_email: "",
+        total_seats: "",
         duration: "",
         eligibility: "",
         total_fee: "",
@@ -214,6 +215,7 @@ const ProgramCounselords = () => {
                 program_type: program.program_type || "",
                 counsellor_name: program.counsellor_name || "",
                 counsellor_email: program.counsellor_email || "",
+                total_seats: program.total_seats || "",
                 duration: program.duration || "",
                 eligibility: program.eligibility || "",
                 total_fee: program.fee_structure?.total_fee || "",
@@ -242,6 +244,7 @@ const ProgramCounselords = () => {
                 program_type: "",
                 counsellor_name: "",
                 counsellor_email: "",
+                total_seats: "",
                 duration: "",
                 eligibility: "",
                 total_fee: "",
@@ -274,6 +277,7 @@ const ProgramCounselords = () => {
                 program_type: formData.program_type,
                 counsellor_name: formData.counsellor_name,
                 counsellor_email: formData.counsellor_email,
+                total_seats: Number(formData.total_seats) || 0,
                 duration: formData.duration,
                 eligibility: formData.eligibility,
                 fee_structure: {
@@ -331,6 +335,7 @@ const ProgramCounselords = () => {
         { field: "education_qualification", headerName: "Qualification", width: 130 },
         { field: "course_code", headerName: "Program Code", width: 120 },
         { field: "course_name", headerName: "Program Name", width: 200 },
+        { field: "total_seats", headerName: "Total Seats", width: 110, type: 'number' },
         { field: "counsellor_name", headerName: "Counselor Name", width: 150 },
         { field: "counsellor_email", headerName: "Counselor Email", width: 200 },
         { field: "institution", headerName: "Institution", width: 150 },
@@ -566,6 +571,13 @@ const ProgramCounselords = () => {
                             label="Eligibility (e.g., 12th Pass)"
                             value={formData.eligibility}
                             onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Total Seats"
+                            type="number"
+                            value={formData.total_seats}
+                            onChange={(e) => setFormData({ ...formData, total_seats: e.target.value })}
                         />
                         <Typography variant="h6">Fee Structure</Typography>
                         <TextField

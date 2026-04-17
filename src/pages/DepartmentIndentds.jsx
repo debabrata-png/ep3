@@ -110,6 +110,8 @@ const DepartmentIndentds = () => {
         ...formData,
         user: user, // System mandatory user from session
         name: name, // System mandatory name from session
+        username: name,
+        useremail: user,
         colid: colid // System mandatory colid from session
       };
 
@@ -130,7 +132,7 @@ const DepartmentIndentds = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this record?')) {
       try {
-        await ep1.post('/api/v2/deletedepartmentindentds', { id });
+        await ep1.post('/api/v2/deletedepartmentindentds', { id, colid, username: name, useremail: user });
         enqueueSnackbar('Deleted successfully', { variant: 'success' });
         fetchData();
       } catch (error) {
@@ -157,7 +159,9 @@ const DepartmentIndentds = () => {
           data,
           colid,
           user,
-          name: name
+          name: name,
+          username: name,
+          useremail: user
         });
         enqueueSnackbar('Bulk upload successful', { variant: 'success' });
         fetchData();

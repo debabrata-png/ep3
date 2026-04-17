@@ -28,8 +28,8 @@ const DashboardPage = () => {
 
   const menuItems = [
     {
-      title: "Hostel Buildings",
-      description: "Manage hostel buildings and rooms",
+      title: "Hostel Blocks",
+      description: "Manage hostel blocks and rooms",
       icon: <Hotel sx={{ fontSize: 40 }} />,
       path: "/hostelbuldingmanager",
       color: "#1976d2",

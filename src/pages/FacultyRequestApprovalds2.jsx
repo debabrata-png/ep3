@@ -74,7 +74,9 @@ const FacultyRequestApprovalds2 = () => {
             await ep1.post('/api/v2/approverequisationds12', { 
                 id: row.id, 
                 approverRole: approverRole,
-                approverName: global1.name 
+                approverName: global1.name,
+                username: global1.name,
+                useremail: global1.user
             });
             setRefreshTrigger(prev => prev + 1);
             alert(`Approved as ${approverRole}`);
@@ -86,7 +88,7 @@ const FacultyRequestApprovalds2 = () => {
 
     const handleReject = async (id) => {
         try {
-            await ep1.post('/api/v2/rejectrequisationds12', { id });
+            await ep1.post('/api/v2/rejectrequisationds12', { id, colid: global1.colid, username: global1.name, useremail: global1.user });
             setRefreshTrigger(prev => prev + 1);
             alert('Request Rejected');
         } catch (error) {

@@ -4,6 +4,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LeadsIcon from '@mui/icons-material/Leaderboard';
+import QueueIcon from '@mui/icons-material/Queue';
 import { Link as RouterLink } from 'react-router-dom';
 
 export function menuitemssubcounselor() {
@@ -25,6 +26,13 @@ export function menuitemssubcounselor() {
           <LeadsIcon />
         </ListItemIcon>
         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leads" />}
+      </ListItem>
+
+      <ListItem button component={RouterLink} to="/crm-queue-system">
+        <ListItemIcon>
+          <QueueIcon />
+        </ListItemIcon>
+        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Lead Queue System" />}
       </ListItem>
     </div>
   );

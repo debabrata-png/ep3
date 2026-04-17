@@ -105,6 +105,7 @@ import ViewFeeapplicationds from './pages/ViewFeeapplicationds';
 
 import Dashmncas11 from './pages/Dashmncas11';
 import ProgramCounselords from './pages/ProgramCounselords';
+import AdmissionMeritList from './pages/AdmissionMeritList';
 import Dashmncas11admin from './pages/Dashmncas11admin';
 import Dashmncas12 from './pages/Dashmncas12';
 import Dashmncas12admin from './pages/Dashmncas12admin';
@@ -152,6 +153,11 @@ import Dashmexamschedule from './pages/Dashmexamschedule';
 import Dashmexamscheduleadmin from './pages/Dashmexamscheduleadmin';
 import Dashmexamroom from './pages/Dashmexamroom';
 import Dashmexamroomadmin from './pages/Dashmexamroomadmin';
+import Dashmexamroomds from './pages/Dashmexamroomds';
+import Dashmexamstudentds from './pages/Dashmexamstudentds';
+import Dashmexamattendanceds from './pages/Dashmexamattendanceds';
+import Dashmmarksentryds from './pages/Dashmmarksentryds';
+import Dashmexaminvigilatords from './pages/Dashmexaminvigilatords';
 
 import Loginstud from './pages/Loginstud';
 
@@ -181,8 +187,6 @@ import DrigableInstitutionSelectionds from './pages/DrigableInstitutionSelection
 import DrigableReportDashboardds from './pages/DrigableReportDashboardds';
 
 import Dashmmattcalc from './pages/Dashmmattcalc';
-import UnifiedLandingPageds from './pages/UnifiedLandingPageds';
-import PublicUnifiedLandingPageds from './pages/PublicUnifiedLandingPageds';
 import Dashmmattcalcadmin from './pages/Dashmmattcalcadmin';
 import Leadsag from './pages/Leadsag';
 import CallDialerds from './pages/CallDialerds';
@@ -279,10 +283,18 @@ import BudgetTypeds from './pages/BudgetTypeds';
 import BudgetApproverds from './pages/BudgetApproverds';
 import BudgetDashboardds from './pages/BudgetDashboardds';
 import BudgetApprovalds from './pages/BudgetApprovalds';
+import BudgetReportHubds from './pages/BudgetReportHubds';
 import BudgetGroupds from './pages/BudgetGroupds';
 import GroupWiseBudgetReportds from './pages/GroupWiseBudgetReportds';
 import CategoryWiseBudgetReportds from './pages/CategoryWiseBudgetReportds';
 import DepartmentWiseBudgetReportds from './pages/DepartmentWiseBudgetReportds';
+import BudgetDepartmentDashboardds from './pages/BudgetDepartmentDashboardds';
+import BudgetUserDashboardds from './pages/BudgetUserDashboardds';
+import BudgetDepartmentSettingsds from './pages/BudgetDepartmentSettingsds';
+import CategoryDeptWiseBudgetReportds from './pages/CategoryDeptWiseBudgetReportds';
+import PRApproverConfigds from './pages/PRApproverConfigds';
+import PRApprovalds from './pages/PRApprovalds';
+
 
 import Pipelinestageag from './pages/pipelinestageag';
 import Outcomeag from './pages/outcomeag';
@@ -1563,6 +1575,8 @@ import RfpAiAnalysisds from './pages/RfpAiAnalysisds';
 
 import PublicUnifiedLandingPageds2 from './pages/PublicUnifiedLandingPageds2';
 import UnifiedLandingPageds2 from './pages/UnifiedLandingPageds2.jsx';
+import PublicExtendedLandingPageds3 from "./pages/PublicExtendedLandingPageds3";
+import UnifiedLandingPageds3 from "./pages/UnifiedLandingPageds3";
 
 import Chattestadmin from "./pages/chattestadmin";
 import Dashchattestadmin from './pages/Dashchattestadmin';
@@ -1596,6 +1610,13 @@ import Tfacultyform from "./pages/Tfacultyform";
 import Tsubjectload from "./pages/Tsubjectload";
 import Timeslot from "./pages/Timeslot";
 import Timetableview from "./pages/Timetableview";
+import FacultyCreateRequestds2new from './pages/FacultyCreateRequestds2new.jsx';
+import BudgetAuditLogPage from './pages/BudgetAuditLogPage';
+import PurchaseAuditLogPage from './pages/PurchaseAuditLogPage';
+const UnifiedLandingPageds = React.lazy(() => import('./pages/UnifiedLandingPageds'));
+const PublicUnifiedLandingPageds = React.lazy(() => import('./pages/PublicUnifiedLandingPageds'));
+const CrmQueueSystemds = React.lazy(() => import('./pages/CrmQueueSystemds'));
+
 
 function App() {
         return (
@@ -1718,7 +1739,10 @@ function App() {
                                         <Route path="/role/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
                                         <Route path="/role/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
                                         <Route path="/role/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
+                                         <Route path="/role/PRApproverConfigds" element={<RoleLayout><PRApproverConfigds /></RoleLayout>} />
+                                         <Route path="/role/PRApprovalds" element={<RoleLayout><PRApprovalds /></RoleLayout>} />
                                         <Route path="/role/faculty-request-approval2" element={<RoleLayout><FacultyRequestApprovalds2 /></RoleLayout>} />
+                                        <Route path="/faculty-create-request2new" element={<RoleLayout><FacultyCreateRequestds2new /></RoleLayout>} />
 
                                         {/* Purchasing Module Routes - Standard Routes */}
                                         <Route path="/faculty-create-request2" element={<RoleLayout><FacultyCreateRequestds2 /></RoleLayout>} />
@@ -2516,6 +2540,12 @@ function App() {
 
                                         <Route path='/dashworkloadn1faculty' element={<Dashworkloadn1faculty />} />
 
+                                        <Route path="/dashmexamroomds" element={<Dashmexamroomds />} />
+                                        <Route path="/dashmexamstudentds" element={<Dashmexamstudentds />} />
+                                        <Route path="/dashmexamattendanceds" element={<Dashmexamattendanceds />} />
+                                        <Route path="/dashmexaminvigilatords" element={<Dashmexaminvigilatords />} />
+                                        <Route path="/dashmmarksentryds" element={<Dashmmarksentryds />} />
+
                                         <Route path='/dashinterncomplete' element={<Dashinterncomplete />} />
                                         <Route path='/taskmanager' element={<TaskManagerPage />} />
 
@@ -3211,6 +3241,7 @@ function App() {
                                         <Route path="/leaddetailds/:id" element={<Leaddetailds />} />
                                         <Route path="/programmasterds" element={<Programmasterds />} />
                                         <Route path="/programcounselords" element={<ProgramCounselords />} />
+                                        <Route path="/admissionmeritlist" element={<AdmissionMeritList />} />
                                         <Route path="/landingpageds" element={<Landingpageds />} />
                                         <Route path="/dripcampaignds" element={<Dripcampaignds />} />
                                         <Route path="/apikeyds" element={<Apikeyds />} />
@@ -3221,9 +3252,12 @@ function App() {
                                         <Route path="/leadsag" element={<Leadsag />} />
                                         <Route path="/categoryag1" element={<CategoryManagementag1 />} />
                                         <Route path="/unifiedlandingpageds" element={<UnifiedLandingPageds />} />
+                                        <Route path="/crmqueuesystemds" element={<CrmQueueSystemds />} />
                                         <Route path='/unifiedlandingpageds1' element={<UnifiedLandingPageds1 />} />
                                         <Route path="/unified-landing/:slug" element={<PublicUnifiedLandingPageds />} />
                                         <Route path="/unified-landing1/:slug" element={<PublicUnifiedLandingPageds1 />} />
+                                        <Route path="/publicextendedlandingds3/:slug" element={<PublicExtendedLandingPageds3 />} />
+                                        <Route path="/unifiedlandingpageds3" element={<UnifiedLandingPageds3 />} />
 
                                         {/* API Configuration and Chatbot */}
                                         <Route path="/apiconfig" element={<ApiConfig />} />
@@ -3250,10 +3284,18 @@ function App() {
                                         <Route path="/BudgetApproverds" element={<BudgetApproverds />} />
                                         <Route path="/BudgetDashboardds" element={<BudgetDashboardds />} />
                                         <Route path="/BudgetApprovalds" element={<BudgetApprovalds />} />
+                                        <Route path="/budget-report-hub" element={<BudgetReportHubds />} />
                                         <Route path="/BudgetGroupds" element={<BudgetGroupds />} />
                                         <Route path="/GroupWiseBudgetReportds" element={<GroupWiseBudgetReportds />} />
                                         <Route path="/CategoryWiseBudgetReportds" element={<CategoryWiseBudgetReportds />} />
                                         <Route path="/DepartmentWiseBudgetReportds" element={<DepartmentWiseBudgetReportds />} />
+                                        <Route path="/CategoryDeptWiseBudgetReportds" element={<CategoryDeptWiseBudgetReportds />} />
+                                        <Route path="/BudgetDepartmentDashboardds" element={<BudgetDepartmentDashboardds />} />
+                                        <Route path="/BudgetUserDashboardds" element={<BudgetUserDashboardds />} />
+                                        <Route path="/BudgetDepartmentSettingsds" element={<BudgetDepartmentSettingsds />} />
+                                        <Route path="/budget-audit-logs" element={<BudgetAuditLogPage />} />
+                                        <Route path="/purchase-audit-logs" element={<PurchaseAuditLogPage />} />
+
                                         <Route path="/BudgetInstitutionCategoryReportds" element={<BudgetInstitutionCategoryReportds />} />
                                         <Route path="/BudgetInstitutionGroupCategoryReportds" element={<BudgetInstitutionGroupCategoryReportds />} />
                                         <Route path="/role/staff-profile" element={<RoleLayout><StaffProfileds /></RoleLayout>} />

@@ -307,6 +307,24 @@ export function menustore() {
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Catalog" />}
           </ListItem>
+          <ListItem button component={RouterLink} to="/role/PRApprovalds">
+            <ListItemIcon>
+              <ApprovalIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PR Approval" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/PRApproverConfigds">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PR Approver Config" />}
+          </ListItem>
+          <ListItem button component={RouterLink} to="/role/vendor-catalogds2">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Catalog" />}
+          </ListItem>
 
 
         </AccordionDetails>

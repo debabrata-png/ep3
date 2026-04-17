@@ -59,10 +59,10 @@ const StoreManagerDashboardds2 = () => {
     // Print State
     const [printPRData, setPrintPRData] = useState(null);
     const [prConfigData, setPrConfigData] = useState({
-        institutionname: '',
-        address: '',
-        phone: '',
-        prshort: ''
+        institutionname: "People's Group",
+        address: "Karond Bhanpur By Pass Road, Bhopal-462037",
+        phone: "+91-0755-4005013",
+        prshort: 'PU'
     });
     const [configId, setConfigId] = useState(null);
 
@@ -303,7 +303,7 @@ const StoreManagerDashboardds2 = () => {
             alert(`PR Generated Successfully! PR Number: ${prNum}`);
 
             // Set Print Data
-            setPrintConfig(prev => ({ ...prev, prNumber: prNum }));
+            setPrintConfig({ prNumber: prNum }); // Only track prNumber here
             setRequestToPrint(null); // Clear single request
             // We need to pass the CART items to the print dialog
             // We can reuse requestToPrint but it expects a single object usually. 
@@ -826,7 +826,7 @@ const StoreManagerDashboardds2 = () => {
             return;
         }
 
-        setPrintConfig(prev => ({ ...prev, prNumber: prNumber }));
+        setPrintConfig({ prNumber: prNumber });
 
         // Open Print
         const printWindow = window.open('', '', 'height=800,width=800');
@@ -843,9 +843,9 @@ const StoreManagerDashboardds2 = () => {
                 requestData={{}} // Empty fallback
                 items={itemsToPrint}
                 prNumber={prNumber}
-                instituteName={printConfig.institutionName}
-                instituteAddress={printConfig.address}
-                institutePhone={printConfig.phone}
+                instituteName={prConfigData.institutionname}
+                instituteAddress={prConfigData.address}
+                institutePhone={prConfigData.phone}
                 createdByName={createdByName}
             />
         );
@@ -1212,12 +1212,8 @@ const StoreManagerDashboardds2 = () => {
         setBulkLoading(false);
         setBulkMessage("");
     };
-    // --- Print Logic ---
     const [openPrintDialog, setOpenPrintDialog] = useState(false);
     const [printConfig, setPrintConfig] = useState({
-        institutionName: prConfigData.institutionname,
-        address: prConfigData.address,
-        phone: prConfigData.phone,
         prNumber: ''
     });
     const [requestToPrint, setRequestToPrint] = useState(null);
@@ -1267,9 +1263,6 @@ const StoreManagerDashboardds2 = () => {
 
         setRequestToPrint(row);
         setPrintConfig({
-            institutionName: prConfigData.institutionname,
-            address: prConfigData.address,
-            phone: prConfigData.phone,
             prNumber: prNum
         });
         setOpenPrintDialog(true);
@@ -1296,9 +1289,9 @@ const StoreManagerDashboardds2 = () => {
                 requestData={requestToPrint || {}}
                 items={itemsToPrint}
                 prNumber={printConfig.prNumber}
-                instituteName={printConfig.institutionName}
-                instituteAddress={printConfig.address}
-                institutePhone={printConfig.phone}
+                instituteName={prConfigData.institutionname}
+                instituteAddress={prConfigData.address}
+                institutePhone={prConfigData.phone}
                 createdByName={createdByName}
             />
         );
@@ -2498,6 +2491,18 @@ const StoreManagerDashboardds2 = () => {
                     <Button variant="contained" color="secondary" onClick={handleCreateLocalGRN}>
                         Save & Send to Quality Check
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Print Confirmation Dialog */}
+            <Dialog open={openPrintDialog} onClose={() => setOpenPrintDialog(false)}>
+                <DialogTitle>Confirm Print</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ mt: 1 }}>Are you sure you want to print PR: <strong>{printConfig.prNumber}</strong>?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenPrintDialog(false)}>Cancel</Button>
+                    <Button variant="contained" color="secondary" onClick={handleConfirmPrint}>Confirm & Print</Button>
                 </DialogActions>
             </Dialog>
 

@@ -42,12 +42,14 @@ const HostelRoomPage = () => {
   const [newRoomForm, setNewRoomForm] = useState({
     roomname: "",
     totalbeds: "",
+    floor: "",
     rentperbed: 0,
   });
   const [editRoomForm, setEditRoomForm] = useState({
     id: "",
     roomname: "",
     totalbeds: "",
+    floor: "",
     rentperbed: 0,
   });
   const [snackbar, setSnackbar] = useState({
@@ -251,7 +253,7 @@ const HostelRoomPage = () => {
         rentperbed: newRoomForm.rentperbed,
       });
       setOpenCreate(false);
-      setNewRoomForm({ roomname: "", totalbeds: "", rentperbed: 0 });
+      setNewRoomForm({ roomname: "", totalbeds: "", floor: "", rentperbed: 0 });
       fetchRooms();
       showSnackbar("Room created successfully");
     } catch (err) {
@@ -264,6 +266,7 @@ const HostelRoomPage = () => {
       await ep1.post(`/api/v2/updateroom?id=${editRoomForm.id}`, {
         roomname: editRoomForm.roomname,
         totalbeds: parseInt(editRoomForm.totalbeds),
+        floor: editRoomForm.floor,
         rentperbed: Number(editRoomForm.rentperbed),
       });
       setOpenEdit(false);
@@ -310,7 +313,7 @@ const HostelRoomPage = () => {
                 sx={{ cursor: "pointer", color: "primary.main" }}
                 onClick={() => navigate(`/hostelbuldingmanager`)}
               >
-                Back to Hostel bulding
+                Back to Hostel Block
               </Typography>
             </Box>
           </Box>
@@ -354,7 +357,7 @@ const HostelRoomPage = () => {
                       mb={1}
                     >
                       <Typography variant="h6">
-                        Room: {room.roomname} ({roomAllocations.length}/
+                        Room: {room.roomname} {room.floor && `(Floor: ${room.floor})`} ({roomAllocations.length}/
                         {room.totalbeds} beds filled)
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
@@ -369,6 +372,7 @@ const HostelRoomPage = () => {
                               id: room._id,
                               roomname: room.roomname,
                               totalbeds: room.totalbeds,
+                              floor: room.floor || "",
                               rentperbed: room.rentperbed || 0,
                             });
                             setOpenEdit(true);
@@ -503,6 +507,15 @@ const HostelRoomPage = () => {
                 sx={{ mt: 2 }}
               />
               <TextField
+                label="Floor"
+                value={newRoomForm.floor}
+                onChange={(e) =>
+                  setNewRoomForm({ ...newRoomForm, floor: e.target.value })
+                }
+                fullWidth
+                sx={{ mt: 2 }}
+              />
+              <TextField
                 label="Total Beds"
                 type="number"
                 value={newRoomForm.totalbeds}
@@ -539,6 +552,18 @@ const HostelRoomPage = () => {
                 value={editRoomForm.roomname}
                 onChange={(e) =>
                   setEditRoomForm({ ...editRoomForm, roomname: e.target.value })
+                }
+                fullWidth
+                sx={{ mt: 2 }}
+              />
+              <TextField
+                label="Floor"
+                value={editRoomForm.floor}
+                onChange={(e) =>
+                  setEditRoomForm({
+                    ...editRoomForm,
+                    floor: e.target.value,
+                  })
                 }
                 fullWidth
                 sx={{ mt: 2 }}

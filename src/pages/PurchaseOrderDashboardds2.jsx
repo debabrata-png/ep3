@@ -213,7 +213,12 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
             }
 
             const response = await ep1.get(url);
-            const reqs = response.data.data.requisitions || [];
+            let reqs = response.data.data.requisitions || [];
+            
+            // Filter out requisitions that are still in the approval process
+            // The Purchase Cell should only see PRs once they are fully approved (Pending) or already Assigned.
+            reqs = reqs.filter(r => r.reqstatus !== 'Pending Approval');
+
             setStoreRequests(reqs.map(r => ({ ...r, id: r._id })));
             if (page) setRowCount(response.data.total || response.data.count || 0);
         } catch (error) { console.error(error); }
@@ -665,7 +670,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                 }
 
                 const department = item.departmentname || po.departmentname || 'General';
-                
+
                 if (category && department) {
                     const key = `${category}-${department}`;
                     if (!summaryMap.has(key)) {
@@ -1124,7 +1129,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                 headerName: 'Actions',
                 width: 550,
                 renderCell: (params) => {
-                    const isManager = currentRole === 'Purchasepu' || currentRole === 'Admin';
+                    const isManager = currentRole === 'Purchasepu' || currentRole === 'Admin' || currentRole === "All" || currentRole === 'Purchase';
                     const isAssigned = params.row.reqstatus === 'Assigned';
                     const isCompleted = params.row.reqstatus === 'Completed';
 
@@ -1601,7 +1606,7 @@ const PurchaseOrderDashboardds2 = ({ role }) => {
                                     </Box>
                                 </Paper>
                             </Grid>
-                            
+
                             {/* Vendor Payment Schedule Section */}
                             <Grid item xs={12} md={6}>
                                 <Paper sx={{ p: 2, bgcolor: '#f8f9fa', border: '1px solid #dee2e6' }}>

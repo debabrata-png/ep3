@@ -20,7 +20,14 @@ const BudgetTypeds = () => {
     };
 
     const handleSave = async () => {
-        const payload = { ...formData, colid: global1.colid, user: global1.user, name: global1.user };
+        const payload = { 
+            ...formData, 
+            colid: global1.colid, 
+            user: global1.user, 
+            name: global1.name,
+            username: global1.name,
+            useremail: global1.user
+        };
         try {
             if (editId) await ep1.post(`/api/v2/updatebudgettypeds?id=${editId}`, payload);
             else await ep1.post('/api/v2/addbudgettypeds', payload);
@@ -30,7 +37,7 @@ const BudgetTypeds = () => {
 
     const handleDelete = async (id) => {
         if (window.confirm('Delete this budget type?')) {
-            await ep1.get(`/api/v2/deletebudgettypeds?id=${id}`);
+            await ep1.get(`/api/v2/deletebudgettypeds?id=${id}&username=${global1.name}&useremail=${global1.user}`);
             fetchData();
         }
     };

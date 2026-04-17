@@ -40,30 +40,48 @@ const StatCard = ({ title, value, icon, color }) => (
 );
 
 const BudgetInstitutionCategoryReportds = () => {
+    const [institutions, setInstitutions] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [selectedInstitution, setSelectedInstitution] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [isManagement, setIsManagement] = useState(false);
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(false);
     const theme = useTheme();
 
     useEffect(() => {
-        fetchCategories();
+        const checkRole = () => {
+            const mgmt = global1.role === 'Management' || global1.ismanagement === 'true';
+            setIsManagement(mgmt);
+            fetchCategories(mgmt);
+            if (mgmt) fetchInstitutions();
+        };
+        checkRole();
     }, []);
 
-    const fetchCategories = async () => {
+    const fetchInstitutions = async () => {
         try {
-            const res = await ep1.get(`/api/v2/getdistinctbudgetcategories?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getinstitutionsforbudget?colid=${global1.colid}`);
+            setInstitutions(res.data?.data?.items || []);
+        } catch (e) {
+            console.error('Error fetching institutions:', e);
+        }
+    };
+
+    const fetchCategories = async (mgmt) => {
+        try {
+            const res = await ep1.get(`/api/v2/getdistinctbudgetcategories?colid=${global1.colid}&ismanagement=${mgmt}`);
             setCategories(res.data?.data?.items || []);
         } catch (e) {
             console.error('Error fetching categories:', e);
         }
     };
 
-    const fetchReport = async (category) => {
+    const fetchReport = async (category, instColid = '') => {
         if (!category) return;
         try {
             setLoading(true);
-            const res = await ep1.get(`/api/v2/getinstitutioncategorybudget?colid=${global1.colid}&category=${category}`);
+            const res = await ep1.get(`/api/v2/getinstitutioncategorybudget?colid=${global1.colid}&category=${category}&ismanagement=${isManagement}&searchcolid=${instColid}`);
             setReportData(res.data?.data?.items || []);
         } catch (e) {
             console.error('Error fetching report:', e);
@@ -75,7 +93,13 @@ const BudgetInstitutionCategoryReportds = () => {
     const handleCategoryChange = (event) => {
         const cat = event.target.value;
         setSelectedCategory(cat);
-        fetchReport(cat);
+        fetchReport(cat, selectedInstitution);
+    };
+
+    const handleInstitutionChange = (event) => {
+        const inst = event.target.value;
+        setSelectedInstitution(inst);
+        fetchReport(selectedCategory, inst);
     };
 
     const handleExportExcel = () => {
@@ -102,10 +126,10 @@ const BudgetInstitutionCategoryReportds = () => {
             <Box mb={4} display="flex" justifyContent="space-between" alignItems="center">
                 <Box>
                     <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#0f172a' }}>
-                        Institution-wise Budget Analysis
+                        Institution Category Analysis
                     </Typography>
                     <Typography variant="body1" color="textSecondary">
-                        View budget allocations across different institutions for a specific expenditure category.
+                        Breakdown of budget allocations for a specific category across all campuses.
                     </Typography>
                 </Box>
                 <Button 
@@ -122,7 +146,7 @@ const BudgetInstitutionCategoryReportds = () => {
             <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
                 <CardContent sx={{ p: 3 }}>
                     <Grid container spacing={3} alignItems="center">
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={isManagement ? 4 : 8}>
                             <FormControl fullWidth variant="outlined">
                                 <InputLabel>Select Category</InputLabel>
                                 <Select
@@ -138,15 +162,33 @@ const BudgetInstitutionCategoryReportds = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        {isManagement && (
+                            <Grid item xs={12} md={4}>
+                                <FormControl fullWidth variant="outlined">
+                                    <InputLabel>Select Institution (Optional)</InputLabel>
+                                    <Select
+                                        value={selectedInstitution}
+                                        onChange={handleInstitutionChange}
+                                        label="Select Institution (Optional)"
+                                        sx={{ borderRadius: 2 }}
+                                    >
+                                        <MenuItem value=""><em>All Institutions</em></MenuItem>
+                                        {institutions.map((inst, idx) => (
+                                            <MenuItem key={idx} value={inst.colid}>{inst.institutionname}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        )}
+                        <Grid item xs={12} md={2}>
                             <StatCard 
-                                title="Category Total" 
+                                title="Total Allocated" 
                                 value={grandTotal} 
                                 icon={<AccountBalanceIcon />} 
                                 color="#2563eb" 
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <StatCard 
                                 title="Institutions" 
                                 value={totalInstitutions} 

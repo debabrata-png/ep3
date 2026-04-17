@@ -23,6 +23,7 @@ import ApiIcon from '@mui/icons-material/Api';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SourceIcon from '@mui/icons-material/Source';
+import QueueIcon from '@mui/icons-material/Queue';
 import { List, Typography } from '@mui/material';
 import global1 from './global1';
 
@@ -91,6 +92,13 @@ export function menuitemscounselor() {
               <LeadsIcon />
             </ListItemIcon>
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leads" />}
+          </ListItem>
+
+          <ListItem button component={RouterLink} to="/crm-queue-system">
+            <ListItemIcon>
+              <QueueIcon />
+            </ListItemIcon>
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Lead Queue System" />}
           </ListItem>
 
           <ListItem button component={RouterLink} to="/leadtransferds">

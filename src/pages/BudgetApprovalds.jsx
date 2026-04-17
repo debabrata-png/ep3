@@ -52,10 +52,35 @@ const BudgetApprovalds = () => {
     const fetchBudgetsForApproval = async () => {
         try {
             setLoading(true);
-            const res = await ep1.get(`/api/v2/getbudgetsforapproval?colid=${global1.colid}&useremail=${global1.user}`);
-            setBudgets(res.data.data?.items || []);
-        } catch (e) { console.error(e); }
-        finally { setLoading(false); }
+            const userEmail = global1.email || global1.user;
+            if (!userEmail) {
+                console.error("No user email found in global1");
+                return;
+            }
+            const res = await ep1.get(`/api/v2/getbudgetsforapproval?colid=${global1.colid}&useremail=${userEmail}`);
+            const items = res.data.data?.items || [];
+            console.log("fetchBudgetsForApproval raw items:", items);
+
+            // Robust filtering: Although backend filters, we double check here with trimmed comparisons
+            const filtered = items.filter(b => {
+                const config = b.approverConfig || {};
+                const type = (config.approvaltype || '').toLowerCase();
+                if (type === 'department') {
+                    const bDept = (b.department || '').trim().toLowerCase();
+                    const gDept = (global1.department || '').trim().toLowerCase();
+                    // If global1.department is missing, we might want to show it if the backend sent it, 
+                    // but usually it should match.
+                    return !gDept || bDept === gDept;
+                }
+                return true; 
+            });
+
+            setBudgets(filtered);
+        } catch (e) { 
+            console.error("Error fetching budgets for approval:", e); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const fetchBudgetTypes = async () => {
@@ -75,7 +100,11 @@ const BudgetApprovalds = () => {
 
     const handleUpdateCategoryAmount = async () => {
         try {
-            await ep1.post(`/api/v2/updatebudgetpocatdsamount?id=${editCatId}`, { amount: Number(editAmount) });
+            await ep1.post(`/api/v2/updatebudgetpocatdsamount?id=${editCatId}`, { 
+                amount: Number(editAmount),
+                username: global1.name,
+                useremail: global1.user
+            });
             setOpenEdit(false);
             fetchBudgetsForApproval();
         } catch (e) { console.error(e); }
@@ -92,7 +121,8 @@ const BudgetApprovalds = () => {
     const handleSaveCategory = async () => {
         const payload = {
             ...catForm, amount: Number(catForm.amount),
-            colid: global1.colid, user: global1.user, name: global1.user,
+            colid: global1.colid, user: global1.user, name: global1.name,
+            username: global1.name, useremail: global1.user,
             budgetid: selectedBudgetId, budgetname: selectedBudgetName
         };
         try {
@@ -104,7 +134,7 @@ const BudgetApprovalds = () => {
 
     const handleDeleteCategory = async (catId) => {
         if (window.confirm('Delete this budget category?')) {
-            await ep1.get(`/api/v2/deletebudgetpocatds?id=${catId}`);
+            await ep1.get(`/api/v2/deletebudgetpocatds?id=${catId}&username=${global1.name}&useremail=${global1.user}`);
             fetchBudgetsForApproval();
         }
     };
@@ -114,13 +144,18 @@ const BudgetApprovalds = () => {
             await ep1.post(`/api/v2/approvebudgetpods?id=${actionBudgetId}`, {
                 levelofapproval: actionLevel,
                 status: actionType,
-                remarks: actionRemarks
+                remarks: actionRemarks,
+                approvername: global1.name,
+                approveremail: global1.user
             });
             setOpenAction(false);
             setActionRemarks('');
             fetchBudgetsForApproval();
             alert(`Budget ${actionType.toLowerCase()} successfully`);
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error("Error performing approval action:", e); 
+            alert("Failed to perform action. Check console for details.");
+        }
     };
 
     const openApproveReject = (budgetId, level, type) => {
@@ -184,6 +219,7 @@ const BudgetApprovalds = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell><strong>Group</strong></TableCell>
+                                    <TableCell><strong>Department</strong></TableCell>
                                     <TableCell><strong>Category</strong></TableCell>
                                     <TableCell><strong>Amount</strong></TableCell>
                                     <TableCell><strong>Budget Type</strong></TableCell>
@@ -197,6 +233,7 @@ const BudgetApprovalds = () => {
                                 {(budget.categories || []).map((cat) => (
                                     <TableRow key={cat._id}>
                                         <TableCell>{cat.groupname || '—'}</TableCell>
+                                        <TableCell>{cat.department || budget.department || '—'}</TableCell>
                                         <TableCell>{cat.category}</TableCell>
                                         <TableCell>₹ {(cat.amount || 0).toLocaleString()}</TableCell>
                                         <TableCell>{cat.budgettype}</TableCell>

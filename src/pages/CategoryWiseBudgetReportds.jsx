@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, 
-    TableHead, TableRow, Chip, IconButton, Collapse, Grid, Avatar, useTheme 
+    TableHead, TableRow, Chip, IconButton, Collapse, Grid, Avatar, useTheme,
+    FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { 
     KeyboardArrowDown as KeyboardArrowDownIcon, 
@@ -121,17 +122,35 @@ const Row = ({ item }) => {
 };
 
 const CategoryWiseBudgetReportds = () => {
+    const [institutions, setInstitutions] = useState([]);
+    const [selectedInstitution, setSelectedInstitution] = useState('');
+    const [isManagement, setIsManagement] = useState(false);
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchReport();
+        const checkRole = () => {
+            const mgmt = global1.role === 'Management' || global1.ismanagement === 'true';
+            setIsManagement(mgmt);
+            fetchReport(mgmt);
+            if (mgmt) fetchInstitutions();
+        };
+        checkRole();
     }, []);
 
-    const fetchReport = async () => {
+    const fetchInstitutions = async () => {
+        try {
+            const res = await ep1.get(`/api/v2/getinstitutionsforbudget?colid=${global1.colid}`);
+            setInstitutions(res.data?.data?.items || []);
+        } catch (e) {
+            console.error('Error fetching institutions:', e);
+        }
+    };
+
+    const fetchReport = async (mgmt, instColid = '') => {
         try {
             setLoading(true);
-            const res = await ep1.get(`/api/v2/getcategorywisebudget?colid=${global1.colid}`);
+            const res = await ep1.get(`/api/v2/getcategorywisebudget?colid=${global1.colid}&ismanagement=${mgmt}&searchcolid=${instColid}`);
             const items = res.data?.data?.items || [];
             setReportData(items);
         } catch (e) {
@@ -141,6 +160,13 @@ const CategoryWiseBudgetReportds = () => {
         }
     };
 
+    const handleInstitutionChange = (event) => {
+        const inst = event.target.value;
+        setSelectedInstitution(inst);
+        fetchReport(isManagement, inst);
+    };
+
+
     if (loading) return <Box p={3}><Typography>Loading Category Wise Report...</Typography></Box>;
 
     const grandTotal = reportData.reduce((acc, curr) => acc + (curr.categoryTotal || 0), 0);
@@ -149,14 +175,33 @@ const CategoryWiseBudgetReportds = () => {
 
     return (
         <Box p={4} sx={{ bgcolor: '#f8fafc', minHeight: '100vh' }}>
-            <Box mb={4}>
-                <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    Category Wise Budget Analysis
-                </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ maxWidth: 700 }}>
-                    Analyze budget allocations across various expense categories, revealing higher-level spending patterns across all organizational units.
-                </Typography>
+            <Box mb={4} display="flex" justifyContent="space-between" alignItems="center">
+                <Box>
+                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#0f172a' }}>
+                        Category Wise Budget Analysis
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary" sx={{ maxWidth: 700 }}>
+                        Analyze budget allocations across various expense categories, revealing higher-level spending patterns across all organizational units.
+                    </Typography>
+                </Box>
+                {isManagement && (
+                    <FormControl variant="outlined" sx={{ minWidth: 250 }}>
+                        <InputLabel>Select Institution (Optional)</InputLabel>
+                        <Select
+                            value={selectedInstitution}
+                            onChange={handleInstitutionChange}
+                            label="Select Institution (Optional)"
+                            sx={{ borderRadius: 2, bgcolor: '#fff' }}
+                        >
+                            <MenuItem value=""><em>All Institutions</em></MenuItem>
+                            {institutions.map((inst, idx) => (
+                                <MenuItem key={idx} value={inst.colid}>{inst.institutionname}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                )}
             </Box>
+
 
             <Grid container spacing={3} mb={5}>
                 <Grid item xs={12} md={4}>

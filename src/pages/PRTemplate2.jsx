@@ -63,8 +63,11 @@ const PRTemplate2 = ({ requestData, items, prNumber, instituteName, instituteAdd
             <div className="print-container">
                 {/* Header */}
                 <div className="center-text mb-2">
-                    <div className="bold-text" style={{ fontSize: '1.2rem' }}>{instituteName || "People's Group"}</div>
-                    <div style={{ fontSize: '1rem' }}>{instituteAddress}, Phone:- {institutePhone}</div>
+                    <div className="bold-text" style={{ fontSize: '1.2rem' }}>{instituteName}</div>
+                    <div style={{ fontSize: '1rem' }}>
+                        {instituteAddress}{instituteAddress && institutePhone ? ', ' : ''}
+                        {institutePhone ? `Phone:- ${institutePhone}` : ''}
+                    </div>
                 </div>
 
                 <div className="dashed-line"></div>
