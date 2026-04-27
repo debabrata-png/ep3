@@ -1536,13 +1536,13 @@ export function menuitemsall() {
                         <ListItemIcon>
                             <ApprovalIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PR Approval" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Indent Approval" />}
                     </ListItem>
                     <ListItem button component={RouterLink} to="/role/PRApproverConfigds">
                         <ListItemIcon>
                             <SettingsIcon />
                         </ListItemIcon>
-                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="PR Approver Config" />}
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Indent Approver Config" />}
                     </ListItem>
                 </AccordionDetails>
             </Accordion>
@@ -1587,6 +1587,62 @@ export function menuitemsall() {
                             <PersonIcon />
                         </ListItemIcon>
                         {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="AI Comparison Analysis" />}
+                    </ListItem>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary aria-controls="panel3-content" id="panel3-header">
+                    <BusinessIcon sx={{ marginRight: 1 }} />
+                    {open && <Typography sx={{ fontSize: 14 }}>Store</Typography>}
+                </AccordionSummary>
+                <AccordionDetails>
+                    <ListItem button component={RouterLink} to="/role/storemanagerdashboardds2new">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Dashboard" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/store-master-data">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Store Master Data" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/local-purchase2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Local Purchase (LPO/Memo)" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/local-grn2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Local GRN (Gate Pass)" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/delivery-dashboard2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Delivery Management" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/vendors-masterds2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendors Master" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/vendor-catalogds2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Catalog" />}
+                    </ListItem>
+                    <ListItem button component={RouterLink} to="/role/vendor-catalogds2">
+                        <ListItemIcon>
+                            <PersonIcon />
+                        </ListItemIcon>
+                        {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Vendor Catalog" />}
                     </ListItem>
                 </AccordionDetails>
             </Accordion>

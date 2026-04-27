@@ -63,6 +63,7 @@ import { menuitemshrms } from './menuhrms';
 import { menuitemssubcounselor } from './menusubcounselor';
 import { menuit } from './menuit';
 import { menuitemsallold } from './menuallold';
+import { menuitemscampuscounselor } from './menucampuscounselor';
 const getlink = () => {
   return '/eventlistwithcolid/' + global1.colid;
 }
@@ -294,6 +295,12 @@ export function mainListItems({ open }) {
       return (
         <div>
           {menuitemsallold()}
+        </div>
+      )
+    } else if (role1 === "CampusCounselor") {
+      return (
+        <div>
+          {menuitemscampuscounselor()}
         </div>
       )
     }

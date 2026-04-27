@@ -94,11 +94,11 @@ export function menuitemscounselor() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leads" />}
           </ListItem>
 
-          <ListItem button component={RouterLink} to="/crm-queue-system">
+          <ListItem button component={RouterLink} to="/counselorqueuesystemds">
             <ListItemIcon>
               <QueueIcon />
             </ListItemIcon>
-            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Lead Queue System" />}
+            {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Campus Enquiry Leads" />}
           </ListItem>
 
           <ListItem button component={RouterLink} to="/leadtransferds">

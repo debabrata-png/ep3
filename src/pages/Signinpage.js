@@ -224,7 +224,7 @@ const Signup = () => {
       } else if (response.data.role === "PE" || response.data.role === "SPE") {
         navigate("/role/oe-dashboard2")
       } else if (response.data.role === "Store") {
-        navigate("/role/store-manager-dashboard2")
+        navigate("/role/storemanagerdashboardds2new")
       } else if (response.data.role === "Quality") {
         navigate("/role/quality-inspector2")
       } else if (response.data.role === "HOI") {

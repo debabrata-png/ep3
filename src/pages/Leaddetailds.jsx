@@ -303,6 +303,20 @@ const Leaddetailds = () => {
     setLoadingPrograms(false);
   };
 
+  const autoMarkAttendance = async () => {
+    if (global1.role === 'CampusCounselor' && lead?.attendentstatus !== 'Yes') {
+      try {
+        await ep1.post("/api/v2/markleadasattendedds", {
+          id: id,
+          attendername: global1.name,
+          attenderemail: global1.user,
+        });
+      } catch (err) {
+        console.error("Error auto-marking lead as attended:", err);
+      }
+    }
+  };
+
   const handleLogCall = async () => {
     try {
       const payload = {
@@ -315,6 +329,7 @@ const Leaddetailds = () => {
       showSnackbar("Call logged successfully", "success");
       setOpenCallDialog(false);
       fetchLeadDetails();
+      autoMarkAttendance();
       setCallData({ duration: "", outcome: "", notes: "", next_followup_date: "" });
     } catch (err) {
       console.error("Error logging call:", err);
@@ -334,6 +349,7 @@ const Leaddetailds = () => {
       showSnackbar("Meeting logged successfully", "success");
       setOpenMeetingDialog(false);
       fetchLeadDetails();
+      autoMarkAttendance();
       setMeetingData({ duration: "", outcome: "", notes: "", next_followup_date: "" });
     } catch (err) {
       console.error("Error logging meeting:", err);
@@ -353,6 +369,7 @@ const Leaddetailds = () => {
       showSnackbar("Lead updated successfully", "success");
       setOpenUpdateDialog(false);
       fetchLeadDetails();
+      autoMarkAttendance();
     } catch (err) {
       console.error("Error updating lead:", err);
       showSnackbar("Failed to update lead", "error");
@@ -375,6 +392,7 @@ const Leaddetailds = () => {
       showSnackbar("Lead transferred successfully", "success");
       setOpenTransferDialog(false);
       fetchLeadDetails();
+      autoMarkAttendance();
     } catch (err) {
       console.error("Error transferring lead:", err);
       showSnackbar("Failed to transfer lead", "error");
@@ -428,7 +446,7 @@ const Leaddetailds = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton onClick={() => navigate("/leadsds")} sx={{ mr: 2 }}>
+          <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
             <BackIcon />
           </IconButton>
           <Typography variant="h4">Lead Details: {lead.name}</Typography>
@@ -531,6 +549,7 @@ const Leaddetailds = () => {
                 variant="contained"
                 color="info"
                 startIcon={<MeetingIcon />}
+                disabled={global1.role === 'CampusCounselor'}
                 onClick={() => {
                   setVisitData({
                     dateofvisit: lead.dateofvisit || "",

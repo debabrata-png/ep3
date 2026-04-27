@@ -5,8 +5,8 @@
 
 $(document).ready(function () {
     // 1. Configuration & URL Parsing
-    const serverUrl = (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')) 
-        ? "http://localhost:3000" 
+    const serverUrl = (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
+        ? "http://localhost:3000"
         : "https://backend-suman.onrender.com";
     const urlParams = new URLSearchParams(window.location.search);
     const colid = urlParams.get('colid') || "30"; // Default to 30 for testing
@@ -38,7 +38,7 @@ $(document).ready(function () {
                 $("#cms-content").html('<div class="container text-center py-5"><h2>404 - Page Not Found</h2><p>The page you are looking for does not exist.</p></div>');
             }
         },
-        error: function() {
+        error: function () {
             $("#cms-content").html('<div class="container text-center py-5"><h2>Error</h2><p>Failed to load page content.</p></div>');
         }
     });
@@ -56,7 +56,7 @@ $(document).ready(function () {
                     logoSrc = `${serverUrl}/${logoSrc}`;
                 }
                 const $logo = $(".logo img");
-                $logo.on('error', function() {
+                $logo.on('error', function () {
                     $(this).attr("src", "img/logo.png");
                 });
                 $logo.attr("src", logoSrc);
@@ -151,7 +151,7 @@ $(document).ready(function () {
             settings.navbar.links.forEach(link => {
                 const target = link.is_external ? 'target="_blank"' : '';
                 const url = link.is_external ? link.slug : `?colid=${colid}&slug=${link.slug}`;
-                
+
                 if (link.sub_links && link.sub_links.length > 0) {
                     navHtml += `<li><a href="${url}" ${target}>${link.label} <i class="ti-angle-down"></i></a>`;
                     navHtml += `<ul class="submenu">`;
@@ -303,9 +303,9 @@ $(document).ready(function () {
                                 <h3 class="footer_title">${col.title}</h3>
                                 <ul>
                                     ${col.links.map(link => {
-                                        const url = link.is_external ? link.slug : `?colid=${colid}&slug=${link.slug}`;
-                                        return `<li><a href="${url}">${link.label}</a></li>`;
-                                    }).join('')}
+                        const url = link.is_external ? link.slug : `?colid=${colid}&slug=${link.slug}`;
+                        return `<li><a href="${url}">${link.label}</a></li>`;
+                    }).join('')}
                                 </ul>
                             </div>
                         </div>
@@ -377,7 +377,7 @@ $(document).ready(function () {
                     </div>`;
                 });
                 sliderHtml += `</div>`;
-                
+
                 // Quick Icons Overlay
                 sliderHtml += `<div class="hero-quick-actions d-none d-md-flex">`;
                 const icons = ['ti-user', 'ti-briefcase', 'ti-announcement'];
@@ -446,16 +446,16 @@ $(document).ready(function () {
                 const borderStyle = ntTabs.length <= 1 ? 'none' : '1px solid #eee';
                 let ntHeader = `<ul class="nav nav-tabs program-tabs" id="ntTab" role="tablist" style="justify-content: ${justifyStyle}; margin-bottom: 30px; border-bottom: ${borderStyle};">`;
                 let ntContent = `<div class="tab-content" id="ntTabContent">`;
-                
+
                 ntTabs.forEach((tab, tIdx) => {
                     const activeClass = tIdx === 0 ? 'active' : '';
                     const tabId = `nt-${idx}-${tIdx}`;
-                    
+
                     ntHeader += `
                         <li class="nav-item" role="presentation">
                             <button class="nav-link ${activeClass}" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabId}" type="button" role="tab" style="font-size: 16px; padding: 10px 25px;">${tab.title}</button>
                         </li>`;
-                    
+
                     let itemsHtml = "";
                     (tab.items || []).forEach((item, iIdx) => {
                         const dateObj = new Date(item.date || new Date());
@@ -463,7 +463,7 @@ $(document).ready(function () {
                         const monYear = dateObj.toLocaleString('default', { month: 'short', year: 'numeric' });
                         const bgColors = ['#1e7bd6', '#ecae23']; // Alternating Blue and Gold
                         const bgColor = bgColors[iIdx % 2];
-                        
+
                         itemsHtml += `
                             <div class="news-card">
                                 <div class="news-date-side" style="background: ${bgColor}">
@@ -514,17 +514,17 @@ $(document).ready(function () {
                 const tabs = d.tabs || [];
                 let tabsHeader = `<ul class="nav nav-tabs program-tabs" id="progTab" role="tablist">`;
                 let tabsContent = `<div class="tab-content" id="progTabContent">`;
-                
+
                 tabs.forEach((tab, tIdx) => {
                     const activeClass = tIdx === 0 ? 'active' : '';
                     const showClass = tIdx === 0 ? 'show active' : '';
                     const tabId = `tab-${idx}-${tIdx}`;
-                    
+
                     tabsHeader += `
                     <li class="nav-item">
                         <a class="nav-link ${activeClass}" id="${tabId}-link" data-bs-toggle="tab" href="#${tabId}" role="tab">${tab.title}</a>
                     </li>`;
-                    
+
                     tabsContent += `<div class="tab-pane fade ${showClass}" id="${tabId}" role="tabpanel">`;
                     tabsContent += `<div class="row">`;
                     (tab.cards || []).forEach(card => {
@@ -645,11 +645,11 @@ $(document).ready(function () {
     }
 
     function initForms() {
-        $(".cms-dynamic-form").each(function() {
+        $(".cms-dynamic-form").each(function () {
             const $form = $(this);
             const formId = $form.data("form-id");
             const blockId = $form.attr("id").split("-")[1];
-            
+
             if (!formId) {
                 $(`#form-fields-${blockId}`).html('<div class="col-12"><p class="text-danger">No form template selected in CMS.</p></div>');
                 return;
@@ -659,7 +659,7 @@ $(document).ready(function () {
             $.ajax({
                 url: `${serverUrl}/api/v2/cms/forms/single?colid=${colid}&formId=${formId}`,
                 method: "GET",
-                success: function(formRes) {
+                success: function (formRes) {
                     if (formRes && formRes.fields) {
                         let fieldsHtml = "";
                         formRes.fields.forEach(field => {
@@ -667,10 +667,10 @@ $(document).ready(function () {
                             fieldsHtml += `
                                 <div class="${isTextArea ? 'col-12' : 'col-sm-6'}">
                                     <div class="form-group">
-                                        ${isTextArea 
-                                            ? `<textarea class="form-control" name="${field.label}" cols="30" rows="9" placeholder="Enter ${field.label}"></textarea>`
-                                            : `<input class="form-control" name="${field.label}" type="${field.type}" placeholder="Enter ${field.label}">`
-                                        }
+                                        ${isTextArea
+                                    ? `<textarea class="form-control" name="${field.label}" cols="30" rows="9" placeholder="Enter ${field.label}"></textarea>`
+                                    : `<input class="form-control" name="${field.label}" type="${field.type}" placeholder="Enter ${field.label}">`
+                                }
                                     </div>
                                 </div>`;
                         });
@@ -680,7 +680,7 @@ $(document).ready(function () {
             });
 
             // Handle Submission
-            $form.on("submit", function(e) {
+            $form.on("submit", function (e) {
                 e.preventDefault();
                 const $status = $form.find(".form-status");
                 $status.html('<p class="text-primary">Submitting...</p>');
@@ -695,11 +695,11 @@ $(document).ready(function () {
                     method: "POST",
                     data: JSON.stringify({ formId: formId, data: formData }),
                     contentType: "application/json",
-                    success: function() {
+                    success: function () {
                         $status.html('<p class="text-success">Thank you! Your inquiry has been sent.</p>');
                         $form[0].reset();
                     },
-                    error: function() {
+                    error: function () {
                         $status.html('<p class="text-danger">Failed to send inquiry. Please try again later.</p>');
                     }
                 });
@@ -710,7 +710,7 @@ $(document).ready(function () {
     function initTabs() {
         // Bootstrap 5 uses data-bs-toggle, but some older themes use data-toggle
         // We ensure clicks on tab links trigger the right pane visibility
-        $('[data-bs-toggle="tab"], [data-toggle="tab"]').on('click', function(e) {
+        $('[data-bs-toggle="tab"], [data-toggle="tab"]').on('click', function (e) {
             e.preventDefault();
             $(this).tab('show');
         });

@@ -77,6 +77,11 @@ const Leadsag = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [showFilters, setShowFilters] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
+  const [totalRows, setTotalRows] = useState(0);
   const [filters, setFilters] = useState({
     pipeline_stage: "All",
     lead_temperature: "All",
@@ -228,7 +233,7 @@ const Leadsag = () => {
     }
   };
 
-  const fetchLeads = async () => {
+  const fetchLeads = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
       const params = {
@@ -236,6 +241,8 @@ const Leadsag = () => {
         user: global1.user,
         role: global1.role,
         ...filters,
+        page: page + 1,
+        pageSize: pageSize
       };
       const res = await ep1.get("/api/v2/getallLeadsag", { params });
       let allLeads = res.data.data;
@@ -268,6 +275,7 @@ const Leadsag = () => {
         // If we want to hide "Assigned to Other" that might sneak in via backend loose check, we can filter, but backend usually filters.
         setLeads(allLeads);
       }
+      setTotalRows(res.data.total || 0);
 
     } catch (err) {
       console.error("Error fetching leads:", err);
@@ -462,7 +470,7 @@ const Leadsag = () => {
       });
       showSnackbar("Lead updated successfully", "success");
       setOpenEditDialog(false);
-      fetchLeads();
+      fetchLeads(paginationModel.page, paginationModel.pageSize);
     } catch (err) {
       console.error("Error updating lead:", err);
       showSnackbar("Failed to update lead", "error");
@@ -490,7 +498,7 @@ const Leadsag = () => {
       });
       showSnackbar("Notes saved successfully", "success");
       setOpenNotesDialog(false);
-      fetchLeads();
+      fetchLeads(paginationModel.page, paginationModel.pageSize);
     } catch (err) {
       console.error("Error saving notes:", err);
       showSnackbar("Failed to save notes", "error");
@@ -1000,12 +1008,17 @@ const Leadsag = () => {
           rows={leads}
           columns={columns}
           getRowId={(row) => row._id}
-          loading={loading}
-          pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 25 } },
+          paginationMode="server"
+          rowCount={totalRows}
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel) => {
+            setPaginationModel(newModel);
+            fetchLeads(newModel.page, newModel.pageSize);
           }}
-          disableVirtualization
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          slots={{ toolbar: CustomToolbar }}
+          loading={loading}
+          checkboxSelection
           disableRowSelectionOnClick
           editMode="cell"
           processRowUpdate={handleProcessRowUpdate}
@@ -1013,7 +1026,6 @@ const Leadsag = () => {
             console.error("Row update error:", error);
             showSnackbar("Failed to update row", "error");
           }}
-          slots={{ toolbar: CustomToolbar }}
           sx={{
             border: "none",
             "& .MuiDataGrid-columnHeaders": {

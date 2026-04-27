@@ -55,7 +55,6 @@ const CrmdsDailyCallingReport = () => {
             const row = {
                 "Date": d.date,
                 "Counsellor": d.counsellor,
-                "New Leads Assigned": d.newLeadsAssigned,
                 "Calls Done": d.callsDone
             };
             activeStages.forEach(stage => {
@@ -63,6 +62,20 @@ const CrmdsDailyCallingReport = () => {
             });
             return row;
         });
+
+        // Add TOTAL row
+        if (exportData.length > 0) {
+            const totalRow = {
+                "Date": "TOTAL",
+                "Counsellor": "",
+                "Calls Done": exportData.reduce((acc, curr) => acc + (curr["Calls Done"] || 0), 0)
+            };
+            activeStages.forEach(stage => {
+                totalRow[stage] = exportData.reduce((acc, curr) => acc + (curr[stage] || 0), 0);
+            });
+            exportData.push(totalRow);
+        }
+
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Calling Report");
@@ -91,10 +104,10 @@ const CrmdsDailyCallingReport = () => {
             currentY += imgHeight + 10;
         }
 
-        const headers = ["Date", "Counsellor", "New Leads", "Calls Done", ...activeStages];
+        const headers = ["Date", "Counsellor", "Calls Done", ...activeStages];
         const rows = summary.map(r => [
-            r.date, r.counsellor, r.newLeadsAssigned, r.callsDone,
-            ...activeStages.map(s => r.stageCounts ? r.stageCounts[s] : 0)
+            r.date, r.counsellor, r.callsDone,
+            ...activeStages.map(s => r.stageCounts ? (r.stageCounts[s] || 0) : 0)
         ]);
 
         autoTable(pdf, {
@@ -110,18 +123,50 @@ const CrmdsDailyCallingReport = () => {
     };
 
     const columns = [
-        { field: "date", headerName: "Date", flex: 1 },
-        { field: "counsellor", headerName: "Counsellor", flex: 1.5 },
-        { field: "newLeadsAssigned", headerName: "New Leads Assigned", flex: 1.2, type: 'number' },
-        { field: "callsDone", headerName: "Calls Done", flex: 1, type: 'number' },
+        { field: "date", headerName: "Date", width: 120 },
+        { field: "counsellor", headerName: "Counsellor", width: 180 },
+        { field: "callsDone", headerName: "Calls", width: 100, type: 'number' },
         ...activeStages.map(stage => ({
             field: `stage_${stage}`,
             headerName: stage,
-            flex: 1,
+            width: 150,
             type: 'number',
             valueGetter: (params) => params.row.stageCounts ? params.row.stageCounts[stage] : 0
         }))
     ];
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <Paper elevation={4} sx={{ p: 2, borderRadius: 2, border: '1px solid #e2e8f0', minWidth: 350, maxWidth: 500, bgcolor: 'rgba(255,255,255,0.98)' }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, color: '#1e293b', borderBottom: '1px solid #f1f5f9', pb: 1 }}>
+                        {label}
+                    </Typography>
+                    <Grid container spacing={1}>
+                        {payload.map((entry, index) => (
+                            <Grid item xs={6} key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
+                                <Typography variant="caption" sx={{ 
+                                    color: '#475569', 
+                                    fontWeight: 600,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    flex: 1
+                                }}>
+                                    {entry.name}:
+                                </Typography>
+                                <Typography variant="caption" sx={{ fontWeight: 800, color: entry.stroke }}>
+                                    {entry.value}
+                                </Typography>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Paper>
+            );
+        }
+        return null;
+    };
 
     // Prepare chart data (agg by date)
     const chartDataMap = {};
@@ -132,7 +177,7 @@ const CrmdsDailyCallingReport = () => {
         }
         chartDataMap[item.date].calls += item.callsDone;
         activeStages.forEach(s => {
-            chartDataMap[item.date][s] += (item.stageCounts ? item.stageCounts[s] : 0);
+            chartDataMap[item.date][s] += (item.stageCounts ? (item.stageCounts[s] || 0) : 0);
         });
     });
     const chartData = Object.values(chartDataMap).sort((a, b) => a.date.localeCompare(b.date));
@@ -198,8 +243,8 @@ const CrmdsDailyCallingReport = () => {
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                             <YAxis tick={{ fontSize: 12 }} axisLine={false} />
-                            <Tooltip contentStyle={{ borderRadius: 12 }} />
-                            <Legend />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '20px' }} />
                             <Line type="monotone" dataKey="calls" name="Total Calls" stroke="#3b82f6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
                             {activeStages.map((stage, index) => (
                                 <Line 
@@ -225,6 +270,18 @@ const CrmdsDailyCallingReport = () => {
                         columns={columns}
                         rowHeight={52}
                         disableRowSelectionOnClick
+                        sx={{
+                            border: "none",
+                            "& .MuiDataGrid-columnHeaders": {
+                                bgcolor: "#f1f5f9",
+                                color: "#000",
+                                fontWeight: 900,
+                                opacity: 1
+                            },
+                            "& .MuiDataGrid-columnHeaderTitle": {
+                                fontWeight: 900,
+                            }
+                        }}
                     />
                 </Box>
             </Paper>

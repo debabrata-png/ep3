@@ -18,10 +18,15 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Assignment as AssignmentIcon } from "@mui/icons-material";
 import ep1 from "../api/ep1";
 import global1 from "./global1";
+import AddPipelinestageagBulk from "./AddPipelinestageagBulk";
+import { Download as DownloadIcon, CloudUpload as BulkUploadIcon } from "@mui/icons-material";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const Pipelinestageag = () => {
     const [stages, setStages] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [openBulkDialog, setOpenBulkDialog] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
         id: "",
@@ -109,6 +114,30 @@ const Pipelinestageag = () => {
         }
     };
 
+    const downloadBulkTemplate = () => {
+        const templateData = [
+            {
+                'Stage Name': 'Lead Assigned',
+                'Description': 'When a lead is assigned to a counselor',
+                'Status (Active/Inactive)': 'Active',
+                'Final Stage (Yes/No)': 'No'
+            },
+            {
+                'Stage Name': 'Admitted',
+                'Description': 'Lead successfully admitted',
+                'Status (Active/Inactive)': 'Active',
+                'Final Stage (Yes/No)': 'Yes'
+            }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Pipeline Stages Template');
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(data, 'pipeline_stages_bulk_template.xlsx');
+    };
+
     const columns = [
         { field: "stagename", headerName: "Pipeline Stage Name", flex: 1 },
         { field: "description", headerName: "Description", flex: 1 },
@@ -177,19 +206,43 @@ const Pipelinestageag = () => {
                         </Typography>
                     </Box>
                 </Box>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => handleOpenDialog()}
-                    sx={{
-                        bgcolor: "#4f46e5",
-                        "&:hover": { bgcolor: "#4338ca" },
-                        textTransform: "none",
-                        borderRadius: 2,
-                    }}
-                >
-                    Add Stage
-                </Button>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<DownloadIcon />}
+                        onClick={downloadBulkTemplate}
+                        sx={{
+                            textTransform: "none",
+                            borderRadius: 2,
+                        }}
+                    >
+                        Download Template
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<BulkUploadIcon />}
+                        onClick={() => setOpenBulkDialog(true)}
+                        sx={{
+                            textTransform: "none",
+                            borderRadius: 2,
+                        }}
+                    >
+                        Bulk Upload
+                    </Button>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleOpenDialog()}
+                        sx={{
+                            bgcolor: "#4f46e5",
+                            "&:hover": { bgcolor: "#4338ca" },
+                            textTransform: "none",
+                            borderRadius: 2,
+                        }}
+                    >
+                        Add Stage
+                    </Button>
+                </Box>
             </Box>
 
             {/* DataGrid */}
@@ -257,6 +310,12 @@ const Pipelinestageag = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <AddPipelinestageagBulk
+                open={openBulkDialog}
+                handleClose={() => setOpenBulkDialog(false)}
+                refreshData={fetchStages}
+            />
         </Container>
     );
 };

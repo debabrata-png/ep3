@@ -31,7 +31,15 @@ import ep1 from "../api/ep1";
 import { Country, State, City } from "country-state-city";
 import Tesseract from "tesseract.js";
 
-const steps = ["Registration", "Personal details", "Academic Qualification & Documents", "Application fee", "Provisional fee"];
+const steps = [
+    "Registration", 
+    "Applicant Details", 
+    "Academic Qualification & Entrance Details", 
+    "Fee Details & Document Upload", 
+    "Provisional Fee details", 
+    "Statement of Purpose (SOP)", 
+    "Review and Submit"
+];
 
 const AdmissionForm = () => {
     const { colid } = useParams();
@@ -102,10 +110,6 @@ const AdmissionForm = () => {
         motherEmail: "",
         motherMobile: "",
         motherOccupation: "",
-        guardianName: "",
-        guardianEmail: "",
-        guardianMobile: "",
-        guardianOccupation: "",
         familyIncome: "Below 5L",
         applyForScholarship: "No",
         permanentAddress: {
@@ -131,6 +135,34 @@ const AdmissionForm = () => {
             pincode: "",
             nationality: "Indian"
         },
+
+        // New Fields
+        diplomaDetails: {
+            programme: "",
+            university: "",
+            college: "",
+            medium: "",
+            passingYear: "",
+            scoreType: "Percentage",
+            scoreValue: "",
+            isFromGujarat: "No",
+            resultStatus: "Declared"
+        },
+        professionalQualification: "", // For Doctoral
+        mPhilAwarded: "No", // For Doctoral
+        mPhilDetails: {
+            subject: "",
+            university: "",
+            college: "",
+            commencementYear: "",
+            markingScheme: "Percentage",
+            passingYear: "",
+            resultStatus: "Declared",
+            scoreValue: ""
+        },
+        entranceMPhilStatus: "", // Doctoral 6 options
+        clearedNetSletJrf: "No",
+        teachingExperience: "",
 
         // Step 2
         sscDetails: {
@@ -188,6 +220,11 @@ const AdmissionForm = () => {
             gradSem3: "",
             gradSem4: "",
             gradSem5: "",
+            gradSem6: "",
+            gradDegreeCertificate: "",
+            pgFinalSem: "",
+            professionalQualCert: "",
+            netSletCert: "",
             entranceExamResult: "",
             ddcetCertificate: ""
         },
@@ -502,31 +539,111 @@ const AdmissionForm = () => {
     const validateForm = () => {
         let newErrors = {};
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let isValid = true;
 
-        if (activeStep === 0) {
-            if (!isLoginView) {
-                if (!formData.fullName) newErrors.fullName = "Required";
-                if (!formData.mobileNo || formData.mobileNo.length < 10) newErrors.mobileNo = "Enter valid Phone Number.";
-                if (!formData.email || !emailRegex.test(formData.email)) newErrors.email = "Enter valid Email Id.";
-                if (!formData.password) newErrors.password = "Required";
-                if (!formData.program) newErrors.program = "Required";
-            }
-        } else if (activeStep === 1) {
-            if (!formData.nationality) newErrors.nationality = "Required";
-            if (!formData.fatherMobile || formData.fatherMobile.length < 10) newErrors.fatherMobile = "Enter valid Phone Number.";
-            if (!formData.fatherProfession) newErrors.fatherProfession = "Required";
-            if (!formData.motherName) newErrors.motherName = "Required";
+        switch (activeStep) {
+            case 0: // Registration
+                if (!isLoginView) {
+                    if (!formData.fullName) newErrors.fullName = "Required";
+                    if (!formData.mobileNo || formData.mobileNo.length < 10) newErrors.mobileNo = "Enter valid Phone Number.";
+                    if (!formData.email || !emailRegex.test(formData.email)) newErrors.email = "Enter valid Email Id.";
+                    if (!formData.password) newErrors.password = "Required";
+                    if (!formData.program) newErrors.program = "Required";
+                }
+                break;
 
-            if (!formData.permanentAddress.addressLine1) newErrors.pAddress = "Required";
-            if (!formData.permanentAddress.countryIso) newErrors.pCountry = "Required";
-            if (!formData.permanentAddress.stateIso) newErrors.pState = "Required";
+            case 1: // Applicant Details
+                if (!formData.nationality) newErrors.nationality = "Required";
+                if (formData.nationality === "OTHERS" && !formData.nationalityOther) newErrors.nationalityOther = "Please specify nationality";
+                if (!formData.fatherMobile || formData.fatherMobile.length < 10) newErrors.fatherMobile = "Enter valid 10-digit Number.";
+                
+                // Mother's mobile is optional, only check length if provided
+                if (formData.motherMobile && formData.motherMobile.length < 10) {
+                    newErrors.motherMobile = "Enter valid 10-digit Number.";
+                }
 
-            if (formData.fatherEmail && !emailRegex.test(formData.fatherEmail)) newErrors.fatherEmail = "Enter valid Email Id.";
-            if (formData.motherEmail && !emailRegex.test(formData.motherEmail)) newErrors.motherEmail = "Enter valid Email Id.";
+                if (!formData.fatherName) newErrors.fatherName = "Required";
+                if (!formData.motherName) newErrors.motherName = "Required";
+                if (!formData.fatherProfession) newErrors.fatherOccupation = "Required";
+                
+                // Email format check
+                if (formData.fatherEmail && !emailRegex.test(formData.fatherEmail)) newErrors.fatherEmail = "Invalid email format";
+                if (formData.motherEmail && !emailRegex.test(formData.motherEmail)) newErrors.motherEmail = "Invalid email format";
+                
+                // Uniqueness check - Normalized (last 10 digits)
+                const getNormalized = (val) => (val || "").toString().replace(/\D/g, '').slice(-10);
+                const sMobile = getNormalized(formData.mobileNo || formData.mobileNumber);
+                const sWhatsApp = getNormalized(formData.whatsAppNumber);
+                const fMobile = getNormalized(formData.fatherMobile);
+                const mMobile = getNormalized(formData.motherMobile);
+
+                if (fMobile && sMobile && fMobile === sMobile) {
+                    newErrors.fatherMobile = "Father's number cannot be same as Student's registered number";
+                    isValid = false;
+                } else if (fMobile && sWhatsApp && fMobile === sWhatsApp) {
+                    newErrors.fatherMobile = "Father's number cannot match Student's WhatsApp number";
+                    isValid = false;
+                }
+
+                if (mMobile && sMobile && mMobile === sMobile) {
+                    newErrors.motherMobile = "Mother's number cannot be same as Student's registered number";
+                    isValid = false;
+                }
+                break;
+
+            case 2: // Academic Details
+                if (!formData.sscDetails.schoolName) newErrors.sscSchool = "Required";
+                if (!formData.sscDetails.board) newErrors.sscBoard = "Required";
+                if (!formData.sscDetails.scoreValue) newErrors.sscScore = "Required";
+
+                if (!isD2D) {
+                    if (!formData.hscDetails.schoolName) newErrors.hscSchool = "Required";
+                    if (!formData.hscDetails.board) newErrors.hscBoard = "Required";
+                    if (!formData.hscDetails.scoreValue) newErrors.hscScore = "Required";
+                }
+
+                if (isPG || isDoctoral) {
+                    if (!formData.graduationDetails.programme) newErrors.gradProg = "Required";
+                    if (!formData.graduationDetails.university) newErrors.gradUniv = "Required";
+                    if (!formData.graduationDetails.scoreValue) newErrors.gradScore = "Required";
+                }
+
+                if (isDoctoral) {
+                    if (!formData.postGraduationDetails.programme) newErrors.pgProg = "Required";
+                    if (!formData.postGraduationDetails.university) newErrors.pgUniv = "Required";
+                    if (!formData.postGraduationDetails.scoreValue) newErrors.pgScore = "Required";
+                }
+                break;
+
+            case 3: // Fee & Documents
+                // Check mandatory documents
+                const docKeys = Object.keys(formData.documents);
+                docKeys.forEach(key => {
+                    if (isDocMandatory(key) && !formData.documents[key]) {
+                        newErrors[key] = "Required Document";
+                        isValid = false;
+                    }
+                });
+                
+                if (formData.applicationFeeStatus !== 'Paid') {
+                    // We don't necessarily set an error here that blocks 'isValid', 
+                    // because the payment button itself handles its own logic, 
+                    // but we can block 'Save & Next' in the UI.
+                }
+                break;
+
+            case 5: // SOP
+                if (!formData.sop || formData.sop.trim().length < 50) {
+                    newErrors.sop = "Please provide a more detailed Statement of Purpose (min 50 chars)";
+                }
+                break;
+
+            default:
+                break;
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return isValid && Object.keys(newErrors).length === 0;
     };
 
     const handleSaveDraft = async () => {
@@ -534,6 +651,12 @@ const AdmissionForm = () => {
             showSnackbar("Please complete Step 1 formally using Next before saving as draft.", "warning");
             return;
         }
+
+        if (!validateForm()) {
+            showSnackbar("Please fix validation errors before saving as draft", "warning");
+            return;
+        }
+
         setSubmitting(true);
         try {
             await ep1.post(`/api/v2/admission/update/${applicationId}`, {
@@ -577,14 +700,25 @@ const AdmissionForm = () => {
                 showSnackbar(err.response?.data?.message || "Registration failed", "error");
             }
         } else {
-            // Incremental Update
+            // Incremental Update or Final Submission
             setSubmitting(true);
             try {
-                await ep1.post(`/api/v2/admission/update/${applicationId}`, {
+                const isFinalStep = activeStep === 6;
+                const updatePayload = {
                     ...formData,
-                    currentStep: activeStep + 1
-                });
-                setActiveStep((prev) => prev + 1);
+                    currentStep: isFinalStep ? 6 : activeStep + 1,
+                    status: isFinalStep ? 'Submitted' : formData.status || 'Draft'
+                };
+
+                await ep1.post(`/api/v2/admission/update/${applicationId}`, updatePayload);
+                
+                if (isFinalStep) {
+                    showSnackbar("Application submitted successfully!", "success");
+                    // Optionally redirect or show success UI
+                    localStorage.removeItem("admission_app_id");
+                } else {
+                    setActiveStep((prev) => prev + 1);
+                }
             } catch (err) {
                 showSnackbar("Failed to save progress", "error");
             }
@@ -594,6 +728,36 @@ const AdmissionForm = () => {
 
     const handleBack = () => {
         setActiveStep((prev) => prev - 1);
+    };
+
+    const handleStepClick = (index) => {
+        if (index === activeStep) return;
+        if (index < activeStep) {
+            setActiveStep(index);
+            return;
+        }
+        
+        // Forward navigation
+        if (index > activeStep) {
+            // If they haven't registered, they can't go past step 0
+            if (!applicationId && index > 0) {
+                if (activeStep === 0) {
+                    showSnackbar("Please complete registration first", "warning");
+                }
+                return;
+            }
+
+            // Only allow jumping forward one step at a time or to previously reached steps
+            // For simplicity, if validateForm passes, allow clicking any previously accessible step
+            if (validateForm()) {
+                // If moving forward, we should ideally validate all intermediate required data
+                // but for now, we'll allow navigation to any step if the current one is valid 
+                // and the application exists (for steps > 0)
+                setActiveStep(index);
+            } else {
+                showSnackbar("Please fill all required details in the current step", "warning");
+            }
+        }
     };
 
     // ── OCR Verification (runs in browser using Tesseract.js) ─────
@@ -743,6 +907,62 @@ const AdmissionForm = () => {
         setUploadingDoc(null);
     };
 
+    const isUG = formData.programLevel === "Undergraduate";
+    const isPG = formData.programLevel === "Postgraduate";
+    const isD2D = formData.programLevel === "Diploma to Degree (D2D)";
+    const isDoctoral = formData.programLevel === "Doctoral";
+
+    const isDocMandatory = (docKey) => {
+        const category = (formData.category || "").toUpperCase();
+
+        // Caste Certificate logic
+        if (docKey === "casteCertificate") {
+            return category !== "OPEN" && category !== "GENERAL";
+        }
+
+        // Standard mandatory for all
+        const allMandatory = ["studentPhoto", "marksheet10", "aadharFront", "aadharBack"];
+        if (allMandatory.includes(docKey)) return true;
+
+        // Level specific mandatory
+        if (isUG || isD2D) {
+            if (["marksheet12"].includes(docKey)) return true;
+        }
+
+        if (isPG) {
+            if (["marksheet12", "gradDegreeCertificate"].includes(docKey)) return true;
+        }
+
+        if (isDoctoral) {
+            if (["marksheet12", "gradDegreeCertificate", "pgFinalSem"].includes(docKey)) return true;
+        }
+
+        return false;
+    };
+
+    const getScoreLabel = (type) => {
+        if (type === "Percentage") return "Percentage (%)";
+        if (type === "Grade") return "Grade";
+        if (type === "CGPA") return "CGPA (Out of 4/7/10)";
+        return "Score";
+    };
+
+    const renderSectionTitle = (title) => (
+        <Grid item xs={12}>
+            <Box sx={{
+                mb: 2,
+                mt: 3,
+                pb: 1,
+                borderBottom: '2px solid #E31E24',
+                display: 'inline-block'
+            }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', letterSpacing: 1 }}>
+                    {title}
+                </Typography>
+            </Box>
+        </Grid>
+    );
+
     const handleDocumentDelete = async (docType) => {
         if (!applicationId) return;
 
@@ -767,11 +987,96 @@ const AdmissionForm = () => {
         }
     };
 
+    const renderProfileBanner = () => {
+        if (activeStep === 0 && !applicationId) return null;
+
+        return (
+            <Box sx={{ mb: 4 }}>
+                <Grid container spacing={2}>
+                    {/* My Profile Section */}
+                    <Grid item xs={12} md={7}>
+                        <Card variant="outlined" sx={{ borderRadius: 2, bgcolor: '#f8fafc', borderColor: '#e2e8f0', height: '100%' }}>
+                            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                    <Box
+                                        component="img"
+                                        src={formData.documents.studentPhoto || "https://via.placeholder.com/100x120?text=Photo"}
+                                        sx={{
+                                            width: 80,
+                                            height: 100,
+                                            borderRadius: 1,
+                                            objectFit: 'cover',
+                                            border: '2px solid #fff',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                        }}
+                                    />
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', mb: 0.5 }}>
+                                            {formData.fullName || "GUEST APPLICANT"}
+                                        </Typography>
+                                        <Grid container spacing={1}>
+                                            <Grid item xs={12} sm={6}>
+                                                <Typography variant="caption" color="textSecondary" display="block">Application number</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 600, color: '#E31E24' }}>
+                                                   {applicationId ? `ADM/${applicationId.slice(-8).toUpperCase()}` : "NOT GENERATED"}
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <Typography variant="caption" color="textSecondary" display="block">Email ID</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{formData.email || "N/A"}</Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <Typography variant="caption" color="textSecondary" display="block">Mobile Number</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{formData.mobileNo || "N/A"}</Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* Course Applied Section */}
+                    <Grid item xs={12} md={5}>
+                        <Card variant="outlined" sx={{ borderRadius: 2, bgcolor: '#f8fafc', borderColor: '#e2e8f0', height: '100%' }}>
+                            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#64748b', mb: 2, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: 0.5 }}>
+                                    Course Applied
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Typography variant="caption" color="textSecondary" display="block">Level of Programme</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
+                                            {formData.programLevel || "NOT SELECTED"}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography variant="caption" color="textSecondary" display="block">School</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#334155' }}>
+                                            {formData.school || "NOT SELECTED"}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography variant="caption" color="textSecondary" display="block">Program</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#E31E24' }}>
+                                            {formData.program || "NOT SELECTED"}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </Box>
+        );
+    };
+
     const renderDocumentUploadCard = (docKey, label) => {
         const isUploading = uploadingDoc === docKey;
         const fileUrl = formData.documents?.[docKey];
         const verification = docVerification[docKey];
         const isUploaded = !!fileUrl;
+        const mandatory = isDocMandatory(docKey);
 
         return (
             <Grid item xs={12} md={6} key={docKey}>
@@ -781,8 +1086,8 @@ const AdmissionForm = () => {
                         borderRadius: 2,
                         borderColor: isUploaded
                             ? (verification?.verified ? 'success.main' : 'warning.main')
-                            : 'divider',
-                        borderWidth: isUploaded ? 2 : 1,
+                            : (mandatory ? '#E31E24' : 'divider'),
+                        borderWidth: isUploaded || mandatory ? 2 : 1,
                         transition: 'all 0.3s ease',
                         '&:hover': { borderColor: '#E31E24', boxShadow: '0 2px 8px rgba(227,30,36,0.1)' },
                         position: 'relative',
@@ -808,8 +1113,8 @@ const AdmissionForm = () => {
                     )}
 
                     <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#333', fontSize: '0.8rem' }}>
-                            {label}
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: mandatory ? '#E31E24' : '#64748b', mb: 1.5, display: 'block', textTransform: 'uppercase' }}>
+                            {label} {mandatory && "(Required)"}
                         </Typography>
 
                         {isUploading ? (
@@ -1131,9 +1436,24 @@ const AdmissionForm = () => {
                     helperText={errors.nationality}
                 >
                     <MenuItem value="Indian">Indian</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
+                    <MenuItem value="OTHERS">OTHERS</MenuItem>
                 </TextField>
             </Grid>
+
+            {formData.nationality === "OTHERS" && (
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        fullWidth
+                        label="Specify Nationality"
+                        placeholder="Enter your nationality"
+                        value={formData.nationalityOther || ""}
+                        onChange={(e) => setFormData({ ...formData, nationalityOther: e.target.value })}
+                        required
+                        error={!!errors.nationalityOther}
+                        helperText={errors.nationalityOther}
+                    />
+                </Grid>
+            )}
             <Grid item xs={12} md={4}>
                 <TextField
                     select
@@ -1203,23 +1523,25 @@ const AdmissionForm = () => {
             </Grid>
 
             <Grid item xs={12}>
-                <Divider><Typography variant="body2" color="textSecondary">Parent/Guardian Details</Typography></Divider>
+                <Divider><Typography variant="body2" color="textSecondary">Parent Details</Typography></Divider>
             </Grid>
 
-            {/* Father/Guardian Details */}
+            {/* Father Details */}
             <Grid item xs={12} md={6}>
                 <TextField
                     fullWidth
-                    label="Father's/Guardian's Name"
+                    label="Father's Name"
                     value={formData.fatherName}
                     onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
                     required
+                    error={!!errors.fatherName}
+                    helperText={errors.fatherName}
                 />
             </Grid>
             <Grid item xs={12} md={6}>
                 <TextField
                     fullWidth
-                    label="Father's/Guardian's Email"
+                    label="Father's Email"
                     value={formData.fatherEmail}
                     onChange={(e) => setFormData({ ...formData, fatherEmail: e.target.value })}
                     required
@@ -1230,9 +1552,19 @@ const AdmissionForm = () => {
             <Grid item xs={12} md={6}>
                 <TextField
                     fullWidth
-                    label="Father's/Guardian's Mobile"
+                    label="Father's Mobile"
                     value={formData.fatherMobile}
-                    onChange={(e) => setFormData({ ...formData, fatherMobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setFormData({ ...formData, fatherMobile: val });
+                        // Live validation
+                        const sMobile = (formData.mobileNo || formData.mobileNumber || "").toString().replace(/\D/g, '').slice(-10);
+                        if (val && sMobile && val === sMobile) {
+                            setErrors(prev => ({ ...prev, fatherMobile: "Father's number cannot be same as Student's registered number" }));
+                        } else {
+                            setErrors(prev => ({ ...prev, fatherMobile: "" }));
+                        }
+                    }}
                     required
                     inputProps={{ maxLength: 10 }}
                     error={!!errors.fatherMobile}
@@ -1243,14 +1575,14 @@ const AdmissionForm = () => {
                 <TextField
                     select
                     fullWidth
-                    label="Father's/Guardian's Profession"
+                    label="Father's Occupation"
                     value={formData.fatherProfession || ""}
                     onChange={(e) => setFormData({ ...formData, fatherProfession: e.target.value })}
                     required
-                    error={!!errors.fatherProfession}
-                    helperText={errors.fatherProfession}
+                    error={!!errors.fatherOccupation}
+                    helperText={errors.fatherOccupation}
                 >
-                    {['Service', 'Business', 'Professional', 'Retired', 'Other'].map(p => (
+                    {['Service', 'Business', 'Retired', 'Other'].map(p => (
                         <MenuItem key={p} value={p}>{p}</MenuItem>
                     ))}
                 </TextField>
@@ -1283,19 +1615,33 @@ const AdmissionForm = () => {
                     fullWidth
                     label="Mother's Mobile"
                     value={formData.motherMobile}
-                    onChange={(e) => setFormData({ ...formData, motherMobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setFormData({ ...formData, motherMobile: val });
+                        // Live validation
+                        const sMobile = (formData.mobileNo || formData.mobileNumber || "").toString().replace(/\D/g, '').slice(-10);
+                        if (val && sMobile && val === sMobile) {
+                            setErrors(prev => ({ ...prev, motherMobile: "Mother's number cannot be same as Student's registered number" }));
+                        } else {
+                            setErrors(prev => ({ ...prev, motherMobile: "" }));
+                        }
+                    }}
                     inputProps={{ maxLength: 10 }}
+                    error={!!errors.motherMobile}
+                    helperText={errors.motherMobile}
                 />
             </Grid>
             <Grid item xs={12} md={6}>
                 <TextField
                     select
                     fullWidth
-                    label="Mother's Profession"
+                    label="Mother's Occupation"
                     value={formData.motherProfession || ""}
                     onChange={(e) => setFormData({ ...formData, motherProfession: e.target.value, motherOccupation: e.target.value })}
+                    error={!!errors.motherOccupation}
+                    helperText={errors.motherOccupation}
                 >
-                    {['Service', 'Business', 'Professional', 'Homemaker', 'Retired', 'Other'].map(p => (
+                    {['Service', 'Business', 'Homemaker', 'Retired', 'Other'].map(p => (
                         <MenuItem key={p} value={p}>{p}</MenuItem>
                     ))}
                 </TextField>
@@ -1486,872 +1832,917 @@ const AdmissionForm = () => {
         </Grid>
     );
 
-    const renderStep2 = () => (
-        <Grid container spacing={3}>
-            <Grid item xs={12}>
-                <Typography variant="h6">Academic Qualification</Typography>
-            </Grid>
-            <Grid item xs={12}>
-                <Alert severity="info">
-                    Applying for: <strong>{formData.program}</strong> ({formData.school})
-                </Alert>
-            </Grid>
+    const renderStep2 = () => {
+        const years = Array.from({ length: 31 }, (_, i) => (new Date().getFullYear() - i).toString());
+        const programLevel = (formData.programLevel || "").toUpperCase();
+        const isDoctoral = ["DOCTORAL", "PH.D", "PHD"].some(v => programLevel.includes(v));
+        const isPG = ["POSTGRADUATE", "PG", "POST GRADUATE"].some(v => programLevel.includes(v));
+        const isUG = ["UNDERGRADUATE", "UG"].some(v => programLevel.includes(v));
+        const isD2D = ["DIPLOMA TO DEGREE", "D2D"].some(v => programLevel.includes(v));
 
-            {/* SSC Details */}
-            <Grid item xs={12} md={4}>
-                <TextField
-                    fullWidth
-                    label="10th School Name"
-                    value={formData.sscDetails.schoolName}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        sscDetails: { ...formData.sscDetails, schoolName: e.target.value }
-                    })}
-                    required
-                />
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    select
-                    fullWidth
-                    label="10th Board"
-                    value={['GSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', ''].includes(formData.sscDetails.board) ? formData.sscDetails.board : 'Others'}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData({
-                            ...formData,
-                            sscDetails: { ...formData.sscDetails, board: val === 'Others' ? ' ' : val }
-                        });
-                    }}
-                    required
-                >
-                    {['GSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', 'Others'].map(b => (
-                        <MenuItem key={b} value={b}>{b}</MenuItem>
-                    ))}
-                </TextField>
-            </Grid>
-            {!['GSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', ''].includes(formData.sscDetails.board) && (
+        return (
+            <Grid container spacing={3}>
+                {/* 10th Details - All Forms */}
+                {renderSectionTitle("10th/SSC Details")}
                 <Grid item xs={12} md={4}>
                     <TextField
                         fullWidth
-                        label="Mention 10th Board"
-                        value={(formData.sscDetails?.board || '').trim()}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            sscDetails: { ...formData.sscDetails, board: e.target.value || ' ' }
-                        })}
+                        label="10th School Name"
+                        value={formData.sscDetails.schoolName}
+                        onChange={(e) => setFormData({ ...formData, sscDetails: { ...formData.sscDetails, schoolName: e.target.value } })}
                         required
+                        error={!!errors.sscSchool}
+                        helperText={errors.sscSchool}
                     />
                 </Grid>
-            )}
-            <Grid item xs={12} md={4}>
-                <TextField
-                    select
-                    fullWidth
-                    label="10th Year of Passing"
-                    value={formData.sscDetails.passingYear}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        sscDetails: { ...formData.sscDetails, passingYear: e.target.value }
-                    })}
-                    required
-                >
-                    {Array.from({ length: 20 }, (_, i) => 2026 - i).map(year => (
-                        <MenuItem key={year} value={year.toString()}>{year}</MenuItem>
-                    ))}
-                </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <TextField
-                    select
-                    fullWidth
-                    label="10th Score Type"
-                    value={formData.sscDetails.scoreType}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        sscDetails: { ...formData.sscDetails, scoreType: e.target.value }
-                    })}
-                    required
-                >
-                    <MenuItem value="Percentage">Percentage</MenuItem>
-                    <MenuItem value="CGPA">CGPA</MenuItem>
-                    <MenuItem value="Grade">Grade</MenuItem>
-                </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <TextField
-                    fullWidth
-                    label={formData.sscDetails.scoreType === "CGPA" ? "CGPA" : "10th Score Value"}
-                    value={formData.sscDetails.scoreValue}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        sscDetails: { ...formData.sscDetails, scoreValue: e.target.value }
-                    })}
-                    required
-                    placeholder={formData.sscDetails.scoreType === "CGPA" ? "Enter CGPA" : "Enter Percentage/Grade"}
-                />
-            </Grid>
-
-            {/* HSC Details Questions */}
-            <Grid item xs={12}>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>12th/HSC Details & Additional Questions</Typography>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">What is the status of your 12th/HSC result? *</FormLabel>
-                    <RadioGroup
-                        row
-                        value={formData.hscDetails.resultStatus || "Declared"}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            hscDetails: { ...formData.hscDetails, resultStatus: e.target.value }
-                        })}
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        select
+                        fullWidth
+                        label="10th Board"
+                        value={['GSEB', 'CBSE', 'ICSE', 'IB', 'Other'].includes(formData.sscDetails.board) ? formData.sscDetails.board : (formData.sscDetails.board ? 'Other' : '')}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData({
+                                ...formData,
+                                sscDetails: { ...formData.sscDetails, board: val === 'Other' ? ' ' : val }
+                            });
+                        }}
+                        required
                     >
-                        <FormControlLabel value="Declared" control={<Radio />} label="Declared" />
-                        <FormControlLabel value="Awaited" control={<Radio />} label="Awaited" />
-                    </RadioGroup>
-                </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Have you completed 10th and 12th from Gujarat State? *</FormLabel>
-                    <RadioGroup
-                        row
-                        value={formData.hscDetails.isFromGujarat}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            hscDetails: { ...formData.hscDetails, isFromGujarat: e.target.value }
-                        })}
+                        {["GSEB", "CBSE", "ICSE", "IB", "Other"].map(board => (
+                            <MenuItem key={board} value={board}>{board}</MenuItem>
+                        ))}
+                    </TextField>
+                </Grid>
+                {formData.sscDetails.board && !['GSEB', 'CBSE', 'ICSE', 'IB'].includes(formData.sscDetails.board) && (
+                    <Grid item xs={12} md={4}>
+                        <TextField
+                            fullWidth
+                            label="Specify 10th Board"
+                            value={formData.sscDetails.board || ""}
+                            onChange={(e) => setFormData({ ...formData, sscDetails: { ...formData.sscDetails, board: e.target.value } })}
+                            required
+                        />
+                    </Grid>
+                )}
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        select
+                        fullWidth
+                        label="10th Year of Passing"
+                        value={formData.sscDetails.passingYear}
+                        onChange={(e) => setFormData({ ...formData, sscDetails: { ...formData.sscDetails, passingYear: e.target.value } })}
+                        required
                     >
-                        <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                        <FormControlLabel value="No" control={<Radio />} label="No" />
-                    </RadioGroup>
-                </FormControl>
-            </Grid>
-
-            {/* Conditional 12th Details */}
-            <Grid item xs={12} md={4}>
-                <TextField
-                    select
-                    fullWidth
-                    label="12th Stream"
-                    value={formData.hscDetails.stream}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        hscDetails: { ...formData.hscDetails, stream: e.target.value }
-                    })}
-                    required
-                >
-                    {['Science', 'Commerce', 'Arts', 'Diploma', 'Other'].map(s => (
-                        <MenuItem key={s} value={s}>{s}</MenuItem>
-                    ))}
-                </TextField>
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    select
-                    fullWidth
-                    label="12th Medium"
-                    value={formData.hscDetails.medium}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        hscDetails: { ...formData.hscDetails, medium: e.target.value }
-                    })}
-                    required
-                >
-                    <MenuItem value="English">English</MenuItem>
-                    <MenuItem value="Gujarati">Gujarati</MenuItem>
-                    <MenuItem value="Hindi">Hindi</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                </TextField>
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    fullWidth
-                    label="12th School/College Name"
-                    value={formData.hscDetails.schoolName}
-                    onChange={(e) => setFormData({
-                        ...formData,
-                        hscDetails: { ...formData.hscDetails, schoolName: e.target.value }
-                    })}
-                    required
-                />
-            </Grid>
-            <Grid item xs={12} md={6}>
-                <TextField
-                    select
-                    fullWidth
-                    label="12th Board"
-                    value={['GSHSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', ''].includes(formData.hscDetails.board) ? formData.hscDetails.board : 'Others'}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData({
-                            ...formData,
-                            hscDetails: { ...formData.hscDetails, board: val === 'Others' ? ' ' : val }
-                        });
-                    }}
-                    required
-                >
-                    {['GSHSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', 'Others'].map(b => (
-                        <MenuItem key={b} value={b}>{b}</MenuItem>
-                    ))}
-                </TextField>
-            </Grid>
-            {!['GSHSEB', 'CBSE', 'ICSE', 'NIOS', 'IB', ''].includes(formData.hscDetails.board) && (
-                <Grid item xs={12} md={6}>
+                        {years.map(y => (
+                            <MenuItem key={y} value={y}>{y}</MenuItem>
+                        ))}
+                    </TextField>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        select
+                        fullWidth
+                        label="10th Score Type"
+                        value={formData.sscDetails.scoreType}
+                        onChange={(e) => setFormData({ ...formData, sscDetails: { ...formData.sscDetails, scoreType: e.target.value } })}
+                        required
+                    >
+                        {['Percentage', 'Grade', 'CGPA'].map(t => (
+                            <MenuItem key={t} value={t}>{t}</MenuItem>
+                        ))}
+                    </TextField>
+                </Grid>
+                <Grid item xs={12} md={4}>
                     <TextField
                         fullWidth
-                        label="Mention 12th Board"
-                        value={(formData.hscDetails?.board || '').trim()}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            hscDetails: { ...formData.hscDetails, board: e.target.value || ' ' }
-                        })}
+                        label={getScoreLabel(formData.sscDetails.scoreType)}
+                        value={formData.sscDetails.scoreValue}
+                        onChange={(e) => setFormData({ ...formData, sscDetails: { ...formData.sscDetails, scoreValue: e.target.value } })}
                         required
                     />
                 </Grid>
-            )}
 
-            {formData.hscDetails.resultStatus === "Declared" && (
-                <>
-                    <Grid item xs={12} md={3}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="12th Year of Passing"
-                            value={formData.hscDetails.passingYear}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                hscDetails: { ...formData.hscDetails, passingYear: e.target.value }
-                            })}
-                            required
-                        >
-                            {Array.from({ length: 20 }, (_, i) => 2026 - i).map(year => (
-                                <MenuItem key={year} value={year.toString()}>{year}</MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="12th Score Type"
-                            value={formData.hscDetails.scoreType}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                hscDetails: { ...formData.hscDetails, scoreType: e.target.value }
-                            })}
-                            required
-                        >
-                            <MenuItem value="Percentage">Percentage</MenuItem>
-                            <MenuItem value="CGPA">CGPA</MenuItem>
-                            <MenuItem value="Grade">Grade</MenuItem>
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label={formData.hscDetails.scoreType === "CGPA" ? "CGPA" : "12th Score Value"}
-                            value={formData.hscDetails.scoreValue}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                hscDetails: { ...formData.hscDetails, scoreValue: e.target.value }
-                            })}
-                            required
-                            placeholder={formData.hscDetails.scoreType === "CGPA" ? "Enter CGPA" : "Enter Percentage/Grade"}
-                        />
-                    </Grid>
-                </>
-            )}
-
-            {/* GRADUATION DETAILS FOR PG & DOCTORAL */}
-            {(["Postgraduate", "PG", "Post Graduate", "DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel)) && (
-                <>
-                    <Grid item xs={12}>
-                        <Divider><Typography variant="body2" color="textSecondary">Graduation Details</Typography></Divider>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body2" color="textSecondary">
-                            Note: Please enter your pending graduation details after the results are declared.
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Graduation Programme"
-                            value={formData.graduationDetails.programme}
-                            onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, programme: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Specialisation"
-                            value={formData.graduationDetails.specialisation}
-                            onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, specialisation: e.target.value } })}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Name of University"
-                            value={formData.graduationDetails.university}
-                            onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, university: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Name of College"
-                            value={formData.graduationDetails.college}
-                            onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, college: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl component="fieldset" required>
-                            <FormLabel component="legend">What is the status of your undergraduate results?</FormLabel>
-                            <RadioGroup
-                                row
-                                value={formData.graduationDetails.resultStatus}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    graduationDetails: { ...formData.graduationDetails, resultStatus: e.target.value }
-                                })}
-                            >
-                                <FormControlLabel value="Declared" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Declared" />
-                                <FormControlLabel value="Awaited" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Awaited" />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-
-                    {formData.graduationDetails.resultStatus === "Declared" && (
-                        <>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Year of Passing"
-                                    value={formData.graduationDetails.passingYear}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        graduationDetails: { ...formData.graduationDetails, passingYear: e.target.value }
-                                    })}
-                                    required
-                                >
-                                    {Array.from({ length: 20 }, (_, i) => 2026 - i).map(year => (
-                                        <MenuItem key={year} value={year.toString()}>{year}</MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Graduation Score Type"
-                                    value={formData.graduationDetails.scoreType}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        graduationDetails: { ...formData.graduationDetails, scoreType: e.target.value }
-                                    })}
-                                    required
-                                >
-                                    <MenuItem value="Percentage">Percentage</MenuItem>
-                                    <MenuItem value="CGPA">CGPA</MenuItem>
-                                    <MenuItem value="Grade">Grade</MenuItem>
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    fullWidth
-                                    label={formData.graduationDetails.scoreType === "CGPA" ? "CGPA" : "Graduation Score Value"}
-                                    value={formData.graduationDetails.scoreValue}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        graduationDetails: { ...formData.graduationDetails, scoreValue: e.target.value }
-                                    })}
-                                    required
-                                    placeholder={formData.graduationDetails.scoreType === "CGPA" ? "Enter CGPA" : "Enter Percentage/Grade"}
-                                />
-                            </Grid>
-                        </>
-                    )}
-                </>
-            )}
-
-            {/* POST-GRADUATION DETAILS FOR DOCTORAL */}
-            {["DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel) && (
-                <>
-                    <Grid item xs={12}>
-                        <Divider><Typography variant="body2" color="textSecondary">Post-Graduation Details</Typography></Divider>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body2" color="textSecondary">
-                            Note: Please enter your pending post-graduation details after the results are declared.
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Post-Graduation Programme"
-                            value={formData.postGraduationDetails.programme}
-                            onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, programme: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Specialisation"
-                            value={formData.postGraduationDetails.specialisation}
-                            onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, specialisation: e.target.value } })}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Name of University"
-                            value={formData.postGraduationDetails.university}
-                            onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, university: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Name of College"
-                            value={formData.postGraduationDetails.college}
-                            onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, college: e.target.value } })}
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl component="fieldset" required>
-                            <FormLabel component="legend">What is the status of your post-graduate results?</FormLabel>
-                            <RadioGroup
-                                row
-                                value={formData.postGraduationDetails.resultStatus}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    postGraduationDetails: { ...formData.postGraduationDetails, resultStatus: e.target.value }
-                                })}
-                            >
-                                <FormControlLabel value="Declared" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Declared" />
-                                <FormControlLabel value="Awaited" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Awaited" />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-
-                    {formData.postGraduationDetails.resultStatus === "Declared" && (
-                        <>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Year of Passing"
-                                    value={formData.postGraduationDetails.passingYear}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        postGraduationDetails: { ...formData.postGraduationDetails, passingYear: e.target.value }
-                                    })}
-                                    required
-                                >
-                                    {Array.from({ length: 20 }, (_, i) => 2026 - i).map(year => (
-                                        <MenuItem key={year} value={year.toString()}>{year}</MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Post-Graduation Score Type"
-                                    value={formData.postGraduationDetails.scoreType}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        postGraduationDetails: { ...formData.postGraduationDetails, scoreType: e.target.value }
-                                    })}
-                                    required
-                                >
-                                    <MenuItem value="Percentage">Percentage</MenuItem>
-                                    <MenuItem value="CGPA">CGPA</MenuItem>
-                                    <MenuItem value="Grade">Grade</MenuItem>
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TextField
-                                    fullWidth
-                                    label={formData.postGraduationDetails.scoreType === "CGPA" ? "CGPA" : "Post-Graduation Score Value"}
-                                    value={formData.postGraduationDetails.scoreValue}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        postGraduationDetails: { ...formData.postGraduationDetails, scoreValue: e.target.value }
-                                    })}
-                                    required
-                                    placeholder={formData.postGraduationDetails.scoreType === "CGPA" ? "Enter CGPA" : "Enter Percentage/Grade"}
-                                />
-                            </Grid>
-                        </>
-                    )}
-                </>
-            )}
-
-            {/* ENTRANCE EXAM DETAILS */}
-            {(
-                ["Undergraduate", "UG"].includes(formData.programLevel) ||
-                ["Postgraduate", "PG", "Post Graduate", "DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel) ||
-                ["Diploma", "Diploma to Degree"].includes(formData.programLevel)
-            ) && (
+                {/* Diploma Details - Only for D2D */}
+                {isD2D && (
                     <>
-                        <Grid item xs={12}>
-                            <Divider><Typography variant="body2" color="textSecondary">Entrance Exam Details</Typography></Divider>
+                        {renderSectionTitle("Diploma Details")}
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Diploma Programme Name"
+                                value={formData.diplomaDetails?.programme || ""}
+                                onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, programme: e.target.value } })}
+                                required
+                            />
                         </Grid>
                         <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Diploma University Name"
+                                value={formData.diplomaDetails?.university || ""}
+                                onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, university: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Diploma College"
+                                value={formData.diplomaDetails?.college || ""}
+                                onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, college: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Diploma Medium"
+                                value={formData.diplomaDetails?.medium || ""}
+                                onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, medium: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">What is the status of Diploma Result?</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={formData.diplomaDetails?.resultStatus || "Declared"}
+                                    onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, resultStatus: e.target.value } })}
+                                >
+                                    <FormControlLabel value="Declared" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Declared" />
+                                    <FormControlLabel value="Awaited" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Awaited" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                        {formData.diplomaDetails?.resultStatus === "Declared" && (
+                            <>
+                                <Grid item xs={12} md={3}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Year of Passing"
+                                        value={formData.diplomaDetails?.passingYear || ""}
+                                        onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, passingYear: e.target.value } })}
+                                        required
+                                    >
+                                        {years.map(y => (
+                                            <MenuItem key={y} value={y}>{y}</MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={12} md={3}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Diploma Score Type"
+                                        value={formData.diplomaDetails?.scoreType || "Percentage"}
+                                        onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, scoreType: e.target.value } })}
+                                        required
+                                    >
+                                        {['Percentage', 'Grade', 'CGPA'].map(t => (
+                                            <MenuItem key={t} value={t}>{t}</MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={12} md={3}>
+                                    <TextField
+                                        fullWidth
+                                        label={getScoreLabel(formData.diplomaDetails?.scoreType)}
+                                        value={formData.diplomaDetails?.scoreValue || ""}
+                                        onChange={(e) => setFormData({ ...formData, diplomaDetails: { ...formData.diplomaDetails, scoreValue: e.target.value } })}
+                                        required
+                                    />
+                                </Grid>
+                            </>
+                        )}
+                    </>
+                )}
+
+                {/* 12th Details - Except D2D */}
+                {!isD2D && (
+                    <>
+                        {renderSectionTitle("12th/HSC Details")}
+                        
+                        {/* Hide result status and gujarat question for PG and Doctoral as per requirements */}
+                        {!isPG && !isDoctoral && (
+                            <>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl component="fieldset">
+                                        <FormLabel component="legend">What is the status of your 12th/HSC result?</FormLabel>
+                                        <RadioGroup
+                                            row
+                                            value={formData.hscDetails.resultStatus}
+                                            onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, resultStatus: e.target.value } })}
+                                        >
+                                            <FormControlLabel value="Declared" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Declared" />
+                                            <FormControlLabel value="Awaited" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Awaited" />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl component="fieldset">
+                                        <FormLabel component="legend">Have you completed 10th and 12th from Gujarat State?</FormLabel>
+                                        <RadioGroup
+                                            row
+                                            value={formData.hscDetails.isFromGujarat}
+                                            onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, isFromGujarat: e.target.value } })}
+                                        >
+                                            <FormControlLabel value="Yes" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Yes" />
+                                            <FormControlLabel value="No" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="No" />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </Grid>
+                            </>
+                        )}
+
+                        <Grid item xs={12} md={4}>
                             <TextField
                                 select
                                 fullWidth
-                                label="Entrance Exam Field"
-                                value={formData.entranceExamName}
-                                onChange={(e) => setFormData({ ...formData, entranceExamName: e.target.value })}
+                                label="12th Stream"
+                                value={formData.hscDetails.stream}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, stream: e.target.value } })}
+                                required
                             >
-                                {["Undergraduate", "UG"].includes(formData.programLevel) && ['JEE', 'GUJCET', 'Other'].map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
-                                {["Postgraduate", "PG", "Post Graduate", "DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel) && ['CAT', 'CMAT', 'JG Entrance Test (JGET)', 'GRE', 'GMAT', 'NMAT', 'SNAP', 'XAT', 'MAT', 'Other'].map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
-                                {["Diploma", "Diploma to Degree"].includes(formData.programLevel) && ['DDCET', 'Other'].map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
+                                {[
+                                    "ARTS & HUMANITIES",
+                                    "COMMERCE",
+                                    "PHYSICS, CHEMISTRY & BIOLOGY",
+                                    "PHYSICS, CHEMISTRY & MATHEMATICS",
+                                    "VOCATIONAL",
+                                    "OTHERS"
+                                ].map(stream => (
+                                    <MenuItem key={stream} value={stream}>{stream}</MenuItem>
+                                ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="12th Medium"
+                                value={formData.hscDetails.medium}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, medium: e.target.value } })}
+                                required
+                            >
+                                {['Gujarati', 'English', 'Hindi', 'Other'].map(m => (
+                                    <MenuItem key={m} value={m}>{m}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
                             <TextField
                                 fullWidth
-                                label="Entrance Exam Score"
-                                value={formData.entranceExamScore}
-                                onChange={(e) => setFormData({ ...formData, entranceExamScore: e.target.value })}
-                                placeholder="Enter your score / rank"
+                                label="12th School/College Name"
+                                value={formData.hscDetails.schoolName}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, schoolName: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="12th Board"
+                                value={['GSEB', 'CBSE', 'ICSE', 'IB', 'Other'].includes(formData.hscDetails.board) ? formData.hscDetails.board : (formData.hscDetails.board ? 'Other' : '')}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFormData({
+                                        ...formData,
+                                        hscDetails: { ...formData.hscDetails, board: val === 'Other' ? ' ' : val }
+                                    });
+                                }}
+                                required
+                            >
+                                {["GSEB", "CBSE", "ICSE", "IB", "Other"].map(board => (
+                                    <MenuItem key={board} value={board}>{board}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        {(formData.hscDetails.board && !['GSEB', 'CBSE', 'ICSE', 'IB'].includes(formData.hscDetails.board)) && (
+                            <Grid item xs={12} md={4}>
+                                <TextField
+                                    fullWidth
+                                    label="Specify 12th Board"
+                                    value={formData.hscDetails.board || ""}
+                                    onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, board: e.target.value } })}
+                                    required
+                                />
+                            </Grid>
+                        )}
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="12th Year of Passing"
+                                value={formData.hscDetails.passingYear}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, passingYear: e.target.value } })}
+                                required
+                            >
+                                {years.map(y => (
+                                    <MenuItem key={y} value={y}>{y}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="12th Score Type"
+                                value={formData.hscDetails.scoreType}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, scoreType: e.target.value } })}
+                                required
+                            >
+                                {['Percentage', 'Grade', 'CGPA'].map(t => (
+                                    <MenuItem key={t} value={t}>{t}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label={getScoreLabel(formData.hscDetails.scoreType)}
+                                value={formData.hscDetails.scoreValue}
+                                onChange={(e) => setFormData({ ...formData, hscDetails: { ...formData.hscDetails, scoreValue: e.target.value } })}
+                                required
                             />
                         </Grid>
                     </>
                 )}
 
-
-            <Grid item xs={12}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <CloudUploadIcon sx={{ color: '#E31E24' }} />
-                    <Typography variant="h6">Upload Documents</Typography>
-                </Box>
-                <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-                    Upload your documents (JPG, PNG, WebP, PDF — max 5MB each). Documents will be auto-verified using OCR.
-                </Typography>
-                {!applicationId && (
-                    <Alert severity="warning" sx={{ mb: 2 }}>
-                        Please complete registration (Step 1) before uploading documents.
-                    </Alert>
-                )}
-            </Grid>
-            {[
-                { key: 'studentPhoto', label: 'STUDENT PHOTO', always: true },
-                { key: 'marksheet10', label: '10th MARKSHEET', always: true },
-                { key: 'marksheet12', label: '12th MARKSHEET', always: true },
-                { key: 'aadharFront', label: 'AADHAAR CARD (FRONT)', always: true },
-                { key: 'aadharBack', label: 'AADHAAR CARD (BACK)', always: true },
-                { key: 'leavingCertificate', label: 'LEAVING / TRANSFER CERTIFICATE', always: true },
-                { key: 'migrationCertificate', label: 'MIGRATION CERTIFICATE', always: true },
-                { key: 'casteCertificate', label: 'CASTE CERTIFICATE', always: true },
-                { key: 'gradSem1', label: 'GRADUATION SEM 1 MARKSHEET', pgOnly: true },
-                { key: 'gradSem2', label: 'GRADUATION SEM 2 MARKSHEET', pgOnly: true },
-                { key: 'gradSem3', label: 'GRADUATION SEM 3 MARKSHEET', pgOnly: true },
-                { key: 'gradSem4', label: 'GRADUATION SEM 4 MARKSHEET', pgOnly: true },
-                { key: 'gradSem5', label: 'GRADUATION SEM 5 MARKSHEET', pgOnly: true },
-                { key: 'entranceExamResult', label: 'ENTRANCE EXAM SCORECARD', examSection: true },
-                { key: 'ddcetCertificate', label: 'DDCET / OTHER CERTIFICATE', diplomaOnly: true }
-            ].filter(doc => {
-                if (doc.always) return true;
-                if (doc.pgOnly) return ["Postgraduate", "PG", "Post Graduate", "DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel);
-                if (doc.examSection) return (
-                    ["Undergraduate", "UG"].includes(formData.programLevel) ||
-                    ["Postgraduate", "PG", "Post Graduate", "DOCTORAL", "Ph.D", "Doctoral"].includes(formData.programLevel) ||
-                    ["Diploma", "Diploma to Degree"].includes(formData.programLevel)
-                );
-                if (doc.diplomaOnly) return ["Diploma", "Diploma to Degree"].includes(formData.programLevel);
-                return false;
-            }).map((doc) => renderDocumentUploadCard(doc.key, doc.label))}
-        </Grid>
-    );
-
-    const renderApplicationFeeStep = () => (
-        <Grid container spacing={3} justifyContent="center" alignItems="center">
-            <Grid item xs={12}>
-                <Typography variant="h6" align="center">Application Fee Payment</Typography>
-                <Alert severity="info" sx={{ mt: 2 }}>
-                    Your application fee is <strong>₹{applicationFee?.amount || 0}</strong>.
-                    Please select a payment gateway and click 'Pay Now' to proceed.
-                </Alert>
-            </Grid>
-            {applicationFee ? (
-                <>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Select Payment Gateway"
-                            value={selectedGatewayId}
-                            onChange={(e) => setSelectedGatewayId(e.target.value)}
-                            required
-                        >
-                            {gateways.map((g) => (
-                                <MenuItem key={g._id} value={g._id}>
-                                    {g.gatwayname}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="large"
-                            onClick={() => handleInitiatePayment("application")}
-                            disabled={paymentProcessing}
-                            startIcon={paymentProcessing ? <CircularProgress size={20} /> : <CheckCircleIcon />}
-                            sx={{ px: 5, py: 1.5, fontSize: '1.1rem' }}
-                        >
-                            {paymentProcessing ? "Processing..." : `Pay Now ₹${applicationFee.amount}`}
-                        </Button>
-                    </Grid>
-                </>
-            ) : (
-                <Grid item xs={12}>
-                    <Alert severity="error">Unable to fetch application fee for this program. Please contact support.</Alert>
-                </Grid>
-            )}
-        </Grid>
-    );
-
-    const generateOfferLetter = () => {
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const margin = 20;
-        let y = 20;
-
-        // Header with institution branding
-        doc.setFillColor(227, 30, 36);
-        doc.rect(0, 0, pageWidth, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('PROVISIONAL OFFER LETTER', pageWidth / 2, 18, { align: 'center' });
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Admission Office', pageWidth / 2, 28, { align: 'center' });
-        doc.text(`Academic Year: ${formData.academicYear || '2026-27'}`, pageWidth / 2, 35, { align: 'center' });
-
-        y = 55;
-
-        // Reference & Date
-        doc.setTextColor(100, 100, 100);
-        doc.setFontSize(9);
-        doc.text(`Ref No: ADM/${applicationId?.slice(-6)?.toUpperCase() || 'XXXXXX'}`, margin, y);
-        doc.text(`Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageWidth - margin, y, { align: 'right' });
-        y += 15;
-
-        // Body
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Dear ${formData.fullName || 'Applicant'},`, margin, y);
-        y += 10;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
-        const body1 = `Congratulations! We are pleased to inform you that your application for admission has been provisionally accepted. Based on your submitted credentials and the payment of the provisional admission fee, you have secured a seat in the following program:`;
-        const lines1 = doc.splitTextToSize(body1, pageWidth - 2 * margin);
-        doc.text(lines1, margin, y);
-        y += lines1.length * 6 + 10;
-
-        // Program Details Box
-        doc.setFillColor(245, 247, 250);
-        doc.roundedRect(margin, y, pageWidth - 2 * margin, 60, 3, 3, 'F');
-        doc.setDrawColor(200, 210, 220);
-        doc.roundedRect(margin, y, pageWidth - 2 * margin, 60, 3, 3, 'S');
-
-        const boxX = margin + 10;
-        let boxY = y + 12;
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.setFont('helvetica', 'normal');
-
-        const details = [
-            ['Student Name', formData.fullName || 'N/A'],
-            ['Program Applied', formData.program || 'N/A'],
-            ['Category / School', formData.school || formData.category || 'N/A'],
-            ['Provisional Fee Paid', `INR ${provisionalFee?.amount || 0}`],
-            ['Transaction ID', formData.provisionalFeeTxnId || 'N/A']
-        ];
-
-        details.forEach(([label, value]) => {
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(100);
-            doc.text(`${label}:`, boxX, boxY);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(30, 30, 30);
-            doc.text(value, boxX + 55, boxY);
-            boxY += 10;
-        });
-
-        y += 75;
-
-        // Terms
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(60, 60, 60);
-        const terms = [
-            '1. This offer is provisional and subject to verification of your original documents at the time of reporting.',
-            '2. Please report to the institute on the designated date with all original documents for physical verification.',
-            '3. The provisional fee paid is non-refundable and will be adjusted against your total tuition fee.',
-            '4. Failure to report within the stipulated time may result in cancellation of this offer.'
-        ];
-        terms.forEach(t => {
-            const tLines = doc.splitTextToSize(t, pageWidth - 2 * margin);
-            doc.text(tLines, margin, y);
-            y += tLines.length * 5 + 4;
-        });
-
-        y += 10;
-        doc.setFontSize(11);
-        doc.setTextColor(30, 30, 30);
-        doc.text('We look forward to welcoming you to our institution.', margin, y);
-        y += 20;
-        doc.text('Warm Regards,', margin, y);
-        y += 7;
-        doc.setFont('helvetica', 'bold');
-        doc.text('Admission Committee', margin, y);
-
-        // Footer
-        doc.setFillColor(227, 30, 36);
-        doc.rect(0, doc.internal.pageSize.getHeight() - 15, pageWidth, 15, 'F');
-        doc.setTextColor(255);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text('This is a system-generated document and does not require a physical signature.', pageWidth / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
-
-        doc.save(`Offer_Letter_${formData.fullName?.replace(/\s+/g, '_') || 'Student'}.pdf`);
-    };
-
-    const renderProvisionalFeeStep = () => {
-        // If fee is already paid, show success + download option
-        if (formData.provisionalFeeStatus === 'Paid') {
-            return (
-                <Grid container spacing={3} justifyContent="center" alignItems="center">
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                        <CheckCircleIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
-                        <Typography variant="h5" gutterBottom sx={{ fontWeight: 700 }}>Provisional Fee Paid Successfully!</Typography>
-                        <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
-                            Amount: <strong>₹{provisionalFee?.amount || 0}</strong> | Txn ID: <strong>{formData.provisionalFeeTxnId || 'N/A'}</strong>
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                            Program: <strong>{formData.program}</strong>
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            size="large"
-                            startIcon={<DownloadIcon />}
-                            onClick={generateOfferLetter}
-                            sx={{
-                                px: 5, py: 1.5, fontSize: '1.1rem',
-                                background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)',
-                                '&:hover': { boxShadow: '0 6px 20px rgba(0,0,0,0.2)' }
-                            }}
-                        >
-                            Download Offer Letter
-                        </Button>
-                    </Grid>
-                </Grid>
-            );
-        }
-
-        return (
-            <Grid container spacing={3} justifyContent="center" alignItems="center">
-                <Grid item xs={12}>
-                    <Typography variant="h6" align="center">Provisional Admission Fee Payment</Typography>
-                    <Alert severity="info" sx={{ mt: 2 }}>
-                        Your provisional admission fee is <strong>₹{provisionalFee?.amount || 0}</strong>.
-                        This fee is required to reserve your seat.
-                    </Alert>
-                </Grid>
-                {provisionalFee ? (
+                {/* Graduation Details - PG and Doctoral */}
+                {(isPG || isDoctoral) && (
                     <>
+                        {renderSectionTitle("Graduation Details")}
+                        
+                        {/* Hide result status for Doctoral */}
+                        {!isDoctoral && (
+                            <Grid item xs={12} md={12}>
+                                <FormControl component="fieldset">
+                                    <FormLabel component="legend">What is the status of your Under Graduate result?</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        value={formData.graduationDetails.resultStatus}
+                                        onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, resultStatus: e.target.value } })}
+                                    >
+                                        <FormControlLabel value="Declared" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Declared" />
+                                        <FormControlLabel value="Awaited" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Awaited" />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                        )}
+
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Graduation Programme"
+                                value={formData.graduationDetails.programme}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, programme: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Specialisation"
+                                value={formData.graduationDetails.specialisation}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, specialisation: e.target.value } })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="University Name"
+                                value={formData.graduationDetails.university}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, university: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="College Name"
+                                value={formData.graduationDetails.college}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, college: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Year of Passing"
+                                value={formData.graduationDetails.passingYear}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, passingYear: e.target.value } })}
+                                required
+                            >
+                                {years.map(y => (
+                                    <MenuItem key={y} value={y}>{y}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Score Type"
+                                value={formData.graduationDetails.scoreType}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, scoreType: e.target.value } })}
+                                required
+                            >
+                                {['Percentage', 'Grade', 'CGPA'].map(t => (
+                                    <MenuItem key={t} value={t}>{t}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label={getScoreLabel(formData.graduationDetails.scoreType)}
+                                value={formData.graduationDetails.scoreValue}
+                                onChange={(e) => setFormData({ ...formData, graduationDetails: { ...formData.graduationDetails, scoreValue: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+
+                        {isDoctoral && (
+                            <Grid item xs={12} md={8}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="After Graduation, have you completed any Professional Qualification?"
+                                    value={formData.professionalQualification || ""}
+                                    onChange={(e) => setFormData({ ...formData, professionalQualification: e.target.value })}
+                                >
+                                    {['CA', 'CS', 'ICWA', 'ACCA', 'None'].map(pq => (
+                                        <MenuItem key={pq} value={pq}>{pq}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                        )}
+                    </>
+                )}
+
+                {/* Post Graduation Details - Doctoral */}
+                {isDoctoral && (
+                    <>
+                        {renderSectionTitle("Post-Graduation Details")}
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="PG Programme"
+                                value={formData.postGraduationDetails.programme}
+                                onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, programme: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="PG Specialisation"
+                                value={formData.postGraduationDetails.specialisation}
+                                onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, specialisation: e.target.value } })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label="PG University"
+                                value={formData.postGraduationDetails.university}
+                                onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, university: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="PG Score Type"
+                                value={formData.postGraduationDetails.scoreType}
+                                onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, scoreType: e.target.value } })}
+                                required
+                            >
+                                {['Percentage', 'Grade', 'CGPA'].map(t => (
+                                    <MenuItem key={t} value={t}>{t}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                label={getScoreLabel(formData.postGraduationDetails.scoreType)}
+                                value={formData.postGraduationDetails.scoreValue}
+                                onChange={(e) => setFormData({ ...formData, postGraduationDetails: { ...formData.postGraduationDetails, scoreValue: e.target.value } })}
+                                required
+                            />
+                        </Grid>
+
+                        {/* M.Phil Details */}
+                        <Grid item xs={12} sx={{ mt: 2 }}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Have you been awarded an M.Phil. degree?</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={formData.mPhilAwarded || "No"}
+                                    onChange={(e) => setFormData({ ...formData, mPhilAwarded: e.target.value })}
+                                >
+                                    <FormControlLabel value="Yes" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Yes" />
+                                    <FormControlLabel value="No" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="No" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+
+                        {formData.mPhilAwarded === "Yes" && (
+                            <>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Subject / Area of Study"
+                                        value={formData.mPhilDetails?.subject || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, subject: e.target.value } })}
+                                        required
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Name of University"
+                                        value={formData.mPhilDetails?.university || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, university: e.target.value } })}
+                                        required
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Name of College"
+                                        value={formData.mPhilDetails?.college || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, college: e.target.value } })}
+                                        required
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Year of Commencement"
+                                        value={formData.mPhilDetails?.commencementYear || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, commencementYear: e.target.value } })}
+                                        required
+                                    >
+                                        {years.map(y => (
+                                            <MenuItem key={y} value={y}>{y}</MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Marking Scheme"
+                                        value={formData.mPhilDetails?.markingScheme || "Percentage"}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, markingScheme: e.target.value } })}
+                                        required
+                                    >
+                                        <MenuItem value="Percentage">Percentage</MenuItem>
+                                        <MenuItem value="Grade">Grade</MenuItem>
+                                        <MenuItem value="CGPA">CGPA</MenuItem>
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label={getScoreLabel(formData.mPhilDetails?.markingScheme)}
+                                        value={formData.mPhilDetails?.scoreValue || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, scoreValue: e.target.value } })}
+                                        required
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Year of Passing"
+                                        value={formData.mPhilDetails?.passingYear || ""}
+                                        onChange={(e) => setFormData({ ...formData, mPhilDetails: { ...formData.mPhilDetails, passingYear: e.target.value } })}
+                                        required
+                                    >
+                                        {years.map(y => (
+                                            <MenuItem key={y} value={y}>{y}</MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Grid>
+                            </>
+                        )}
+
+                        <Grid item xs={12}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Please Select the appropriate option for your Entrance Exam and M.Phill year of commencement"
+                                value={formData.entranceMPhilStatus || ""}
+                                onChange={(e) => setFormData({ ...formData, entranceMPhilStatus: e.target.value })}
+                                required
+                            >
+                                <MenuItem value="Entrance Exam Given & M.Phill After 2009">I have given the entrance exam and i have appeared for M.Phill after 2009</MenuItem>
+                                <MenuItem value="Entrance Exam Given & M.Phill Before 2009">I have given the entrance exam and i have appeared for M.Phill Before 2009</MenuItem>
+                                <MenuItem value="Entrance Exam Given But No M.Phill">I have given the entrance exam but i have not appeared for M.Phill</MenuItem>
+                                <MenuItem value="No Entrance Exam & No M.Phill">I have not given the entrance exam and i have not appeared for M.Phill</MenuItem>
+                                <MenuItem value="No Entrance Exam & No M.Phill After 2009">I have not given the entrance exam and i have not appeared for M.Phill after 2009</MenuItem>
+                                <MenuItem value="No Entrance Exam & No M.Phill Before 2009">I have not given the entrance exam and i have not appeared for M.Phill Before 2009</MenuItem>
+                            </TextField>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Have you Cleared NET/SLET/JRF ?</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={formData.clearedNetSletJrf || "No"}
+                                    onChange={(e) => setFormData({ ...formData, clearedNetSletJrf: e.target.value })}
+                                >
+                                    <FormControlLabel value="Yes" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="Yes" />
+                                    <FormControlLabel value="No" control={<Radio sx={{ color: '#E31E24', '&.Mui-checked': { color: '#E31E24' } }} />} label="No" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Total Teaching/Research/Industry Experience"
+                                placeholder="8 months / 2 years etc."
+                                value={formData.teachingExperience || ""}
+                                onChange={(e) => setFormData({ ...formData, teachingExperience: e.target.value })}
+                            />
+                        </Grid>
+                    </>
+                )}
+
+                {/* Entrance Test Section - Only for UG and D2D */}
+                {(isUG || isD2D) && (
+                    <>
+                        {renderSectionTitle("Entrance Test Details")}
                         <Grid item xs={12} md={6}>
                             <TextField
                                 select
                                 fullWidth
-                                label="Select Payment Gateway"
-                                value={selectedGatewayId}
-                                onChange={(e) => setSelectedGatewayId(e.target.value)}
-                                required
+                                label="Entrance Exam"
+                                value={formData.entranceExamDetails.examName}
+                                onChange={(e) => setFormData({ ...formData, entranceExamDetails: { ...formData.entranceExamDetails, examName: e.target.value } })}
                             >
-                                {gateways.map((g) => (
-                                    <MenuItem key={g._id} value={g._id}>
-                                        {g.gatwayname}
-                                    </MenuItem>
-                                ))}
+                                <MenuItem value="GUJCET">GUJCET</MenuItem>
+                                <MenuItem value="JEE">JEE</MenuItem>
+                                {isD2D && <MenuItem value="DDCET">DDCET</MenuItem>}
+                                <MenuItem value="Other">Other</MenuItem>
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                size="large"
-                                onClick={() => handleInitiatePayment("provisional")}
-                                disabled={paymentProcessing}
-                                startIcon={paymentProcessing ? <CircularProgress size={20} /> : <CheckCircleIcon />}
-                                sx={{ px: 5, py: 1.5, fontSize: '1.1rem' }}
-                            >
-                                {paymentProcessing ? "Processing..." : `Pay Now ₹${provisionalFee.amount}`}
-                            </Button>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Score/Rank"
+                                value={formData.entranceExamDetails.score}
+                                onChange={(e) => setFormData({ ...formData, entranceExamDetails: { ...formData.entranceExamDetails, score: e.target.value } })}
+                            />
                         </Grid>
                     </>
-                ) : (
-                    <Grid item xs={12}>
-                        <Alert severity="error">Unable to fetch provisional fee for this program. Please contact support.</Alert>
-                    </Grid>
                 )}
             </Grid>
         );
     };
 
+    const renderApplicationFeeStep = () => {
+        const fee = applicationFee;
+        return (
+            <Grid container spacing={3}>
+                {renderSectionTitle("Fee Details & Document Upload")}
+                
+                <Grid item xs={12}>
+                    <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'rgba(227, 30, 36, 0.02)', borderRadius: 2, border: '1px solid rgba(227, 30, 36, 0.1)', mb: 4 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#E31E24', mb: 2 }}>
+                            {fee ? `Application Fee: ₹${fee.amount}` : "Loading Fee Details..."}
+                        </Typography>
+                        
+                        <Alert severity="warning" sx={{ textAlign: 'left', mb: 3, border: '1px solid #ffcc00' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Important Note:</Typography>
+                            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                <li>Kindly pay the Application Fee to proceed with the application.</li>
+                                <li>The Application Fee is <strong>non-refundable</strong>.</li>
+                                <li>Ensure all documents are uploaded correctly before making the payment.</li>
+                            </ul>
+                        </Alert>
+
+                        {formData.applicationFeeStatus === 'Paid' ? (
+                            <Box sx={{ color: 'success.main', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, py: 2 }}>
+                                <CheckCircleIcon sx={{ fontSize: 40 }} />
+                                <Box sx={{ textAlign: 'left' }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 700 }}>Payment Successful</Typography>
+                                    <Typography variant="body2">Transaction ID: {formData.applicationFeeTxnId}</Typography>
+                                </Box>
+                            </Box>
+                        ) : (
+                            <Box sx={{ mt: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>Select Payment Gateway</Typography>
+                                <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+                                    {gateways.map((gw) => (
+                                        <Grid item key={gw._id} xs={12} sm={4}>
+                                            <Button
+                                                fullWidth
+                                                variant={selectedGatewayId === gw._id ? "contained" : "outlined"}
+                                                onClick={() => setSelectedGatewayId(gw._id)}
+                                                sx={{
+                                                    height: '60px',
+                                                    borderColor: '#E31E24',
+                                                    color: selectedGatewayId === gw._id ? 'white' : '#E31E24',
+                                                    bgcolor: selectedGatewayId === gw._id ? '#E31E24' : 'transparent',
+                                                    '&:hover': { bgcolor: selectedGatewayId === gw._id ? '#c41a1f' : 'rgba(227, 30, 36, 0.04)' }
+                                                }}
+                                            >
+                                                {gw.gatwayname}
+                                            </Button>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => handleInitiatePayment("application")}
+                                    disabled={!selectedGatewayId || paymentProcessing || !fee}
+                                    sx={{ px: 8, py: 1.5, fontSize: '1.1rem', bgcolor: '#E31E24', '&:hover': { bgcolor: '#c41a1f' } }}
+                                >
+                                    {paymentProcessing ? <CircularProgress size={24} color="inherit" /> : `Pay ₹${fee?.amount || '0'} Now`}
+                                </Button>
+                            </Box>
+                        )}
+                    </Box>
+                </Grid>
+
+                {/* Documents Upload Section Moved Here */}
+                <Grid item xs={12}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Document Upload</Typography>
+                    <Typography variant="caption" color="textSecondary" sx={{ mb: 3, display: 'block' }}>
+                        Maximum 5MB per file. (JPG, PNG, PDF)
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {renderDocumentUploadCard("studentPhoto", "STUDENT PHOTO")}
+                        {renderDocumentUploadCard("marksheet10", "10th MARKSHEET")}
+                        {!isD2D && renderDocumentUploadCard("marksheet12", "12th MARKSHEET")}
+                        {renderDocumentUploadCard("aadharFront", "AADHAAR CARD (FRONT)")}
+                        {renderDocumentUploadCard("aadharBack", "AADHAAR CARD (BACK)")}
+                        {renderDocumentUploadCard("leavingCertificate", "LEAVING / TRANSFER CERTIFICATE")}
+                        {renderDocumentUploadCard("casteCertificate", "CASTE CERTIFICATE")}
+                        
+                        {(isPG || isDoctoral) && (
+                            <>
+                                {renderDocumentUploadCard("gradSem1", "GRADUATION SEM 1 MARKSHEET")}
+                                {renderDocumentUploadCard("gradSem2", "GRADUATION SEM 2 MARKSHEET")}
+                                {renderDocumentUploadCard("gradSem3", "GRADUATION SEM 3 MARKSHEET")}
+                                {renderDocumentUploadCard("gradSem4", "GRADUATION SEM 4 MARKSHEET")}
+                                {renderDocumentUploadCard("gradSem5", "GRADUATION SEM 5 MARKSHEET")}
+                                {renderDocumentUploadCard("gradSem6", "GRADUATION SEM 6 MARKSHEET")}
+                                {renderDocumentUploadCard("gradDegreeCertificate", "GRADUATION DEGREE CERTIFICATE")}
+                            </>
+                        )}
+
+                        {isDoctoral && (
+                            <>
+                                {renderDocumentUploadCard("pgFinalSem", "POST GRADUATION FINAL SEM MARKSHEET")}
+                                {renderDocumentUploadCard("professionalQualCert", "PROFESSIONAL QUALIFICATION CERTIFICATE")}
+                                {renderDocumentUploadCard("netSletCert", "NET/SLET/JRF CERTIFICATE")}
+                            </>
+                        )}
+                        {renderDocumentUploadCard("migrationCertificate", "MIGRATION CERTIFICATE")}
+                    </Grid>
+                </Grid>
+            </Grid>
+        );
+    };
+
+    const renderProvisionalFeeStep = () => {
+        const fee = provisionalFee;
+        return (
+            <Grid container spacing={3}>
+                {renderSectionTitle("Provisional Fee Details")}
+                <Grid item xs={12}>
+                    <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'rgba(227, 30, 36, 0.02)', borderRadius: 2, border: '1px solid rgba(227, 30, 36, 0.1)' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#E31E24', mb: 2 }}>
+                            {fee ? `Provisional Fee: ₹${fee.amount}` : "Provisional Fee Not Found"}
+                        </Typography>
+
+                        <Alert severity="info" sx={{ textAlign: 'left', mb: 3 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Important Note:</Typography>
+                            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                <li>Payment of Provisional Fee is required to secure your seat.</li>
+                                <li>This amount will be adjusted against your first semester fees.</li>
+                                <li>Registration will be confirmed only after successful payment.</li>
+                            </ul>
+                        </Alert>
+
+                        {formData.provisionalFeeStatus === 'Paid' ? (
+                            <Box sx={{ color: 'success.main', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, py: 2 }}>
+                                <CheckCircleIcon sx={{ fontSize: 40 }} />
+                                <Box sx={{ textAlign: 'left' }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 700 }}>Payment Successful</Typography>
+                                    <Typography variant="body2">Transaction ID: {formData.provisionalFeeTxnId}</Typography>
+                                </Box>
+                            </Box>
+                        ) : (
+                            <Box sx={{ mt: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>Select Payment Gateway</Typography>
+                                <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+                                    {gateways.map((gw) => (
+                                        <Grid item key={gw._id} xs={12} sm={4}>
+                                            <Button
+                                                fullWidth
+                                                variant={selectedGatewayId === gw._id ? "contained" : "outlined"}
+                                                onClick={() => setSelectedGatewayId(gw._id)}
+                                                sx={{
+                                                    height: '60px',
+                                                    borderColor: '#E31E24',
+                                                    color: selectedGatewayId === gw._id ? 'white' : '#E31E24',
+                                                    bgcolor: selectedGatewayId === gw._id ? '#E31E24' : 'transparent',
+                                                    '&:hover': { bgcolor: selectedGatewayId === gw._id ? '#c41a1f' : 'rgba(227, 30, 36, 0.04)' }
+                                                }}
+                                            >
+                                                {gw.gatwayname}
+                                            </Button>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => handleInitiatePayment("provisional")}
+                                    disabled={!selectedGatewayId || paymentProcessing || !fee}
+                                    sx={{ px: 8, py: 1.5, fontSize: '1.1rem', bgcolor: '#E31E24', '&:hover': { bgcolor: '#c41a1f' } }}
+                                >
+                                    {paymentProcessing ? <CircularProgress size={24} color="inherit" /> : `Pay ₹${fee?.amount || '0'} Now`}
+                                </Button>
+                            </Box>
+                        )}
+                    </Box>
+                </Grid>
+            </Grid>
+        );
+    };
+
+    const renderStep6 = () => (
+        <Grid container spacing={3}>
+            {renderSectionTitle("Final Review")}
+            <Grid item xs={12}>
+                <Alert severity="success" sx={{ mb: 3 }}>
+                    Please review all your details carefully. Once submitted, you cannot edit the information.
+                </Alert>
+                <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom>Application Summary</Typography>
+                    <Divider sx={{ mb: 2 }} />
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="caption" color="textSecondary">Full Name</Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.fullName}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="caption" color="textSecondary">Program</Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600 }}>{formData.program}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="caption" color="textSecondary">Application Fee</Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: formData.applicationFeeStatus === 'Paid' ? 'success.main' : 'error.main' }}>
+                                {formData.applicationFeeStatus}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="caption" color="textSecondary">Provisional Fee</Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: formData.provisionalFeeStatus === 'Paid' ? 'success.main' : 'error.main' }}>
+                                {formData.provisionalFeeStatus}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Grid>
+        </Grid>
+    );
+
     const renderStep5 = () => (
         <Grid container spacing={3}>
+            {renderSectionTitle("Statement of Purpose (SOP)")}
             <Grid item xs={12}>
-                <Typography variant="h6">Statement of Purpose (SOP)</Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                    Please write a brief statement of purpose exploring your interest in the course and your future goals.
-                </Typography>
+                <Alert severity="info" sx={{ mb: 3 }}>
+                    Share your vision, research interests (if Doctoral), and why you choose to join our university. 
+                    Maximum 1000 words.
+                </Alert>
                 <TextField
                     fullWidth
                     multiline
-                    rows={10}
-                    placeholder="Writie your SOP here..."
-                    value={formData.sop}
+                    rows={12}
+                    label="Explain your Purpose"
+                    placeholder="Describe your academic and professional goals..."
+                    value={formData.sop || ""}
                     onChange={(e) => setFormData({ ...formData, sop: e.target.value })}
                 />
-            </Grid>
-            <Grid item xs={12}>
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">How did you hear about us?</FormLabel>
-                    <RadioGroup
-                        row
-                        value={formData.sourceOfInformation}
-                        onChange={(e) => setFormData({ ...formData, sourceOfInformation: e.target.value })}
-                    >
-                        <FormControlLabel value="Website" control={<Radio />} label="Website" />
-                        <FormControlLabel value="Social Media" control={<Radio />} label="Social Media" />
-                        <FormControlLabel value="Friend/Relative" control={<Radio />} label="Friend/Relative" />
-                        <FormControlLabel value="Advertisement" control={<Radio />} label="Advertisement" />
-                    </RadioGroup>
-                </FormControl>
             </Grid>
         </Grid>
     );
@@ -2363,19 +2754,9 @@ const AdmissionForm = () => {
             case 2: return renderStep2();
             case 3: return renderApplicationFeeStep();
             case 4: return renderProvisionalFeeStep();
-            default: return (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <CheckCircleIcon sx={{ fontSize: 100, color: 'success.main', mb: 3 }} />
-                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 800 }}>Application Submitted!</Typography>
-                    <Typography variant="h6" color="textSecondary" sx={{ mb: 4 }}>
-                        Thank you for applying. Your application has been successfully received and is under review.
-                    </Typography>
-                    <Paper elevation={0} sx={{ p: 3, bgcolor: 'rgba(0,0,0,0.03)', display: 'inline-block', borderRadius: 2 }}>
-                        <Typography variant="subtitle1">Application ID: <strong>{applicationId}</strong></Typography>
-                        <Typography variant="body2" color="textSecondary">Please save this for future reference.</Typography>
-                    </Paper>
-                </Box>
-            );
+            case 5: return renderStep5();
+            case 6: return renderStep6();
+            default: return null;
         }
     };
 
@@ -2428,10 +2809,21 @@ const AdmissionForm = () => {
                     </Box>
                 </Box>
 
+                {renderProfileBanner()}
+
                 <Stepper activeStep={activeStep} sx={{ mb: 4, display: { xs: 'none', md: 'flex' } }}>
-                    {steps.map((label) => (
-                        <Step key={label}>
-                            <StepLabel>{label}</StepLabel>
+                    {steps.map((label, index) => (
+                        <Step key={label} onClick={() => handleStepClick(index)} sx={{ cursor: 'pointer' }}>
+                            <StepLabel
+                                StepIconProps={{
+                                    sx: {
+                                        '&.Mui-active': { color: '#E31E24' },
+                                        '&.Mui-completed': { color: '#4caf50' }
+                                    }
+                                }}
+                            >
+                                {label}
+                            </StepLabel>
                         </Step>
                     ))}
                 </Stepper>

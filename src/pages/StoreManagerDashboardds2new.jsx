@@ -22,13 +22,13 @@ import { DataGrid } from '@mui/x-data-grid';
 import ep1 from '../api/ep1';
 import global1 from './global1';
 
-import PRTemplate2 from './PRTemplate2';
+import PRTemplate2 from './PRTEmplate2new';
 import GRNTemplate2 from './GRNTemplate2';
 import GatePassTemplate2 from './GatePassTemplate2';
 import { createRoot } from 'react-dom/client';
 import * as XLSX from 'xlsx';
 
-const StoreManagerDashboardds2 = () => {
+const StoreManagerDashboardds2new = () => {
     const [tabValue, setTabValue] = useState(0);
     const [requests, setRequests] = useState([]);
     const [inventory, setInventory] = useState([]);
@@ -108,7 +108,7 @@ const StoreManagerDashboardds2 = () => {
     const [masterItems, setMasterItems] = useState([]);
     const [masterFormOpen, setMasterFormOpen] = useState(false);
     const [masterCurrentItem, setMasterCurrentItem] = useState({});
-    const [masterContext, setMasterContext] = useState('item'); 
+    const [masterContext, setMasterContext] = useState('item');
     const [masterFormMode, setMasterFormMode] = useState('create');
     const [masterSearchQuery, setMasterSearchQuery] = useState('');
 
@@ -525,12 +525,12 @@ const StoreManagerDashboardds2 = () => {
             const mapRes = await ep1.get(`/api/v2/getallstoreuserds2?colid=${global1.colid}`);
             const mappings = mapRes.data.data.storeUsers || [];
             const userMappings = mappings.filter(m => m.user === global1.user || m.userid === global1.user);
-            
+
             if (userMappings.length > 0) {
                 // If there's a current selection, keep it, otherwise default to first
                 const currentId = selectedStoreForLocalPurchase?._id || userMappings[0].storeid;
                 fetchCashBalanceAndBudgets(currentId);
-                
+
                 // Track correct store object for selection
                 const storeMatch = userMappings.find(m => m.storeid === currentId);
                 if (storeMatch) {
@@ -723,11 +723,13 @@ const StoreManagerDashboardds2 = () => {
                 const allowedStoreIds = userMappings.map(m => m.storeid).filter(Boolean);
                 const allowedStoreNames = userMappings.map(m => m.store?.trim().toLowerCase()).filter(Boolean);
 
-                all = all.filter(r => {
+                const filteredByStore = all.filter(r => {
                     const matchId = r.storeid && allowedStoreIds.includes(r.storeid);
                     const matchName = r.storename && allowedStoreNames.includes(r.storename.trim().toLowerCase());
                     return matchId || matchName;
                 });
+
+                all = filteredByStore;
             }
 
             // Show EVERYTHING except 'Rejected' as requested for max visibility
@@ -758,15 +760,20 @@ const StoreManagerDashboardds2 = () => {
                 const allowedStoreNames = userMappings.map(m => m.store ? m.store.trim().toLowerCase() : "");
                 const allowedStoreIds = userMappings.map(m => m.storeid);
 
+                console.log("[FIXED-V2] Debug - Allowed Stores (Normalized):", allowedStoreNames);
+                console.log("[FIXED-V2] Debug - Total Items before filter:", items.length);
+
                 items = items.filter(i => {
                     const itemStoreName = i.storename?.trim().toLowerCase() || "";
                     return allowedStoreIds.includes(i.storeid) || (itemStoreName && allowedStoreNames.includes(itemStoreName));
                 });
+
+                console.log("[FIXED-V2] Debug - Items after filter:", items.length);
             }
             
             setInventory(items.map(i => ({ ...i, id: i._id })));
         } catch (error) {
-            console.error('Error fetching inventory:', error);
+            console.error('[FIXED-V2] Error fetching inventory:', error);
         }
     };
 
@@ -889,7 +896,7 @@ const StoreManagerDashboardds2 = () => {
         try {
             const invRes = await ep1.get(`/api/v2/getallstoreitemds2?colid=${global1.colid}`);
             const storeItems = invRes.data.data.storeItems || [];
-            
+
             console.log('DEBUG: Finding stock for request:', request);
             console.log('DEBUG: Total store items in database for this colid:', storeItems.length);
 
@@ -915,10 +922,10 @@ const StoreManagerDashboardds2 = () => {
                 } else if (rStoreName && siStoreName && rStoreName === siStoreName) {
                     storeMatch = true;
                 }
-                
+
                 return itemMatch && storeMatch;
             });
-            
+
             console.log('DEBUG: Resulting matchingItem:', matchingItem);
             setCurrentStock(matchingItem ? (matchingItem.quantity || 0) : 0);
         } catch (error) {
@@ -1359,7 +1366,7 @@ const StoreManagerDashboardds2 = () => {
                             disabled={params.row.reqstatus !== 'Purchase Requested'}
                             sx={{ display: params.row.reqstatus === 'Purchase Requested' ? 'inline-flex' : 'none' }}
                         >
-                            Print PR
+                            Print Indent
                         </Button>
                     </Box>
                 )
@@ -1391,14 +1398,6 @@ const StoreManagerDashboardds2 = () => {
                         sx={{ mr: 1 }}
                     >
                         Approve / Allot
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        color="secondary"
-                        onClick={() => handlePrintPR(params.row)}
-                    >
-                        Print PR
                     </Button>
                 </Box>
             )
@@ -1499,11 +1498,11 @@ const StoreManagerDashboardds2 = () => {
                                     field: 'updatedate',
                                     headerName: 'Last Updated',
                                     width: 160,
-                                    valueFormatter: (params) => { 
-                                        const val = params.value; 
+                                    valueFormatter: (params) => {
+                                        const val = params.value;
                                         if (!val) return 'N/A';
                                         const date = new Date(val);
-                                        return isNaN(date.getTime()) ? 'N/A' : date.toLocaleString('en-GB'); 
+                                        return isNaN(date.getTime()) ? 'N/A' : date.toLocaleString('en-GB');
                                     }
                                 },
                                 {
@@ -1545,7 +1544,7 @@ const StoreManagerDashboardds2 = () => {
             {/* Configuration Tab */}
             {tabValue === 5 && (
                 <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 3, border: '1px solid #ccc', borderRadius: 2 }}>
-                    <Typography variant="h6" gutterBottom>PR Print Configuration</Typography>
+                    <Typography variant="h6" gutterBottom>Indent Print Configuration</Typography>
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <TextField
@@ -1573,11 +1572,11 @@ const StoreManagerDashboardds2 = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="PR Short Code (e.g., PU)"
+                                label="Indent Short Code (e.g., CT)"
                                 fullWidth
                                 value={prConfigData.prshort}
                                 onChange={(e) => setPrConfigData({ ...prConfigData, prshort: e.target.value })}
-                                helperText="This code will be prefixed to generated PR Numbers. (Default: PU)"
+                                helperText="This code will be prefixed to generated Indent Numbers. (Default: CT)"
                             />
                         </Grid>
                         <Grid item xs={12} sx={{ textAlign: 'right' }}>
@@ -1593,7 +1592,7 @@ const StoreManagerDashboardds2 = () => {
                 tabValue === 2 && (
                     <Box p={3}>
                         {/* ... (Create PR Tab content) ... */}
-                        <Typography variant="h6" gutterBottom>Create New Purchase Requisition</Typography>
+                        <Typography variant="h6" gutterBottom>Create New Indent</Typography>
 
                         {/* Input Section */}
                         {/* ... existing input section ... */}
@@ -1684,15 +1683,15 @@ const StoreManagerDashboardds2 = () => {
                                 </Grid>
                             </Grid>
                         </Paper>
-                        
+
                         {/* Budget Info Display */}
                         {(selectedDeptId && createPrItem) && (
                             <Box sx={{ mb: 2 }}>
                                 {isBudgetLoading ? (
                                     <Typography variant="body2" color="textSecondary">Checking budget availability...</Typography>
                                 ) : (
-                                    <Paper sx={{ 
-                                        p: 1.5, 
+                                    <Paper sx={{
+                                        p: 1.5,
                                         bgcolor: availableBudgetInfo !== null && availableBudgetInfo !== 'N/A' && availableBudgetInfo !== 'Error' && availableBudgetInfo > 0 ? '#e3f2fd' : '#ffebee',
                                         border: '1px solid',
                                         borderColor: availableBudgetInfo !== null && availableBudgetInfo !== 'N/A' && availableBudgetInfo !== 'Error' && availableBudgetInfo > 0 ? '#2196f3' : '#f44336'
@@ -1751,7 +1750,7 @@ const StoreManagerDashboardds2 = () => {
                                 disabled={cart.length === 0}
                                 onClick={handleGeneratePR}
                             >
-                                Generate PR & Print
+                                Generate Indent & Print
                             </Button>
                         </Box>
                     </Box>
@@ -1761,14 +1760,14 @@ const StoreManagerDashboardds2 = () => {
             {
                 tabValue === 3 && (
                     <Box sx={{ height: 600, width: '100%', p: 3 }}>
-                        <Typography variant="h6" gutterBottom>PR History (Sent to Purchase Cell)</Typography>
+                        <Typography variant="h6" gutterBottom>Indent History (Sent to Purchase Cell)</Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                             <Button onClick={fetchHistory} variant="outlined" size="small">Refresh</Button>
                         </Box>
                         <DataGrid
                             rows={history}
                             columns={[
-                                { field: 'prnumber', headerName: 'PR Number', width: 200 },
+                                { field: 'prnumber', headerName: 'Indent Number', width: 200 },
                                 { field: 'reqdate', headerName: 'Date', width: 150, valueFormatter: (params) => new Date(params.value).toLocaleDateString('en-GB') },
                                 { field: 'itemname', headerName: 'Item', width: 200 },
                                 { field: 'quantity', headerName: 'Qty', width: 100 },
@@ -2535,4 +2534,4 @@ const StoreManagerDashboardds2 = () => {
     );
 };
 
-export default StoreManagerDashboardds2;
+export default StoreManagerDashboardds2new;

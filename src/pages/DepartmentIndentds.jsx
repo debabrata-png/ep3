@@ -67,12 +67,18 @@ const DepartmentIndentds = () => {
       setEditMode(true);
       setSelectedId(item._id);
       setFormData({
+        departmentname: item.departmentname || '',
+        institution: item.institution || '',
+        institutionshort: item.institutionshort || '',
+        hoiapprovername: item.hoiapprovername || '',
+        hoiapproveruserid: item.hoiapproveruserid || '',
+        ahoiapprovername: item.ahoiapprovername || '',
         ahoiapproveruserid: item.ahoiapproveruserid || '',
         remarks: item.remarks || '',
         creatorname: item.creatorname || '',
         creatoruserid: item.creatoruserid || '',
         colid: item.colid || '',
-        status: item.status || 'Pending'
+        status: item.status || 'Active'
       });
     } else {
       setEditMode(false);

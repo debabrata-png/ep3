@@ -7,17 +7,17 @@ import global1 from './global1';
 const PRApproverConfigds = () => {
     const [data, setData] = useState([]);
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState({ 
-        approvername: '', approveruserid: '', level: '' 
+    const [formData, setFormData] = useState({
+        approvername: '', approveruserid: '', level: ''
     });
 
     // Lists
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    useEffect(() => { 
-        fetchData(); 
-        fetchUsers(); 
+    useEffect(() => {
+        fetchData();
+        fetchUsers();
     }, []);
 
     const fetchData = async () => {
@@ -35,23 +35,23 @@ const PRApproverConfigds = () => {
     };
 
     const handleSave = async () => {
-        const payload = { 
-            ...formData, 
+        const payload = {
+            ...formData,
             colid: global1.colid,
             level: Number(formData.level)
         };
         try {
             const res = await ep1.post('/api/v2/addprapprover2', payload);
             if (res.data.success) {
-                setOpen(false); 
+                setOpen(false);
                 fetchData();
                 setFormData({ approvername: '', approveruserid: '', level: '' });
                 setSelectedUser(null);
             } else {
                 alert(res.data.message || "Error saving approver");
             }
-        } catch (e) { 
-            console.error(e); 
+        } catch (e) {
+            console.error(e);
             alert(e.response?.data?.message || "Error saving approver");
         }
     };
@@ -87,21 +87,21 @@ const PRApproverConfigds = () => {
         <Box p={3}>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 700 }}>PR Approval Workflow Configuration</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                Define sequential levels for Store Purchase Requisition (PR) approvals.
+                Define sequential levels for Store Indent approvals.
             </Typography>
-            
+
             <Button variant="contained" onClick={() => {
-                setOpen(true); 
+                setOpen(true);
                 setSelectedUser(null);
                 setFormData({ approvername: '', approveruserid: '', level: '' });
             }}>Add Approver Level</Button>
-            
+
             <Paper sx={{ height: 500, mt: 3 }} elevation={3}>
                 <DataGrid rows={data} columns={columns} disableSelectionOnClick />
             </Paper>
 
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ fontWeight: 700 }}>Add PR Approver Level</DialogTitle>
+                <DialogTitle sx={{ fontWeight: 700 }}>Add Indent Approver Level</DialogTitle>
                 <DialogContent dividers>
                     <Typography variant="subtitle2" gutterBottom color="primary">Approver Selection</Typography>
                     <Autocomplete
@@ -112,17 +112,17 @@ const PRApproverConfigds = () => {
                         renderInput={(params) => <TextField {...params} label="Search User" margin="normal" fullWidth />}
                         isOptionEqualToValue={(option, value) => option.email === value.email}
                     />
-                    
+
                     <Box mt={3}>
                         <Typography variant="subtitle2" gutterBottom color="primary">Workflow Configuration</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                <TextField 
-                                    label="Approval Level (e.g., 1 for Level 1, 2 for Level 2)" 
-                                    fullWidth margin="normal" 
-                                    value={formData.level} 
+                                <TextField
+                                    label="Approval Level (e.g., 1 for Level 1, 2 for Level 2)"
+                                    fullWidth margin="normal"
+                                    value={formData.level}
                                     type="number"
-                                    onChange={e => setFormData({ ...formData, level: e.target.value })} 
+                                    onChange={e => setFormData({ ...formData, level: e.target.value })}
                                 />
                             </Grid>
                         </Grid>

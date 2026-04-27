@@ -35,6 +35,11 @@ const LeadTransferds = () => {
     const [leads, setLeads] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedLeadIds, setSelectedLeadIds] = useState([]);
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: 10,
+        page: 0,
+    });
+    const [totalRows, setTotalRows] = useState(0);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
     // Bulk Action Dialog States
@@ -49,7 +54,7 @@ const LeadTransferds = () => {
         fetchMySubCounselors();
     }, []);
 
-    const fetchLeads = async () => {
+    const fetchLeads = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
         setLoading(true);
         try {
             // Fetch leads assigned to current counselor
@@ -57,11 +62,14 @@ const LeadTransferds = () => {
                 params: {
                     colid: global1.colid,
                     user: global1.user,
-                    assignedto: global1.user // Filter specifically for leads assigned to them
+                    assignedto: global1.user, // Filter specifically for leads assigned to them
+                    page: page + 1,
+                    pageSize: pageSize
                 },
             });
             if (res.data.success) {
                 setLeads(res.data.data);
+                setTotalRows(res.data.total || 0);
             }
         } catch (err) {
             console.error("Error fetching leads:", err);
@@ -96,7 +104,7 @@ const LeadTransferds = () => {
             });
             showSnackbar("Leads transferred to sub-counselor successfully", "success");
             setOpenAssignDialog(false);
-            fetchLeads(); // Refresh
+            fetchLeads(paginationModel.page, paginationModel.pageSize); // Refresh
             setSelectedLeadIds([]);
         } catch (err) {
             console.error("Error transferring leads:", err);
@@ -140,7 +148,10 @@ const LeadTransferds = () => {
                 </Box>
                 <Button
                     variant="outlined"
-                    onClick={fetchLeads}
+                    onClick={() => {
+                        setPaginationModel(prev => ({ ...prev, page: 0 }));
+                        fetchLeads(0, paginationModel.pageSize);
+                    }}
                     startIcon={<RefreshIcon />}
                 >
                     Refresh
@@ -168,6 +179,14 @@ const LeadTransferds = () => {
                     onRowSelectionModelChange={(newSelection) => setSelectedLeadIds(newSelection)}
                     slots={{ toolbar: GridToolbar }}
                     loading={loading}
+                    paginationMode="server"
+                    rowCount={totalRows}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={(newModel) => {
+                        setPaginationModel(newModel);
+                        fetchLeads(newModel.page, newModel.pageSize);
+                    }}
+                    pageSizeOptions={[5, 10, 25, 50, 100]}
                 />
             </Paper>
 

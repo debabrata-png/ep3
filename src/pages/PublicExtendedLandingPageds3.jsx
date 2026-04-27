@@ -269,7 +269,8 @@ const PublicExtendedLandingPageds3 = () => {
                 colid: decryptedData.colid,
                 user: decryptedData.user,
                 landing_page_id: landingPage._id,
-                assignedto: assignedCounselor || "",
+                landing_page_slug: landingPage.page_slug,
+                assignedto: decryptedData.user,
                 // Clean academic fields for backend
                 percentage10th: formData.scoreType10th === "Percentage" ? formData.percentage10th : `${formData.percentage10th} ${formData.scoreType10th}`,
                 percentage12th: formData.resultStatus12th === "Awaited" ? "Awaited" : (formData.scoreType12th === "Percentage" ? formData.percentage12th : `${formData.percentage12th} ${formData.scoreType12th}`),

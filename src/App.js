@@ -1408,6 +1408,7 @@ import Analyticsds from "./pages/Analyticsds";
 import Publiclandingpageds from "./pages/Publiclandingpageds";
 import CommunicationSettings from "./pages/CommunicationSettings";
 import Sourceds from "./pages/Sourceds";
+import CounselorQueueSystemds from "./pages/CounselorQueueSystemds";
 
 // Add these imports after other page imports (around line 400+)
 import ApiConfig from './pages/ApiConfig';
@@ -1613,6 +1614,7 @@ import Timetableview from "./pages/Timetableview";
 import FacultyCreateRequestds2new from './pages/FacultyCreateRequestds2new.jsx';
 import BudgetAuditLogPage from './pages/BudgetAuditLogPage';
 import PurchaseAuditLogPage from './pages/PurchaseAuditLogPage';
+import StoreManagerDashboardds2new from './pages/StoreManagerDashboardds2new.jsx';
 const UnifiedLandingPageds = React.lazy(() => import('./pages/UnifiedLandingPageds'));
 const PublicUnifiedLandingPageds = React.lazy(() => import('./pages/PublicUnifiedLandingPageds'));
 const CrmQueueSystemds = React.lazy(() => import('./pages/CrmQueueSystemds'));
@@ -1726,6 +1728,7 @@ function App() {
                                         <Route path="/role/purchasing-dashboard2" element={<RoleLayout><DashboardPurchaseds2 /></RoleLayout>} />
                                         <Route path="/role/oe-dashboard2" element={<RoleLayout><OEDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/store-manager-dashboard2" element={<RoleLayout><StoreManagerDashboardds2 /></RoleLayout>} />
+                                        <Route path="/role/storemanagerdashboardds2new" element={<RoleLayout><StoreManagerDashboardds2new /></RoleLayout>} />
                                         <Route path="/role/delivery-dashboard2" element={<RoleLayout><DeliveryDashboardds2 /></RoleLayout>} />
                                         <Route path="/role/gateway-security2" element={<RoleLayout><GatewaySecurityDashboard2 /></RoleLayout>} />
                                         <Route path="/role/financial-allocation2" element={<RoleLayout><FinancialAllocationDashboardds2 /></RoleLayout>} />
@@ -1739,8 +1742,8 @@ function App() {
                                         <Route path="/role/stock-reportds2" element={<RoleLayout><StockReportds /></RoleLayout>} />
                                         <Route path="/role/vendors-masterds2" element={<RoleLayout><VendorsMasterds2 /></RoleLayout>} />
                                         <Route path="/role/vendor-catalogds2" element={<RoleLayout><VendorCatalogds2 /></RoleLayout>} />
-                                         <Route path="/role/PRApproverConfigds" element={<RoleLayout><PRApproverConfigds /></RoleLayout>} />
-                                         <Route path="/role/PRApprovalds" element={<RoleLayout><PRApprovalds /></RoleLayout>} />
+                                        <Route path="/role/PRApproverConfigds" element={<RoleLayout><PRApproverConfigds /></RoleLayout>} />
+                                        <Route path="/role/PRApprovalds" element={<RoleLayout><PRApprovalds /></RoleLayout>} />
                                         <Route path="/role/faculty-request-approval2" element={<RoleLayout><FacultyRequestApprovalds2 /></RoleLayout>} />
                                         <Route path="/faculty-create-request2new" element={<RoleLayout><FacultyCreateRequestds2new /></RoleLayout>} />
 
@@ -3253,6 +3256,7 @@ function App() {
                                         <Route path="/categoryag1" element={<CategoryManagementag1 />} />
                                         <Route path="/unifiedlandingpageds" element={<UnifiedLandingPageds />} />
                                         <Route path="/crmqueuesystemds" element={<CrmQueueSystemds />} />
+                                        <Route path="/counselorqueuesystemds" element={<CounselorQueueSystemds />} />
                                         <Route path='/unifiedlandingpageds1' element={<UnifiedLandingPageds1 />} />
                                         <Route path="/unified-landing/:slug" element={<PublicUnifiedLandingPageds />} />
                                         <Route path="/unified-landing1/:slug" element={<PublicUnifiedLandingPageds1 />} />

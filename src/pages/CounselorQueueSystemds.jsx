@@ -12,17 +12,11 @@ import {
   Tooltip,
   Snackbar,
   Alert,
-  CircularProgress,
   TextField,
   MenuItem,
   Card,
   CardContent,
   Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Autocomplete,
 } from "@mui/material";
 import {
   Visibility as ViewIcon,
@@ -50,7 +44,7 @@ const CustomToolbar = ({ onExport }) => {
       <Button
         size="small"
         onClick={onExport}
-        startIcon={<RefreshIcon />} // Using standard icon for now or just generic
+        startIcon={<RefreshIcon />}
         sx={{ mr: 1 }}
       >
         Export All (Filtered)
@@ -60,7 +54,7 @@ const CustomToolbar = ({ onExport }) => {
   );
 };
 
-const CrmQueueSystemds = () => {
+const CounselorQueueSystemds = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0); // 0: Waiting, 1: Attended
   const [leads, setLeads] = useState([]);
@@ -80,12 +74,6 @@ const CrmQueueSystemds = () => {
   const [sources, setSources] = useState([]);
 
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-
-  const [openAssignDialog, setOpenAssignDialog] = useState(false);
-  const [selectedLeadId, setSelectedLeadId] = useState(null);
-  const [counselorOptions, setCounselorOptions] = useState([]);
-  const [counselorLoading, setCounselorLoading] = useState(false);
-  const [selectedCounselor, setSelectedCounselor] = useState(null);
 
   useEffect(() => {
     fetchMetadata();
@@ -110,11 +98,7 @@ const CrmQueueSystemds = () => {
   };
 
   const fetchLeads = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
-    if (!global1.colid) {
-      console.warn("CRM Queue: colid is missing in global1. Ensure you are logged in.");
-      // showSnackbar("Organization ID missing. Please log in again.", "warning");
-      // return;
-    }
+    if (!global1.colid) return;
 
     setLoading(true);
     try {
@@ -122,15 +106,15 @@ const CrmQueueSystemds = () => {
         colid: global1.colid,
         user: global1.user,
         role: global1.role,
-        ignoreUserFilter: true,
-        attendentstatus: tabValue === 0 ? "No" : "Yes",
+        assignedto: global1.user, // MUST be assigned to this counselor
+        counselor_attendentstatus: tabValue === 0 ? "No" : "Yes", // The new field
+        attendentstatus: "Yes", // CampusCounselor MUST have attended it
         landing_page_slug: "campus-enquiry-tuhw3c", // Hardcoded per requirements
         ...filters,
         page: page + 1,
         pageSize: pageSize,
       };
 
-      console.log("Fetching leads with params:", params);
       const res = await ep1.get("/api/v2/getallleadsds", { params });
       if (res.data.success) {
         setLeads(res.data.data);
@@ -143,48 +127,17 @@ const CrmQueueSystemds = () => {
     setLoading(false);
   };
 
-  const handleSearchCounselors = async (query) => {
-    if (!query) {
-      setCounselorOptions([]);
-      return;
-    }
-    setCounselorLoading(true);
-    try {
-      const res = await ep1.get("/api/v2/searchusersds", {
-        params: { colid: global1.colid, query },
-      });
-      if (res.data.success) {
-        setCounselorOptions(res.data.data);
-      }
-    } catch (err) {
-      console.error("Error searching counselors:", err);
-    }
-    setCounselorLoading(false);
-  };
-
-  const handleOpenAssignDialog = (id) => {
-    setSelectedLeadId(id);
-    setSelectedCounselor(null);
-    setOpenAssignDialog(true);
-  };
-
-  const handleMarkAttended = async () => {
-    if (!selectedCounselor) {
-      showSnackbar("Please select a counselor to assign to", "error");
-      return;
-    }
+  const handleMarkAttended = async (id) => {
+    if (!window.confirm("Mark this lead as attended?")) return;
 
     try {
       const payload = {
-        id: selectedLeadId,
-        attendername: global1.name,
-        attenderemail: global1.user,
-        assignedto: selectedCounselor.email,
+        id,
+        counselor_email: global1.user,
       };
-      const res = await ep1.post("/api/v2/markleadasattendedds", payload);
+      const res = await ep1.post("/api/v2/markcounselorattendedds", payload);
       if (res.data.success) {
-        showSnackbar("Lead marked as attended and assigned", "success");
-        setOpenAssignDialog(false);
+        showSnackbar("Lead marked as attended", "success");
         fetchLeads(); // Refresh list
       }
     } catch (err) {
@@ -196,16 +149,17 @@ const CrmQueueSystemds = () => {
   const handleExport = async () => {
     setLoading(true);
     try {
-      // Fetch a large number of rows for export, matching current filters
       const params = {
         colid: global1.colid,
         user: global1.user,
         role: global1.role,
-        attendentstatus: tabValue === 0 ? "No" : "Yes",
-        landing_page_slug: "campus-enquiry-tuhw3c", // Hardcoded per requirements
+        assignedto: global1.user,
+        counselor_attendentstatus: tabValue === 0 ? "No" : "Yes",
+        attendentstatus: "Yes",
+        landing_page_slug: "campus-enquiry-tuhw3c",
         ...filters,
         page: 1,
-        pageSize: 10000, // Fetch up to 10k rows for export
+        pageSize: 10000,
       };
 
       const res = await ep1.get("/api/v2/getallleadsds", { params });
@@ -222,14 +176,14 @@ const CrmQueueSystemds = () => {
           State: lead.state,
           Score: lead.lead_score,
           AssignedTo: lead.assignedto,
-          Attended: lead.attendentstatus || "No",
+          CounselorAttended: lead.counselor_attendentstatus || "No",
           CreatedAt: dayjs(lead.createdAt).format("DD MMM YYYY")
         }));
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Leads");
-        XLSX.writeFile(wb, `Leads_Queue_${tabValue === 0 ? "Waiting" : "Attended"}_${dayjs().format("YYYY-MM-DD")}.xlsx`);
+        XLSX.writeFile(wb, `Counselor_Queue_${tabValue === 0 ? "Waiting" : "Attended"}_${dayjs().format("YYYY-MM-DD")}.xlsx`);
         showSnackbar("Export successful", "success");
       } else {
         showSnackbar("No data to export", "info");
@@ -276,7 +230,6 @@ const CrmQueueSystemds = () => {
     { field: "city", headerName: "City", width: 120 },
     { field: "state", headerName: "State", width: 120 },
     { field: "source", headerName: "Source", width: 120 },
-    { field: "assignedto", headerName: "Assigned To", width: 180 },
     {
       field: "pipeline_stage",
       headerName: "Stage",
@@ -298,11 +251,11 @@ const CrmQueueSystemds = () => {
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           {tabValue === 0 && (
-            <Tooltip title="Mark Attended & Assign">
+            <Tooltip title="Mark Attended">
               <IconButton
                 size="small"
                 color="success"
-                onClick={() => handleOpenAssignDialog(params.row._id)}
+                onClick={() => handleMarkAttended(params.row._id)}
               >
                 <AttendIcon />
               </IconButton>
@@ -327,10 +280,10 @@ const CrmQueueSystemds = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700, color: "#0f172a" }}>
-            Lead Queue System
+            Counselor Lead Queue
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage lead arrivals and counselings in real-time
+            Manage your assigned leads and counselings
           </Typography>
         </Box>
         <Button
@@ -491,52 +444,8 @@ const CrmQueueSystemds = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-
-      <Dialog open={openAssignDialog} onClose={() => setOpenAssignDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign and Mark Attended</DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              Select a Counselor to assign this lead to before marking it as attended.
-            </Typography>
-            <Autocomplete
-              options={counselorOptions}
-              getOptionLabel={(option) => `${option.name} (${option.email})`}
-              loading={counselorLoading}
-              onInputChange={(event, newInputValue) => {
-                handleSearchCounselors(newInputValue);
-              }}
-              onChange={(event, newValue) => {
-                setSelectedCounselor(newValue);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Search Counselor"
-                  variant="outlined"
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <React.Fragment>
-                        {counselorLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                        {params.InputProps.endAdornment}
-                      </React.Fragment>
-                    ),
-                  }}
-                />
-              )}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAssignDialog(false)}>Cancel</Button>
-          <Button onClick={handleMarkAttended} variant="contained" color="primary">
-            Confirm Assignment
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };
 
-export default CrmQueueSystemds;
+export default CounselorQueueSystemds;

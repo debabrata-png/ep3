@@ -40,6 +40,11 @@ const BulkLeadActionsds = () => {
     const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'));
 
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: 10,
+        page: 0,
+    });
+    const [totalRows, setTotalRows] = useState(0);
 
     // Bulk Action Dialog States
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
@@ -68,7 +73,7 @@ const BulkLeadActionsds = () => {
         }
     };
 
-    const fetchLeads = async () => {
+    const fetchLeads = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
         if (!startDate || !endDate) {
             showSnackbar("Please select both start and end dates", "warning");
             return;
@@ -79,11 +84,14 @@ const BulkLeadActionsds = () => {
                 params: {
                     colid: global1.colid,
                     startDate,
-                    endDate
+                    endDate,
+                    page: page + 1,
+                    pageSize: pageSize
                 },
             });
             if (res.data.success) {
                 setLeads(res.data.data);
+                setTotalRows(res.data.total || 0);
             }
         } catch (err) {
             console.error("Error fetching leads:", err);
@@ -115,7 +123,7 @@ const BulkLeadActionsds = () => {
             });
             showSnackbar("Leads assigned successfully", "success");
             setOpenAssignDialog(false);
-            fetchLeads(); // Refresh
+            fetchLeads(paginationModel.page, paginationModel.pageSize); // Refresh
             setSelectedLeadIds([]);
         } catch (err) {
             console.error("Error assigning leads:", err);
@@ -132,7 +140,7 @@ const BulkLeadActionsds = () => {
             });
             showSnackbar("Stage updated successfully", "success");
             setOpenStageDialog(false);
-            fetchLeads(); // Refresh
+            fetchLeads(paginationModel.page, paginationModel.pageSize); // Refresh
             setSelectedLeadIds([]);
         } catch (err) {
             console.error("Error updating stage:", err);
@@ -200,7 +208,10 @@ const BulkLeadActionsds = () => {
                     <Grid item xs={12} md={2}>
                         <Button
                             variant="contained"
-                            onClick={fetchLeads}
+                            onClick={() => {
+                                setPaginationModel(prev => ({ ...prev, page: 0 }));
+                                fetchLeads(0, paginationModel.pageSize);
+                            }}
                             startIcon={<RefreshIcon />}
                             fullWidth
                             sx={{ height: '56px' }}
@@ -241,6 +252,15 @@ const BulkLeadActionsds = () => {
                     onRowSelectionModelChange={(newSelection) => setSelectedLeadIds(newSelection)}
                     slots={{ toolbar: GridToolbar }}
                     loading={loading}
+                    paginationMode="server"
+                    rowCount={totalRows}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={(newModel) => {
+                        setPaginationModel(newModel);
+                        fetchLeads(newModel.page, newModel.pageSize);
+                    }}
+                    rowSelectionModel={selectedLeadIds}
+                    pageSizeOptions={[5, 10, 25, 50, 100]}
                 />
             </Paper>
 

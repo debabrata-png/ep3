@@ -94,7 +94,7 @@ export function menuitemscrm() {
             {open && <ListItemText primaryTypographyProps={{ fontSize: "14px" }} primary="Leads" />}
           </ListItem>
 
-          <ListItem button component={RouterLink} to="/crm-queue-system">
+          <ListItem button component={RouterLink} to="/crmqueuesystemds">
             <ListItemIcon>
               <QueueIcon />
             </ListItemIcon>

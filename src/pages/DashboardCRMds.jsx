@@ -168,6 +168,12 @@ const Dashboardds = () => {
       route: "/crmqueuesystemds",
     },
     {
+      title: "Counselor Lead Queue",
+      description: "Manage assigned leads and counselings",
+      icon: <QueueIcon sx={{ fontSize: 48, color: "#00b0ff" }} />,
+      route: "/counselorqueuesystemds",
+    },
+    {
       title: "Extended Landing Page (V3)",
       description: "Manage landing pages with academic and guardian fields",
       icon: <LandingPageIcon sx={{ fontSize: 48, color: "#1e88e5" }} />,

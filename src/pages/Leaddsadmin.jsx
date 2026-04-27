@@ -81,6 +81,12 @@ const Leadsdsadmin = () => {
   const [openBulkDialog, setOpenBulkDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [showFilters, setShowFilters] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
+  const [totalRows, setTotalRows] = useState(0);
+
   const [filters, setFilters] = useState({
     pipeline_stage: "All",
     lead_temperature: "All",
@@ -266,7 +272,7 @@ const Leadsdsadmin = () => {
     }
   };
 
-  const fetchLeads = async () => {
+  const fetchLeads = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
       const params = {
@@ -274,15 +280,19 @@ const Leadsdsadmin = () => {
         user: global1.user,
         role: global1.role,
         ...filters,
+        page: page + 1,
+        pageSize: pageSize
       };
       const res = await ep1.get("/api/v2/getallleadsadmin", { params });
       setLeads(res.data.data);
+      setTotalRows(res.data.total || 0);
     } catch (err) {
       console.error("Error fetching leads:", err);
       showSnackbar("Failed to fetch leads", "error");
     }
     setLoading(false);
   };
+
 
   const fetchCategories = async () => {
     try {
@@ -490,7 +500,7 @@ const Leadsdsadmin = () => {
       });
       showSnackbar("Lead updated successfully", "success");
       setOpenEditDialog(false);
-      fetchLeads();
+      fetchLeads(paginationModel.page, paginationModel.pageSize);
     } catch (err) {
       console.error("Error updating lead:", err);
       showSnackbar("Failed to update lead", "error");
@@ -518,7 +528,7 @@ const Leadsdsadmin = () => {
       });
       showSnackbar("Notes saved successfully", "success");
       setOpenNotesDialog(false);
-      fetchLeads();
+      fetchLeads(paginationModel.page, paginationModel.pageSize);
     } catch (err) {
       console.error("Error saving notes:", err);
       showSnackbar("Failed to save notes", "error");
@@ -539,7 +549,7 @@ const Leadsdsadmin = () => {
           params: { user: global1.user },
         });
         showSnackbar("Lead deleted successfully", "success");
-        fetchLeads();
+        fetchLeads(paginationModel.page, paginationModel.pageSize);
       } catch (err) {
         console.error("Error deleting lead:", err);
         showSnackbar(
@@ -937,7 +947,10 @@ const Leadsdsadmin = () => {
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
-            onClick={fetchLeads}
+            onClick={() => {
+              setPaginationModel(prev => ({ ...prev, page: 0 }));
+              fetchLeads(0, paginationModel.pageSize);
+            }}
             sx={{
               borderRadius: 2,
               textTransform: "none",
@@ -1039,7 +1052,10 @@ const Leadsdsadmin = () => {
 
             <Button
               variant="contained"
-              onClick={fetchLeads}
+              onClick={() => {
+                setPaginationModel(prev => ({ ...prev, page: 0 }));
+                fetchLeads(0, paginationModel.pageSize);
+              }}
               sx={{
                 height: 40,
                 borderRadius: 2,
@@ -1061,11 +1077,14 @@ const Leadsdsadmin = () => {
           rows={leads}
           columns={columns}
           getRowId={(row) => row._id}
-          loading={loading}
-          pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 25 } },
+          paginationMode="server"
+          rowCount={totalRows}
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel) => {
+            setPaginationModel(newModel);
+            fetchLeads(newModel.page, newModel.pageSize);
           }}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
           disableVirtualization
           disableRowSelectionOnClick
           editMode="cell"

@@ -12,8 +12,8 @@ const PRApprovalds = () => {
     const [selectedPR, setSelectedPR] = useState(null);
     const [remarks, setRemarks] = useState('');
 
-    useEffect(() => { 
-        fetchPRsForApproval(); 
+    useEffect(() => {
+        fetchPRsForApproval();
     }, []);
 
     const fetchPRsForApproval = async () => {
@@ -26,10 +26,10 @@ const PRApprovalds = () => {
             }
             const res = await ep1.get(`/api/v2/getPRsForApproval2?colid=${global1.colid}&user_email=${userEmail}`);
             setPrs(res.data.data || []);
-        } catch (e) { 
-            console.error("Error fetching PRs for approval:", e); 
-        } finally { 
-            setLoading(false); 
+        } catch (e) {
+            console.error("Error fetching PRs for approval:", e);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -74,17 +74,17 @@ const PRApprovalds = () => {
         }
     };
 
-    if (loading) return <Box p={3}><Typography>Loading pending PRs...</Typography></Box>;
+    if (loading) return <Box p={3}><Typography>Loading pending Indents...</Typography></Box>;
 
     return (
         <Box p={3}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>PR Approval Dashboard</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 700 }}>Indent Approval Dashboard</Typography>
                 <Button variant="outlined" size="small" onClick={fetchPRsForApproval}>Refresh List</Button>
             </Box>
 
             {prs.length === 0 && (
-                <Alert severity="info" sx={{ mt: 2 }}>No Purchase Requisitions found pending your approval.</Alert>
+                <Alert severity="info" sx={{ mt: 2 }}>No Indent found pending your approval.</Alert>
             )}
 
             <Grid container spacing={3}>
@@ -118,18 +118,18 @@ const PRApprovalds = () => {
                                     </Grid>
                                     <Grid item xs={12} md={6}>
                                         <Box display="flex" justifyContent="flex-end" gap={2} mt={{ xs: 2, md: 0 }}>
-                                            <Button 
-                                                variant="contained" 
-                                                color="success" 
+                                            <Button
+                                                variant="contained"
+                                                color="success"
                                                 size="small"
                                                 onClick={() => handleApprove(pr._id)}
                                                 sx={{ px: 3 }}
                                             >
                                                 Approve
                                             </Button>
-                                            <Button 
-                                                variant="contained" 
-                                                color="error" 
+                                            <Button
+                                                variant="contained"
+                                                color="error"
                                                 size="small"
                                                 onClick={() => {
                                                     setSelectedPR(pr);
@@ -150,19 +150,19 @@ const PRApprovalds = () => {
 
             {/* Rejection Dialog */}
             <Dialog open={openReject} onClose={() => setOpenReject(false)} fullWidth maxWidth="xs">
-                <DialogTitle>Reject Requisition</DialogTitle>
+                <DialogTitle>Reject Indent</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        Please provide a reason for rejecting the request for {selectedPR?.itemname}.
+                        Please provide a reason for rejecting the Indent for {selectedPR?.itemname}.
                     </Typography>
-                    <TextField 
-                        label="Rejection Remarks" 
-                        fullWidth 
-                        margin="normal" 
-                        multiline 
-                        rows={3} 
-                        value={remarks} 
-                        onChange={e => setRemarks(e.target.value)} 
+                    <TextField
+                        label="Rejection Remarks"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                        rows={3}
+                        value={remarks}
+                        onChange={e => setRemarks(e.target.value)}
                         placeholder="Enter reason here..."
                     />
                 </DialogContent>
